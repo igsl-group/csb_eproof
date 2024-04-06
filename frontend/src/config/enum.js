@@ -1,0 +1,27 @@
+const TYPE = {
+  CREATE: 'Create',
+  EDIT: 'Edit',
+  VIEW: 'View',
+  FILTER: 'Filter',
+  TODO: 'To-do'
+}
+
+const DOCUMENT_ACTION = {
+  VIEW_FILE: 'VIEW_FILE',
+  DOWNLOAD: 'DOWNLOAD',
+  UPDATE: 'UPDATE',
+  UPDATE_FILE: 'UPDATE_FILE',
+  SUBMIT: 'SUBMIT',
+  REJECT: 'REJECT',
+  CONFIRM: 'CONFIRM',
+  SIGN: 'SIGN',
+  WITHDRAW: 'WITHDRAW',
+  DESPATCH: 'DESPATCH',
+  REVOKE: 'REVOKE',
+}
+
+export {
+  TYPE,
+  DOCUMENT_ACTION
+}
+
