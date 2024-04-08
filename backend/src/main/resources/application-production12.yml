@@ -1,0 +1,117 @@
+#Database config
+spring:
+  datasource:
+    url: jdbc:mariadb://10.103.56.122:3306/DB_PMS
+    username: pms_admin
+    password: P@ssw0rd
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MariaDBDialect
+  sql:
+    init:
+      mode: never
+      data-locations:
+        - classpath:data_local.sql
+  mail:
+    host: ceosmtpr.ceo.hksarg
+    port: 25
+    username: pms_smtp
+    password: sm9872ceo
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+    from: SOM@ceo.gov.hk
+    protocol: smtp
+  minio:
+    url: http://10.103.56.123:9000
+    accessKey: pms_admin
+    secretKey: P@ssw0rd
+    bucket: pms
+    checkBucket: false
+
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
+  endpoint:
+    health:
+      show-details: always
+
+messages:
+  basename:
+    path: messages/mailMessages
+
+email:
+  extend:
+    list: ;
+
+application:
+  jwt:
+    secretKey: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    tokenPrefix: "Bearer "
+    authorizationHeader: "Authorization"
+    expirationSeconds: 7200
+
+password:
+  tokenExpirationAfterDays: 1
+
+server:
+  url: http://10.103.56.117
+
+security:
+  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
+
+request:
+  log:
+    filter:
+      maxPayloadLength: 500
+      ignoredPaths:
+        - /api/*/auth/**
+        - /api/*/user/forgotPassword
+        - /api/*/user/resetPassword
+audit:
+  trail:
+    manager:
+      include: DBAuditTrailManager, Slf4jLoggingAuditTrailManager
+
+cronjob:
+  audit:
+    retention:
+      cronExpression: 0 0 0 * * *
+      days: 2556
+  meetingWorkspace:
+    retention:
+      cronExpression: 0 0 0 * * *
+      limit: 100
+    purge:
+      cronExpression: 0 0 0 * * *
+  user:
+    session:
+      cleanup:
+        cronExpression: 0 0 0 * * *
+    password:
+      expire:
+        reminder:
+          cronExpression: 0 0 0 * * *
+
+search:
+  meeting:
+    url: /SOM/Meeting/SOM?meetingId=
+
+login:
+  allowMultipleLogin: true
+  max:
+    attempts: 3
