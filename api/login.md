@@ -4,7 +4,7 @@
 // request
 type request = {
   uid: string,
-  dpUserId: string,
+  dpDeptId: string,
 }
 ```
 

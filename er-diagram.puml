@@ -89,7 +89,7 @@ entity "Eproof_Cert" as eproof_cert {
 }
 
 entity "Cert_Pdf" as cert_pdf {
-  id: number <<generated, PK>>
+  cert_info_id: number <<PK>>
   --
   filename: varchar(255)
 }
