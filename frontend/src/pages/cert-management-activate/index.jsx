@@ -23,7 +23,7 @@ import {useMessage} from "../../context/message-provider";
 import ResendEmailModal from "./modal";
 import RevokeEmailModal from "./modal";
 
-const CertificateManagementActivate = () =>  {
+const CertificateManagementValid = () =>  {
 
   const modalApi = useModal();
   const messageApi = useMessage();
@@ -50,8 +50,6 @@ const CertificateManagementActivate = () =>  {
       status: 'Success',
     }
   ]);
-
-
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -109,7 +107,7 @@ const CertificateManagementActivate = () =>  {
       title: 'Certificate Management',
     },
     {
-      title: 'Activate',
+      title: 'Valid',
     },
   ], []);
 
@@ -159,19 +157,19 @@ const CertificateManagementActivate = () =>  {
   },[]);
 
   const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 160,
-      render: (row) => (
-        <Space>
-          <Button size={'small'} title={'Download'} icon={<DownloadOutlined />} onClick={onClickDownload}/>
-          <Button size={'small'} title={'Revoke Cert.'} icon={<DeleteOutlined />} onClick={onClickRevoke}/>
-          <Button size={'small'} title={'Copy URL'} icon={<CopyOutlined />} onClick={() => messageApi.success('URL is copied')}/>
-          <Button size={'small'} title={'Resend Email'} icon={<SendOutlined />} onClick={() => setResendOpen(true)}/>
-        </Space>
-      )
-    },
+    // {
+    //   title: 'Action',
+    //   key: 'action',
+    //   width: 160,
+    //   render: (row) => (
+    //     <Space>
+    //       <Button size={'small'} title={'Download'} icon={<DownloadOutlined />} onClick={onClickDownload}/>
+    //       <Button size={'small'} title={'Revoke Cert.'} icon={<DeleteOutlined />} onClick={onClickRevoke}/>
+    //       <Button size={'small'} title={'Copy URL'} icon={<CopyOutlined />} onClick={() => messageApi.success('URL is copied')}/>
+    //       <Button size={'small'} title={'Resend Email'} icon={<SendOutlined />} onClick={() => setResendOpen(true)}/>
+    //     </Space>
+    //   )
+    // },
     {
       title: 'Serial No.',
       key: 'serialNo',
@@ -190,7 +188,7 @@ const CertificateManagementActivate = () =>  {
       title: 'HKID',
       key: 'hkid',
       width: 100,
-      render: (row) => <Link to={`/CertificateManagement/Activate/Candidate/${row.hkid}`}>{row.hkid}</Link>,
+      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate/${row.hkid}`}>{row.hkid}</Link>,
       sorter: true,
     },
     {
@@ -238,7 +236,7 @@ const CertificateManagementActivate = () =>  {
   ], []);
   return (
     <div className={styles['exam-profile']}>
-      <Typography.Title level={3}>Certificate Management - Activate</Typography.Title>
+      <Typography.Title level={3}>Certificate Management - Valid</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
 
@@ -293,17 +291,14 @@ const CertificateManagementActivate = () =>  {
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
-        <Col>
-          <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
-            Selected ({selectedRowKeys.length})</Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={onClickRevokeSelected} disabled={selectedRowKeys.length === 0}>Revoke
-            Selected ({selectedRowKeys.length})</Button>
-        </Col>
-      </Row>
-      <br/>
-      <Row gutter={[16, 16]} justify={'end'}>
+        {/*<Col>*/}
+        {/*  <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download*/}
+        {/*    Selected ({selectedRowKeys.length})</Button>*/}
+        {/*</Col>*/}
+        {/*<Col>*/}
+        {/*  <Button type="primary" onClick={onClickRevokeSelected} disabled={selectedRowKeys.length === 0}>Revoke*/}
+        {/*    Selected ({selectedRowKeys.length})</Button>*/}
+        {/*</Col>*/}
         <Col>
           <Pagination
             showSizeChanger
@@ -323,11 +318,11 @@ const CertificateManagementActivate = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          rowKey={'candidateNo'}
-          rowSelection={{
-            type: 'checkbox',
-            ...rowSelection,
-          }}
+          // rowKey={'candidateNo'}
+          // rowSelection={{
+          //   type: 'checkbox',
+          //   ...rowSelection,
+          // }}
           onChange={tableOnChange}
           pagination={false}
           scroll={{
@@ -362,9 +357,10 @@ const CertificateManagementActivate = () =>  {
         onCloseCallback={() => setRevokeOpen(false)}
         onFinishCallback={() => setRevokeOpen(false)}
       />
+
     </div>
 
   )
 }
 
-export default CertificateManagementActivate;
+export default CertificateManagementValid;

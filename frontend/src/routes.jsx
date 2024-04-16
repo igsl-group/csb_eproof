@@ -1,16 +1,22 @@
 import {useRoutes, Navigate, useNavigate} from 'react-router-dom';
 import ExampleProfileList from '@/pages/exam-profile-list';
 import ExampleProfile from '@/pages/exam-profile';
-import CertificateManagementActivate from '@/pages/cert-management-activate';
-import CertificateManagementDeactivate from '@/pages/cert-management-deactivate';
+import CertificateManagementValid from '@/pages/cert-management-activate';
+import CertificateManagementInvalid from '@/pages/cert-management-deactivate';
 import Candidate from '@/pages/cert-management-activate/candidate';
 import EmailTemplateList from '@/pages/email-template-list';
 import CertTemplateList from '@/pages/cert-template-list';
-import AppealWorkflow from '@/pages/appeal-workflow';
+import ApprovalWorkflow from '@/pages/approval';
 import ImportWorkflow from '@/pages/cert-issue-workflow/import';
 import GenerateWorkflow from '@/pages/cert-issue-workflow/generate';
 import SignAndIssueWorkflow from '@/pages/cert-issue-workflow/issue';
 import NotifyWorkflow from '@/pages/cert-issue-workflow/notify';
+
+import GenerateWorkflowRenew from '@/pages/cert-issue-workflow-renew/generate';
+import SignAndIssueWorkflowRenew from '@/pages/cert-issue-workflow-renew/issue';
+import NotifyWorkflowRenew from '@/pages/cert-issue-workflow-renew/notify';
+
+
 import RoleList from '@/pages/role-list';
 import UserList from '@/pages/user-list';
 import Profile from '@/pages/pc/profile';
@@ -68,10 +74,10 @@ const routeList = [
       {
         id: 20,
         pid: 0,
-        name: 'Appeal Workflow',
+        name: 'Waiting Revoke',
         icon: <AreaChartOutlined />,
-        path: '/AppealWorkflow',
-        element: <AppealWorkflow />,
+        path: '/WaitingRevoke',
+        element: <ApprovalWorkflow />,
         ignore: false,
         show: true,
         role: [],
@@ -86,18 +92,18 @@ const routeList = [
           {
             id: 4,
             pid: 3,
-            name: 'Activate',
-            path: '/CertificateManagement/Activate',
-            element: <CertificateManagementActivate />,
+            name: 'Valid',
+            path: '/CertificateManagement/Valid',
+            element: <CertificateManagementValid />,
             show: true,
             role: [],
           },
           {
             id: 5,
             pid: 3,
-            name: 'Deactivate',
-            path: '/CertificateManagement/Deactivate',
-            element: <CertificateManagementDeactivate />,
+            name: 'Invalid',
+            path: '/CertificateManagement/Invalid',
+            element: <CertificateManagementInvalid />,
             show: true,
             role: [],
           },
@@ -109,7 +115,7 @@ const routeList = [
       {
         id: 30,
         pid: 0,
-        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Cert. Issue Workflow</span>),
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Cert. Issue Workflow (Normal)</span>),
         path: '/Workflow',
         icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         children: [
@@ -154,12 +160,87 @@ const routeList = [
         show: true,
         role: [],
       },
+
+      {
+        id: 40,
+        pid: 0,
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Cert. Issue Workflow (Reissue)</span>),
+        path: '/WorkflowRenew',
+        icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        children: [
+          {
+            id: 42,
+            pid: 40,
+            name: 'Generate PDF',
+            path: '/WorkflowRenew/Generate',
+            element: <GenerateWorkflowRenew />,
+            show: true,
+            role: [],
+          },
+          {
+            id: 43,
+            pid: 40,
+            name: 'Sign and Issue Cert.',
+            path: '/WorkflowRenew/SignAndIssueCert',
+            element: <SignAndIssueWorkflowRenew />,
+            show: true,
+            role: [],
+          },
+          {
+            id: 44,
+            pid: 40,
+            name: 'Notify Candidate',
+            path: '/WorkflowRenew/Notify',
+            element: <NotifyWorkflowRenew />,
+            show: true,
+            role: [],
+          },
+        ],
+        ignore: false,
+        show: true,
+        role: [],
+      },
+
+      // {
+      //   id: 50,
+      //   pid: 0,
+      //   name: (<span style={{color: 'rgb(104, 111, 125)'}}>Cert. Issue Workflow (Reissue)</span>),
+      //   path: '/WorkflowRenew',
+      //   icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+      //   children: [
+      //     {
+      //       id: 52,
+      //       pid: 50,
+      //       name: 'Generate PDF',
+      //       path: '/WorkflowRenew/Generate',
+      //       element: <GenerateWorkflowRenew />,
+      //       show: true,
+      //       role: [],
+      //     },
+      //     {
+      //       id: 53,
+      //       pid: 50,
+      //       name: 'Sign and Issue Cert.',
+      //       path: '/WorkflowRenew/SignAndIssueCert',
+      //       element: <SignAndIssueWorkflowRenew />,
+      //       show: true,
+      //       role: [],
+      //     },
+      //   ],
+      //   ignore: false,
+      //   show: true,
+      //   role: [],
+      // },
+
+
+
+
       {
         id: 6,
         pid: 0,
         name: 'Certificate Management',
         icon: <ScheduleOutlined />,
-        path: '/CertificateManagement/Activate/Candidate/:hkid',
+        path: '/CertificateManagement/Valid/Candidate/:hkid',
         element: <Candidate />,
         ignore: true,
         show: true,

@@ -19,7 +19,7 @@ import Text from "@/components/Text";
 import Date from "@/components/Date";
 import HKID from "@/components/HKID";
 import Email from "@/components/Email";
-import Textarea from "@/components/Textarea";
+import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 
@@ -222,6 +222,23 @@ const Notify = () =>  {
       <Typography.Title level={3}>Notify Candidate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
+      <Row justify={'space-between'}>
+        <Col>
+          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
+        </Col>
+        <Col>
+          <Row gutter={[16, 16]} justify={'end'}>
+            <Col>
+              <Button type="primary" onClick={onClickDispatch}>Dispatch to Complete</Button>
+            </Col>
+            <Col>
+              <Button type="primary" onClick={() => {
+              }}>Email Release</Button>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <br/>
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
         <Form
@@ -239,9 +256,6 @@ const Notify = () =>  {
           <Row justify={'start'}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <Text name={"serialNo"} label={'Serial No.'} size={12}/>
-                </Col>
                 <Col span={24} md={12}>
                   <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
                 </Col>
@@ -273,23 +287,6 @@ const Notify = () =>  {
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={onClickDispatch}>Dispatch to Complete</Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
-            Selected ({selectedRowKeys.length})</Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={() => {
-          }}>Email Release</Button>
-        </Col>
-      </Row>
-      <br/>
-      <Row gutter={[16, 16]} justify={'end'}>
-        <Col>
           <Pagination
             showSizeChanger
             total={pagination.total}
@@ -304,7 +301,7 @@ const Notify = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Issue Cert.'}
+        title={'Notify Candidate'}
       >
         <ResizeableTable
           size={'big'}

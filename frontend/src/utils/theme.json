@@ -8,7 +8,7 @@
     "colorError": "#9f3a38",
     "colorErrorBg": "#f6e9e7",
     "colorBgBase": "#fbfbfb",
-    "borderRadius": 6,
+    "borderRadius": 2,
     "wireframe": false,
     "fontFamily": "Open Sans, Arial, sans-serif, Microsoft JhengHei, 微軟正黑體, 微軟雅黑體, 細明體_HKSCS"
   },
@@ -31,23 +31,38 @@
       "marginLG": 0
     },
     "Select": {
-      "colorTextDisabled": "rgba(81, 90, 110, 0.88)"
+      "colorTextDisabled": "rgba(81, 90, 110, 0.88)",
+      "controlOutline": "rgba(0, 0, 0, 0)",
+      "colorWarningOutline": "rgba(0, 0, 0, 0)",
+      "colorErrorOutline": "rgba(0, 0, 0, 0)"
     },
     "Input": {
       "colorTextDisabled": "rgba(81, 90, 110, 0.88)",
-      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)"
+      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)",
+      "activeShadow": "rgba(0, 0, 0, 0)",
+      "errorActiveShadow": "rgba(0, 0, 0, 0)",
+      "warningActiveShadow": "rgba(0, 0, 0, 0)"
     },
     "InputNumber": {
       "colorTextDisabled": "rgba(81, 90, 110, 0.88)",
-      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)"
+      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)",
+      "activeShadow": "rgba(0, 0, 0, 0)",
+      "errorActiveShadow": "rgba(0, 0, 0, 0)",
+      "warningActiveShadow": "rgba(0, 0, 0, 0)"
     },
     "DatePicker": {
       "colorTextDisabled": "rgba(81, 90, 110, 0.88)",
-      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)"
+      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)",
+      "activeShadow": "rgba(0, 0, 0, 0)",
+      "errorActiveShadow": "rgba(0, 0, 0, 0)",
+      "warningActiveShadow": "rgba(0, 0, 0, 0)"
     },
     "Checkbox": {
       "colorTextDisabled": "rgba(81, 90, 110, 0.88)",
-      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)"
+      "colorBgContainerDisabled": "rgb(244, 240, 238, 0.88)",
+      "activeShadow": "rgba(0, 0, 0, 0)",
+      "errorActiveShadow": "rgba(0, 0, 0, 0)",
+      "warningActiveShadow": "rgba(0, 0, 0, 0)"
     },
     "Table": {
       "fontSize": 12,
@@ -55,7 +70,10 @@
       "colorText": "rgb(56, 56, 56)"
     },
     "Button": {
-      "paddingInline": 30
+      "paddingInline": 30,
+      "defaultShadow": "rgba(0, 0, 0, 0)",
+      "dangerShadow": "rgba(0, 0, 0, 0)",
+      "primaryShadow": "rgba(0, 0, 0, 0)"
     },
     "Pagination": {
       "itemActiveBg": "#152B47",

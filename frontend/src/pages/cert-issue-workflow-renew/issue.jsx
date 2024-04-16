@@ -2,33 +2,32 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Form, Card, Typography, Breadcrumb, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {Divider, Button, Form, Card, Typography, Breadcrumb, Grid, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
-  SearchOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  CopyOutlined,
-  SendOutlined
+  ProfileOutlined,
+  SettingOutlined,
+  FileTextOutlined,
+  FolderOpenOutlined,
+  FileDoneOutlined,
+  ScheduleOutlined,
+  AreaChartOutlined,
+  DownloadOutlined, SearchOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
-import Textarea from "@/components/Textarea";
 import HKID from "@/components/HKID";
 import Email from "@/components/Email";
+import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
-import {useMessage} from "../../context/message-provider";
-import EmailModal from "./modal";
 
-const CertificateManagementInvalid = () =>  {
+const Issue = () =>  {
 
-  const modalApi = useModal();
-  const messageApi = useMessage();
   const navigate = useNavigate();
+  const modalApi = useModal();
   const [form] = Form.useForm();
-  const [open, setOpen] = useState(false);
   const {
     serialNo,
   } = useParams();
@@ -36,13 +35,102 @@ const CertificateManagementInvalid = () =>  {
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
   const [data, setData] = useState([
     {
-      revokeDate: '2024-01-01',
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
       hkid: 'T7700002',
       name: 'Chan Tai Man',
       email: 'taiman.chan@hotmail.com',
-      remark: 'DQ',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Pass',
+      blnst: 'Pass',
+      status: 'Success',
     }
   ]);
+
+  const columns = useMemo(() => [
+    {
+      title: 'Action',
+      key: 'action',
+      width: 200,
+      render: (row) => (
+          <Space>
+            <Button size={'small'} type={'primary'} onClick={() => {}}>Remove</Button>
+            <Button size={'small'} type={'primary'} onClick={() => {}}>Sign and Issue</Button>
+          </Space>
+      )
+    },
+    {
+      title: 'Serial No.',
+      key: 'serialNo',
+      dataIndex: 'serialNo',
+      width: 140,
+      sorter: true,
+    },
+    {
+      title: 'Candidate No.',
+      key: 'candidateNo',
+      dataIndex: 'candidateNo',
+      width: 140,
+      sorter: true,
+    },
+    {
+      title: 'HKID',
+      key: 'hkid',
+      dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Name',
+      key: 'name',
+      dataIndex: 'name',
+      width: 160,
+      sorter: true,
+    },
+    {
+      title: 'Email',
+      key: 'email',
+      dataIndex: 'email',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'UE',
+      key: 'ue',
+      dataIndex: 'ue',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'UC',
+      key: 'uc',
+      dataIndex: 'uc',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'AT',
+      key: 'at',
+      dataIndex: 'at',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'BLNST',
+      key: 'blnst',
+      dataIndex: 'blnst',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      dataIndex: 'status',
+      width: 100,
+      sorter: true,
+    },
+  ], []);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -59,20 +147,6 @@ const CertificateManagementInvalid = () =>  {
     sortBy: defaultPaginationInfo.sortBy,
     orderBy: defaultPaginationInfo.orderBy,
   });
-
-  const rowSelection = useCallback({
-    onChange: (selectedRowKeys, selectedRows) => {
-      setSelectedRowKeys(selectedRowKeys);
-    },
-  }, []);
-
-  const onClickDownloadSelected = useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to download selected PDF?',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -111,89 +185,60 @@ const CertificateManagementInvalid = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Certificate Management',
+      title: 'Cert. Issue Workflow (Renew)',
     },
     {
-      title: 'Invalid',
+      title: 'Sign and Issue Cert.',
     },
   ], []);
 
-  const onClickDownload = useCallback(() => {
+  const onClickDispatch = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to download PDF?',
+      title:'Are you sure to dispatch to "Notify Candidate" stage?',
       width: 500,
       okText: 'Confirm',
     });
   },[]);
 
-  const onClickRevoke= useCallback(() => {
+  const onClickDownloadAll = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to revoke PDF?',
+      title:'Are you sure to download all PDF?',
       width: 500,
       okText: 'Confirm',
     });
   },[]);
 
-  const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 120,
-      render: (row) => (
-        <Space>
-          <Button size={'small'} title={'Download'} icon={<DownloadOutlined />} onClick={onClickDownload}/>
-        </Space>
-      )
+  const onClickDownloadSelected = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to download selected PDF?',
+      width: 500,
+      okText: 'Confirm',
+    });
+  },[]);
+
+  const rowSelection = useCallback({
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(selectedRowKeys);
     },
-    {
-      title: 'Revoke Date',
-      key: 'revokeDate',
-      dataIndex: 'revokeDate',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'HKID',
-      key: 'hkid',
-      dataIndex: 'hkid',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Name',
-      key: 'name',
-      dataIndex: 'name',
-      width: 160,
-      sorter: true,
-    },
-    {
-      title: 'Email',
-      key: 'email',
-      dataIndex: 'email',
-      width: 180,
-      sorter: true,
-    },
-    {
-      title: 'Remark',
-      key: 'remark',
-      dataIndex: 'remark',
-      width: 200,
-      sorter: true,
-    },
-  ], []);
+  }, []);
+
   return (
     <div className={styles['exam-profile']}>
-      <Typography.Title level={3}>Certificate Management - Invalid</Typography.Title>
+      <Typography.Title level={3}>Sign and Issue Cert.</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-
+      <Row justify={'space-between'}>
+        <Col>
+          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
+        </Col>
+        <Col>
+          <Row gutter={[16, 16]} justify={'end'}>
+            <Col>
+              <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
       <br/>
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
@@ -212,14 +257,11 @@ const CertificateManagementInvalid = () =>  {
           <Row justify={'start'}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                {/*<Col span={24} md={12}>*/}
-                {/*  <Text name={"serialNo"} label={'Serial No.'} size={12}/>*/}
-                {/*</Col>*/}
-                {/*<Col span={24} md={12}>*/}
-                {/*  /!*<Text name={'candidateNo'} label={'Candidate No.'} size={12}/>*!/*/}
-                {/*</Col>*/}
                 <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
+                </Col>
+                <Col span={24} md={12}>
+                  <HKID name={'hkid'} label={'HKID'} />
                 </Col>
                 <Col span={24} md={12}>
                   <Text name={'passportNo'} label={'Passport No.'} size={12}/>
@@ -250,6 +292,9 @@ const CertificateManagementInvalid = () =>  {
             Selected ({selectedRowKeys.length})</Button>
         </Col>
         <Col>
+          <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>
+        </Col>
+        <Col>
           <Pagination
             showSizeChanger
             total={pagination.total}
@@ -264,7 +309,7 @@ const CertificateManagementInvalid = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Certificate Management'}
+        title={'Issue Cert.'}
       >
         <ResizeableTable
           size={'big'}
@@ -295,14 +340,9 @@ const CertificateManagementInvalid = () =>  {
         </Row>
         <br/>
       </Card>
-      <EmailModal
-        open={open}
-        onCloseCallback={() => setOpen(false)}
-        onFinishCallback={() => setOpen(false)}
-      />
     </div>
 
   )
 }
 
-export default CertificateManagementInvalid;
+export default Issue;

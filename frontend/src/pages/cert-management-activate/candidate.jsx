@@ -20,6 +20,9 @@ import Email from "@/components/Email";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
+import PersonalParticularsModal from "./personal-particulars-modal";
+import AppealModal from "./appeal-modal";
+import RevokeCertModal from "./revoke-modal";
 
 const Candidate = () =>  {
 
@@ -27,9 +30,13 @@ const Candidate = () =>  {
   const messageApi = useMessage();
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [open, setOpen] = useState(false);
+  const [revokeOpen, setRevokeOpen] = useState(false);
+  const [openAppealModal, setOpenAppealModal] = useState(false);
   const {
     hkid,
   } = useParams();
+  const [selectedRowKeys, setSelectedRowKeys] = useState('');
 
   const [data, setData] = useState([
     {
@@ -104,7 +111,7 @@ const Candidate = () =>  {
       title: 'Certificate Management',
     },
     {
-      title: 'Activate',
+      title: 'Valid',
     },
     {
       title: 'Candidate',
@@ -136,12 +143,11 @@ const Candidate = () =>  {
       key: 'action',
       width: 160,
       render: (row) => (
-        <Space>
-          <Button size={'small'} title={'Download'} icon={<DownloadOutlined />} onClick={onClickDownload}/>
-          <Button size={'small'} title={'Revoke Cert.'} icon={<DeleteOutlined />} onClick={onClickRevoke}/>
-          <Button size={'small'} title={'Copy URL'} icon={<CopyOutlined />} onClick={() => messageApi.success('URL is copied')}/>
-          <Button size={'small'} title={'Resend Email'} icon={<SendOutlined />} onClick={() => {}}/>
-        </Space>
+        <Row gutter={[8, 8]}>
+          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => setOpenAppealModal(true)}>Update Result</Button></Col>
+          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => messageApi.success('URL is copied')}>Copy URL</Button></Col>
+          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => {}}>Resend Email</Button></Col>
+        </Row>
       )
     },
     {
@@ -216,6 +222,12 @@ const Candidate = () =>  {
     },
   ], []);
 
+  const rowSelection = useCallback({
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  }, []);
+
   useEffect(() => {
     form.setFieldsValue({
       hkid: {
@@ -225,6 +237,40 @@ const Candidate = () =>  {
       name: 'Chan Tai Man'
     })
   }, []);
+
+  const onClickUpdatePersonalParticulars = useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const onClickDownloadAll = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to download all PDF?',
+      width: 500,
+      okText: 'Confirm',
+    });
+  },[]);
+
+  const onClickDownloadSelected = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to download selected PDF?',
+      width: 500,
+      okText: 'Confirm',
+    });
+  },[]);
+
+  const onClickRevokeSelected = useCallback(() => {
+    setRevokeOpen(true);
+  },[]);
+
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);
+    setOpenAppealModal(false);
+  },[]);
+
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+    setOpenAppealModal(false);
+  },[]);
 
   return (
     <div className={styles['exam-profile']}>
@@ -245,7 +291,7 @@ const Candidate = () =>  {
         name="form"
       >
         <Row justify={'start'}>
-          <Col span={20}>
+          <Col span={16}>
             <Row gutter={24} justify={'start'}>
               <Col span={24} md={12}>
                 <HKID name={'hkid'} label={'HKID'} disabled/>
@@ -258,9 +304,15 @@ const Candidate = () =>  {
               </Col>
               <Col span={24} md={12}>
                 <Space>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
-                  <Button type={'primary'}>Bulk Update</Button>
+                  <Text name={'email'} label={'Email'} size={12}/><Button type={'primary'}>Bulk Update Email</Button>
                 </Space>
+              </Col>
+            </Row>
+          </Col>
+          <Col span={8}>
+            <Row gutter={[8, 8]} justify={'end'}>
+              <Col>
+                <Button type={'primary'} onClick={onClickUpdatePersonalParticulars}>Update Personal Particulars</Button>
               </Col>
             </Row>
           </Col>
@@ -268,6 +320,14 @@ const Candidate = () =>  {
       </Form>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
+        <Col>
+          <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
+            Selected ({selectedRowKeys.length})</Button>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={onClickRevokeSelected} disabled={selectedRowKeys.length === 0}>Revoke
+            Selected ({selectedRowKeys.length})</Button>
+        </Col>
         <Col>
           <Pagination
             showSizeChanger
@@ -287,6 +347,11 @@ const Candidate = () =>  {
       >
         <ResizeableTable
           size={'big'}
+          rowKey={'candidateNo'}
+          rowSelection={{
+            type: 'checkbox',
+            ...rowSelection,
+          }}
           onChange={tableOnChange}
           pagination={false}
           scroll={{
@@ -309,6 +374,24 @@ const Candidate = () =>  {
         </Row>
         <br/>
       </Card>
+      <PersonalParticularsModal
+        open={open}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+        title={'Update Personal Particulars'}
+      />
+      <AppealModal
+        open={openAppealModal}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+        title={'Update Result'}
+      />
+      <RevokeCertModal
+          open={revokeOpen}
+          title={'Revoke Cert.'}
+          onCloseCallback={() => setRevokeOpen(false)}
+          onFinishCallback={() => setRevokeOpen(false)}
+      />
     </div>
 
   )

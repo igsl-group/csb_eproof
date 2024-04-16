@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Form, DatePicker, TimePicker } from "antd";
+import dayjs from "dayjs";
 
 const getStyle = (props) => {
   const style = {
@@ -22,12 +23,17 @@ function Date (props) {
   const defaultValue = props.defaultValue || '';
   const disabled = props.disabled || false;
   const hidden = props.hidden || false;
-  const placeholder = props.placeholder || 'YYYY-MM-DD';
+  const format = props.format || 'YYYY-MM-DD';
+  const placeholder = props.placeholder || format;
   const noStyle = props.noStyle || false;
   const style = props.style || {};
   const mode = props.mode || 'date';
   const showTime = props.showTime || false;
   const needConfirm = props.needConfirm || false;
+
+  const normalize = useCallback((value, prevValue, prevValues) => {
+    return value ? value.format(format) : '';
+  }, []);
 
   return (
     <Form.Item
@@ -39,6 +45,7 @@ function Date (props) {
         { required, message: 'Required'},
         ...validation
       ]}
+      normalize={normalize}
       hidden={hidden}
     >
       {

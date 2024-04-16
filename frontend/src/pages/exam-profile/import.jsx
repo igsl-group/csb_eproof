@@ -235,16 +235,16 @@ const Import = () =>  {
           </Row>
         </Form>
       </fieldset>
-      <br/>
-      <Row gutter={[16, 16]} justify={'end'}>
-        <Col>
-          <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to Generate Cert. (PDF)</Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={() => {
-          }}>Import Result (CSV)</Button>
-        </Col>
-      </Row>
+      {/*<br/>*/}
+      {/*<Row gutter={[16, 16]} justify={'end'}>*/}
+      {/*  <Col>*/}
+      {/*    <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to Generate Cert. (PDF)</Button>*/}
+      {/*  </Col>*/}
+      {/*  <Col>*/}
+      {/*    <Button type="primary" onClick={() => {*/}
+      {/*    }}>Import Result (CSV)</Button>*/}
+      {/*  </Col>*/}
+      {/*</Row>*/}
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
@@ -262,7 +262,7 @@ const Import = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Import Result'}
+        title={'Full Result'}
       >
         <ResizeableTable
           size={'big'}

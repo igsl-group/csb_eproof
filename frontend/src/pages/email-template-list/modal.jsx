@@ -5,6 +5,7 @@ import Date from "@/components/Date";
 import Dropdown from "@/components/Dropdown";
 import Textarea from "@/components/Textarea";
 import {validators} from "../../utils/validators";
+import Richtext from "../../components/Richtext";
 
 const EmailModal = (props) =>  {
 
@@ -13,20 +14,24 @@ const EmailModal = (props) =>  {
   const onFinish = useMemo(() => typeof props.onCloseCallback === "function" ? props.onFinishCallback : () => {}, [props.onFinishCallback ]);
   const onSave = useCallback(async () => {
     form.validateFields()
-      .then(() => onFinish())
-      .then(() => form.resetFields())
+      .then((value) => {
+        console.log(value)
+        // onFinish()
+      })
+      // .then(() => form.resetFields())
       .catch((e) => console.error(e))
   }, []);
 
   return (
     <Modal
       width={1000}
-      title={'Create Exam Profile'}
+      title={'Edit Email Template'}
       okText={'Save'}
       closable={false}
       onOk={onSave}
       onCancel={onClose}
       style={{ top: 20 }}
+      maskClosable={false}
       {...props}
     >
       <Form
@@ -46,7 +51,7 @@ const EmailModal = (props) =>  {
             <Dropdown
               name={"type"}
               label={'Type'}
-              required
+              // required
               size={100}
             />
           </Col>
@@ -60,18 +65,8 @@ const EmailModal = (props) =>  {
           </Col>
           <Col span={24}>
             <Dropdown
-              name={'cc'}
-              label={'Cc'}
-              size={100}
-              mode="tags"
-              tokenSeparators={[',']}
-              validation={[validators.emailValidator()]}
-            />
-          </Col>
-          <Col span={24}>
-            <Dropdown
-              name={'bcc'}
-              label={'Bcc'}
+              name={'to'}
+              label={'To'}
               size={100}
               mode="tags"
               tokenSeparators={[',']}
@@ -82,7 +77,7 @@ const EmailModal = (props) =>  {
             <Text name={'subject'} label={'Subject'} size={100} required/>
           </Col>
           <Col span={24}>
-            <Textarea name={'body'} label={'Body'} size={100} row={10} required/>
+            <Richtext name={'body'} label={'Body'} size={100} row={10} required/>
           </Col>
         </Row>
       </Form>

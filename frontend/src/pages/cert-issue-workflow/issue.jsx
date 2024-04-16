@@ -19,7 +19,7 @@ import Text from "@/components/Text";
 import Date from "@/components/Date";
 import HKID from "@/components/HKID";
 import Email from "@/components/Email";
-import Textarea from "@/components/Textarea";
+import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 
@@ -49,12 +49,12 @@ const Issue = () =>  {
   ]);
 
   const columns = useMemo(() => [
-    // {
-    //   title: 'Action',
-    //   key: 'action',
-    //   width: 80,
-    //   render: (row) => <Button size={'small'} icon={<DownloadOutlined />} onClick={() => {}}/>
-    // },
+    {
+      title: 'Action',
+      key: 'action',
+      width: 100,
+      render: (row) => <Button size={'small'} type={'primary'} onClick={() => {}}>On Hold</Button>
+    },
     {
       title: 'Serial No.',
       key: 'serialNo',
@@ -222,6 +222,19 @@ const Issue = () =>  {
       <Typography.Title level={3}>Sign and Issue Cert.</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
+      <Row justify={'space-between'}>
+        <Col>
+          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
+        </Col>
+        <Col>
+          <Row gutter={[16, 16]} justify={'end'}>
+            <Col>
+              <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <br/>
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
         <Form
@@ -239,9 +252,6 @@ const Issue = () =>  {
           <Row justify={'start'}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <Text name={"serialNo"} label={'Serial No.'} size={12}/>
-                </Col>
                 <Col span={24} md={12}>
                   <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
                 </Col>
@@ -273,22 +283,12 @@ const Issue = () =>  {
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
-        </Col>
-        <Col>
           <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
             Selected ({selectedRowKeys.length})</Button>
         </Col>
         <Col>
           <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>
         </Col>
-        {/*<Col>*/}
-        {/*  <Button type="primary" onClick={() => {*/}
-        {/*  }}>Issue Cert.</Button>*/}
-        {/*</Col>*/}
-      </Row>
-      <br/>
-      <Row gutter={[16, 16]} justify={'end'}>
         <Col>
           <Pagination
             showSizeChanger

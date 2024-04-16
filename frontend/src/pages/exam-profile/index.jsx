@@ -38,10 +38,12 @@ import Issue from "./issue";
 import Notify from "./notify";
 import dayjs from "dayjs";
 import ExceptionalCaseModal from "./exceptional-case-modal";
+import {useModal} from "../../context/modal-provider";
 
 const ExamProfile = () =>  {
 
   const navigate = useNavigate();
+  const modalApi = useModal();
   const [exceptionalCaseOpen, setExceptionalCaseOpen] = useState(false);
   const [freezeExamProfile, setFreezeExamProfile] = useState(false);
   const [form] = Form.useForm();
@@ -64,6 +66,110 @@ const ExamProfile = () =>  {
     sortBy: defaultPaginationInfo.sortBy,
     orderBy: defaultPaginationInfo.orderBy,
   });
+
+  const [data, setData] = useState([
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700002',
+      name: 'Chan Tai Man',
+      email: 'taiman.chan@hotmail.com',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Pass',
+      blnst: 'Pass',
+      status: 'Success',
+      stage: 'Import',
+    }
+  ]);
+
+  const columns = useMemo(() => [
+    {
+      title: 'Action',
+      key: 'action',
+      width: 140,
+      render: (row) => <Button size={'small'} type={'primary'} danger onClick={() => {}}>Resume Case</Button>
+    },
+    {
+      title: 'Current Stage',
+      key: 'stage',
+      dataIndex: 'stage',
+      width: 130,
+      sorter: true,
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      dataIndex: 'status',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Serial No.',
+      key: 'serialNo',
+      dataIndex: 'serialNo',
+      width: 140,
+      sorter: true,
+    },
+    {
+      title: 'Candidate No.',
+      key: 'candidateNo',
+      dataIndex: 'candidateNo',
+      width: 140,
+      sorter: true,
+    },
+    {
+      title: 'HKID',
+      key: 'hkid',
+      dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Name',
+      key: 'name',
+      dataIndex: 'name',
+      width: 160,
+      sorter: true,
+    },
+    {
+      title: 'Email',
+      key: 'email',
+      dataIndex: 'email',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'UE',
+      key: 'ue',
+      dataIndex: 'ue',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'UC',
+      key: 'uc',
+      dataIndex: 'uc',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'AT',
+      key: 'at',
+      dataIndex: 'at',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'BLNST',
+      key: 'blnst',
+      dataIndex: 'blnst',
+      width: 100,
+      sorter: true,
+    },
+
+  ], []);
+
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -132,6 +238,15 @@ const ExamProfile = () =>  {
     },
   ], []);
 
+  const onClickReset = useCallback(() => {
+    modalApi.confirm({
+      title:'If you confirm to reset Exam Profile, all imported results and generated PDF and Sign and Issues will be removed. Are you sure to reset Exam Profile? ',
+      width: 500,
+      okText: 'Confirm',
+    });
+  },[]);
+
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
@@ -171,12 +286,7 @@ const ExamProfile = () =>  {
           <Col span={8}>
             <Row gutter={[8, 8]} justify={'end'}>
               <Col>
-                <Button type={'primary'}>Reset Exam Profile</Button>
-              </Col>
-              <Col>
-                <Button type={'primary'} onClick={() => {
-                  setExceptionalCaseOpen(true)
-                }}>Exceptional Case</Button>
+                <Button type={'primary'} onClick={onClickReset}>Reset Exam Profile</Button>
               </Col>
               <Col>
                 <Button type={'primary'} danger={freezeExamProfile} onClick={() => {
@@ -188,46 +298,90 @@ const ExamProfile = () =>  {
         </Row>
       </Form>
       <br/>
-      <fieldset style={{paddingLeft: 30}}>
-        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
-        <Descriptions
-          size={'small'}
-          items={[
-            {
-              key: 1,
-              label: 'Imported',
-              children: 30000,
-            },
-            {
-              key: 2,
-              label: 'Generated PDF',
-              children: '0 out of 0 failed',
-            },
-            {
-              key: 3,
-              label: 'Issued Cert.',
-              children: '0 out of 0 failed',
-            },
-            {
-              key: 4,
-              label: 'Sent Email',
-              children: '0 out of 0 failed',
-            }
-          ]}
+      <Row gutter={[16, 16]} justify={'end'}>
+        <Col>
+          <Pagination
+            showSizeChanger
+            total={pagination.total}
+            pageSizeOptions={defaultPaginationInfo.sizeOptions}
+            onChange={paginationOnChange}
+            current={pagination.page}
+            pageSize={pagination.pageSize}
+          />
+        </Col>
+      </Row>
+      <br/>
+      <Card
+        bordered={false}
+        className={'card-body-nopadding'}
+        title={'On Hold Case'}
+      >
+        <ResizeableTable
+          size={'big'}
+          rowKey={'candidateNo'}
+          onChange={tableOnChange}
+          pagination={false}
+          scroll={{
+            x: '100%',
+          }}
+          columns={columns}
+          dataSource={data}
         />
-      </fieldset>
-      <br/>
-      <Tabs
-        onChange={() => {}}
-        items={tabItems}
-      />
-      <br/>
-      <ExceptionalCaseModal
-        open={exceptionalCaseOpen}
-        title={'Exceptional Case'}
-        onCloseCallback={() => setExceptionalCaseOpen(false)}
-        // onFinishCallback={() => setRevokeOpen(false)}
-      />
+        <br/>
+        <Row justify={'end'}>
+          <Col>
+            <Pagination
+              total={pagination.total}
+              pageSizeOptions={defaultPaginationInfo.sizeOptions}
+              onChange={paginationOnChange}
+              pageSize={defaultPaginationInfo.pageSize}
+              current={pagination.page}
+            />
+          </Col>
+        </Row>
+        <br/>
+      </Card>
+      {/*<fieldset style={{paddingLeft: 30}}>*/}
+      {/*  <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>*/}
+      {/*  <Descriptions*/}
+      {/*    size={'small'}*/}
+      {/*    items={[*/}
+      {/*      {*/}
+      {/*        key: 1,*/}
+      {/*        label: 'Imported',*/}
+      {/*        children: 30000,*/}
+      {/*      },*/}
+      {/*      {*/}
+      {/*        key: 2,*/}
+      {/*        label: 'Generated PDF',*/}
+      {/*        children: '0 out of 0 failed',*/}
+      {/*      },*/}
+      {/*      {*/}
+      {/*        key: 3,*/}
+      {/*        label: 'Issued Cert.',*/}
+      {/*        children: '0 out of 0 failed',*/}
+      {/*      },*/}
+      {/*      {*/}
+      {/*        key: 4,*/}
+      {/*        label: 'Sent Email',*/}
+      {/*        children: '0 out of 0 failed',*/}
+      {/*      }*/}
+      {/*    ]}*/}
+      {/*  />*/}
+      {/*</fieldset>*/}
+      {/*<br/>*/}
+      {/*<Import />*/}
+      {/*<Tabs*/}
+      {/*  onChange={() => {}}*/}
+      {/*  items={tabItems}*/}
+      {/*/>*/}
+      {/*<br/>*/}
+      {/*<ExceptionalCaseModal*/}
+      {/*  open={exceptionalCaseOpen}*/}
+      {/*  title={'Exceptional Case'}*/}
+      {/*  onCloseCallback={() => setExceptionalCaseOpen(false)}*/}
+      {/*  // onFinishCallback={() => setRevokeOpen(false)}*/}
+      {/*/>*/}
     </div>
 
   )

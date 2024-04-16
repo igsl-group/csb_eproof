@@ -208,8 +208,8 @@ function Layouts () {
     }
     if (/\/ExamProfile\/((.)*)/.test(pathname)) {
       setCurrKey('/ExamProfile');
-    } else if (/\/CertificateManagement\/Activate\/Candidate\/((.)*)/.test(pathname)) {
-      setCurrKey('/CertificateManagement/Activate');
+    } else if (/\/CertificateManagement\/Valid\/Candidate\/((.)*)/.test(pathname)) {
+      setCurrKey('/CertificateManagement/Valid');
     }
   }, [pathname])
   //Shrink Menu

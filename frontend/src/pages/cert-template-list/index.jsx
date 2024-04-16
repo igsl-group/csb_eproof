@@ -10,7 +10,8 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   CopyOutlined,
-  SendOutlined, EditOutlined
+  SendOutlined,
+  EditOutlined
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";

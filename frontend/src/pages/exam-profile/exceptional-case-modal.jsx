@@ -102,7 +102,7 @@ const ExceptionalCaseModal = (props) =>  {
       title: 'Certificate Management',
     },
     {
-      title: 'Deactivate',
+      title: 'Invalid',
     },
   ], []);
 
