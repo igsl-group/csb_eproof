@@ -94,8 +94,7 @@ type request = {
 type response = {
   success: true,
   message: 'Success',
-  code: 200,
-  result: {}
+  code: 200
 }
 
 // response 400
