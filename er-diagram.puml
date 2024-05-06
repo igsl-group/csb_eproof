@@ -120,7 +120,7 @@ entity "Cert_Info" as cert_info {
   modified_date: datetime
 }
 
-entity "Cert_Info_Approve" as cert_info_approve {
+entity "Cert_Info_Renew" as cert_info_approve {
   cert_info_id: number <<generated, PK>>
   --
   type: Appeal | Info_Update
@@ -156,6 +156,55 @@ entity "Candidate_Exam_Result_Before_2024" as candidate_exam_result_before_2024 
   ue_grade: varchar(255)
   uc_grade: varchar(255)
   at_grade: varchar(255)
+  remark: varchar(1000)
+  valid: bit 0 = False, 1 = true
+  created_by: varchar(255)
+  modified_by: varchar(255)
+  created_date: datetime
+  modified_date: datetime
+}
+
+entity "Email_Message" as email_message {
+  id: number <<generated, PK>>
+  --
+  to: varchar(255)
+  cc: varchar(255)
+  subject: varchar(1000)
+  body: text
+  created_by: varchar(255)
+  modified_by: varchar(255)
+  created_date: datetime
+  modified_date: datetime
+}
+entity "Email_Event" as email_event {
+  id: number <<generated, PK>>
+  --
+  email_message_id: number <<FK>>
+  status: Success | Fail | Pending
+  schedule_datetime: datetime
+  created_by: varchar(255)
+  modified_by: varchar(255)
+  created_date: datetime
+  modified_date: datetime
+}
+
+entity "Audit_Log" as audit_log {
+  id: number <<generated, PK>>
+  --
+  created_by: varchar(255)
+  ip_address: varchar(255)
+  computer_information: varchar(255)
+  log_details: varchar(1000)
+  log_action: varchar(255)
+  request_body: varchar(Max)
+}
+
+entity "System_parameter" as system_parameter {
+  id: number <<generated, PK>>
+  --
+  name: varchar(255)
+  value: varchar(255)
+  description: varchar(255)
   created_by: varchar(255)
   modified_by: varchar(255)
   created_date: datetime
@@ -170,4 +219,5 @@ email_template ||--o| workflow_notify_email_template
 cert_info ||--o{ cert_info_approve
 cert_info ||--o| cert_pdf
 cert_info ||--o| eproof_cert
+email_message ||--|| email_event
 @enduml

@@ -1,0 +1,90 @@
+@startuml
+
+entity "User" as user {
+
+}
+
+entity "Role" as role {
+
+}
+
+entity "Permission" as permission {
+
+}
+
+entity "User_Has_Role" as user_has_role {
+
+}
+
+entity "Role_Has_Permission" as role_has_permission {
+
+}
+
+entity "Exam_Profile" as exam_profile {
+
+}
+
+entity "Email_Template" as email_template {
+
+}
+
+
+entity "Eproof_Cert" as eproof_cert {
+
+}
+
+entity "Cert_Pdf" as cert_pdf {
+
+}
+
+entity "Cert_Info" as cert_info {
+
+}
+
+entity "Cert_Info_Renew" as cert_info_approve {
+
+}
+
+entity "Combined_Historical_Result_Before_2024" as candidate_exam_result_before_2024 {
+
+}
+
+entity "Email_Message" as email_message {
+
+}
+entity "Email_Event" as email_event {
+
+}
+
+entity "Audit_Log" as audit_log {
+
+}
+
+entity "System_parameter" as system_parameter {
+
+}
+
+entity "User_Session" as user_session {
+
+}
+
+entity "Revoke_Cert_Request" as revoke_cert_request {
+
+}
+
+entity "Revoke_Cert" as revoke_cert {
+
+}
+
+user ||--o{ user_has_role
+user ||--o{ user_session
+user_has_role }o--|| role
+role ||--o{ role_has_permission
+role_has_permission }o--|| permission
+exam_profile |o--o{ cert_info
+cert_info ||--o{ cert_info_approve
+cert_info ||--o| cert_pdf
+cert_info ||--o| eproof_cert
+email_message ||--|| email_event
+revoke_cert_request ||--o{ revoke_cert
+@enduml
