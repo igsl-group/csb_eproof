@@ -45,9 +45,10 @@ entity "Role_Has_Permission" as role_has_permission {
 }
 
 entity "Exam_Profile" as exam_profile {
-  id: number <<generated, PK>>
+  id: varchar <<generated, PK>>
   --
-  serial_no: varchar(255) <<generated EP000001..2..>>
+  exam_date: datetime
+  expected_announce_date: datetime
   location: varchar(255)
   status: Freeze | Unfreeze
   created_by: varchar(255)
@@ -97,6 +98,7 @@ entity "Cert_Pdf" as cert_pdf {
 entity "Cert_Info" as cert_info {
   id: number <<generated, PK>>
   --
+  exam_profile_id: : varchar <<FK>>
   exam_date: date
   can_serial: varchar(255)
   name: varchar(255)
@@ -134,7 +136,8 @@ entity "Cert_Info_Approve" as cert_info_approve {
   uc_grade: varchar(255)
   at_grade: varchar(255)
   remark: text
-  pending_approve_by: varchar(255)
+  cert_stage: Imported | Generated\n| Sign_Issue | Notify | Completed
+  status: Pending | Success | Fail
   done: boolean
   created_by: varchar(255)
   modified_by: varchar(255)
@@ -163,6 +166,8 @@ entity "Candidate_Exam_Result_Before_2024" as candidate_exam_result_before_2024 
 }
 
 user ||--o{ user_has_role
+exam_profile |o--o{ cert_info
+
 user_has_role }o--|| role
 role ||--o{ role_has_permission
 role_has_permission }o--|| permission
