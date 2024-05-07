@@ -2,27 +2,35 @@ package com.hkgov.csb.eproof.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "exam_profile")
-@Data
-public class ExamProfile {
+@Getter
+@Setter
+
+public class ExamProfile extends BaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "serial_no")
+    private String serialNo;
 
-    @Column(name = "client_ip_address")
-    private String clientIpAddress;
+    @Column(name = "exam_date")
+    private LocalDate examDate;
 
-    @Column(name = "user_name")
-    private String userName;
+    @Column(name = "announce_date")
+    private LocalDate announceDate;
 
-    @Column(name = "action")
-    private String action;
+    @Column(name = "location")
+    private String location;
 
-    @Column(name = "resource")
-    private String resource;
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "is_freezed")
+    private Boolean isFreezed;
 
 }
