@@ -3,9 +3,9 @@
     <timestamp key="TIMESTAMP" datePattern="yyyyMMdd"/>
 
     <conversionRule conversionWord="session"
-                    converterClass="com.hkgov.ceo.pms.loggin.converter.SessionConverter"/>
+                    converterClass="com.hkgov.csb.eproof.loggin.converter.SessionConverter"/>
     <conversionRule conversionWord="userId"
-                    converterClass="com.hkgov.ceo.pms.loggin.converter.UserIdConverter"/>
+                    converterClass="com.hkgov.csb.eproof.loggin.converter.UserIdConverter"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

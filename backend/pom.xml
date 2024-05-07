@@ -8,11 +8,11 @@
         <version>3.0.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.hkgov.ceo</groupId>
-    <artifactId>pms</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>pms</name>
-    <description>Paperless Management System</description>
+    <groupId>com.hkgov.csb</groupId>
+    <artifactId>EProof</artifactId>
+    <version>0.0.1</version>
+    <name>CSBEProof</name>
+    <description>CSB EProof System</description>
     <properties>
         <java.version>17</java.version>
         <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
@@ -172,7 +172,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.hkgov.ceo.pms.PmsApplication</mainClass>
+                    <mainClass>com.hkgov.csb.eproof.CsbEproofApplication</mainClass>
                     <layout>JAR</layout>
                 </configuration>
             </plugin>
