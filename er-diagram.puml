@@ -45,7 +45,7 @@ entity "Role_Has_Permission" as role_has_permission {
 }
 
 entity "Exam_Profile" as exam_profile {
-  serial_no: varchar <<PK>>
+  exam_serial_no: varchar <<PK>>
   --
   exam_date: datetime
   announce_date: datetime
