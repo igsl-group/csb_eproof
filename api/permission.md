@@ -1,5 +1,11 @@
-## [GET] /permission/dropDown
+## Permission list
 
+- CERT_IMPORT
+- CERT_DISPATCH
+- CERT_REVOKE
+
+
+## [GET] /permission/dropDown
 ```typescript
 type response = {
     success: true,

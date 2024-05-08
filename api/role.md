@@ -1,9 +1,9 @@
-## [GET] /role?limit={number}&offset={number}&orderby={asc|desc}&sortby={string}
+## [GET] /role?limit={number}&offset={number}&orderby={asc|desc}&sort_field={string}
 ### Return a role's list
 ```typescript
 // default query
-const sortby = 'id';    // table field name
-const orderby = 'asc';  // asc|desc
+const sort_field = 'id';    // table field name
+const sort_direction = 'asc';  // asc|desc
 const limit = 20;
 const offset = 0;
 // response 200

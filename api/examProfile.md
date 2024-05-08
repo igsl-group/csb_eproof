@@ -118,15 +118,15 @@ type response = {
 ### Get all exam profile
 ```typescript
 //DEFAULT VALUE
-const sortby = 'id';    // table field name
-const orderby = 'asc';  // asc|desc
+const sort_field = 'id';    // table field name
+const sort_direction= 'asc';  // asc|desc
 const limit = 20;
 const offset = 0;
 const keyword = '';
 
 type query_param = {
-    sortby: string,
-    orderby: string,
+    sort_field: string,
+    sort_direction: string,
     limit: number,
     offset: number,
     keyword: string
