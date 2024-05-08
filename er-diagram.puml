@@ -168,11 +168,11 @@ entity "Cert_Action" as cert_action{
     modified_date: datetime
 }
 
-entity "Cert_Info_Has_Action" as cert_info_has_action{
+entity "Action_Target" as action_target{
     id: number <<generated, PK>>
     --
-    cert_info_id: number <<FK-Cert_Info.id>>
-    cert_action_id: number <<FK-Cert_Action.id>>
+    action_id: number <<FK-Cert_Action.id>>
+    target_cert_info_id: number <<FK-Cert_Info.id>>
 }
 
 entity "Combined_Historical_Result_Before_2024" as combined_historical_result_before_2024 {
@@ -268,6 +268,9 @@ email_message ||--|| email_event
 
 cert_action }o--|| cert_info
 cert_action }o--|| user
+
+action_target }o--|| cert_info
+action_target }|--|| cert_action
 
 user_session |o--|| user
 @enduml
