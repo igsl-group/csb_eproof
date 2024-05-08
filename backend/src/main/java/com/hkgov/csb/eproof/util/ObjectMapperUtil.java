@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.hkgov.csb.eproof.exception.GenericException;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.Map;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.READ_VALUE_EXCEPTION_CODE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.READ_VALUE_EXCEPTION_MESSAGE;
 
-
+@Component
 public class ObjectMapperUtil extends ObjectMapper {
 
     public ObjectMapperUtil() {

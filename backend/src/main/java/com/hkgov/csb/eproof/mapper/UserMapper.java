@@ -1,41 +1,31 @@
 package com.hkgov.csb.eproof.mapper;
 
+
 import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.entity.User;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
 
-@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+/**
+* @author David
+* @description 针对表【user】的数据库操作Mapper
+* @createDate 2024-04-22 16:26:25
+*/
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     UserDto sourceToDestination(User source);
 
-    @Mapping(target = "userHasMeetingGroups", ignore = true)
-    @Mapping(target = "userHasRoles", ignore = true)
-    @Mapping(target = "department", ignore = true)
-    @Mapping(source = "email", target = "email", qualifiedByName = "emptyEmailToNull")
     User destinationToSource(UserDto dto);
 
-    @Mapping(target = "userHasMeetingGroups", ignore = true)
-    @Mapping(target = "userHasRoles", ignore = true)
-    @Mapping(target = "department", ignore = true)
     void updateFromDto(UserDto dto, @MappingTarget User user);
-
-    List<UserDto> toDtoList(List<User> source);
-
-    @Named("emptyEmailToNull")
-    static String emptyEmailToNull(String email) {
-        if (email == null || email.isEmpty()) {
-            return null;
-        } else {
-            return email;
-        }
-    }
 }
+
+
+
+

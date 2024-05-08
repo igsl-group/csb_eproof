@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.security;
 
 import com.hkgov.csb.eproof.config.JwtConfigurationProperties;
@@ -134,3 +135,4 @@ public class JwtHelper {
         return jwtConfigurationProperties.getSecretKey();
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.filter;
 
 import com.hkgov.csb.eproof.service.LoggingService;
@@ -30,3 +31,4 @@ public class RequestLogFilter extends OncePerRequestFilter {
     }
 
 }
+*/

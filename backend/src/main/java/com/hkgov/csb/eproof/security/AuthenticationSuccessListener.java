@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.security;
 
 import com.hkgov.csb.eproof.service.LoginAttemptService;
@@ -23,3 +24,4 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
         loginAttemptService.loginSucceeded(authentication.getName());
     }
 }
+*/

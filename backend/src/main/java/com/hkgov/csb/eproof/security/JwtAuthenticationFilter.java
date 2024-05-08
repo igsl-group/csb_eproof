@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.security;
 
 import com.hkgov.csb.eproof.entity.User;
@@ -66,3 +67,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return SecurityContextHolder.getContext().getAuthentication() == null;
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.event;
 
 import com.hkgov.csb.eproof.dao.EmailEventRepository;
@@ -35,3 +36,4 @@ public class EmailEventListener {
         emailEventRepository.save(event);
     }
 }
+*/

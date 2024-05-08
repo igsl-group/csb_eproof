@@ -5,8 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PermissionRepository extends JpaRepository<Permission, Long> {
-    @Query("select p from Permission p where p.code = :code")
-    Permission findByCode(@Param("code") String code);
+import java.util.List;
 
+public interface PermissionRepository extends JpaRepository<Permission,Long> {
+    @Query("select p from RoleHasPermission r left join Permission p on r.permissionId = p.id where r.roleId = :id")
+    List<Permission> getRoleByRoleId(@Param("id") Long id);
 }

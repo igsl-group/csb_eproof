@@ -1,8 +1,10 @@
 package com.hkgov.csb.eproof.service;
 
-import com.hkgov.csb.eproof.entity.RoleHasPermission;
-
+/**
+* @author 20768
+* @description 针对表【role_has_permission】的数据库操作Service
+* @createDate 2024-05-06 10:20:02
+*/
 public interface RoleHasPermissionService {
-    RoleHasPermission getRoleHasPermissionByRoleCodeAndPermissionCode(String roleCode, String permissionCode);
 
 }

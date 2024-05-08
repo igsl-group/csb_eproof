@@ -2,14 +2,14 @@
     <property name="LOG_PATH" value="logs/backend"/>
     <timestamp key="TIMESTAMP" datePattern="yyyyMMdd"/>
 
-    <conversionRule conversionWord="session"
-                    converterClass="com.hkgov.csb.eproof.loggin.converter.SessionConverter"/>
-    <conversionRule conversionWord="userId"
-                    converterClass="com.hkgov.csb.eproof.loggin.converter.UserIdConverter"/>
+    <!--<conversionRule conversionWord="session"
+                    converterClass="com.hkgov.ceo.pms.loggin.converter.SessionConverter"/>-->
+    <!--  <conversionRule conversionWord="userId"
+                      converterClass="com.hkgov.ceo.pms.loggin.converter.UserIdConverter"/>-->
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %session %userId - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -25,7 +25,7 @@
             <maxHistory>2555</maxHistory> <!-- 7 years x 365 days/year = 2555 days -->
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} %session %userId - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -34,7 +34,7 @@
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO"/>
     <logger name="com.zaxxer.hikari.HikariDataSource" level="INFO"/>
 
-    <root level="info">
+    <root level="debug">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="fout"/>
     </root>

@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.event;
 
 import com.hkgov.csb.eproof.entity.EmailEvent;
@@ -17,3 +18,4 @@ public class EmailEventPublisher {
         publisher.publishEvent(event);
     }
 }
+*/

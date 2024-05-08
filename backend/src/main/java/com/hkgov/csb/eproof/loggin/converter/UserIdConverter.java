@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.loggin.converter;
 
 import ch.qos.logback.classic.pattern.ClassicConverter;
@@ -27,3 +28,4 @@ public class UserIdConverter extends ClassicConverter {
         }
     }
 }
+*/

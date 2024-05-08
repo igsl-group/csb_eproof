@@ -1,122 +1,107 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.hkgov.csb.eproof.dao.PermissionRepository;
+import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dto.PermissionDto;
 import com.hkgov.csb.eproof.dto.RoleDto;
-import com.hkgov.csb.eproof.dto.RoleHasPermissionDto;
+import com.hkgov.csb.eproof.entity.Permission;
 import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.RoleHasPermission;
-import com.hkgov.csb.eproof.exception.GenericException;
-import com.hkgov.csb.eproof.service.RoleHasPermissionService;
+import com.hkgov.csb.eproof.mapper.RoleMapper;
 import com.hkgov.csb.eproof.service.RoleService;
-import com.hkgov.csb.eproof.exception.ExceptionConstants;
-import org.apache.commons.lang3.StringUtils;
+import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
-import static com.hkgov.csb.eproof.config.Constants.SYSTEM_ADMINISTRATOR_CODE;
-
+/**
+* @author 20768
+* @description 针对表【role】的数据库操作Service实现
+* @createDate 2024-04-23 14:06:28
+*/
 @Service
-@Transactional
 public class RoleServiceImpl implements RoleService {
-    private final RoleRepository roleRepository;
-    private final RoleHasPermissionService roleHasPermissionService;
-    private final PermissionRepository permissionRepository;
-
-    public RoleServiceImpl(RoleRepository roleRepository, RoleHasPermissionService roleHasPermissionService, PermissionRepository permissionRepository) {
-        this.roleRepository = roleRepository;
-        this.roleHasPermissionService = roleHasPermissionService;
-        this.permissionRepository = permissionRepository;
+    @Resource
+    private RoleMapper roleMapper;
+    @Resource
+    private RoleRepository roleRepository;
+    @Resource
+    private RoleHasPermissionRepository hasPermissionRepository;
+    @Resource
+    private PermissionRepository permissionRepository;
+    @Override
+    public Boolean createRole(RoleDto requestDto) {
+        Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
+        role = roleRepository.save(role);
+        Long id = role.getId();
+        List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null,id,x)).toList();
+        hasPermissionRepository.saveAll(roles);
+        return Objects.nonNull(role);
     }
 
     @Override
-    public Page<Role> getAllRole(Pageable pageable) {
-        return roleRepository.findAll(pageable);
+    public Boolean removeRole(String id) {
+        roleRepository.deleteById(Long.parseLong(id));
+        return true;
     }
 
     @Override
-    public List<Role> getAllRole() {
-        return roleRepository.findAll();
+    public Boolean updateRole(RoleDto requestDto) {
+        Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
+        List<Long> ids = hasPermissionRepository.getAllByRoleId(role.getId());
+        hasPermissionRepository.deleteAllById(ids);
+        role = roleRepository.save(role);
+        Long id = role.getId();
+        List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null,id,x)).toList();
+        hasPermissionRepository.saveAll(roles);
+        return Objects.nonNull(role);
     }
 
     @Override
-    public Role getRoleByCode(String code) {
-        return findRoleByCode(code);
+    public List<RoleDto> roles() {
+        return roleRepository.findAll().stream().map(RoleMapper.INSTANCE::sourceToDestination).toList();
     }
 
     @Override
-    public Role updateRole(RoleDto request) {
-        Role role = findRoleByCode(request.getCode());
-        validateIsNotAdminRole(role);
-        if (StringUtils.isNotBlank(request.getName())) {
-            role.setName(request.getName());
-        }
-        role.getRoleHasPermissions().clear();
-        if (!request.getRoleHasPermissions().isEmpty()) {
-            request.getRoleHasPermissions().stream()
-                    .map(RoleHasPermissionDto::getPermission)
-                    .map(PermissionDto::getCode)
-                    .forEach(permissionCode -> {
-                        RoleHasPermission roleHasPermission = roleHasPermissionService.getRoleHasPermissionByRoleCodeAndPermissionCode(role.getCode(), permissionCode);
-                        if (roleHasPermission == null) {
-                            role.addRoleHasPermission(permissionRepository.findByCode(permissionCode));
-                        } else {
-                            role.addRoleHasPermission(roleHasPermission);
-                        }
-                    });
-        }
-        roleRepository.save(role);
+    public Page<Role> getAllRolePage(Pageable pageable,String keyword) {
+        var role = roleRepository.findByCodeOrName(pageable,keyword);
+        role.getContent().forEach(x -> {
+            Long id = x.getId();
+            List<Permission> permissions = permissionRepository.getRoleByRoleId(id);
+            x.setPermissions(permissions);
+        });
         return role;
     }
 
     @Override
-    public Role createRole(RoleDto request) {
-        Role role = new Role();
-        role.setCode(request.getCode());
-        role.setName(request.getName());
-        roleRepository.save(role);
-        request.getRoleHasPermissions()
-                .stream()
-                .map(RoleHasPermissionDto::getPermission)
-                .map(PermissionDto::getCode)
-                .map(permissionRepository::findByCode)
-                .forEach(role::addRoleHasPermission);
-        return role;
-    }
-
-    @Override
-    public Role removeRole(String code) {
-        Role role = findRoleByCode(code);
-        validateIsNotAdminRole(role);
-        role.getUserHasRoles()
-                .forEach(userHasRole ->
-                        userHasRole.setUser(null));
-        role.getUserHasRoles().clear();
-        role.getRoleHasPermissions().clear();
-        roleRepository.delete(role);
-        return role;
-    }
-
-    private static void validateIsNotAdminRole(Role role) {
-        if (SYSTEM_ADMINISTRATOR_CODE.equals(role.getCode())) {
-            throw new GenericException(ExceptionConstants.CANNOT_MODIFY_ADMIN_EXCEPTION_CODE, ExceptionConstants.CANNOT_MODIFY_ADMIN_EXCEPTION_MESSAGE);
+    public RoleDto getRole(Long id) {
+        RoleDto roleDto = new RoleDto();
+        Role role = roleRepository.getReferenceById(id);
+        if(Objects.isNull(role))
+            return null;
+        roleDto = RoleMapper.INSTANCE.sourceToDestination(role);
+        List<Permission> roles = permissionRepository.getRoleByRoleId(id);
+        List<PermissionDto> list = new ArrayList<>();
+        if (!roles.isEmpty()){
+            roles.forEach(x->{
+                PermissionDto permission = new PermissionDto();
+                permission.setId(x.getId());
+                permission.setName(x.getName());
+                list.add(permission);
+            });
         }
+        roleDto.setPermissions(list);
+        return roleDto;
     }
 
-    private Role findRoleByCode(String code) {
-        return Optional.ofNullable(code)
-                .map(roleRepository::findByCode)
-                .orElseThrow(() -> new GenericException(ExceptionConstants.ROLE_NOT_FOUND_EXCEPTION_CODE, ExceptionConstants.ROLE_NOT_FOUND_EXCEPTION_MESSAGE));
-    }
 
-    @Override
-    public Page<Role> search(Pageable pageable, String keyword) {
-        return roleRepository.findByCodeOrName(pageable, keyword);
-    }
 }
+
+
+
+

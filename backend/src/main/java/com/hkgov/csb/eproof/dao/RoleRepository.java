@@ -7,10 +7,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface RoleRepository extends JpaRepository<Role, Long> {
-    @Query("select r from Role r where r.code = :code")
-    Role findByCode(@Param("code") String code);
+import java.util.List;
 
-    @Query("select r from Role r where :keyword is null or (r.code like %:keyword% or r.name like %:keyword%)")
+public interface RoleRepository extends JpaRepository<Role, Long> {
+
+    @Query("select r from Role r where :keyword is null or (r.name like %:keyword% )")
     Page<Role> findByCodeOrName(Pageable pageable, @Param("keyword") String keyword);
+    @Query("select r from Role r where r.id = :id")
+    List<Role> getRoleById(@Param("id") Long id);
+
+    @Query("select r from UserHasRole u left join Role r on u.roleId=r.id where u.userId = :id ")
+    List<Role> roles(@Param("id") Long id);
 }

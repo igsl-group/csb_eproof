@@ -6,21 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FORM_DATA;
 
@@ -30,8 +19,10 @@ public final class HttpUtils {
     private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
     private final RequestLogFilterConfig requestLogFilterConfig;
-    private final List<RequestMatcher> ignoreRequestMatchers = new ArrayList<>();
-
+  //  private final List<RequestMatcher> ignoreRequestMatchers = new ArrayList<>();
+  public HttpUtils(RequestLogFilterConfig requestLogFilterConfig) {
+      this.requestLogFilterConfig = requestLogFilterConfig;
+  }
     private static final String[] IP_HEADERS = {
             "X-Forwarded-For",
             "Proxy-Client-IP",
@@ -48,11 +39,11 @@ public final class HttpUtils {
             // you can add more matching headers here ...
     };
 
-    public HttpUtils(RequestLogFilterConfig requestLogFilterConfig) {
+   /* public HttpUtils(RequestLogFilterConfig requestLogFilterConfig) {
         this.requestLogFilterConfig = requestLogFilterConfig;
         requestLogFilterConfig.getIgnoredPaths()
                 .forEach(pattern -> ignoreRequestMatchers.add(new AntPathRequestMatcher(pattern)));
-    }
+    }*/
 
     public static String getRequestIP(HttpServletRequest request) {
         for (String header : IP_HEADERS) {
@@ -86,7 +77,7 @@ public final class HttpUtils {
         return parameters;
     }
 
-    public String getRequestBody(HttpServletRequest request) {
+   /* public String getRequestBody(HttpServletRequest request) {
         if (shouldSkip(request)) {
             return request.getContentType();
         }
@@ -117,7 +108,7 @@ public final class HttpUtils {
         return ignoreRequestMatchers
                 .stream()
                 .anyMatch(requestMatcher -> requestMatcher.matches(request));
-    }
+    }*/
 
     private boolean isMultipartFormData(HttpServletRequest request) {
         return Optional.ofNullable(request.getContentType())

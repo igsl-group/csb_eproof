@@ -1,22 +1,14 @@
 package com.hkgov.csb.eproof.service.impl;
 
-import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
-import com.hkgov.csb.eproof.entity.RoleHasPermission;
 import com.hkgov.csb.eproof.service.RoleHasPermissionService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+/**
+* @author 20768
+* @description 针对表【role_has_permission】的数据库操作Service实现
+* @createDate 2024-05-06 10:20:02
+*/
 @Service
-@Transactional
 public class RoleHasPermissionServiceImpl implements RoleHasPermissionService {
-    private final RoleHasPermissionRepository roleHasPermissionRepository;
 
-    public RoleHasPermissionServiceImpl(RoleHasPermissionRepository roleHasPermissionRepository) {
-        this.roleHasPermissionRepository = roleHasPermissionRepository;
-    }
-
-    @Override
-    public RoleHasPermission getRoleHasPermissionByRoleCodeAndPermissionCode(String roleCode, String permissionCode) {
-        return roleHasPermissionRepository.findByRoleCodeAndPermissionCode(roleCode, permissionCode);
-    }
 }

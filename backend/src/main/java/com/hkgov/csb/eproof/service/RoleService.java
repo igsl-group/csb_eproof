@@ -7,18 +7,21 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface RoleService {
-    Page<Role> getAllRole(Pageable pageable);
+/**
+* @author 20768
+* @description 针对表【role】的数据库操作Service
+* @createDate 2024-04-23 14:06:28
+*/
+public interface RoleService{
+    Boolean createRole(RoleDto requestDto);
 
-    Role getRoleByCode(String code);
+    Boolean removeRole(String id);
 
-    Role updateRole(RoleDto request);
+    Boolean updateRole(RoleDto requestDto);
 
-    Role createRole(RoleDto request);
+    List<RoleDto> roles();
 
-    Role removeRole(String code);
+    Page<Role> getAllRolePage(Pageable pageable, String keyword);
 
-    List<Role> getAllRole();
-
-    Page<Role> search(Pageable pageable, String keyword);
+    RoleDto getRole(Long id);
 }

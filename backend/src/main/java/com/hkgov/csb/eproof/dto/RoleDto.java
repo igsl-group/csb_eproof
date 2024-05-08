@@ -1,41 +1,21 @@
 package com.hkgov.csb.eproof.dto;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.hkgov.csb.eproof.entity.Views;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@JsonView(Views.Public.class)
+@Getter
+@Setter
 public class RoleDto {
-    private String code;
+    private Long id;
 
     private String name;
 
-    @JsonView(Views.Internal.class)
-    private List<RoleHasPermissionDto> roleHasPermissions = new ArrayList<>();
+    private String description;
 
-    public String getCode() {
-        return code;
-    }
+    private List<Long> permissionList;
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+    private List<PermissionDto> permissions;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<RoleHasPermissionDto> getRoleHasPermissions() {
-        return roleHasPermissions;
-    }
-
-    public void setRoleHasPermissions(List<RoleHasPermissionDto> roleHasPermissions) {
-        this.roleHasPermissions = roleHasPermissions;
-    }
 }

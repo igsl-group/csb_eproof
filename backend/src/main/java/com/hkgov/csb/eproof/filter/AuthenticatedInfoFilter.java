@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.filter;
 
 import com.hkgov.csb.eproof.entity.User;
@@ -58,3 +59,4 @@ public class AuthenticatedInfoFilter extends OncePerRequestFilter {
         }
     }
 }
+*/

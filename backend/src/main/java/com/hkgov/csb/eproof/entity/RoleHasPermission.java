@@ -1,65 +1,43 @@
 package com.hkgov.csb.eproof.entity;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
-import org.hibernate.Hibernate;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Objects;
+import java.io.Serializable;
 
+/**
+ * 
+ * @TableName role_has_permission
+ */
 @Entity
-@Table(name = "role_has_permission")
-public class RoleHasPermission extends BaseEntity {
-    @EmbeddedId
-    private RoleHasPermissionId id;
+@Table(name="role_has_permission")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class RoleHasPermission implements Serializable {
+    /**
+     * 
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne
-    @MapsId("rolId")
-    @JoinColumn(name = "role_id")
-    private Role role;
+    /**
+     * 
+     */
+    @Column(name = "role_id")
+    private Long roleId;
 
-    @ManyToOne
-    @MapsId("permissionId")
-    @JoinColumn(name = "permission_id")
-    private Permission permission;
+    /**
+     * 
+     */
+    @Column(name = "permission_id")
+    private Long permissionId;
 
-    public Permission getPermission() {
-        return permission;
-    }
+    private static final long serialVersionUID = 1L;
 
-    public void setPermission(Permission permission) {
-        this.permission = permission;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public RoleHasPermissionId getId() {
-        return id;
-    }
-
-    public void setId(RoleHasPermissionId id) {
-        this.id = id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        RoleHasPermission that = (RoleHasPermission) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }

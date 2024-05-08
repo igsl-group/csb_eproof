@@ -1,8 +1,8 @@
 package com.hkgov.csb.eproof.service.impl;
 
+
 import com.hkgov.csb.eproof.service.LoggingService;
 import com.hkgov.csb.eproof.util.ObjectMapperUtil;
-import com.hkgov.csb.eproof.util.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static com.hkgov.csb.eproof.util.HttpUtils.getParameters;
+import static com.hkgov.csb.eproof.util.HttpUtils.getResponseHeaders;
 
 @Service
 public class LoggingServiceImpl implements LoggingService {
@@ -26,7 +29,7 @@ public class LoggingServiceImpl implements LoggingService {
     @Override
     public void logRequest(HttpServletRequest request, Object body) {
         StringBuilder reqMessage = new StringBuilder();
-        Map<String, String> parameters = HttpUtils.getParameters(request);
+        Map<String, String> parameters = getParameters(request);
         reqMessage.append("method = [").append(request.getMethod()).append("] ");
         reqMessage.append("path = [").append(request.getRequestURI()).append("] ");
         if (!parameters.isEmpty()) {
@@ -42,7 +45,7 @@ public class LoggingServiceImpl implements LoggingService {
     @Override
     public void logResponse(HttpServletRequest request, HttpServletResponse response, Object body, long elapsedTime) {
         StringBuilder respMessage = new StringBuilder();
-        Map<String, String> headers = HttpUtils.getResponseHeaders(response);
+        Map<String, String> headers = getResponseHeaders(response);
         respMessage.append("method = [").append(request.getMethod()).append("] ");
         respMessage.append("path = [").append(request.getRequestURI()).append("] ");
         respMessage.append("elapsedTime = ").append(elapsedTime).append("ms ");

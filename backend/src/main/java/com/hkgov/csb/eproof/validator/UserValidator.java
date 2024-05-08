@@ -1,3 +1,4 @@
+/*
 package com.hkgov.csb.eproof.validator;
 
 import com.hkgov.csb.eproof.entity.User;
@@ -43,3 +44,4 @@ public class UserValidator {
         }
     }
 }
+*/
