@@ -1,9 +1,9 @@
 package com.hkgov.csb.eproof.controller;
 
-import com.hkgov.ceo.pms.util.Result;
 import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.mapper.UserMapper;
 import com.hkgov.csb.eproof.service.UserService;
+import com.hkgov.csb.eproof.util.Result;
 import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

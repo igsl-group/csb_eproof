@@ -5,7 +5,6 @@ import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dao.UserHasRoleRepository;
 import com.hkgov.csb.eproof.dao.UserRepository;
 import com.hkgov.csb.eproof.dto.UserDto;
-import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserHasRole;
 import com.hkgov.csb.eproof.exception.GenericException;
@@ -67,11 +66,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<User> getAllUser(Pageable pageable) {
         var user = userRepository.findAll(pageable);
-        user.getContent().forEach(x->{
-            Long id = x.getId();
-            List<Role> userHasRoles = roleRepository.roles(id);
-            x.setRoles(userHasRoles);
-        });
         return user;
     }
 
@@ -81,7 +75,6 @@ public class UserServiceImpl implements UserService {
        user = userRepository.getUserById(id);
        if(Objects.isNull(user))
            return null;
-       user.setRoles(roleRepository.roles(user.getId()));
        return user;
     }
 

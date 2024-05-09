@@ -65,6 +65,12 @@ public class User extends BaseEntity {
     @Column(name = "last_login_date")
     private LocalDateTime lastLoginDate;
 
-    @Transient
+    // 用户拥有的角色
+    @ManyToMany
+    @JoinTable(
+            name = "user_has_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private List<Role> roles;
 }

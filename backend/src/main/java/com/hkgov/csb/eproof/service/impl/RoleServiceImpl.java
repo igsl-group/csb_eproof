@@ -3,9 +3,7 @@ package com.hkgov.csb.eproof.service.impl;
 import com.hkgov.csb.eproof.dao.PermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleRepository;
-import com.hkgov.csb.eproof.dto.PermissionDto;
 import com.hkgov.csb.eproof.dto.RoleDto;
-import com.hkgov.csb.eproof.entity.Permission;
 import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.RoleHasPermission;
 import com.hkgov.csb.eproof.mapper.RoleMapper;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,33 +67,15 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Page<Role> getAllRolePage(Pageable pageable,String keyword) {
         var role = roleRepository.findByCodeOrName(pageable,keyword);
-        role.getContent().forEach(x -> {
-            Long id = x.getId();
-            List<Permission> permissions = permissionRepository.getRoleByRoleId(id);
-            x.setPermissions(permissions);
-        });
         return role;
     }
 
     @Override
-    public RoleDto getRole(Long id) {
-        RoleDto roleDto = new RoleDto();
+    public Role getRole(Long id) {
         Role role = roleRepository.getReferenceById(id);
         if(Objects.isNull(role))
             return null;
-        roleDto = RoleMapper.INSTANCE.sourceToDestination(role);
-        List<Permission> roles = permissionRepository.getRoleByRoleId(id);
-        List<PermissionDto> list = new ArrayList<>();
-        if (!roles.isEmpty()){
-            roles.forEach(x->{
-                PermissionDto permission = new PermissionDto();
-                permission.setId(x.getId());
-                permission.setName(x.getName());
-                list.add(permission);
-            });
-        }
-        roleDto.setPermissions(list);
-        return roleDto;
+        return role;
     }
 
 
