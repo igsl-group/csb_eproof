@@ -2,6 +2,8 @@ package com.hkgov.csb.eproof.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -9,7 +11,8 @@ import java.util.List;
  * 
  * @TableName role
  */
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name="role")
 public class Role extends BaseEntity {
