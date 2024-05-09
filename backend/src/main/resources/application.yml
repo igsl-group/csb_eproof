@@ -1,9 +1,9 @@
 #Database config
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3306/DB_PMS
-    username: pms_admin
-    password: P@ssw0rd
+    url: jdbc:mariadb://192.168.2.227:3306/eproof
+    username: root
+    password: P@ssw0rd1234$
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
@@ -22,8 +22,8 @@ spring:
   mail:
     host: mail.igsl-group.com
     port: 465
-    username: dan.tai@igsl-group.com
-    password: xxxxxxxx
+    username: hong.cheung@igsl-group.com
+    password: HongIgs@P@ssw0rd
     properties:
       mail:
         smtp:
@@ -70,7 +70,7 @@ email:
 
 application:
   jwt:
-    secretKey: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    secretKey: csbeproofrYv7#C2Tg$N!eLqJp9*F6@bZw8aS4dX1
     tokenPrefix: "Bearer "
     authorizationHeader: "Authorization"
     expirationSeconds: 7200
@@ -79,7 +79,7 @@ password:
   tokenExpirationAfterDays: 1
 
 server:
-  url: http://localhost:3000
+  url: http://localhost:8080
 
 security:
   whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
@@ -88,42 +88,12 @@ filter:
   config:
     urlPatterns: /api/*, /actuator/*
 
-request:
-  log:
-    filter:
-      maxPayloadLength: 500
-      ignoredPaths:
-        - /api/*/auth/**
-        - /api/*/user/forgotPassword
-        - /api/*/user/resetPassword
+
 audit:
   trail:
     manager:
       include: DBAuditTrailManager, Slf4jLoggingAuditTrailManager
 
-cronjob:
-  audit:
-    retention:
-      cronExpression: 0 0 0 * * *
-      days: 1
-  meetingWorkspace:
-    retention:
-      cronExpression: 0 0 0 * * *
-      limit: 100
-    purge:
-      cronExpression: 0 0 0 * * *
-  user:
-    session:
-      cleanup:
-        cronExpression: 0 0 0 * * *
-    password:
-      expire:
-        reminder:
-          cronExpression: 0 0 0 * * *
-
-search:
-  meeting:
-    url: /SOM/Meeting/SOM?meetingId=
 
 login:
   allowMultipleLogin: true
