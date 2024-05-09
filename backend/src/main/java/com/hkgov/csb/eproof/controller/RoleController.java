@@ -1,9 +1,9 @@
 package com.hkgov.csb.eproof.controller;
 
-import com.hkgov.ceo.pms.util.Result;
 import com.hkgov.csb.eproof.dto.RoleDto;
 import com.hkgov.csb.eproof.mapper.RoleMapper;
 import com.hkgov.csb.eproof.service.RoleService;
+import com.hkgov.csb.eproof.util.Result;
 import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,7 +48,7 @@ public class RoleController {
     }
     @PostMapping("/getRole")
     public Result<RoleDto> getRole(@RequestParam Long roleId){
-        return Result.success(roleService.getRole(roleId));
+        return Result.success(RoleMapper.INSTANCE.sourceToDestination(roleService.getRole(roleId)));
     }
 
 }

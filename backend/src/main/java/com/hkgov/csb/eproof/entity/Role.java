@@ -32,6 +32,11 @@ public class Role extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    @Transient
+    @ManyToMany
+    @JoinTable(
+            name = "role_has_permission",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
     private List<Permission> permissions;
 }

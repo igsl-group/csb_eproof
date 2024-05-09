@@ -1,8 +1,8 @@
 package com.hkgov.csb.eproof.controller;
 
-import com.hkgov.ceo.pms.util.Result;
 import com.hkgov.csb.eproof.dto.PermissionDto;
 import com.hkgov.csb.eproof.service.PermissionService;
+import com.hkgov.csb.eproof.util.Result;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
