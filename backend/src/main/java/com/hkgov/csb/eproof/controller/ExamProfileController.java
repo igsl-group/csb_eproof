@@ -50,7 +50,7 @@ public class ExamProfileController {
     public Result<List<ExamProfileDto>> dropDown(){
         return Result.success(ExamProfileMapper.INSTANCE.sourceToDestinationList(examProfileService.dropDown()));
     }
-    @PatchMapping("/delete/{examProfileSerialNo}")
+    @DeleteMapping("/delete/{examProfileSerialNo}")
     public Result<Boolean> delete(@PathVariable String examProfileSerialNo){
         return Result.success(examProfileService.delete(examProfileSerialNo));
     }
