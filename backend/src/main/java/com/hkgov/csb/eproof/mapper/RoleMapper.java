@@ -9,7 +9,7 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 /**
-* @author 20768
+* @author David
 * @description 针对表【role】的数据库操作Mapper
 * @createDate 2024-04-23 14:06:28
 * @Entity com.hkgov.ceo.pms.domain.Role

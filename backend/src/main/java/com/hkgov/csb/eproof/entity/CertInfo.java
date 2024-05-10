@@ -2,7 +2,6 @@ package com.hkgov.csb.eproof.entity;
 
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
-import com.hkgov.csb.eproof.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "exam_profile")
+@Table(name = "cret_info")
 @Getter
 @Setter
 

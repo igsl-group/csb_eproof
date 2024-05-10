@@ -1,17 +1,19 @@
 package com.hkgov.csb.eproof.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "exam_profile")
 @Getter
 @Setter
-
 public class ExamProfile extends BaseEntity{
 
     @Id
@@ -22,7 +24,7 @@ public class ExamProfile extends BaseEntity{
     private LocalDate examDate;
 
     @Column(name = "announce_date")
-    private LocalDate announceDate;
+    private LocalDateTime announceDate;
 
     @Column(name = "location")
     private String location;

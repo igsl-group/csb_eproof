@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* @author 20768
+* @author David
 * @description 针对表【role】的数据库操作Service实现
 * @createDate 2024-04-23 14:06:28
 */

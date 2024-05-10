@@ -97,4 +97,6 @@ public class ExceptionConstants {
     public static final String DUPLICATE_EMAIL_EXCEPTION_MESSAGE = "Duplicate email";
     public static final String FAILED_TO_CONVERT_CSV_EXCEPTION_MESSAGE = "Failed to convert CSV file";
     public static final String NO_PERMISSION_TO_DOWNLOAD_EXCEPTION_MESSAGE = "No permission to download";
+
+    public static final String SERIAL_HAS_EXITED = "examProfile.serial.exits";
 }

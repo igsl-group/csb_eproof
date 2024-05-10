@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.USER_CANNOT_DELETE_ITSELF_EXCEPTION_CODE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.USER_CANNOT_DELETE_ITSELF_EXCEPTION_MESSAGE;
 /**
-* @author 20768
+* @author David
 * @description 针对表【user】的数据库操作Service实现
 * @createDate 2024-04-22 16:26:25
 */

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* @author 20768
+* @author David
 * @description 针对表【permission】的数据库操作Service实现
 * @createDate 2024-04-26 17:15:34
 */
