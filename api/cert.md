@@ -97,6 +97,12 @@ type response = {
 ```typescript
 
 // 200
+
+type query_param = {
+  currentStage: string -> IMPORTED | GENERATED | SIGN_ISSUE | NOTIFY
+}
+
+
 type response = {
   success: true,
   code: 200,

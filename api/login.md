@@ -1,4 +1,4 @@
-## [Post] /sign
+## [Post] /auth/sign
 ### Return uid and dp_dept_id as cookies
 ```typescript
 // request
@@ -8,7 +8,7 @@ type request = {
 }
 ```
 
-## [Get] /sso
+## [Get] /auth/sso
 ### Return Access Token as cookies and json
 
 ### Process
