@@ -15,26 +15,9 @@ import java.util.List;
 @RequestMapping("/premission")
 @Transactional(rollbackFor = Exception.class)
 public class PermissionController {
-
     @Resource
     private PermissionService permissionService;
 
-  /*  @PostMapping("/create")
-    public Result<Boolean> createPre(@RequestBody PermissionDto requestDto){
-        return Result.success(permissionService.creatrePer(requestDto));
-    }
-
-    @PostMapping("/remove")
-    public Result<Boolean> removePre(@RequestParam String id){
-        permissionService.removePre(id);
-        return Result.success();
-    }
-
-    @PostMapping("/update")
-    public Result<Boolean> updatePre(@RequestBody PermissionDto requestDto){
-        return Result.success(permissionService.updatePre(requestDto));
-    }
-*/
     @GetMapping("/getAll")
     public Result<List<PermissionDto>> getAll(){
         return Result.success(permissionService.getAll());

@@ -4,7 +4,7 @@ import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
 import com.hkgov.csb.eproof.service.ExamProfileService;
 import com.hkgov.csb.eproof.util.Result;
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/examProfile")
 @Transactional(rollbackFor = Exception.class)
-@RequiredArgsConstructor
 public class ExamProfileController {
-
-    private final ExamProfileService examProfileService;
+    @Resource
+    private  ExamProfileService examProfileService;
 
     @PostMapping("/create")
     public Result<Boolean> create(@RequestBody ExamProfileDto requestDto){

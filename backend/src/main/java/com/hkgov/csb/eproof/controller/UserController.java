@@ -27,7 +27,7 @@ public class UserController {
     public Result<Boolean> updateUser(@RequestBody UserDto requestDto) {
         return Result.success(userService.updateUser(requestDto));
     }
-    @GetMapping("/getUserList")
+    @GetMapping("/list")
     public Result<Page<UserDto>> getUserList(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size,
                                              @RequestParam(defaultValue = "ASC") Sort.Direction direction,
@@ -35,13 +35,13 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size, direction, properties);
         return Result.success(userService.getAllUser(pageable).map(UserMapper.INSTANCE::sourceToDestination));
     }
-    @PostMapping("/getUser")
-    public Result<UserDto> getUserInfo(@RequestParam String userId){
+    @PostMapping("/user/{userId}")
+    public Result<UserDto> getUserInfo(@PathVariable String userId){
         return Result.success(UserMapper.INSTANCE.sourceToDestination(userService.getUserInfo(userId)));
     }
 
-    @DeleteMapping("/remove")
-    public UserDto removeUser(String userId) {
+    @DeleteMapping("/delete/{userId}")
+    public UserDto removeUser(@PathVariable String userId) {
         return UserMapper.INSTANCE.sourceToDestination(userService.removeUser(userId));
     }
 

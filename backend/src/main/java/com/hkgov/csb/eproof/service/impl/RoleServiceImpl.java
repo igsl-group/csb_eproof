@@ -42,8 +42,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Boolean removeRole(String id) {
-        roleRepository.deleteById(Long.parseLong(id));
+    public Boolean removeRole(Long id) {
+        roleRepository.deleteById(id);
         return true;
     }
 

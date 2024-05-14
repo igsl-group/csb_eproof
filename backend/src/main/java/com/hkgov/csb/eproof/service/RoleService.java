@@ -15,7 +15,7 @@ import java.util.List;
 public interface RoleService{
     Boolean createRole(RoleDto requestDto);
 
-    Boolean removeRole(String id);
+    Boolean removeRole(Long id);
 
     Boolean updateRole(RoleDto requestDto);
 

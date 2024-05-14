@@ -26,18 +26,18 @@ public class RoleController {
         return Result.success(roleService.createRole(requestDto));
     }
     @PostMapping("/remove")
-    public Result<Boolean> removeRole(@RequestParam String id){
+    public Result<Boolean> removeRole(@PathVariable Long id){
         return Result.success(roleService.removeRole(id));
     }
     @PatchMapping("/update")
     public Result<Boolean> updateRole(@RequestBody RoleDto requestDto){
         return Result.success(roleService.updateRole(requestDto));
     }
-    @GetMapping("/allRole")
+    @GetMapping("/list")
     public Result<List<RoleDto>> getAllRole(){
         return Result.success(roleService.roles());
     }
-    @PostMapping("/search")
+    @PostMapping("/listPage")
     public Result<Page<RoleDto>> search(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
                                 @RequestParam(defaultValue = "ASC") Sort.Direction direction,
@@ -46,8 +46,8 @@ public class RoleController {
         Pageable pageable = PageRequest.of(page, size, direction, properties);
         return  Result.success(roleService.getAllRolePage(pageable,keyword).map(RoleMapper.INSTANCE::sourceToDestination));
     }
-    @PostMapping("/getRole")
-    public Result<RoleDto> getRole(@RequestParam Long roleId){
+    @PostMapping("/role/{roleId}")
+    public Result<RoleDto> getRole(@PathVariable Long roleId){
         return Result.success(RoleMapper.INSTANCE.sourceToDestination(roleService.getRole(roleId)));
     }
 

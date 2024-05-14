@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.dao.CertInfoRepositoty;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.entity.ExamProfile;
@@ -22,11 +23,13 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     private final ExamProfileRepository examProfileRepository;
 
+    private final CertInfoRepositoty certInfoRepositoty;
+
     @Override
     public Boolean create(ExamProfileDto request) {
         var examProfile = examProfileRepository.getinfoByNo(request.getSerialNo());
         if(Objects.nonNull(examProfile))
-            throw new GenericException(SERIAL_HAS_EXITED,request.getSerialNo());
+            throw new GenericException("400",SERIAL_HAS_EXITED);
         ExamProfile exam = ExamProfileMapper.INSTANCE.destinationToSource(request);
         exam.setIsFreezed(false);
         exam = examProfileRepository.save(exam);
@@ -35,7 +38,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public Boolean freeze(String examProfileSerialNo) {
-        return examProfileRepository.updateIsFreezed(examProfileSerialNo);
+        return examProfileRepository.updateIsFreezed(examProfileSerialNo) > 0;
     }
 
     @Override
@@ -56,7 +59,10 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public Boolean delete(String examProfileSerialNo) {
-        //先查询cert_info,存在即删除
-        return null;
+        var certInfo = certInfoRepositoty.getinfoByNo(examProfileRepository.getinfoByNo(examProfileSerialNo));
+        if(Objects.nonNull(certInfo)){
+            throw new GenericException("400",SERIAL_HAS_EXITED);
+        }
+        return examProfileRepository.delExamProfile(examProfileSerialNo) > 0;
     }
 }
