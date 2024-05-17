@@ -22,7 +22,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.hkgov.csb.eproof.config.Constants.ANONYMOUS_USER;
+import static com.hkgov.csb.eproof.constants.Constants.ANONYMOUS_USER;
 
 public class AuthenticatedInfoFilter extends OncePerRequestFilter {
 

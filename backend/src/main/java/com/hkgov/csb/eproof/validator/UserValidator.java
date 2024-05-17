@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.hkgov.csb.eproof.config.Constants.BLOCKED;
-import static com.hkgov.csb.eproof.config.Constants.DISABLED;
+import static com.hkgov.csb.eproof.constants.Constants.BLOCKED;
+import static com.hkgov.csb.eproof.constants.Constants.DISABLED;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.ACCOUNT_BLOCKED_EXCEPTION_CODE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.ACCOUNT_BLOCKED_EXCEPTION_MESSAGE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.ACCOUNT_DISABLED_EXCEPTION_CODE;

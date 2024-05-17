@@ -7,8 +7,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.hkgov.csb.eproof.config.Constants.DATE_PATTERN;
-import static com.hkgov.csb.eproof.config.Constants.DATE_TIME_PATTERN;
+import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN;
+import static com.hkgov.csb.eproof.constants.Constants.DATE_TIME_PATTERN;
 
 @Getter
 @Setter

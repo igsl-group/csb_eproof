@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-import static com.hkgov.csb.eproof.config.Constants.NO_USER;
+import static com.hkgov.csb.eproof.constants.Constants.NO_USER;
 
 public class UserIdConverter extends ClassicConverter {
 

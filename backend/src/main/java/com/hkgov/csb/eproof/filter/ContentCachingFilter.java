@@ -14,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.hkgov.csb.eproof.config.Constants.START_TIME;
+import static com.hkgov.csb.eproof.constants.Constants.START_TIME;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FORM_DATA;
 
 public class ContentCachingFilter extends OncePerRequestFilter {

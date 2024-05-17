@@ -6,7 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import static com.hkgov.csb.eproof.config.Constants.NO_SESSION;
+import static com.hkgov.csb.eproof.constants.Constants.NO_SESSION;
 
 public class SessionConverter extends ClassicConverter {
     @Override
