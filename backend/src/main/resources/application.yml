@@ -24,17 +24,19 @@ spring:
     port: 465
     username: hong.cheung@igsl-group.com
     password: HongIgs@P@ssw0rd
+    from: cepf@test.com
+    protocol: smtp
     properties:
       mail:
         smtp:
           auth: true
           starttls:
-            enable: true
+            enable: false
+            required: false
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
-    from: test@test.com
-    protocol: smtps
+
   minio:
     url: http://localhost:9000
     accessKey: obt62qNqMuaCj98x
@@ -80,9 +82,11 @@ password:
 
 server:
   url: http://localhost:8080
-
+  servlet:
+    context-path: /api/v1
 security:
-  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
+#  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
+  whitelist: /api-docs/**
 
 filter:
   config:
@@ -99,3 +103,12 @@ login:
   allowMultipleLogin: true
   max:
     attempts: 3
+
+
+#swagger config
+springdoc:
+  api-docs:
+    path: /api-docs/json
+  swagger-ui:
+    path: /api-docs/swagger
+    display-request-duration: true
