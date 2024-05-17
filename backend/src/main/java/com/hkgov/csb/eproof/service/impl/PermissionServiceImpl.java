@@ -2,7 +2,6 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.hkgov.csb.eproof.dao.PermissionRepository;
 import com.hkgov.csb.eproof.dto.PermissionDto;
-import com.hkgov.csb.eproof.entity.Permission;
 import com.hkgov.csb.eproof.mapper.PermissionMapper;
 import com.hkgov.csb.eproof.service.PermissionService;
 import jakarta.annotation.Resource;
@@ -20,21 +19,7 @@ import java.util.Objects;
 public class PermissionServiceImpl implements PermissionService {
     @Resource
     private PermissionRepository permissionRepository;
-    @Override
-    public Boolean creatrePer(PermissionDto requestDto) {
-        return Objects.nonNull(permissionRepository.save(PermissionMapper.INSTANCE.destinationToSource(requestDto)));
-    }
 
-    @Override
-    public void removePre(String id) {
-        permissionRepository.deleteById(Long.parseLong(id));
-    }
-
-    @Override
-    public Boolean updatePre(PermissionDto requestDto) {
-        Permission permission = PermissionMapper.INSTANCE.destinationToSource(requestDto);
-        return Objects.nonNull(permissionRepository.save(permission));
-    }
 
     @Override
     public List<PermissionDto> getAll() {

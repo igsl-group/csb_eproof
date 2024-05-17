@@ -11,12 +11,6 @@ import java.util.List;
 */
 public interface PermissionService {
 
-    Boolean creatrePer(PermissionDto requestDto);
-
-    void removePre(String id);
-
-    Boolean updatePre(PermissionDto requestDto);
-
     List<PermissionDto> getAll();
 
 }
