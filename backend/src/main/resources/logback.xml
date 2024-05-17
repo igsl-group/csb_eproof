@@ -34,7 +34,7 @@
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO"/>
     <logger name="com.zaxxer.hikari.HikariDataSource" level="INFO"/>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="fout"/>
     </root>
