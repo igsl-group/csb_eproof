@@ -11,6 +11,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.dpUserId = :dpUserId and u.dpDeptId = :dpDeptId and u.status = 'Active'")
     Optional<User> findByUserIdAndDeptId(@Param("dpUserId") String dpUserId, @Param("dpDeptId") String dpDeptId);
 
+    @Query("select u from User u where u.id = :dpUserId and u.dpDeptId = :dpDeptId")
+    User getUserByDpUserIdAndDpDeptId(@Param("dpUserId") String dpUserId, @Param("dpDeptId") String dpDeptId);
+
     @Query("select u from User u where u.id = :dpUserId ")
     User getUserBydpUserId(@Param("dpUserId") String dpUserId);
 

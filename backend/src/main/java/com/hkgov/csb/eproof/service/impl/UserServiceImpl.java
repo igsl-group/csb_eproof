@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Boolean updateUser(UserDto request) {
-        User user = userRepository.getUserBydpUserId(request.getId().toString());
+        User user = userRepository.getUserByDpUserIdAndDpDeptId(request.getDpUserId(),"CSB");
         UserMapper.INSTANCE.updateFromDto(request,user);
         user.setLastLoginDate(LocalDateTime.now());
         user = userRepository.save(user);
@@ -71,11 +71,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserInfo(String id) {
+       /* Remove redundant codes
        User user = new User();
        user = userRepository.getUserById(id);
        if(Objects.isNull(user))
            return null;
-       return user;
+       return user;*/
+        return userRepository.getUserById(id);
     }
 
     @Override

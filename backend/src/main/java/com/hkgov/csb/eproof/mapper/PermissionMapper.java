@@ -19,5 +19,4 @@ public interface PermissionMapper {
 
     PermissionDto sourceToDestination(Permission source);
 
-    Permission destinationToSource(PermissionDto dto);
 }
