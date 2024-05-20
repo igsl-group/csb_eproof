@@ -39,11 +39,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setProperty(CODE, ex.getCode());
         pd.setProperty(MESSAGE, ex.getMessage());
-        pd.setProperty("field", ex.getField());
-        pd.setProperty("value", ex.getValue());
+//        pd.setProperty("field", ex.getField());
+//        pd.setProperty("value", ex.getValue());
         pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
                 .map(Throwable::getMessage)
                 .orElse(null));
+        ex.printStackTrace();
         return pd;
     }
 
@@ -57,6 +58,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         } else {
             pd.setProperty(MESSAGE, ex.getMessage());
         }
+        ex.printStackTrace();
         return pd;
     }
 
@@ -69,6 +71,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         data.put(CODE, JWT_TOKEN_EXPIRY_EXCEPTION_CODE);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        ex.printStackTrace();
         return new ResponseEntity<>(objectMapper.writeValueAsString(data), headers, HttpStatus.UNAUTHORIZED);
     }
 
@@ -82,6 +85,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     pd.setProperty("field", violation.getPropertyPath().toString());
                     return pd;
                 }).toList();
+        e.printStackTrace();
         return handleExceptionInternal(e, result,
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
@@ -93,6 +97,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty(MESSAGE, ex.getMessage());
         pd.setProperty("field", ex.getField());
         pd.setProperty("value", ex.getValue());
+        ex.printStackTrace();
         return pd;
     }
 }

@@ -1,8 +1,10 @@
 package com.hkgov.csb.eproof.exception;
 
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
 public class GenericException extends RuntimeException {
     private final String code;
