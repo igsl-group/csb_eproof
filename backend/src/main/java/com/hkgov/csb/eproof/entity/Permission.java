@@ -20,18 +20,19 @@ public class Permission implements Serializable {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     /**
      * 
      */
-    @Column(name = "name")
+    @Column(name = "permission_name")
     private String name;
 
     /**
      * 
      */
-    @Column(name = "key")
+    @Column(name = "permission_key")
     private String key;
 
     private static final long serialVersionUID = 1L;

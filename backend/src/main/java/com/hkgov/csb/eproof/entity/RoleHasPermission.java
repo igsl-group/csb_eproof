@@ -16,7 +16,6 @@ import java.io.Serializable;
 @Table(name="role_has_permission")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class RoleHasPermission implements Serializable {
     /**
@@ -29,8 +28,10 @@ public class RoleHasPermission implements Serializable {
     /**
      * 
      */
+
     @Column(name = "role_id")
     private Long roleId;
+
 
     /**
      * 
@@ -38,6 +39,17 @@ public class RoleHasPermission implements Serializable {
     @Column(name = "permission_id")
     private Long permissionId;
 
-    private static final long serialVersionUID = 1L;
+    @ManyToOne
+    @JoinColumn(name = "role_id", insertable = false, updatable = false)
+    private Role role;
 
+    @ManyToOne
+    @JoinColumn(name = "permission_id", insertable = false, updatable = false)
+    private Permission permission;
+
+    public RoleHasPermission(Long id, Long roleId, Long permissionId) {
+        this.id = id;
+        this.roleId = roleId;
+        this.permissionId = permissionId;
+    }
 }
