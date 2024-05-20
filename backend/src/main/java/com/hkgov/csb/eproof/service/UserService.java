@@ -6,6 +6,8 @@ import com.hkgov.csb.eproof.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
 * @author David
 * @description 针对表【user】的数据库操作Service
@@ -22,4 +24,6 @@ public interface UserService{
     User getUserInfo(String userId);
 
     User removeUser(String id);
+
+    void manualValidateUserPermission(List<String> requiredPermission);
 }

@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.dao.UserRepository;
 import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.service.AuthenticationService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,5 +31,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
 
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return SecurityContextHolder.getContext().getAuthentication() != null? (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal():null;
     }
 }

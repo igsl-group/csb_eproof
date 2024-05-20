@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
 
@@ -14,7 +15,7 @@ import java.io.Serializable;
 @Table(name="permission")
 @Getter
 @Setter
-public class Permission implements Serializable {
+public class Permission implements Serializable, GrantedAuthority {
     /**
      * 
      */
@@ -26,15 +27,19 @@ public class Permission implements Serializable {
     /**
      * 
      */
-    @Column(name = "permission_name")
-    private String name;
+    @Column(name = "permission_code")
+    private String code;
 
     /**
      * 
      */
-    @Column(name = "permission_key")
-    private String key;
+    @Column(name = "permission_desc")
+    private String description;
 
     private static final long serialVersionUID = 1L;
 
+    @Override
+    public String getAuthority() {
+        return this.code;
+    }
 }

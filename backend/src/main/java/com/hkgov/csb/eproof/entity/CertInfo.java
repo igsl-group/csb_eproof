@@ -25,9 +25,6 @@ public class CertInfo extends BaseEntity{
     @JoinColumn(name = "exam_profile_serial")
     private ExamProfile examProfile;
 
-    @Column(name = "can_serial")
-    private String candidateSerialNo;
-
     @Column(name = "exam_date")
     private LocalDate examDate;
 
@@ -40,14 +37,14 @@ public class CertInfo extends BaseEntity{
     @Column(name = "hkid")
     private String hkid;
 
-    @Column(name = "passport")
-    private String passport;
+    @Column(name = "passportNo")
+    private String passportNo;
 
     @Column(name = "email")
     private String email;
 
-    @Column(name = "bl_grade")
-    private String blGrade;
+    @Column(name = "blnst_grade")
+    private String blnstGrade;
 
     @Column(name = "ue_grade")
     private String ueGrade;

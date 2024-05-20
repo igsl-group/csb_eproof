@@ -8,6 +8,9 @@ import lombok.Getter;
 public enum ExceptionEnums {
     // Authentication
     ACCESS_DENIED("access.denied","Your access is denied."),
+
+    // Case
+    ILLEGAL_SEARCH_TYPE("illegal.search.type","Illegal search type provided."),
     ;
 
 

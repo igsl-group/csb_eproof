@@ -40,10 +40,10 @@ public class RoleController {
     @PostMapping("/listPage")
     public Result<Page<RoleDto>> search(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
-                                @RequestParam(defaultValue = "ASC") Sort.Direction direction,
+                                @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
                                 @RequestParam(required = false) String keyword,
-                                @RequestParam(defaultValue = "id") String... properties) {
-        Pageable pageable = PageRequest.of(page, size, direction, properties);
+                                @RequestParam(defaultValue = "id") String... sortField) {
+        Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
         return  Result.success(roleService.getAllRolePage(pageable,keyword).map(RoleMapper.INSTANCE::sourceToDestination));
     }
     @PostMapping("/role/{roleId}")

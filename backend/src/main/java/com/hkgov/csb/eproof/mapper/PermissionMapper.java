@@ -11,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 * @author David
 * @description 针对表【permission】的数据库操作Mapper
 * @createDate 2024-04-26 17:15:34
-* @Entity com.hkgov.ceo.pms.entity.Permission
+* @Entity com.hkgov.ceo.pms.entity.Permissions
 */
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PermissionMapper {

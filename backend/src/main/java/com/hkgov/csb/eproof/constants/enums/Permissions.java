@@ -1,0 +1,5 @@
+package com.hkgov.csb.eproof.constants.enums;
+
+public enum Permissions {
+    CERT_SEARCH_VALID, CERT_SEARCH_INVALID, CERT_SEARCH_IMPORT, CERT_SEARCH_GENERATE, CERT_SEARCH_SIGNANDISSUE, CERT_SEARCH_NOTIFY;
+}

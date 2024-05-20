@@ -1,6 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
-import com.hkgov.csb.eproof.dao.CertInfoRepositoty;
+import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.entity.ExamProfile;
@@ -23,7 +23,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     private final ExamProfileRepository examProfileRepository;
 
-    private final CertInfoRepositoty certInfoRepositoty;
+    private final CertInfoRepository certInfoRepository;
 
     @Override
     public Boolean create(ExamProfileDto request) {
@@ -59,7 +59,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public Boolean delete(String examProfileSerialNo) {
-        var certInfo = certInfoRepositoty.getinfoByNo(examProfileRepository.getinfoByNo(examProfileSerialNo));
+        var certInfo = certInfoRepository.getinfoByNo(examProfileRepository.getinfoByNo(examProfileSerialNo));
         if(Objects.nonNull(certInfo)){
             throw new GenericException("400",SERIAL_HAS_EXITED);
         }

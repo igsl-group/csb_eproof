@@ -9,14 +9,17 @@ import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserHasRole;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.UserMapper;
+import com.hkgov.csb.eproof.service.AuthenticationService;
 import com.hkgov.csb.eproof.service.UserService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,6 +40,8 @@ public class UserServiceImpl implements UserService {
     private UserHasRoleRepository userHasRoleRepository;
     @Resource
     private RoleRepository roleRepository;
+    @Resource
+    private AuthenticationService authenticationService;
 
     @Override
     public Boolean createUser(UserDto request) {
@@ -90,6 +95,13 @@ public class UserServiceImpl implements UserService {
             userRepository.delete(user);
         }
         return user;
+    }
+
+    @Override
+    public void manualValidateUserPermission(List<String> requiredPermission) {
+        User currentUser = authenticationService.getCurrentUser();
+        Boolean userHasPermission = false;
+        List<String> userPermissionList = currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     }
 
 
