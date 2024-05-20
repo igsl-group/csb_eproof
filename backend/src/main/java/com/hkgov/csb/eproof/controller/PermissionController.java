@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/premission")
+@RequestMapping("/permission")
 @Transactional(rollbackFor = Exception.class)
 public class PermissionController {
     @Resource

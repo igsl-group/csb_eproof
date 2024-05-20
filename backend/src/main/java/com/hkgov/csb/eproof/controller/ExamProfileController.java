@@ -38,10 +38,10 @@ public class ExamProfileController {
     @GetMapping("/list")
     public Result<Page<ExamProfileDto>> list(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "20") int size,
-                                             @RequestParam(defaultValue = "ASC") Sort.Direction direction,
+                                             @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
                                              @RequestParam(required = false) String keyword,
-                                             @RequestParam(defaultValue = "serialNo") String... properties){
-        Pageable pageable = PageRequest.of(page, size, direction, properties);
+                                             @RequestParam(defaultValue = "serialNo") String... sortField){
+        Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
         return Result.success(examProfileService.list(pageable,keyword).map(ExamProfileMapper.INSTANCE::sourceToDestination));
     }
 
