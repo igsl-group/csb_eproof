@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.scanner.Constant;
 
@@ -34,8 +35,10 @@ public class AuthenticationController {
 
 
     @GetMapping("/sso")
-    public Result sso(HttpServletRequest req , HttpServletResponse resp){
-        if(req.getCookies() == null){
+    public Result sso(@RequestHeader String dpUserId,@RequestHeader String dpDeptId,
+            HttpServletRequest req , HttpServletResponse resp){
+
+        /*if(req.getCookies() == null){
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
         String dpUserId = "",dpDeptId="";
@@ -47,7 +50,7 @@ public class AuthenticationController {
             }else if (Constants.COOKIE_KEY_LOGIN_DPDEPTID.equals(cookie.getName())){
                 dpDeptId = cookie.getValue();
             }
-        }
+        }*/
 
         authenticationService.authenticate(dpUserId,dpDeptId);
         UserSession us = userSessionService.persistUserSession(dpUserId,dpDeptId);

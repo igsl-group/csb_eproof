@@ -72,7 +72,7 @@ email:
 
 application:
   jwt:
-    secretKey: csbeproofrYv7#C2Tg$N!eLqJp9*F6@bZw8aS4dX1
+    secretKey: SldUX1NlY3JldEtleV8xMjM0NV9FUHJvb2ZAQ1NCX0lHU19FbmNyeXB0Snd0QDEyMzQ1Ng==
     tokenPrefix: "Bearer "
     authorizationHeader: "Authorization"
     expirationSeconds: 7200
@@ -86,7 +86,7 @@ server:
     context-path: /api/v1
 security:
 #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**
+  whitelist: /api-docs/**,/sso
 
 filter:
   config:
@@ -112,3 +112,15 @@ springdoc:
   swagger-ui:
     path: /api-docs/swagger
     display-request-duration: true
+
+#logging config
+logging:
+  file:
+    path: logs/backend/
+    name: backend.log
+    max-age: 1d
+  level:
+    root: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB

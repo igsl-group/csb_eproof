@@ -4,6 +4,7 @@ import com.hkgov.csb.eproof.dao.PermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dto.RoleDto;
+import com.hkgov.csb.eproof.entity.Permission;
 import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.RoleHasPermission;
 import com.hkgov.csb.eproof.mapper.RoleMapper;

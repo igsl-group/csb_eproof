@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "application.jwt")
-@Getter
 @NoArgsConstructor
 public class JwtConfigurationProperties {
     private String secretKey;
@@ -13,8 +12,6 @@ public class JwtConfigurationProperties {
     private String authorizationHeader;
     private Integer expirationSeconds;
 
-/*    public JwtConfigurationProperties() {
-    }
 
     public String getSecretKey() {
         return secretKey;
@@ -46,5 +43,5 @@ public class JwtConfigurationProperties {
 
     public void setExpirationSeconds(Integer expirationSeconds) {
         this.expirationSeconds = expirationSeconds;
-    }*/
+    }
 }

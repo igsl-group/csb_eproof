@@ -2,23 +2,27 @@ package com.hkgov.csb.eproof.util;
 
 
 
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.JwtConfigurationProperties;
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
+import com.hkgov.csb.eproof.entity.User;
+import com.hkgov.csb.eproof.entity.UserSession;
+import com.hkgov.csb.eproof.exception.GenericException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -47,6 +51,8 @@ public class JwtHelper {
 
 
 
+
+
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts
                 .builder()
@@ -67,26 +73,26 @@ public class JwtHelper {
                 .compact();
     }
 
-   /* public void verifyToken(String token, User user, UserSession userSession) {
+    public void verifyToken(String token, User user, UserSession userSession) {
         if (user == null || userSession == null) {
-            throw new CommonException(JWT_TOKEN_INVALID_EXCEPTION_CODE, JWT_TOKEN_INVALID_EXCEPTION_MESSAGE, HttpStatus.UNAUTHORIZED);
+            throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
         boolean loginIdMatch = extractUsername(token).equals(user.getUsername());
         if (!loginIdMatch) {
-            throw new CommonException(JWT_TOKEN_INVALID_EXCEPTION_CODE, JWT_TOKEN_INVALID_EXCEPTION_MESSAGE, HttpStatus.UNAUTHORIZED);
+            throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
-        boolean tokenMatch = StringUtils.equals(userSession.getToken(), token);
+        boolean tokenMatch = StringUtils.equals(userSession.getJwt(), token);
         if (!allowMultipleLogin && !tokenMatch) {
-            throw new CommonException(JWT_TOKEN_REPLACED_EXCEPTION_CODE, JWT_TOKEN_INVALID_EXCEPTION_MESSAGE, HttpStatus.UNAUTHORIZED);
+            throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
         //boolean tokenNotExpired = userSession.getTimeStamp().plusSeconds(jwtConfigurationProperties.getExpirationSeconds()).isAfter(LocalDateTime.now());
-        boolean tokenNotExpired = userSession.getTimeStamp().plusDays(30).isAfter(LocalDateTime.now());
+        boolean tokenNotExpired = userSession.getLastActiveTime().plusDays(30).isAfter(LocalDateTime.now());
         if (!tokenNotExpired) {
-            throw new CommonException(JWT_TOKEN_EXPIRY_EXCEPTION_CODE, JWT_TOKEN_EXPIRY_EXCEPTION_MESSAGE, HttpStatus.UNAUTHORIZED);
+            throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
     }
 
-    public void verifyToken(String token, DsLoginOneTimePassword dsLoginOneTimePassword, UserSession userSession) {
+   /* public void verifyToken(String token, DsLoginOneTimePassword dsLoginOneTimePassword, UserSession userSession) {
         if (dsLoginOneTimePassword == null || userSession == null) {
             throw new CommonException(JWT_TOKEN_INVALID_EXCEPTION_CODE, JWT_TOKEN_INVALID_EXCEPTION_MESSAGE);
         }
@@ -122,12 +128,32 @@ public class JwtHelper {
         return loginIdMatch && tokenMatch && tokenNotExpired;
     }*/
 
-    public String getAuthorizationHeader(HttpServletRequest request) {
-        return request.getHeader(jwtConfigurationProperties.getAuthorizationHeader());
+    public String getJwtFromRequest(HttpServletRequest request) {
+
+        for (Cookie cookie : request.getCookies()) {
+            if(Constants.COOKIE_KEY_ACCESS_TOKEN.equals(cookie.getName())){
+                return cookie.getValue();
+            }
+        }
+
+        // jwt cannot get from cookies
+        // try to get from header
+        String jwtHeader = request.getHeader(jwtConfigurationProperties.getAuthorizationHeader());
+        if(isJwtHeaderValid(jwtHeader)){
+            return this.extractJwtFromHeader(jwtHeader);
+        }
+
+        // jwt at this moment should not be empty
+        // if its still empty, means it cannot being retrieved from either header or cookies.
+        return null;
     }
 
     public boolean nonJwtHeader(String authorizationHeader) {
         return StringUtils.isBlank(authorizationHeader) || !authorizationHeader.startsWith(jwtConfigurationProperties.getTokenPrefix());
+    }
+
+    public boolean isJwtHeaderValid(String jwtHeader){
+        return StringUtils.isNotBlank(jwtHeader) && jwtHeader.startsWith(jwtConfigurationProperties.getTokenPrefix());
     }
 
     public String extractJwtFromHeader(String authorizationHeader) {
