@@ -7,10 +7,10 @@
 
 ```typescript
 // default query
-const sort_field = 'id';    // table field name
-const sort_direction= 'asc';  // asc|desc
-const limit = 20;
-const offset = 0;
+const sortField = 'id';    // table field name
+const sortDirection= 'asc';  // asc|desc
+const size = 20;
+const page = 0;
 
 type query_param = {
   type: string -> IMPORTED | GENERATED | SIGN_ISSUE | NOTIFY | VALID | INVALID
@@ -92,7 +92,8 @@ type response = {
 }
 ```
 
-## [POST] /cert/dispatch/batch/:examProfileSerialNo
+## [POST] /cert/batch/dispatch/:examProfileSerialNo
+### Dispatch the cert with status = completed and stage = current stage and on hold = false
 > Remark 1: Only dispatch cert with on_hold = false
 ```typescript
 
@@ -116,3 +117,20 @@ type response = {
   message: string,
 }
 ```
+
+## [POST] /cert/batch/import/:examProfileSerialNo
+### Upload cert record to a serial number of exam profile
+
+```typescript
+type form_date = {
+  file: File #The CSV
+}
+
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+
+```
+
