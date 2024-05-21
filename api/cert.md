@@ -97,7 +97,7 @@ type response = {
 
 > Remark 1: find all cert info under same :examProfileSerialNo, where cert.on_hold = false and cert.status = pending
 
-> Remark 2: Follow this sequence to decide what is the next stage: IMPORTED -> GENERATED  -> SIGN_ISSUE -> NOTIFY -> COMPLETED. 
+> Remark 2: Follow this sequence to decide what is the next stage: IMPORTED -> GENERATED  -> SIGN_ISSUE -> NOTIFY -> COMPLETED. The stage are all stored in CertStage.java, you may reference to that class.
 
 > Remark 3: If found any cert, under same examProfile, is at next stage, and status = IN_PROGRESS, then disallow user to dispatch selected examProfile.
 
