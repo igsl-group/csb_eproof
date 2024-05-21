@@ -94,7 +94,17 @@ type response = {
 
 ## [POST] /cert/batch/dispatch/:examProfileSerialNo
 ### Dispatch the cert with status = completed and stage = current stage and on hold = false
-> Remark 1: Only dispatch cert with on_hold = false
+
+> Remark 1: find all cert info under same :examProfileSerialNo, where cert.on_hold = false and cert.status = pending
+
+> Remark 2: Follow this sequence to decide what is the next stage: IMPORTED -> GENERATED  -> SIGN_ISSUE -> NOTIFY -> COMPLETED. 
+
+> Remark 3: If found any cert, under same examProfile, is at next stage, and status = IN_PROGRESS, then disallow user to dispatch selected examProfile.
+
+> Remark 4: If above condition are all checked and passed, you may start dispatch the cert to next stage.
+
+> Remark 5: If request gave stage that are out of those 4 stage listed below, throw error.
+
 ```typescript
 
 // 200
