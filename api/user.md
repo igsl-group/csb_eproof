@@ -105,7 +105,7 @@ type response = {
 }
 ```
 
-## [Put] /user
+## [Patch] /user/{userId}
 ### Update User
 
 ```typescript
