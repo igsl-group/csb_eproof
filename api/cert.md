@@ -131,6 +131,26 @@ type response = {
 ## [POST] /cert/batch/import/:examProfileSerialNo
 ### Upload cert record to a serial number of exam profile
 
+> Remark 1: Validate each row in CSV first
+
+> Remark 2: Validation condition
+> + Passport or HKID, either one must exist
+> + HKID must be unique within exam profile serial no (Including excel content and DB record)
+> + Passport number must be unique within exam profile serial no (Including excel content and DB record)
+> + Email must in valid format ( Can use regex )
+> + Exam date in CSV must as same as the exam profile date
+> + Letter type must in either P or F character
+
+> Remark 3: Remove "(" and ")" in HKID
+
+
+> Remark 4: Use the index of header of CSV, instead of using exact index
+>>For example, to get HKID in csv row
+>> + CSV header: Exam Date, Name in English, HKID
+>> + ❌ csvRow.get(2);
+>> + ✅ csvRow.get(csvHeader.indexOf(HKID))
+
+
 ```typescript
 type form_date = {
   file: File #The CSV
