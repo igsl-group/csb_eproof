@@ -18,7 +18,7 @@ public class PermissionController {
     @Resource
     private PermissionService permissionService;
 
-    @GetMapping("/getAll")
+    @GetMapping("/list")
     public Result<List<PermissionDto>> getAll(){
         return Result.success(permissionService.getAll());
     }

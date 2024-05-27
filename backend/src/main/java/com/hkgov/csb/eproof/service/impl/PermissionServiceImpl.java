@@ -29,7 +29,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<PermissionDto> getAll() {
-        return permissionRepository.findAll().stream().map(PermissionMapper.INSTANCE::sourceToDestination).toList();
+        return permissionRepository.defaultSelectAllWithOrdering().stream().map(PermissionMapper.INSTANCE::sourceToDestination).toList();
     }
 
     @Override

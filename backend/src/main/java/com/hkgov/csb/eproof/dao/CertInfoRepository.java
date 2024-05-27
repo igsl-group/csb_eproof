@@ -24,6 +24,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
         )
         AND
         (
+            ( ?#{#searchDto.certValid} != null AND c.valid = ?#{#searchDto.certValid} ) OR
             ( ?#{#searchDto.hkid} != null AND c.hkid like %?#{#searchDto.hkid}% ) OR
             ( ?#{#searchDto.passportNo} != null AND c.passportNo like %?#{#searchDto.passportNo}% ) OR
             ( ?#{#searchDto.canName} != null AND c.name like %?#{#searchDto.canName}% ) OR

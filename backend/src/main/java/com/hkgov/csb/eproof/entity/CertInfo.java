@@ -1,15 +1,19 @@
 package com.hkgov.csb.eproof.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cret_info")
+@Table(name = "cert_info")
 @Getter
 @Setter
 
@@ -20,12 +24,11 @@ public class CertInfo extends BaseEntity{
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @MapsId("serialNo")
-    @JoinColumn(name = "exam_profile_serial")
-    private ExamProfile examProfile;
+    @Column(name = "exam_profile_serial")
+    private String examProfileSerialNo;
 
     @Column(name = "exam_date")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
     private LocalDate examDate;
 
     @Column(name = "name")
@@ -55,6 +58,18 @@ public class CertInfo extends BaseEntity{
     @Column(name = "at_grade")
     private String atGrade;
 
+
+    @Column(name = "is_passed")
+    private Boolean passed;
+
+    @Column(name = "actual_sign_time")
+    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime actualSignTime;
+
+    @Column(name = "actual_email_send_time")
+    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime actualEmailSendTime;
+
     @Column(name = "remark")
     private String remark;
 
@@ -69,8 +84,25 @@ public class CertInfo extends BaseEntity{
     @Column(name = "on_hold")
     private Boolean onHold;
 
+    @Column(name = "is_valid")
+    private Boolean valid;
+
     @Column(name = "on_hold_remark" ,columnDefinition="LONGTEXT")
     private String onHoldRemark;
+
+    // This getter functions needed to be used by Document merging. MUST NOT DELETE
+    public String getHkidOrPassport(){
+        if (StringUtils.isNotEmpty(hkid)){
+            return hkid;
+        } else{
+            return passportNo;
+        }
+    }
+
+    // Mapped tables
+    @ManyToOne
+    @JoinColumn(name = "exam_profile_serial", insertable = false, updatable = false)
+    private ExamProfile examProfile;
 
 
 }

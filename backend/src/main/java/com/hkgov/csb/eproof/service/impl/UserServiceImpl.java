@@ -4,6 +4,7 @@ package com.hkgov.csb.eproof.service.impl;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dao.UserHasRoleRepository;
 import com.hkgov.csb.eproof.dao.UserRepository;
+import com.hkgov.csb.eproof.dto.RoleDto;
 import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserHasRole;
@@ -19,7 +20,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -50,20 +50,21 @@ public class UserServiceImpl implements UserService {
         user.setLastLoginDate(LocalDateTime.now());
         user =  userRepository.save(user);
         Long id = user.getId();
-        List<UserHasRole> roles = request.getRoleList().stream().map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
+        List<UserHasRole> roles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
         userHasRoleRepository.saveAll(roles);
         return Objects.nonNull(user);
     }
 
-    public Boolean updateUser(UserDto request) {
-        User user = userRepository.getUserByDpUserIdAndDpDeptId(request.getDpUserId(),"CSB");
+    public Boolean updateUser(Long userId, UserDto request) {
+//        User user = userRepository.getUserByDpUserIdAndDpDeptId(request.getDpUserId(),"CSB");
+        User user = userRepository.getUserById(userId);
         UserMapper.INSTANCE.updateFromDto(request,user);
         user.setLastLoginDate(LocalDateTime.now());
         user = userRepository.save(user);
         Long id = user.getId();
         List<UserHasRole> oldRoles = userHasRoleRepository.roles(request.getId());
         userHasRoleRepository.deleteAllById(oldRoles.stream().map(UserHasRole::getId).collect(Collectors.toList()));
-        List<UserHasRole> newqroles = request.getRoleList().stream().map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
+        List<UserHasRole> newqroles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
         userHasRoleRepository.saveAll(newqroles);
         return Objects.nonNull(user);
     }
@@ -75,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserInfo(String id) {
+    public User getUserInfo(Long id) {
        /* Remove redundant codes
        User user = new User();
        user = userRepository.getUserById(id);
@@ -86,7 +87,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User removeUser(String id) {
+    public User removeUser(Long id) {
         User user = getUserInfo(id);
         if (Objects.isNull(user)) {
             throw new GenericException(USER_CANNOT_DELETE_ITSELF_EXCEPTION_CODE, USER_CANNOT_DELETE_ITSELF_EXCEPTION_MESSAGE);
@@ -97,12 +98,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Override
-    public void manualValidateUserPermission(List<String> requiredPermission) {
-        User currentUser = authenticationService.getCurrentUser();
-        Boolean userHasPermission = false;
-        List<String> userPermissionList = currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-    }
+
 
 
 }

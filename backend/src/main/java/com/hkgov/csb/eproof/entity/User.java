@@ -7,10 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 
@@ -71,7 +68,7 @@ public class User extends BaseEntity implements UserDetails {
     private LocalDateTime lastLoginDate;
 
     // 用户拥有的角色
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_has_role",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -81,7 +78,12 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles!=null?roles.stream().map(Role::getPermissions).filter(Objects::nonNull).flatMap(List::stream).distinct().toList():null;
+        if(roles.size() <= 0){
+            return new ArrayList<>();
+        }else{
+            return roles.stream().map(Role::getPermissions).filter(Objects::nonNull).flatMap(List::stream).distinct().toList();
+        }
+//        return roles!=null?roles.stream().map(Role::getPermissions).filter(Objects::nonNull).flatMap(List::stream).distinct().toList():null;
     }
 
     @Override

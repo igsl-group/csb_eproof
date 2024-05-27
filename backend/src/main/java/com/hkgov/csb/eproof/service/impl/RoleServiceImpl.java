@@ -37,8 +37,10 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
         role = roleRepository.save(role);
         Long id = role.getId();
-        List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null,id,x)).toList();
-        hasPermissionRepository.saveAll(roles);
+        if (requestDto.getPermissionList() != null && requestDto.getPermissionList().size()>0) {
+            List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null, id, x)).toList();
+            hasPermissionRepository.saveAll(roles);
+        }
         return Objects.nonNull(role);
     }
 
@@ -73,10 +75,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role getRole(Long id) {
-        Role role = roleRepository.getReferenceById(id);
-        if(Objects.isNull(role))
-            return null;
-        return role;
+        return roleRepository.findById(id).orElse(null);
     }
 
 

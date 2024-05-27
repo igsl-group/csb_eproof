@@ -1,5 +1,7 @@
 package com.hkgov.csb.eproof.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hkgov.csb.eproof.constants.Constants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,9 +23,15 @@ public class ExamProfile extends BaseEntity{
     private String serialNo;
 
     @Column(name = "exam_date")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
     private LocalDate examDate;
 
+    @Column(name = "result_letter_date")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
+    private LocalDate resultLetterDate;
+
     @Column(name = "announce_date")
+    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime announceDate;
 
     @Column(name = "location")

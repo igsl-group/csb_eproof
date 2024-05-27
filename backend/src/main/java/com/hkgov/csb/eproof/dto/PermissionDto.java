@@ -8,9 +8,9 @@ import lombok.Setter;
 public class PermissionDto {
     private Long id;
 
-    private String name;
+    private String description;
 
-    private String key;
+    private String code;
 
     public Long getId() {
         return id;

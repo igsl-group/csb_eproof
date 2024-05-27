@@ -52,6 +52,7 @@ entity "Exam_Profile" as exam_profile {
   location: varchar(255)
   status: varchar (50) -> Active
   is_freezed: bit -> 0 | 1
+ - result_letter_date: datetime
   created_by: varchar(255)
   modified_by: varchar(255)
   created_date: datetime
@@ -93,7 +94,6 @@ entity "Cert_Info" as cert_info {
     id: number <<generated, PK>>
     --
     exam_profile_serial: : varchar <<FK>>
-    can_serial: varchar(255)
     exam_date: date
     name: varchar(255)
     cname: varchar(255)
@@ -104,6 +104,9 @@ entity "Cert_Info" as cert_info {
     ue_grade: varchar(255)
     uc_grade: varchar(255)
     at_grade: varchar(255)
+    - is_passed: bit
+    - actual_sign_time: datetime
+    - actual_email_send_time: datetime
     remark: varchar(255)
     cert_stage: Imported | Generated | Sign_Issue | Notify | Completed | Voided
     status: Pending | Success | Fail
@@ -179,7 +182,6 @@ entity "Combined_Historical_Result_Before_2024" as combined_historical_result_be
     id: number <<generated, PK>>
     --
     exam_date: date
-    can_serial: varchar(255)
     name: varchar(255)
     cname: varchar(255)
     hkid: varchar(255)
@@ -202,6 +204,8 @@ entity "Email_Message" as email_message {
   --
   to: varchar(255)
   cc: varchar(255)
+  - type: varchar(255)
+  - cert_info_id: number <<FK-Cert_Info.id>>
   subject: varchar(1000)
   body: text
   created_by: varchar(255)
@@ -273,4 +277,6 @@ action_target }o--|| cert_info
 action_target }|--|| cert_action
 
 user_session |o--|| user
+
+cert_info ||--|{ email_message
 @enduml

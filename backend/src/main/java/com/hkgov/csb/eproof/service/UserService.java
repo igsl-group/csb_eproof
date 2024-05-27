@@ -17,13 +17,12 @@ public interface UserService{
 
     Boolean createUser(UserDto request);
 
-    Boolean updateUser(UserDto request);
+    Boolean updateUser(Long userId, UserDto request);
 
     Page<User> getAllUser(Pageable pageable);
 
-    User getUserInfo(String userId);
+    User getUserInfo(Long userId);
 
-    User removeUser(String id);
+    User removeUser(Long id);
 
-    void manualValidateUserPermission(List<String> requiredPermission);
 }

@@ -3,10 +3,7 @@ package com.hkgov.csb.eproof.mapper;
 
 import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 
@@ -23,6 +20,7 @@ public interface UserMapper {
 
     User destinationToSource(UserDto dto);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateFromDto(UserDto dto, @MappingTarget User user);
 }
 

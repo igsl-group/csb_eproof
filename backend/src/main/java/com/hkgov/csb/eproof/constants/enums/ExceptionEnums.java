@@ -11,6 +11,9 @@ public enum ExceptionEnums {
 
     // Case
     ILLEGAL_SEARCH_TYPE("illegal.search.type","Illegal search type provided."),
+
+    // Document generation
+    DOCUMENT_MERGE_ERROR("document.merge.error","Encountered error when merging document."),
     ;
 
 

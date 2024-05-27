@@ -20,4 +20,6 @@ public class CertSearchDto {
     private String ucGrade;
     private String atGrade;
 
+    private Boolean certValid;
+
 }

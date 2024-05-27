@@ -10,4 +10,7 @@ import java.util.List;
 public interface PermissionRepository extends JpaRepository<Permission,Long> {
     @Query("select p from RoleHasPermission r left join Permission p on r.permissionId = p.id where r.roleId = :id")
     List<Permission> getRoleByRoleId(@Param("id") Long id);
+
+    @Query("select p from Permission p order by p.code")
+    List<Permission> defaultSelectAllWithOrdering();
 }

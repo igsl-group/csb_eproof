@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hkgov.csb.eproof.constants.Constants.DATE_TIME_PATTERN;
@@ -28,7 +29,5 @@ public class UserDto {
     @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime lastLoginDate;
 
-    private List<RoleDto> roles;
-
-    private List<Long> roleList;
+    private List<RoleDto> roles = new ArrayList<>();
 }

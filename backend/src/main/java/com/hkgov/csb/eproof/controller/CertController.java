@@ -32,7 +32,7 @@ public class CertController {
     private final PermissionService permissionService;
 
     @PostMapping("/cert/search/{searchType}")
-    public Result searchCert(CertSearchDto request,
+    public Result searchCert(@RequestBody CertSearchDto request,
                              @PathVariable String searchType,
 
                              @RequestParam(defaultValue = "0") int page,
@@ -42,7 +42,7 @@ public class CertController {
 
         String requiredPermission = "";
         List<String> certStageList = null;
-        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
+//        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
         switch (searchType) {
             case "IMPORTED" -> {
                 requiredPermission = Permissions.CERT_SEARCH_IMPORT.name();
@@ -62,13 +62,17 @@ public class CertController {
             }
             case "VALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_VALID.name();
-                certStageList = List.of(CertStage.COMPLETED.name(), CertStage.SIGN_ISSUE.name());
-                certStatusList = List.of(CertStatus.SUCCESS.name());
+                /*certStageList = List.of(CertStage.COMPLETED.name(), CertStage.SIGN_ISSUE.name());
+                certStatusList = List.of(CertStatus.SUCCESS.name());*/
             }
             case "INVALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_INVALID.name();
-                certStageList = List.of(CertStage.VOIDED.name());
-                certStatusList = List.of(CertStatus.SUCCESS.name());
+                /*certStageList = List.of(CertStage.VOIDED.name());
+                certStatusList = List.of(CertStatus.SUCCESS.name());*/
+            }
+
+            case "BY_CANDIDATE" -> {
+                requiredPermission = Permissions.CERT_SEARCH_BY_CAN.name();
             }
             default -> throw new GenericException(ExceptionEnums.ILLEGAL_SEARCH_TYPE);
         }
@@ -76,7 +80,8 @@ public class CertController {
 
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
 
-        Page<CertInfo> searchResult = certInfoService.search(request,certStageList,certStatusList ,pageable);
+        // set certStatusList to null to show all cert regardless what status
+        Page<CertInfo> searchResult = certInfoService.search(request,certStageList,null ,pageable);
 
         return Result.success(searchResult);
     }

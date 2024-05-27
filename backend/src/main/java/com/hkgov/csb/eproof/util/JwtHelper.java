@@ -16,6 +16,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,8 @@ import java.util.function.Function;
 
 @Component
 public class JwtHelper {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JwtConfigurationProperties jwtConfigurationProperties;
 
@@ -75,19 +79,23 @@ public class JwtHelper {
 
     public void verifyToken(String token, User user, UserSession userSession) {
         if (user == null || userSession == null) {
+            logger.error("User or session not exist.");
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
         boolean loginIdMatch = extractUsername(token).equals(user.getUsername());
         if (!loginIdMatch) {
+            logger.error("Login ID not match.");
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
         boolean tokenMatch = StringUtils.equals(userSession.getJwt(), token);
         if (!allowMultipleLogin && !tokenMatch) {
+            logger.error("Multiple login detected and not allow.");
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
         //boolean tokenNotExpired = userSession.getTimeStamp().plusSeconds(jwtConfigurationProperties.getExpirationSeconds()).isAfter(LocalDateTime.now());
         boolean tokenNotExpired = userSession.getLastActiveTime().plusDays(30).isAfter(LocalDateTime.now());
         if (!tokenNotExpired) {
+            logger.error("Token expired.");
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
     }
@@ -130,11 +138,14 @@ public class JwtHelper {
 
     public String getJwtFromRequest(HttpServletRequest request) {
 
-        for (Cookie cookie : request.getCookies()) {
-            if(Constants.COOKIE_KEY_ACCESS_TOKEN.equals(cookie.getName())){
-                return cookie.getValue();
+        if(request.getCookies() != null){
+            for (Cookie cookie : request.getCookies()) {
+                if(Constants.COOKIE_KEY_ACCESS_TOKEN.equals(cookie.getName())){
+                    return cookie.getValue();
+                }
             }
         }
+
 
         // jwt cannot get from cookies
         // try to get from header
