@@ -1,10 +1,13 @@
 package com.hkgov.csb.eproof.service;
 
+import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -14,4 +17,8 @@ import java.util.List;
 */
 public interface CertInfoService {
     Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
+
+    Boolean batchImport(String examProfileSerialNo, LocalDate examDate, List<CertImportDto> csvData);
+
+    Boolean dispatch(String examProfileSerialNo, CertStage currentStage);
 }

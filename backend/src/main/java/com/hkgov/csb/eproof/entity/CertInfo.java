@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Table(name = "cert_info")
 @Getter
 @Setter
-
 public class CertInfo extends BaseEntity{
 
     @Id
@@ -90,6 +89,9 @@ public class CertInfo extends BaseEntity{
     @Column(name = "on_hold_remark" ,columnDefinition="LONGTEXT")
     private String onHoldRemark;
 
+    @Column(name = "letter_type")
+    private String letterType;
+
     // This getter functions needed to be used by Document merging. MUST NOT DELETE
     public String getHkidOrPassport(){
         if (StringUtils.isNotEmpty(hkid)){
@@ -103,6 +105,9 @@ public class CertInfo extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "exam_profile_serial", insertable = false, updatable = false)
     private ExamProfile examProfile;
+
+
+
 
 
 }

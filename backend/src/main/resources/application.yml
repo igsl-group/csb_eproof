@@ -19,6 +19,8 @@ spring:
       mode: never
       data-locations:
         - classpath:data_local.sql
+  messages:
+    basename: i18n/messages
   mail:
     host: mail.igsl-group.com
     port: 465
@@ -64,9 +66,7 @@ management:
     mail:
       enabled: false
 
-messages:
-  basename:
-    path: messages/mailMessages
+
 
 email:
   extend:
@@ -88,7 +88,7 @@ server:
     context-path: /api/v1
 security:
 #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso,/test/**
+  whitelist: /api-docs/**,/sso,/test/**,/cert/**
 
 filter:
   config:
