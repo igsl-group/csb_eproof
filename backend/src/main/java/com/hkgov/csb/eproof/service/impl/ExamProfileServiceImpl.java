@@ -59,7 +59,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public Boolean delete(String examProfileSerialNo) {
-        var certInfo = certInfoRepository.getinfoByNo(examProfileRepository.getinfoByNo(examProfileSerialNo));
+        var certInfo = certInfoRepository.getInfoByNo(examProfileSerialNo);
         if(Objects.nonNull(certInfo)){
             throw new GenericException("400",SERIAL_HAS_EXITED);
         }

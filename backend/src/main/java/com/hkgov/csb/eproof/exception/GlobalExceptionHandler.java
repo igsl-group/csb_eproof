@@ -48,6 +48,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(ServiceException.class)
+    public ProblemDetail handleServiceException(ServiceException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setProperty(CODE, ex.getCode());
+        pd.setProperty(MESSAGE, ex.getMessage());
+//        pd.setProperty("field", ex.getField());
+//        pd.setProperty("value", ex.getValue());
+        pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
+                .map(Throwable::getMessage)
+                .orElse(null));
+        ex.printStackTrace();
+        return pd;
+    }
+
     @ExceptionHandler(SQLException.class)
     public ProblemDetail handleGenericException(SQLException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

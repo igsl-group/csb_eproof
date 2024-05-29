@@ -1,87 +1,109 @@
 package com.hkgov.csb.eproof.util;;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Data;
+
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Result<T> implements Serializable {
+
+
+    private static final long serialVersionUID = -9037821067418468060L;
     private String code;
-    private String message;
-    private boolean success;
+
     private T data;
 
-    public Result() {
-    }
+    private String message;
 
-    public Result(String code, String message,boolean success) {
-        this.code = code;
-        this.message = message;
-        this.success = success;
-    }
+    private Object[] messageArgs;
 
-    public Result(String code, String message, T data,boolean success) {
-        this.code = code;
-        this.message = message;
-        this.data = data;
-        this.success = success;
-    }
+    private List<Map<String, String>> validFields;
 
-
-    public String getcode() {
-        return code;
-    }
-
-    public void setcode(String code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    // 静态工厂方法
-    public static <T> Result<T> success(T data) {
-        ResultCode rce = ResultCode.SUCCESS;
-        boolean success = true;
-        if (data instanceof Boolean && Boolean.FALSE.equals(data)) {
-            rce = ResultCode.SYSTEM_EXECUTION_ERROR;
-            success = false;
-        }
-        return result(rce,data,success);
-    }
-
-    public static <T> Result<T> fail(String code, String message,boolean success) {
-        return new Result<>(code, message,success);
-    }
-
-    public static <T> Result<T> of(String code, String message, T data,boolean success) {
-        return new Result<>(code, message, data,success);
-    }
     public static <T> Result<T> success() {
         return success(null);
     }
 
-    public static <T> Result<T> result(ResultCode resultCode, T data,boolean success) {
-        return new Result<>(resultCode.getCode(), resultCode.getMessage(), data,success);
+    public static <T> Result<T> success(T data) {
+        ResultCode rce = ResultCode.SUCCESS;
+        if (data instanceof Boolean && Boolean.FALSE.equals(data)) {
+            rce = ResultCode.SYSTEM_EXECUTION_ERROR;
+        }
+        return result(rce, data);
+    }
+
+
+    public static <T> Result<T> success(T data, Long total) {
+        Result<T> result = new Result();
+        result.setCode(ResultCode.SUCCESS.getCode());
+        result.setMessage(ResultCode.SUCCESS.getMsg());
+        result.setData(data);
+        return result;
+    }
+
+    public static <T> Result<T> failed() {
+        return result(ResultCode.SYSTEM_EXECUTION_ERROR.getCode(), ResultCode.SYSTEM_EXECUTION_ERROR.getMsg(), null, null, null);
+    }
+
+    public static <T> Result<T> failed(String msg) {
+        return result(ResultCode.SYSTEM_EXECUTION_ERROR.getCode(), msg, null, null, null);
+    }
+
+    public static <T> Result<T> failed(String code, String msg) {
+        return result(code, msg, null, null, null);
+    }
+
+    public static <T> Result<T> judge(boolean status) {
+        if (status) {
+            return success();
+        } else {
+            return failed();
+        }
+    }
+
+    public static <T> Result<T> failed(ResultCode resultCode) {
+        return result(resultCode.getCode(), resultCode.getMsg(), null, null, null);
+    }
+
+    public static <T> Result<T> failed(ResultCode resultCode, Object... messageArgs) {
+        return result(resultCode.getCode(), resultCode.getMsg(), null, null, messageArgs);
+    }
+
+
+//    public static <T> Result<T> valida(List<Map<String, String>> list) {
+//        return result(ResultCode.PARAM_VALID_ERROR.getCode(), ResultCode.PARAM_VALID_ERROR.getMsg(), null, list, null);
+//    }
+
+
+    public static <T> Result<T> result(ResultCode resultCode, T data) {
+        return result(resultCode.getCode(), resultCode.getMsg(), data, null, null);
+    }
+
+    public static <T> Result<T> result(ResultCode resultCode) {
+        return result(resultCode.getCode(), resultCode.getMsg(), null, null, null);
+    }
+
+    public static <T> Result<T> result(ResultCode resultCode, String msg) {
+        return result(resultCode.getCode(), msg, null, null, null);
+    }
+
+    public static <T> Result<T> result(String code, String msg, T data, List<Map<String, String>> valida, Object[] args) {
+        Result<T> result = new Result<T>();
+        result.setCode(code);
+        result.setData(data);
+        result.setMessage(StrUtil.format(" {}", Objects.isNull(args) ? MessageUtils.message(msg) : MessageUtils.message(msg, args)));
+        result.setValidFields(valida);
+        return result;
+    }
+
+
+    public static boolean isSuccess(Result result) {
+        return result != null && ResultCode.SUCCESS.getCode().equals(result.getCode());
     }
 }

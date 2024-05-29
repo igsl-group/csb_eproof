@@ -9,10 +9,9 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "cret_info")
+@Table(name = "cert_info")
 @Getter
 @Setter
-
 public class CertInfo extends BaseEntity{
 
     @Id
@@ -21,7 +20,6 @@ public class CertInfo extends BaseEntity{
     private Long id;
 
     @ManyToOne
-    @MapsId("serialNo")
     @JoinColumn(name = "exam_profile_serial")
     private ExamProfile examProfile;
 
@@ -71,6 +69,10 @@ public class CertInfo extends BaseEntity{
 
     @Column(name = "on_hold_remark" ,columnDefinition="LONGTEXT")
     private String onHoldRemark;
+
+    @Column(name = "letter_type")
+    private String letterType;
+
 
 
 }

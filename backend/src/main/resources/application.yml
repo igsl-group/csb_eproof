@@ -1,10 +1,10 @@
 #Database config
 spring:
   datasource:
-    url: jdbc:mariadb://192.168.2.227:3306/eproof
+    url: jdbc:mysql://127.0.0.1:3306/e_proof?characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: P@ssw0rd1234$
-    driver-class-name: org.mariadb.jdbc.Driver
+    password: hdw1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,6 +19,9 @@ spring:
       mode: never
       data-locations:
         - classpath:data_local.sql
+  messages:
+    basename: i18n/messages
+    fallback-to-system-locale: false
   mail:
     host: mail.igsl-group.com
     port: 465
@@ -62,9 +65,7 @@ management:
     db:
       enabled: false
 
-messages:
-  basename:
-    path: messages/mailMessages
+
 
 email:
   extend:
@@ -86,7 +87,7 @@ server:
     context-path: /api/v1
 security:
 #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso
+  whitelist: /api-docs/**,/auth/**,/cert/**
 
 filter:
   config:

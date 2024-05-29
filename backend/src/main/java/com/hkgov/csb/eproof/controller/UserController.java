@@ -35,7 +35,7 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size, direction, properties);
         return Result.success(userService.getAllUser(pageable).map(UserMapper.INSTANCE::sourceToDestination));
     }
-    @PostMapping("/user/{userId}")
+    @GetMapping("/user/{userId}")
     public Result<UserDto> getUserInfo(@PathVariable String userId){
         return Result.success(UserMapper.INSTANCE.sourceToDestination(userService.getUserInfo(userId)));
     }
