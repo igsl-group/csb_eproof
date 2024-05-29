@@ -1,4 +1,4 @@
-package com.hkgov.csb.eproof.util;
+package com.hkgov.csb.eproof.constants.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,8 @@ public enum ResultCode implements Serializable {
     PASSPORT_EXITS("1004","passport.exits"),
     CSV_LETTER_TYPE("1005","letter.type"),
     CSV_EMAIL_ERROR("1006","email.error"),
-    STAGE_ERROR("1007","stage.error")
+    STAGE_ERROR("1007","stage.error"),
+    CSV_IMPORT_ERROR("1008","csv.import.error")
     ;
 
     private String code;

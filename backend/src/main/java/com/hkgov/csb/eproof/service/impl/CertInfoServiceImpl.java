@@ -1,17 +1,16 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.util.CodeUtil;
-import com.hkgov.csb.eproof.util.ResultCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
 * @author David
@@ -81,7 +83,6 @@ public class CertInfoServiceImpl implements CertInfoService {
     public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
-        ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         int count = csvData.size();
         List<CertInfo> certInfos = certInfoRepository.getinfoByNoList(examProfileSerialNo);
@@ -120,7 +121,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             if(i< count){
                 //组装batchinfo数据
                 CertInfo certInfo = new CertInfo();
-                certInfo.setExamProfile(examProfile);
+                certInfo.setExamProfileSerialNo(examProfileSerialNo);
                 certInfo.setHkid(csv.getHkid());
                 certInfo.setPassportNo(csv.getPassport());
                 certInfo.setExamDate(examDate);

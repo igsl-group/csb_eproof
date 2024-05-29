@@ -1,7 +1,6 @@
 package com.hkgov.csb.eproof.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,7 +34,7 @@ public class Role extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "role_has_permission",
             joinColumns = @JoinColumn(name = "role_id"),

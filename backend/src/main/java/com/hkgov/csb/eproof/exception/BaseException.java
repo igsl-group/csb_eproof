@@ -1,7 +1,7 @@
 package com.hkgov.csb.eproof.exception;
 
 import com.hkgov.csb.eproof.util.MessageUtils;
-import com.hkgov.csb.eproof.util.ResultCode;
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

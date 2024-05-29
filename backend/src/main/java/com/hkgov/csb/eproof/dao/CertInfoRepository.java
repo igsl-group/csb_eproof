@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
-    @Query("select c from CertInfo c where c.examProfile.serialNo = :serialNo")
+    @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
     CertInfo getInfoByNo(@Param("serialNo") String serialNo);
 
 
@@ -44,9 +44,9 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
                               @Param("caseStatusList") List<String> certStatusList,
                               Pageable pageable);
 
-    @Query("select c from CertInfo c left join ExamProfile where c.examProfile.serialNo = :serialNo")
+    @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo")
     List<CertInfo> getinfoByNoList(@Param("serialNo") String serialNo);
 
-    @Query("select c from CertInfo c left join ExamProfile where c.examProfile.serialNo = :serialNo and c.certStage= :stage and c.certStatus = 'pending' and c.onHold = false  ")
+    @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo and c.certStage= :stage and c.certStatus = 'pending' and c.onHold = false  ")
     List<CertInfo> getinfoByNoAndStatus(@Param("serialNo") String serialNo,@Param("stage") CertStage stage);
 }

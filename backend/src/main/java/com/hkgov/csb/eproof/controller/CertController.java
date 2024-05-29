@@ -6,7 +6,6 @@ import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
-import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.PermissionService;
@@ -90,7 +89,7 @@ public class CertController {
         return Result.success(searchResult);
     }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/cert/batchImport/{examProfileSerialNo}")
-    public Result batchImport(@RequestParam String examProfileSerialNo, @RequestParam LocalDate examDate, @RequestPart("file") MultipartFile file){
+    public Result batchImport(@PathVariable String examProfileSerialNo, @RequestParam LocalDate examDate, @RequestPart("file") MultipartFile file){
         CsvUtil csvUtil = new CsvUtil();
         List<CertImportDto> csvData = csvUtil.getCsvData(file, CertImportDto.class);
         return Result.success(certInfoService.batchImport(examProfileSerialNo,examDate,csvData));

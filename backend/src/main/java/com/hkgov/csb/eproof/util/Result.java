@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.util;;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -74,12 +75,6 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> failed(ResultCode resultCode, Object... messageArgs) {
         return result(resultCode.getCode(), resultCode.getMsg(), null, null, messageArgs);
     }
-
-
-//    public static <T> Result<T> valida(List<Map<String, String>> list) {
-//        return result(ResultCode.PARAM_VALID_ERROR.getCode(), ResultCode.PARAM_VALID_ERROR.getMsg(), null, list, null);
-//    }
-
 
     public static <T> Result<T> result(ResultCode resultCode, T data) {
         return result(resultCode.getCode(), resultCode.getMsg(), data, null, null);
