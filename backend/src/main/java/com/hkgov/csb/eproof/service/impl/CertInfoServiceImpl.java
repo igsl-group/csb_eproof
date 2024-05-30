@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
@@ -84,7 +85,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.EXAM_DATE);
         List<CertImportDto> certInfos = CertInfoMapper.INSTANCE.sourceToDestinationList(certInfoRepository.getinfoByNoList(examProfileSerialNo));
         CodeUtil codeUtil = new CodeUtil();
         int count = certInfos.size();
