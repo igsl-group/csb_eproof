@@ -4,7 +4,7 @@ package com.hkgov.csb.eproof.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
-import com.hkgov.csb.eproof.dto.DocumentMarkDto;
+import com.hkgov.csb.eproof.dto.DocumentScoreDto;
 import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.service.DocumentService;
 import com.hkgov.csb.eproof.service.PermissionService;
@@ -20,6 +20,8 @@ import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 import jakarta.annotation.Resource;
+import org.docx4j.Docx4J;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,19 +117,19 @@ public class TestController {
         CertInfo certInfo = certInfoRepository.findById(1L).get();
         ExamProfile exam = certInfo.getExamProfile();
 
-        List<DocumentMarkDto> markDtoList = new ArrayList<>();
+        List<DocumentScoreDto> markDtoList = new ArrayList<>();
         if(certInfo.getAtGrade() != null){
-            markDtoList.add(new DocumentMarkDto("AT",certInfo.getAtGrade()));
+            markDtoList.add(new DocumentScoreDto("AT",certInfo.getAtGrade()));
         }
         if(certInfo.getUcGrade() != null){
-            markDtoList.add(new DocumentMarkDto("UC",certInfo.getUcGrade()));
+            markDtoList.add(new DocumentScoreDto("UC",certInfo.getUcGrade()));
         }
         if(certInfo.getUeGrade() != null){
-            markDtoList.add(new DocumentMarkDto("UE",certInfo.getUeGrade()));
+            markDtoList.add(new DocumentScoreDto("UE",certInfo.getUeGrade()));
         }
 
         if(certInfo.getBlnstGrade() != null){
-            markDtoList.add(new DocumentMarkDto("BLNST","PASSED"));
+            markDtoList.add(new DocumentScoreDto("BLNST","PASSED"));
         }
 
 
@@ -202,4 +204,27 @@ public class TestController {
 
         return null;
     }
+
+
+    @GetMapping("/tryDocx4jToPdf")
+    public ResponseEntity tryDocx4jToPdf() throws Exception {
+        WordprocessingMLPackage pkg = Docx4J.load(new File("D:\\Work Folder\\CSB Eproof\\Cert sample\\Result letter templates\\test_template.docx"));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        Docx4J.toPDF(pkg,baos);
+
+        baos.flush();
+        baos.close();
+
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename("test.pdf")
+                .build()
+        );
+
+        return ResponseEntity.ok().headers(header).body(baos.toByteArray());
+
+    }
+
 }
