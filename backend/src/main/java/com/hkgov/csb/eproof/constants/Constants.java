@@ -7,12 +7,20 @@ public final class Constants {
     public static final String COOKIE_KEY_LOGIN_UID = "uid";
     public static final String COOKIE_KEY_LOGIN_DPDEPTID = "dpdeptid";
     public static final String EXAM_DATE = "MM/dd/yyyy";
-    public static final String COMMON_STATUS_ACTIVE = "ACTIVE";
+    public static final String STATUS_ACTIVE = "ACTIVE";
 
     public static final String JWT_KEY_USERNAME = "uname";
     public static final String JWT_KEY_DPUSERID = "dpuserid";
     public static final String JWT_KEY_SESSIONID= "sid";
     public static final String COOKIE_KEY_ACCESS_TOKEN = "access_token";
+
+
+    public static final String LETTER_TEMPLATE_AT_LEAST_ONE_PASS = "AT_LEAST_ONE_PASS_TEMPLATE";
+    public static final String LETTER_TEMPLATE_ALL_FAILED_TEMPLATE = "ALL_FAILED_TEMPLATE";
+    public static final String FILE_TYPE_CERT_RECORD = "CERT_RECORD";
+
+
+
 
 
     private Constants() {

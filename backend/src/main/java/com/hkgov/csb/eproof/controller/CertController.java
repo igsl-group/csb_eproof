@@ -12,6 +12,7 @@ import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
 import lombok.RequiredArgsConstructor;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/cert")
-@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class CertController {
 
@@ -35,6 +36,7 @@ public class CertController {
     private final PermissionService permissionService;
 
     @PostMapping("/search/{searchType}")
+    @Transactional(rollbackFor = Exception.class)
     public Result searchCert(@RequestBody CertSearchDto request,
                              @PathVariable String searchType,
 
@@ -89,19 +91,23 @@ public class CertController {
         return Result.success(searchResult);
     }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/cert/batchImport/{examProfileSerialNo}")
+    @Transactional(rollbackFor = Exception.class)
     public Result batchImport(@PathVariable String examProfileSerialNo, @RequestParam LocalDate examDate, @RequestPart("file") MultipartFile file){
         CsvUtil csvUtil = new CsvUtil();
         List<CertImportDto> csvData = csvUtil.getCsvData(file, CertImportDto.class);
         return Result.success(certInfoService.batchImport(examProfileSerialNo,examDate,csvData));
     }
     @GetMapping("/batch/dispatch")
+    @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> dispatch(@RequestParam String examProfileSerialNo, @RequestParam CertStage currentStage){
         return Result.success(certInfoService.dispatch(examProfileSerialNo,currentStage));
     }
 
     @PostMapping("/batch/generate/{examProfileSerialNo}")
-    public Result batchGeneratePdf(@PathVariable String examProfileSerialNo){
-        certInfoService.changeStatusToInProgress(examProfileSerialNo,CertStage.GENERATED);
+    public Result batchGeneratePdf(@PathVariable String examProfileSerialNo) throws InterruptedException, IOException, Docx4JException {
+        certInfoService.changeCertStatusToInProgress(examProfileSerialNo,CertStage.GENERATED);
+
+//        Thread.sleep(20000);
 
         certInfoService.batchGeneratePdf(examProfileSerialNo);
 

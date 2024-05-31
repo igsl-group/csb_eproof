@@ -26,7 +26,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
 
-        if (!Constants.COMMON_STATUS_ACTIVE.equals(user.getStatus())){
+        if (!Constants.STATUS_ACTIVE.equals(user.getStatus())){
             throw new GenericException(ExceptionEnums.ACCESS_DENIED);
         }
 

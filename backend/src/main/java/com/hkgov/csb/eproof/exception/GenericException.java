@@ -10,6 +10,11 @@ public class GenericException extends RuntimeException {
     private final String code;
     private final String message;
 
+
+    public GenericException(){
+        this.code = ExceptionEnums.SYSTEM_ERROR.getCode();
+        this.message = ExceptionEnums.SYSTEM_ERROR.getMessage();
+    }
     public GenericException (ExceptionEnums exceptionEnums){
         this.code = exceptionEnums.getCode();
         this.message = exceptionEnums.getMessage();

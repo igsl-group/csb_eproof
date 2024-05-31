@@ -4,12 +4,13 @@ package com.hkgov.csb.eproof.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
-import com.hkgov.csb.eproof.dto.DocumentScoreDto;
+import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.*;
-import com.hkgov.csb.eproof.service.DocumentService;
+import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.DocxUtil;
 
+import com.hkgov.csb.eproof.util.MinioUtil;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.comp.helper.Bootstrap;
 import com.sun.star.frame.XComponentLoader;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +59,7 @@ public class TestController {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private DocumentService documentService;
+    private DocumentGenerateService documentGenerateService;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -102,7 +104,7 @@ public class TestController {
 
         FileInputStream inputStream = new FileInputStream("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template.docx");
 
-        return ResponseEntity.ok().headers(header).body(documentService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),null));
+        return ResponseEntity.ok().headers(header).body(documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),null));
     }
 
 
@@ -117,19 +119,19 @@ public class TestController {
         CertInfo certInfo = certInfoRepository.findById(1L).get();
         ExamProfile exam = certInfo.getExamProfile();
 
-        List<DocumentScoreDto> markDtoList = new ArrayList<>();
+        List<ExamScoreDto> markDtoList = new ArrayList<>();
         if(certInfo.getAtGrade() != null){
-            markDtoList.add(new DocumentScoreDto("AT",certInfo.getAtGrade()));
+            markDtoList.add(new ExamScoreDto("AT",certInfo.getAtGrade()));
         }
         if(certInfo.getUcGrade() != null){
-            markDtoList.add(new DocumentScoreDto("UC",certInfo.getUcGrade()));
+            markDtoList.add(new ExamScoreDto("UC",certInfo.getUcGrade()));
         }
         if(certInfo.getUeGrade() != null){
-            markDtoList.add(new DocumentScoreDto("UE",certInfo.getUeGrade()));
+            markDtoList.add(new ExamScoreDto("UE",certInfo.getUeGrade()));
         }
 
         if(certInfo.getBlnstGrade() != null){
-            markDtoList.add(new DocumentScoreDto("BLNST","PASSED"));
+            markDtoList.add(new ExamScoreDto("BLNST", certInfo.getBlnstGrade()));
         }
 
 
@@ -142,7 +144,7 @@ public class TestController {
 
         FileInputStream inputStream = new FileInputStream("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template_2.docx");
 
-        byte [] mergedDocument = documentService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),map);
+        byte [] mergedDocument = documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),map);
         /*Configure config = Configure.builder().bind("examResults",policy).build();
         ByteArrayInputStream bais = new ByteArrayInputStream(mergedDocument);
         XWPFTemplate template = XWPFTemplate.compile("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template_2.docx",config).render(
@@ -226,5 +228,14 @@ public class TestController {
         return ResponseEntity.ok().headers(header).body(baos.toByteArray());
 
     }
+
+    @Autowired
+    MinioUtil minioUtil;
+     @GetMapping("/testMinio")
+    public ResponseEntity testMinio() throws Exception {
+        minioUtil.uploadFile("testing.pdf",new FileInputStream("D:\\Work Folder\\CSB Eproof\\Cert sample\\Result letter templates\\test_template_3.pdf"));
+        return ResponseEntity.ok().body("");
+     }
+
 
 }

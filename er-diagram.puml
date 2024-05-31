@@ -75,6 +75,17 @@ entity "Email_Template" as email_template {
   modified_date: datetime
 }
 
+entity "Letter_Template" as letter_template {
+  id: number <<generated, PK>>
+  --
+  name: varchar(255) <<unique>>
+  file_id: number <<FK-File.id>>
+  created_by: varchar(255)
+  modified_by: varchar(255)
+  created_date: datetime
+  modified_date: datetime
+}
+
 entity "Cert_eProof" as cert_eproof {
   cert_info_id: number <<FK>>
   --
@@ -298,6 +309,8 @@ cert_info ||--|{ email_message
 
 cert_info ||--o{ cert_pdf
 file ||--|{ cert_pdf
+
+letter_template ||--|| file
 
 
 @enduml

@@ -4,10 +4,12 @@ import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
-import com.hkgov.csb.eproof.entity.enums.CertStatus;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,7 +26,9 @@ public interface CertInfoService {
     Boolean dispatch(String examProfileSerialNo, CertStage currentStage);
 
 
-    void changeStatusToInProgress(String examProfileSerialNo, CertStage certStage);
+    void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage);
 
-    void batchGeneratePdf(String examProfileSerialNo);
+    void batchGeneratePdf(String examProfileSerialNo) throws IOException, Docx4JException, InterruptedException;
+
+    void generatePdf(CertInfo certInfo, InputStream atLeastOnePassedTemplate, InputStream allFailedTemplate) throws IOException, Docx4JException, InterruptedException;
 }

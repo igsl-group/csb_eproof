@@ -38,13 +38,6 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
-
-  minio:
-    url: http://localhost:9000
-    accessKey: obt62qNqMuaCj98x
-    secretKey: vTw0ZsnPD388llObsRE3DlMVJl2WycIo
-    bucket: pms
-    checkBucket: false
   servlet:
     multipart:
       max-file-size: 100MB
@@ -66,12 +59,6 @@ management:
     mail:
       enabled: false
 
-
-
-email:
-  extend:
-    list: ;
-
 application:
   jwt:
     secretKey: SldUX1NlY3JldEtleV8xMjM0NV9FUHJvb2ZAQ1NCX0lHU19FbmNyeXB0Snd0QDEyMzQ1Ng==
@@ -88,7 +75,6 @@ server:
     context-path: /api/v1
 security:
 #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso
   whitelist: /api-docs/**,/sso,/test/**
 
 filter:
@@ -133,6 +119,16 @@ document:
   #   Path for the temporary document to be generated.
   #   The generated document will be deleted immediately after generation
   #   Used for libre office conversion
-  generate_temp_path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
-  libreoffice_program_path: C:\Program Files\LibreOffice\program
+  generate-temp-path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
+  libreoffice-program-path: C:\Program Files\LibreOffice\program
+
+minio:
+  endpoint: http://192.168.2.175:9000
+  accessKey: admin
+  secretKey: P@ssw0rd
+  bucket: csbeproof
+  path:
+    cert-record: /cert_record
+
+
 

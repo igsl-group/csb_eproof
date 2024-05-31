@@ -35,9 +35,9 @@ public class DocxUtil {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${document.generate_temp_path}")
+    @Value("${document.generate-temp-path}")
     private String tempDocumentPath;
-    @Value("${document.libreoffice_program_path}")
+    @Value("${document.libreoffice-program-path}")
     private String libreOfficeProgramPath;
 
 
@@ -86,6 +86,10 @@ public class DocxUtil {
     }
 
     public File createTempDocxFile(byte [] docxBinary) throws IOException {
+
+        if(!Files.exists(Paths.get(tempDocumentPath))){
+            Files.createDirectories(Paths.get(tempDocumentPath));
+        }
         String randomFileName = this.generateRandomFileName();
         logger.info("Random file name: {}",randomFileName);
 

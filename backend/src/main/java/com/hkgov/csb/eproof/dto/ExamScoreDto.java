@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class DocumentScoreDto {
+public class ExamScoreDto {
     private String scoreType;
     private String score;
 }

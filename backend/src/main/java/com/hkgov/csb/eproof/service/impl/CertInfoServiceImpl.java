@@ -1,30 +1,50 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hkgov.csb.eproof.constants.Constants;
+import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
-import com.hkgov.csb.eproof.dao.ExamProfileRepository;
+import com.hkgov.csb.eproof.dao.CertPdfRepository;
 import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
+import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.CertPdf;
+import com.hkgov.csb.eproof.entity.ExamProfile;
+import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
 import com.hkgov.csb.eproof.service.CertInfoService;
-import com.hkgov.csb.eproof.service.DocumentService;
+import com.hkgov.csb.eproof.service.DocumentGenerateService;
+import com.hkgov.csb.eproof.service.FileService;
+import com.hkgov.csb.eproof.service.LetterTemplateService;
 import com.hkgov.csb.eproof.util.CodeUtil;
+import com.hkgov.csb.eproof.util.DocxUtil;
+import com.hkgov.csb.eproof.util.MinioUtil;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.C;
+import org.docx4j.model.fields.merge.DataFieldName;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static com.hkgov.csb.eproof.constants.Constants.*;
 
 /**
 * @author David
@@ -34,9 +54,19 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class CertInfoServiceImpl implements CertInfoService {
+
+    @Value("${minio.path.cert-record}")
+    private String certRecordPath;
+
     private final CertInfoRepository certInfoRepository;
-    private final ExamProfileRepository examProfileRepository;
-    private final DocumentService documentService;
+    private final DocumentGenerateService documentGenerateService;
+    private final LetterTemplateService letterTemplateService;
+    private final DocxUtil docxUtil;
+    private final FileService fileService;
+
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final CertPdfRepository certPdfRepository;
 
     @Override
     public Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
@@ -85,26 +115,93 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public void changeStatusToInProgress(String examProfileSerialNo, CertStage certStage) {
+    @Transactional
+    public void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage) {
         List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,CertStatus.PENDING);
         certInfoList.forEach(cert->cert.setCertStatus(CertStatus.IN_PROGRESS));
         certInfoRepository.saveAll(certInfoList);
     }
 
     @Override
-    public void batchGeneratePdf(String examProfileSerialNo) {
+    public void batchGeneratePdf(String examProfileSerialNo) throws IOException, Docx4JException, InterruptedException {
 
         List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,CertStatus.IN_PROGRESS);
+        InputStream passTemplateInputStream = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
+        InputStream allFailedTemplate = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
 
         for (CertInfo cert : inProgressCertList) {
-            this.generateSinglePdf(cert);
+            this.generatePdf(cert,passTemplateInputStream,allFailedTemplate);
         }
 
     }
 
-    private void generateSinglePdf(CertInfo certInfo){
 
-        byte [] generatedPdf = documentService.getMergedDocument();
+    private Map<DataFieldName, String> getMergeMapForCert(CertInfo certInfo) throws JsonProcessingException {
+        ExamProfile exam = certInfo.getExamProfile();
+
+
+        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
+        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
+
+        return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
+    }
+
+    private Map<String,List> getTableLoopMapForCert(CertInfo certInfo){
+        List<ExamScoreDto> markDtoList = new ArrayList<>();
+        if(certInfo.getAtGrade() != null){
+            markDtoList.add(new ExamScoreDto("AT",certInfo.getAtGrade()));
+        }
+        if(certInfo.getUcGrade() != null){
+            markDtoList.add(new ExamScoreDto("UC",certInfo.getUcGrade()));
+        }
+        if(certInfo.getUeGrade() != null){
+            markDtoList.add(new ExamScoreDto("UE",certInfo.getUeGrade()));
+        }
+
+        if(certInfo.getBlnstGrade() != null) {
+            markDtoList.add(new ExamScoreDto("BLNST", certInfo.getBlnstGrade()));
+        }
+
+        HashMap<String,List> map = new HashMap<>();
+        map.put("examResults",markDtoList);
+        return map;
+    }
+
+
+    @Transactional
+    @Override
+    public void generatePdf(CertInfo certInfo, InputStream atLeastOnePassedTemplate, InputStream allFailedTemplate) throws IOException, Docx4JException, InterruptedException {
+        logger.info(certInfo.getCertStatus().getCode());
+
+        if (atLeastOnePassedTemplate == null){
+            // if template is null, get the template again
+            // if not null, use the template in parameter.
+            // added this logic to avoid querying db using a bunch of time for the same template in batch mode.
+            atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
+        }
+        if(allFailedTemplate == null){
+            allFailedTemplate = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
+        }
+
+        InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?atLeastOnePassedTemplate:allFailedTemplate;
+        byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
+        File uploadFileRecord = this.uploadCertPdf(certInfo, mergedPdf);
+        CertPdf certPdf = new CertPdf();
+        certPdf.setCertInfoId(certInfo.getId());
+        certPdf.setFileId(uploadFileRecord.getId());
+        certPdfRepository.save(certPdf);
+    }
+
+    private File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf){
+
+        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
+        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
+        String savePdfName = String.format("%s_%s_%s.pdf",
+                processedCertOwnerName,
+                currentTimeMillisString,
+                UUID.randomUUID().toString().replace("-","")
+        );
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
     public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){

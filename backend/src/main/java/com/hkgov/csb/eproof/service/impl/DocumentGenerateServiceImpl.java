@@ -2,13 +2,11 @@ package com.hkgov.csb.eproof.service.impl;
 
 
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
-import com.hkgov.csb.eproof.service.DocumentService;
+import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import jakarta.validation.constraints.NotNull;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -17,11 +15,11 @@ import java.util.Map;
 
 
 @Service
-public class DocumentServiceImpl implements DocumentService {
+public class DocumentGenerateServiceImpl implements DocumentGenerateService {
 
     private final DocxUtil docxUtil;
 
-    public DocumentServiceImpl(DocxUtil docxUtil) {
+    public DocumentGenerateServiceImpl(DocxUtil docxUtil) {
         this.docxUtil = docxUtil;
     }
 
