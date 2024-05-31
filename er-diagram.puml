@@ -44,6 +44,9 @@ entity "Role_Has_Permission" as role_has_permission {
   permission_id: <<PK, FK>>
 }
 
+
+
+
 entity "Exam_Profile" as exam_profile {
   exam_serial_no: varchar <<PK>>
   --
@@ -74,6 +77,7 @@ entity "Email_Template" as email_template {
 
 entity "Cert_eProof" as cert_eproof {
   cert_info_id: number <<FK>>
+  --
   eproof_id: varchar(20)
   key_name: varchar(8)
   uuid: varchar(100)
@@ -85,9 +89,21 @@ entity "Cert_eProof" as cert_eproof {
 }
 
 entity "Cert_Pdf" as cert_pdf {
-  cert_info_id: number <<PK>>
+  cert_info_id: number <<PK>> <<FK_Cert_Info.id>>
   --
-  filename: varchar(255)
+  file_id: varchar <<FK-File.id>>
+}
+
+entity "File" as file {
+  id: number <<PK, FK>>
+  --
+  type: varchar(500)
+  status: varchar(100)
+  path: varchar(4000)
+  created_by: varchar(255)
+  modified_by: varchar(255)
+  created_date: datetime
+  modified_date: datetime
 }
 
 entity "Cert_Info" as cert_info {
@@ -266,7 +282,6 @@ user_has_role }o--|| role
 role ||--o{ role_has_permission
 role_has_permission }o--|| permission
 cert_info ||--o{ cert_info_approve
-cert_info ||--o| cert_pdf
 cert_info ||--o| cert_eproof
 email_message ||--|| email_event
 
@@ -279,4 +294,10 @@ action_target }|--|| cert_action
 user_session |o--|| user
 
 cert_info ||--|{ email_message
+
+
+cert_info ||--o{ cert_pdf
+file ||--|{ cert_pdf
+
+
 @enduml

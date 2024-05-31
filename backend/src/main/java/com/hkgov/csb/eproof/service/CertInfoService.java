@@ -4,6 +4,7 @@ import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,4 +22,9 @@ public interface CertInfoService {
     Boolean batchImport(String examProfileSerialNo, LocalDate examDate, List<CertImportDto> csvData);
 
     Boolean dispatch(String examProfileSerialNo, CertStage currentStage);
+
+
+    void changeStatusToInProgress(String examProfileSerialNo, CertStage certStage);
+
+    void batchGeneratePdf(String examProfileSerialNo);
 }

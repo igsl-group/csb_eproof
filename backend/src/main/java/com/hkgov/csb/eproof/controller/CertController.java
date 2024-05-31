@@ -98,4 +98,14 @@ public class CertController {
     public Result<Boolean> dispatch(@RequestParam String examProfileSerialNo, @RequestParam CertStage currentStage){
         return Result.success(certInfoService.dispatch(examProfileSerialNo,currentStage));
     }
+
+    @PostMapping("/batch/generate/{examProfileSerialNo}")
+    public Result batchGeneratePdf(@PathVariable String examProfileSerialNo){
+        certInfoService.changeStatusToInProgress(examProfileSerialNo,CertStage.GENERATED);
+
+        certInfoService.batchGeneratePdf(examProfileSerialNo);
+
+        return null;
+    }
+
 }

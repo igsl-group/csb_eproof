@@ -12,6 +12,7 @@ import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
 import com.hkgov.csb.eproof.service.CertInfoService;
+import com.hkgov.csb.eproof.service.DocumentService;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,7 @@ import java.util.Set;
 public class CertInfoServiceImpl implements CertInfoService {
     private final CertInfoRepository certInfoRepository;
     private final ExamProfileRepository examProfileRepository;
+    private final DocumentService documentService;
 
     @Override
     public Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
@@ -80,6 +82,29 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
         certInfoRepository.saveAll(list).size();
         return true;
+    }
+
+    @Override
+    public void changeStatusToInProgress(String examProfileSerialNo, CertStage certStage) {
+        List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,CertStatus.PENDING);
+        certInfoList.forEach(cert->cert.setCertStatus(CertStatus.IN_PROGRESS));
+        certInfoRepository.saveAll(certInfoList);
+    }
+
+    @Override
+    public void batchGeneratePdf(String examProfileSerialNo) {
+
+        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,CertStatus.IN_PROGRESS);
+
+        for (CertInfo cert : inProgressCertList) {
+            this.generateSinglePdf(cert);
+        }
+
+    }
+
+    private void generateSinglePdf(CertInfo certInfo){
+
+        byte [] generatedPdf = documentService.getMergedDocument();
     }
 
     public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){

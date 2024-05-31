@@ -2,8 +2,8 @@ package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +15,11 @@ import java.util.List;
 public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
     CertInfo getInfoByNo(@Param("serialNo") String serialNo);
-
-
+    List<CertInfo> getInfoByExamProfileSerialNo(@Param("serialNo") String serialNo);
+    @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo AND c.certStage = :stage AND c.certStatus= :status")
+    List<CertInfo> getCertByExamSerialAndStageAndStatus(@Param("serialNo") String serialNo,
+                                                        @Param("stage") CertStage stage,
+                                                        @Param("status") CertStatus status);
     @Query("""
         SELECT c FROM CertInfo c WHERE
         (

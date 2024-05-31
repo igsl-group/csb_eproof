@@ -1,50 +1,67 @@
 package com.hkgov.csb.eproof.util;
 
+import com.deepoove.poi.XWPFTemplate;
+import com.deepoove.poi.config.Configure;
+import com.deepoove.poi.config.ConfigureBuilder;
+import com.deepoove.poi.plugin.table.LoopRowTableRenderPolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.docx4j.Docx4J;
+import com.hkgov.csb.eproof.constants.Constants;
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
+import com.hkgov.csb.eproof.exception.GenericException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.SystemUtils;
 
+import org.apache.poi.util.IOUtils;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.docx4j.model.fields.merge.MailMerger;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.jodconverter.core.DocumentConverter;
-import org.jodconverter.core.document.DefaultDocumentFormatRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Component
 public class DocxUtil {
 
     private final ObjectMapper objectMapper;
 
+    @Value("${document.generate_temp_path}")
+    private String tempDocumentPath;
+    @Value("${document.libreoffice_program_path}")
+    private String libreOfficeProgramPath;
+
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public DocxUtil(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
 
-
-    public byte[] getMergedDocumentBinary(InputStream inputStream,Map<String, String> ... mergeMaps ) throws Docx4JException, IOException {
+    public byte[] getMergedDocumentBinary(InputStream inputStream,Map<DataFieldName, String> fieldMergeMap ) throws Docx4JException {
         WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(inputStream);
 
         wordMLPackage.getMainDocumentPart();
 
         MailMerger.setMERGEFIELDInOutput(MailMerger.OutputField.REMOVED);
 
-        Map<DataFieldName, String> fieldMergeMap = new HashMap<>();
+        /*Map<DataFieldName, String> fieldMergeMap = new HashMap<>();
         if(mergeMaps.length > 0){
             for (Map<String, String> loopMap : mergeMaps) {
                 for(Map.Entry<String, String> entry:loopMap.entrySet()){
                     fieldMergeMap.put(new DataFieldName(entry.getKey()),entry.getValue());
                 }
             }
-        }
+        }*/
 
 
         MailMerger.performMerge(wordMLPackage, fieldMergeMap, true);
@@ -55,22 +72,153 @@ public class DocxUtil {
 
         return baos.toByteArray();
     }
+    @SafeVarargs
+    public final Map<DataFieldName, String> combineMapsToFieldMergeMap(Map<String, String>... mergeMaps){
+        Map<DataFieldName, String> fieldMergeMap = new HashMap<>();
+        if(mergeMaps.length > 0){
+            for (Map<String, String> loopMap : mergeMaps) {
+                for(Map.Entry<String, String> entry:loopMap.entrySet()){
+                    fieldMergeMap.put(new DataFieldName(entry.getKey()),entry.getValue());
+                }
+            }
+        }
+        return fieldMergeMap;
+    }
+
+    public File createTempDocxFile(byte [] docxBinary) throws IOException {
+        String randomFileName = this.generateRandomFileName();
+        logger.info("Random file name: {}",randomFileName);
+
+        String docxLocation = String.format("%s\\%s.docx",tempDocumentPath,randomFileName);
+        logger.info("Generated TEMP DOCX path: {}",docxLocation);
+
+        FileOutputStream docxFos = new FileOutputStream(docxLocation);
+        docxFos.write(docxBinary);
+        docxFos.close();
+
+        return new File(docxLocation);
+    }
+
+    public byte [] convertDocxToPdf(File docxFile) throws IOException, InterruptedException {
+
+        String pdfLocation = String.format("%s\\%s.pdf",docxFile.getParent(), FilenameUtils.getBaseName(docxFile.getAbsolutePath()));
 
 
+        String libreConversionCommand = "";
 
- /*   public byte[] convertDocxToPdf2(InputStream is)throws Exception {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            // Current OS is Windows
+            libreConversionCommand = "\"%s\\soffice\" --headless --convert-to pdf \"%s\" --outdir \"%s\""
+                    .formatted(libreOfficeProgramPath,docxFile.getAbsolutePath(),tempDocumentPath);
+        } else if (SystemUtils.IS_OS_LINUX) {
+            // Current OS is Linux
+            libreConversionCommand ="sudo soffice --convert-to pdf \"%s\" --outdir \"%s\"".formatted(docxFile.getAbsolutePath(),tempDocumentPath);
+        }
+        Process process = Runtime.getRuntime().exec(new String[]{libreConversionCommand});
+        int exitCode = process.waitFor();
+        logger.debug("Command executed with exit code: " + exitCode);
+        if(exitCode != 0){
+            // Execution error
+            //TODO Print error message
+            throw new GenericException(ExceptionEnums.DOCUMENT_MERGE_ERROR);
+        }
+
+        byte[] pdfBinary = Files.readAllBytes(Paths.get(pdfLocation));
+        logger.info("Generated TEMP PDF path: {}", pdfLocation);
+
+//        this.deleteFile(docxLocation);
+        this.deleteFile(pdfLocation);
+
+        return pdfBinary;
+    }
+
+    /*public byte [] convertDocxToPdf(byte[] docxBinary) throws IOException, InterruptedException {
+        String randomFileName = this.generateRandomFileName();
+
+        String docxLocation = String.format("%s\\%s.docx",tempDocumentPath,randomFileName);
+        String pdfLocation = String.format("%s\\%s.pdf",tempDocumentPath,randomFileName);
+
+        logger.info("Random file name: {}",randomFileName);
+
+        FileOutputStream docxFos = new FileOutputStream(docxLocation);
+        docxFos.write(docxBinary);
+        docxFos.close();
+
+        File file = new File(docxLocation);
+
+        String libreConversionCommand = "";
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            // Current OS is Windows
+            libreConversionCommand = "\"%s\\soffice\" --headless --convert-to pdf \"%s\" --outdir \"%s\""
+                    .formatted(libreOfficeProgramPath,docxLocation,tempDocumentPath);
+        } else if (SystemUtils.IS_OS_LINUX) {
+            // Current OS is Linux
+            libreConversionCommand ="sudo soffice --convert-to pdf \"%s\" --outdir \"%s\"".formatted(docxLocation,tempDocumentPath);
+        }
+        Process process = Runtime.getRuntime().exec(new String[]{libreConversionCommand});
+        int exitCode = process.waitFor();
+        System.out.println("Command executed with exit code: " + exitCode);
+        if(exitCode != 0){
+            // Execution error
+            //TODO Print error message
+            throw new GenericException(ExceptionEnums.DOCUMENT_MERGE_ERROR);
+        }
+
+        byte[] pdfBinary = Files.readAllBytes(Paths.get(pdfLocation));
+
+        this.deleteFile(docxLocation);
+        this.deleteFile(pdfLocation);
+
+        return pdfBinary;
+    }*/
+
+    public byte [] processTableLoopRender(File docxFile, Map<String, List> loopMap) throws IOException {
+
+        LoopRowTableRenderPolicy policy = new LoopRowTableRenderPolicy();
+        ConfigureBuilder builder = Configure.builder();
+        for(var entry:loopMap.entrySet()){
+            builder.bind(entry.getKey(),policy);
+        }
+        Configure config = builder.build();
+        XWPFTemplate template = XWPFTemplate.compile(docxFile.getAbsolutePath(),config).render(loopMap);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        documentConverter
-                .convert(is)
-                .as(DefaultDocumentFormatRegistry.DOCX)
-                .to(baos)
-                .as(DefaultDocumentFormatRegistry.PDF)
-                .execute();
-        baos.close();
+        template.write(baos);
+
+        return baos.toByteArray();
+    }
+
+   /* public byte [] processTableLoopRender(InputStream inputStream, Map<String, List> loopMap) throws IOException {
+        String randomFileName = this.generateRandomFileName();
+
+        String docxLocation = String.format("%s\\%s.docx",tempDocumentPath,randomFileName);
+
+        logger.info("Random file name: {}",randomFileName);
+
+        FileOutputStream docxFos = new FileOutputStream(docxLocation);
+        docxFos.write(IOUtils.toByteArray(inputStream));
+        docxFos.close();
+
+        inputStream.close();
+
+        LoopRowTableRenderPolicy policy = new LoopRowTableRenderPolicy();
+        ConfigureBuilder builder = Configure.builder();
+        for(var entry:loopMap.entrySet()){
+            builder.bind(entry.getKey(),policy);
+        }
+        Configure config = builder.build();
+        XWPFTemplate template = XWPFTemplate.compile(docxLocation,config).render(loopMap);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        template.write(baos);
+        this.deleteFile(docxLocation);
+
         return baos.toByteArray();
     }*/
 
-
+    public void deleteFile(String filePath){
+        logger.info("Deleting file: {}",filePath);
+        new File(filePath).delete();
+    }
     public Map<String, String> convertObjectToMap(Object obj, String prefix) throws JsonProcessingException {
         String jsonString = objectMapper.writeValueAsString(obj);
         JsonNode jsonNode = objectMapper.readTree(jsonString);
@@ -95,6 +243,15 @@ public class DocxUtil {
                 }
             }
         }
+    }
+
+    private String generateRandomFileName(){
+        // first string: Current time
+        // second string: UUID
+        return String.format("%s_%s",
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)),
+                UUID.randomUUID()
+        );
     }
 
 }

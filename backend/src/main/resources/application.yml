@@ -89,6 +89,7 @@ server:
 security:
 #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
   whitelist: /api-docs/**,/sso
+  whitelist: /api-docs/**,/sso,/test/**
 
 filter:
   config:
@@ -133,5 +134,5 @@ document:
   #   The generated document will be deleted immediately after generation
   #   Used for libre office conversion
   generate_temp_path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
-  libreoffice_install_path: C:\Program Files\LibreOffice\program
+  libreoffice_program_path: C:\Program Files\LibreOffice\program
 
