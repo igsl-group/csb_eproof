@@ -14,11 +14,11 @@ public class CertImportDto {
     @CsvBindByName(column = "HKID")
     private String hkid;
     @CsvBindByName(column = "Passport No")
-    private String passport;
+    private String passportNo;
     @CsvBindByName(column = "Email")
     private String email;
     @CsvBindByName(column = "BL Grade")
-    private String blGrade;
+    private String blnstGrade;
     @CsvBindByName(column = "UE Grade")
     private String ueGrade;
     @CsvBindByName(column = "UC Grade")

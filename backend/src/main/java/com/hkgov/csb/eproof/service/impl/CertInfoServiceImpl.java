@@ -1,17 +1,18 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.constants.Constants;
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.ServiceException;
+import com.hkgov.csb.eproof.mapper.CertInfoMapper;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.util.CodeUtil;
-import com.hkgov.csb.eproof.util.ResultCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
 * @author David
@@ -81,55 +85,57 @@ public class CertInfoServiceImpl implements CertInfoService {
     public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
-        ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        int count = csvData.size();
-        List<CertInfo> certInfos = certInfoRepository.getinfoByNoList(examProfileSerialNo);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.EXAM_DATE);
+        List<CertImportDto> certInfos = CertInfoMapper.INSTANCE.sourceToDestinationList(certInfoRepository.getinfoByNoList(examProfileSerialNo));
         CodeUtil codeUtil = new CodeUtil();
+        int count = certInfos.size();
         List<CertInfo> list = new ArrayList<>();
-        for(int i = 0; i < csvData.size(); ++i){
-            CertImportDto csv = csvData.get(i);
-            LocalDate examDate;
-            try{
-                examDate = LocalDate.parse(csv.getExamDate(), formatter);
-            }catch (Exception e){
-                throw new ServiceException(ResultCode.CSV_EXAM_DATE,i+1);
-            }
-
-            if(!examDate.equals(date)){
-                throw new ServiceException(ResultCode.CSV_EXAM_DATE,i+1);
-            }
-            if(csv.getHkid().contains("(") && csv.getHkid().contains("("))
-                csv.setHkid(csv.getHkid().replaceAll("\\)","").replaceAll("\\(",""));
-            if(csv.getHkid().isEmpty() && csv.getPassport().isEmpty()){
-                throw new ServiceException(ResultCode.HKID_PANNPORT_ABSENT,i+1);
-            }
-            if(!csv.getHkid().isEmpty() && (!hkids.add(csv.getHkid()) || certInfos.stream().map(CertInfo::getHkid).anyMatch(s -> s.equals(csv.getHkid())))){
-                throw new ServiceException(ResultCode.HKID_EXITS,i+1);
-            }
-            if(!csv.getPassport().isEmpty() && (!passports.add(csv.getPassport()) || certInfos.stream().map(CertInfo::getPassportNo).anyMatch(s -> s.equals(csv.getHkid())))){
-                throw new ServiceException(ResultCode.PASSPORT_EXITS,i+1);
-            }
-            if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("F") && !csv.getLetterType().equals("P"))){
-                throw new ServiceException(ResultCode.CSV_LETTER_TYPE,i+1);
-            }
-
-            if(!codeUtil.validEmai(csv.getEmail())){
-                throw new ServiceException(ResultCode.CSV_EMAIL_ERROR,i+1);
-            }
-            if(i< count){
+        certInfos.addAll(csvData);
+        for(int i = 0; i < certInfos.size(); ++i){
+            CertImportDto csv = certInfos.get(i);
+            if(i < count ){
+                hkids.add(csv.getHkid());
+                passports.add(csv.getPassportNo());
+            }else{
+                LocalDate examDate;
+                int row = i+1-count;
+                try{
+                    examDate = LocalDate.parse(csv.getExamDate(), formatter);
+                }catch (Exception e){
+                    throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
+                }
+                if(!examDate.equals(date)){
+                    throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
+                }
+                if(csv.getHkid().contains("(") && csv.getHkid().contains("("))
+                    csv.setHkid(csv.getHkid().replaceAll("\\)","").replaceAll("\\(",""));
+                if(csv.getHkid().isEmpty() && csv.getPassportNo().isEmpty()){
+                    throw new ServiceException(ResultCode.HKID_PANNPORT_ABSENT,row);
+                }
+                if(!csv.getHkid().isEmpty() && !hkids.add(csv.getHkid())){
+                    throw new ServiceException(ResultCode.HKID_EXITS,row);
+                }
+                if(!csv.getPassportNo().isEmpty() && !passports.add(csv.getPassportNo())){
+                    throw new ServiceException(ResultCode.PASSPORT_EXITS,row);
+                }
+                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("F") && !csv.getLetterType().equals("P"))){
+                    throw new ServiceException(ResultCode.CSV_LETTER_TYPE,row);
+                }
+                if(!codeUtil.validEmai(csv.getEmail())){
+                    throw new ServiceException(ResultCode.CSV_EMAIL_ERROR,row);
+                }
                 //组装batchinfo数据
                 CertInfo certInfo = new CertInfo();
-                certInfo.setExamProfile(examProfile);
+                certInfo.setExamProfileSerialNo(examProfileSerialNo);
                 certInfo.setHkid(csv.getHkid());
-                certInfo.setPassportNo(csv.getPassport());
+                certInfo.setPassportNo(csv.getPassportNo());
                 certInfo.setExamDate(examDate);
                 certInfo.setName(csv.getName());
                 certInfo.setEmail(csv.getEmail());
                 certInfo.setUeGrade(csv.getUeGrade());
                 certInfo.setUcGrade(csv.getUcGrade());
                 certInfo.setAtGrade(csv.getAtGrade());
-                certInfo.setBlnstGrade(csv.getBlGrade());
+                certInfo.setBlnstGrade(csv.getBlnstGrade());
                 certInfo.setLetterType(csv.getLetterType());
                 certInfo.setCertStatus(CertStatus.PENDING);
                 certInfo.setCertStage(CertStage.IMPORTED);

@@ -88,7 +88,7 @@ server:
     context-path: /api/v1
 security:
 #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso,/test/**,/cert/**
+  whitelist: /api-docs/**,/sso
 
 filter:
   config:

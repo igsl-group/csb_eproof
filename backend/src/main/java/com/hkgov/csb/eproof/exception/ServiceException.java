@@ -1,7 +1,7 @@
 package com.hkgov.csb.eproof.exception;
 
 
-import com.hkgov.csb.eproof.util.ResultCode;
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
 
 /**
  * Servcie Exception

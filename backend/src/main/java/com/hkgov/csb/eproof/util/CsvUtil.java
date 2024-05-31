@@ -1,5 +1,7 @@
 package com.hkgov.csb.eproof.util;
 
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
+import com.hkgov.csb.eproof.exception.ServiceException;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
@@ -36,10 +38,7 @@ public class CsvUtil {
                     .build();
             return csvToBean.parse();
         } catch (Exception e) {
-
+            throw new ServiceException(ResultCode.CSV_IMPORT_ERROR);
         }
-        return null;
     }
-
-
 }
