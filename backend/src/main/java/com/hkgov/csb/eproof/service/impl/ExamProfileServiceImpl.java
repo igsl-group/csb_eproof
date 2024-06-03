@@ -3,8 +3,11 @@ package com.hkgov.csb.eproof.service.impl;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
+import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.ExamProfile;
+import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
 import com.hkgov.csb.eproof.service.ExamProfileService;
@@ -65,5 +68,28 @@ public class ExamProfileServiceImpl implements ExamProfileService {
             throw new GenericException("400",SERIAL_HAS_EXITED);
         }
         return examProfileRepository.delExamProfile(examProfileSerialNo) > 0;
+    }
+
+    @Override
+    public ExamProfileSummaryDto getSummary(String examProfileSerialNo) {
+        return ExamProfileSummaryDto.builder()
+                .imported(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.IMPORTED, null))
+
+                .generatePdfFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.FAILED))
+                .generatePdfSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.SUCCESS))
+                .generatePdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.IN_PROGRESS))
+                .generatePdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, null))
+
+                .issuedPdfFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.FAILED))
+                .issuedPdfSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.SUCCESS))
+                .issuedPdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.IN_PROGRESS))
+                .issuedPdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, null))
+
+                .sendEmailFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.FAILED))
+                .sendEmailSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SUCCESS))
+                .sendEmailProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.IN_PROGRESS))
+                .sendEmailTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, null))
+
+                .build();
     }
 }

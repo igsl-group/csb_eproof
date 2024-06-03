@@ -21,6 +21,7 @@ import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 import jakarta.annotation.Resource;
+import org.apache.commons.io.IOUtils;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
@@ -237,5 +238,9 @@ public class TestController {
         return ResponseEntity.ok().body("");
      }
 
+    @GetMapping("/testMinio2")
+    public ResponseEntity testMinio2() throws Exception {
+        return ResponseEntity.ok().body(IOUtils.toByteArray(minioUtil.getFileAsStream("/letter_template/pass_template.docx")));
+    }
 
 }

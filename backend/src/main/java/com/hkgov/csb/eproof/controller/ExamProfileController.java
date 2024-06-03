@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.controller;
 
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
+import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
 import com.hkgov.csb.eproof.service.ExamProfileService;
 import com.hkgov.csb.eproof.util.Result;
@@ -52,6 +53,11 @@ public class ExamProfileController {
     @DeleteMapping("/delete/{examProfileSerialNo}")
     public Result<Boolean> delete(@PathVariable String examProfileSerialNo){
         return Result.success(examProfileService.delete(examProfileSerialNo));
+    }
+
+    @GetMapping("/getSummary/{examProfileSerialNo}")
+    public Result<ExamProfileSummaryDto> getSummary(@PathVariable String examProfileSerialNo){
+        return Result.success(examProfileService.getSummary(examProfileSerialNo));
     }
 
 }

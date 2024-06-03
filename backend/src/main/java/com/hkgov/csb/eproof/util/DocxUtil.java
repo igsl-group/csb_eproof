@@ -12,9 +12,10 @@ import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.exception.GenericException;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import org.apache.poi.util.IOUtils;
+import org.docx4j.Docx4J;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.docx4j.model.fields.merge.MailMerger;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -47,28 +48,19 @@ public class DocxUtil {
     }
 
 
-    public byte[] getMergedDocumentBinary(InputStream inputStream,Map<DataFieldName, String> fieldMergeMap ) throws Docx4JException {
+    public byte[] getMergedDocumentBinary(InputStream inputStream,Map<DataFieldName, String> fieldMergeMap ) throws Docx4JException, IOException {
+        // Create a new inputstream to prevent WordprocessingMLPackage closing the original inputstream
         WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(inputStream);
-
+        IOUtils.close(inputStream);
         wordMLPackage.getMainDocumentPart();
 
         MailMerger.setMERGEFIELDInOutput(MailMerger.OutputField.REMOVED);
 
-        /*Map<DataFieldName, String> fieldMergeMap = new HashMap<>();
-        if(mergeMaps.length > 0){
-            for (Map<String, String> loopMap : mergeMaps) {
-                for(Map.Entry<String, String> entry:loopMap.entrySet()){
-                    fieldMergeMap.put(new DataFieldName(entry.getKey()),entry.getValue());
-                }
-            }
-        }*/
-
-
         MailMerger.performMerge(wordMLPackage, fieldMergeMap, true);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         wordMLPackage.save(baos);
+        baos.close();
 
         return baos.toByteArray();
     }
@@ -102,7 +94,14 @@ public class DocxUtil {
 
         return new File(docxLocation);
     }
-
+    public byte [] convertDocxToPdf2(byte[] docxFileBinary) throws Docx4JException, IOException {
+        InputStream is = new ByteArrayInputStream(docxFileBinary);
+        WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(is);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Docx4J.toPDF(wordprocessingMLPackage,baos);
+        baos.close();
+        return baos.toByteArray();
+    }
     public byte [] convertDocxToPdf(File docxFile) throws IOException, InterruptedException {
 
         String pdfLocation = String.format("%s\\%s.pdf",docxFile.getParent(), FilenameUtils.getBaseName(docxFile.getAbsolutePath()));
@@ -177,7 +176,7 @@ public class DocxUtil {
         return pdfBinary;
     }*/
 
-    public byte [] processTableLoopRender(File docxFile, Map<String, List> loopMap) throws IOException {
+    public byte [] processTableLoopRender(InputStream is, Map<String, List> loopMap) throws IOException {
 
         LoopRowTableRenderPolicy policy = new LoopRowTableRenderPolicy();
         ConfigureBuilder builder = Configure.builder();
@@ -185,9 +184,10 @@ public class DocxUtil {
             builder.bind(entry.getKey(),policy);
         }
         Configure config = builder.build();
-        XWPFTemplate template = XWPFTemplate.compile(docxFile.getAbsolutePath(),config).render(loopMap);
+        XWPFTemplate template = XWPFTemplate.compile(is,config).render(loopMap);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         template.write(baos);
+        baos.close();
 
         return baos.toByteArray();
     }

@@ -11,6 +11,7 @@ import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.data.domain.Page;
@@ -90,7 +91,7 @@ public class CertController {
 
         return Result.success(searchResult);
     }
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/cert/batchImport/{examProfileSerialNo}")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/batch/import/{examProfileSerialNo}")
     @Transactional(rollbackFor = Exception.class)
     public Result batchImport(@PathVariable String examProfileSerialNo, @RequestParam LocalDate examDate, @RequestPart("file") MultipartFile file){
         CsvUtil csvUtil = new CsvUtil();
@@ -104,7 +105,8 @@ public class CertController {
     }
 
     @PostMapping("/batch/generate/{examProfileSerialNo}")
-    public Result batchGeneratePdf(@PathVariable String examProfileSerialNo) throws InterruptedException, IOException, Docx4JException {
+    @Operation(summary = "Generate cert pdf in batch mode.",description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
+    public Result batchGeneratePdf(@PathVariable String examProfileSerialNo) throws Exception {
         certInfoService.changeCertStatusToInProgress(examProfileSerialNo,CertStage.GENERATED);
 
 //        Thread.sleep(20000);

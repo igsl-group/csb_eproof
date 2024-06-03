@@ -1,6 +1,8 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.entity.ExamProfile;
+import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +28,6 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     @Modifying
     @Query("delete from ExamProfile u where u.serialNo = :serialNo")
     Integer delExamProfile(@Param("serialNo") String serialNo);
+
+
 }

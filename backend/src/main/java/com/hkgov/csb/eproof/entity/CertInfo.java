@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "cert_info")
@@ -107,7 +108,10 @@ public class CertInfo extends BaseEntity{
     private ExamProfile examProfile;
 
 
-
-
-
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "cert_info_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id")
+    )
+    private List<CertPdf> pdfList;
 }

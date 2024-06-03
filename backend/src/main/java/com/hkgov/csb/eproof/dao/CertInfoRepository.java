@@ -16,10 +16,10 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
     CertInfo getInfoByNo(@Param("serialNo") String serialNo);
     List<CertInfo> getInfoByExamProfileSerialNo(@Param("serialNo") String serialNo);
-    @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo AND c.certStage = :stage AND c.certStatus= :status")
-    List<CertInfo> getCertByExamSerialAndStageAndStatus(@Param("serialNo") String serialNo,
-                                                        @Param("stage") CertStage stage,
-                                                        @Param("status") CertStatus status);
+    @Query(value = "select c from CertInfo c where c.examProfileSerialNo = :serialNo AND c.certStage = :stage AND c.certStatus in :statusList")
+    List<CertInfo> getCertByExamSerialAndStageAndStatus(String serialNo,
+                                                        CertStage stage,
+                                                        List<CertStatus> statusList);
     @Query("""
         SELECT c FROM CertInfo c WHERE
         (
@@ -52,4 +52,12 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
 
     @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo and c.certStage= :stage and c.certStatus = 'pending' and c.onHold = false  ")
     List<CertInfo> getinfoByNoAndStatus(@Param("serialNo") String serialNo,@Param("stage") CertStage stage);
+
+
+    @Query("""
+    SELECT COUNT(c) FROM CertInfo c
+    WHERE (:certStatus != null AND c.certStatus = :certStatus AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)
+    OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)    
+""")
+    Integer countByStageAndStatus(String examProfileSerialNo, CertStage certStage, CertStatus certStatus);
 }

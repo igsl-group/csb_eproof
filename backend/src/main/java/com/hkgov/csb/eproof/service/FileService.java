@@ -17,5 +17,5 @@ import java.util.List;
 
 public interface FileService {
 
-    File uploadFile(String type, String path,String name, InputStream inputStream);
+    File uploadFile(String type, String path,String name, InputStream inputStream) throws IOException;
 }

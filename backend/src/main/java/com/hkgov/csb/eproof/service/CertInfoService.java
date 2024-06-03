@@ -28,7 +28,10 @@ public interface CertInfoService {
 
     void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage);
 
-    void batchGeneratePdf(String examProfileSerialNo) throws IOException, Docx4JException, InterruptedException;
+    void batchGeneratePdf(String examProfileSerialNo) throws Exception;
 
-    void generatePdf(CertInfo certInfo, InputStream atLeastOnePassedTemplate, InputStream allFailedTemplate) throws IOException, Docx4JException, InterruptedException;
+    void generatePdf(CertInfo certInfo,
+                     byte[] atLeastOnePassedTemplate,
+                     byte [] allFailedTemplate,
+                     boolean isBatchMode) throws Exception;
 }

@@ -2,6 +2,7 @@ package com.hkgov.csb.eproof.service;
 
 
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
+import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.entity.ExamProfile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,6 @@ public interface ExamProfileService {
     List<ExamProfile> dropDown();
 
     Boolean delete(String examProfileSerialNo);
+
+    ExamProfileSummaryDto getSummary(String examProfileSerialNo);
 }

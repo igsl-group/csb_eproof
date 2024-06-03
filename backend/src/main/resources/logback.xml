@@ -51,6 +51,13 @@
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO"/>
     <logger name="com.zaxxer.hikari.HikariDataSource" level="INFO"/>
 
+    <logger name="org.docx4j" level="OFF"/>
+    <logger name="org.docx4j.openpackaging" level="OFF"/>
+    <logger name="o.d.model.fields" level="OFF"/>
+    <logger name="com.deepoove" level="OFF"/>
+    <logger name="org.apache.fop" level="OFF"/>
+
+
     <root level="info">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="fout"/>

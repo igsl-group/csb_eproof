@@ -10,7 +10,7 @@ import io.minio.RemoveObjectArgs;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -100,6 +100,17 @@ public class MinioUtil {
                     .bucket(minioConfig.getBucket())
                     .object(path)
                     .build());
+        } catch (Exception e) {
+            throw new GenericException();
+        }
+    }
+
+    public byte[] getFileAsByteArray(String path) {
+        try {
+            return IOUtils.toByteArray(minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(minioConfig.getBucket())
+                    .object(path)
+                    .build()));
         } catch (Exception e) {
             throw new GenericException();
         }

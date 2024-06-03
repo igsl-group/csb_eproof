@@ -10,9 +10,13 @@ import com.hkgov.csb.eproof.service.LetterTemplateService;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.function.IOUnaryOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Service
@@ -35,6 +39,13 @@ public class LetterTemplateServiceImpl implements LetterTemplateService {
 
         File file = fileRepository.findById(letterTemplate.getFileId()).orElseThrow(()->new GenericException(ExceptionEnums.TEMPLATE_NOT_EXIST));
 
-        return  minioUtil.getFileAsStream(file.getPath());
+        return  new ByteArrayInputStream(minioUtil.getFileAsByteArray(file.getPath()));
+    }
+
+    @Override
+    public byte[] getTemplateByNameAsByteArray(String templateName) throws IOException {
+        InputStream inputStream = this.getTemplateByNameAsInputStream(templateName);
+
+        return IOUtils.toByteArray(inputStream);
     }
 }

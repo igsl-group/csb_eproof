@@ -24,7 +24,10 @@ import com.hkgov.csb.eproof.service.LetterTemplateService;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
+import io.micrometer.common.util.StringUtils;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.IOUtils;
 import org.checkerframework.checker.units.qual.C;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -63,6 +66,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final LetterTemplateService letterTemplateService;
     private final DocxUtil docxUtil;
     private final FileService fileService;
+    private final EntityManager entityManager;
 
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -117,23 +121,33 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     @Transactional
     public void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage) {
-        List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,CertStatus.PENDING);
+        List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,List.of(CertStatus.PENDING,CertStatus.FAILED));
         certInfoList.forEach(cert->cert.setCertStatus(CertStatus.IN_PROGRESS));
         certInfoRepository.saveAll(certInfoList);
     }
 
     @Override
-    public void batchGeneratePdf(String examProfileSerialNo) throws IOException, Docx4JException, InterruptedException {
+    @Transactional
+    public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
-        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,CertStatus.IN_PROGRESS);
-        InputStream passTemplateInputStream = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
-        InputStream allFailedTemplate = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
-
-        for (CertInfo cert : inProgressCertList) {
-            this.generatePdf(cert,passTemplateInputStream,allFailedTemplate);
+        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
+        byte[] passTemplateInputStream = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
+        byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
+        try{
+            for (CertInfo cert : inProgressCertList) {
+                this.generatePdf(cert,passTemplateInputStream,allFailedTemplate,true);
+            }
+        } catch (Exception e){
+            inProgressCertList.forEach(cert->{
+                if (cert.getCertStatus() != CertStatus.SUCCESS){
+                    cert.setCertStatus(CertStatus.FAILED);
+                }
+            });
+            certInfoRepository.saveAll(inProgressCertList);
+            throw e;
         }
-
     }
+
 
 
     private Map<DataFieldName, String> getMergeMapForCert(CertInfo certInfo) throws JsonProcessingException {
@@ -148,17 +162,17 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     private Map<String,List> getTableLoopMapForCert(CertInfo certInfo){
         List<ExamScoreDto> markDtoList = new ArrayList<>();
-        if(certInfo.getAtGrade() != null){
+        if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
             markDtoList.add(new ExamScoreDto("AT",certInfo.getAtGrade()));
         }
-        if(certInfo.getUcGrade() != null){
+        if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
             markDtoList.add(new ExamScoreDto("UC",certInfo.getUcGrade()));
         }
-        if(certInfo.getUeGrade() != null){
+        if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
             markDtoList.add(new ExamScoreDto("UE",certInfo.getUeGrade()));
         }
 
-        if(certInfo.getBlnstGrade() != null) {
+        if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
             markDtoList.add(new ExamScoreDto("BLNST", certInfo.getBlnstGrade()));
         }
 
@@ -167,32 +181,56 @@ public class CertInfoServiceImpl implements CertInfoService {
         return map;
     }
 
-
     @Transactional
     @Override
-    public void generatePdf(CertInfo certInfo, InputStream atLeastOnePassedTemplate, InputStream allFailedTemplate) throws IOException, Docx4JException, InterruptedException {
-        logger.info(certInfo.getCertStatus().getCode());
+    public void generatePdf(CertInfo certInfo,
+                            byte[] atLeastOnePassedTemplate,
+                            byte [] allFailedTemplate,
+                            boolean isBatchMode) throws Exception {
+        logger.info("Start generate.");
 
-        if (atLeastOnePassedTemplate == null){
-            // if template is null, get the template again
-            // if not null, use the template in parameter.
+
+        if (!isBatchMode){
             // added this logic to avoid querying db using a bunch of time for the same template in batch mode.
-            atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
-        }
-        if(allFailedTemplate == null){
-            allFailedTemplate = letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
+            atLeastOnePassedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS));
+            allFailedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE));
         }
 
-        InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?atLeastOnePassedTemplate:allFailedTemplate;
+        InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
         byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
+        appliedTemplate.close();
+        IOUtils.close(appliedTemplate);
+
         File uploadFileRecord = this.uploadCertPdf(certInfo, mergedPdf);
+        this.createCertPdfRecord(certInfo,uploadFileRecord);
+        this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
+
+        logger.info("Complete generate");
+    }
+
+
+    private void createCertPdfRecord(CertInfo certInfo,File uploadedPdf){
+        // Update CertPdf table record
         CertPdf certPdf = new CertPdf();
         certPdf.setCertInfoId(certInfo.getId());
-        certPdf.setFileId(uploadFileRecord.getId());
+        certPdf.setFileId(uploadedPdf.getId());
         certPdfRepository.save(certPdf);
     }
 
-    private File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf){
+
+    private void updateCertStageAndStatus(CertInfo certInfo,CertStage stage, CertStatus status){
+        if(stage != null){
+            certInfo.setCertStage(stage);
+        }
+
+        if(status != null){
+            certInfo.setCertStatus(status);
+        }
+
+        certInfoRepository.save(certInfo);
+    }
+
+    private File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf) throws IOException {
 
         String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
         String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
