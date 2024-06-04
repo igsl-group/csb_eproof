@@ -161,7 +161,6 @@ entity "Cert_Info_Renew" as cert_info_approve {
     old_ue_grade: varchar(255)
     old_uc_grade: varchar(255)
     old_at_grade: varchar(255)
-    old_remark: text
 
     new_name: varchar(255)
     new_cname: varchar(255)
@@ -172,7 +171,8 @@ entity "Cert_Info_Renew" as cert_info_approve {
     new_ue_grade: varchar(255)
     new_uc_grade: varchar(255)
     new_at_grade: varchar(255)
-    new_remark: text
+
+    remark: text
 
     cert_stage: Renewed | Generated | Sign_Issue | Notify | Completed
 
