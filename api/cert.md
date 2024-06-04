@@ -164,3 +164,92 @@ type response = {
 
 ```
 
+
+## [Post] /cert/batch/updateEmail
+### Update the email of all cert under the provided hkid in request
+> Steps:
+> 1. Frontend send request
+> 2. Backend got the request, find all VALID cert under same HKID
+> 3. Update the email of those certs
+> 4. Save the certs
+
+```typescript
+// request
+type requestBody = {
+  currentHkid: string,
+  newEmail: string
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
+
+
+
+## [Post] /cert/batch/updatePersonalParticular
+### Update the personal particular of all cert under the provided hkid in request
+> Steps:
+> 1. Frontend send request
+> 2. Backend got the request, find all VALID cert under same HKID
+> 3. Update the personal information of those certs
+> 4. If all validation passed, create a new record in cert_info_renew table. The new values and old values that not related to personal particular should be same. 
+> 5. Set the old personal information to existing personal information. Set the new personal information to new inputted personal information.
+> 6. Set the cert_info_renew's stage to Renewed, status to Success
+
+```typescript
+// request
+type requestBody = {
+  currentHkid: string,
+  newEmail: string,
+  newHkid: string,
+  newPassport: string,
+  remark
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
+
+## [Post] /cert/single/updateResult/:certInfoId
+### Update the result of a single cert by the cert info id in the path
+> Steps:
+> 1. Frontend send request
+> 2. Backend got the request, find the cert by given certInfoId
+> 3. If the cert is not valid, deny the request
+> 4. If all validation passed, create a new record in cert_info_renew table. The new values and old values that not related to result should be same. 
+> 5. For those 4 exam results, set the old result to existing result. Set the new result to new inputted result.
+> 6. Set the cert_info_renew's stage to Renewed, status to Success
+
+```typescript
+
+type query_param = {
+  certInfoId: number
+}
+// request
+type requestBody = {
+  newUeGrade: string,
+  newUcGrade: string,
+  newAtGrade: string,
+  newBlnstGrade: string,
+  remark: string 
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
+
+
+
+
