@@ -131,6 +131,7 @@ entity "Cert_Info" as cert_info {
     ue_grade: varchar(255)
     uc_grade: varchar(255)
     at_grade: varchar(255)
+    - is_valid: bit
     - is_passed: bit
     - actual_sign_time: datetime
     - actual_email_send_time: datetime
