@@ -26,6 +26,16 @@ public class ExamProfile extends BaseEntity{
     @JsonFormat(pattern = Constants.DATE_PATTERN)
     private LocalDate examDate;
 
+
+    @Column(name = "effective_date_from")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
+    private LocalDate effectiveDateFrom;
+
+    @Column(name = "effective_date_to")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
+    private LocalDate effectiveDateTo;
+
+
     @Column(name = "result_letter_date")
     @JsonFormat(pattern = Constants.DATE_PATTERN)
     private LocalDate resultLetterDate;
