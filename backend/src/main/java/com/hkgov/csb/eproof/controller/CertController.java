@@ -68,11 +68,13 @@ public class CertController {
             }
             case "VALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_VALID.name();
+                request.setCertValid(true);
                 /*certStageList = List.of(CertStage.COMPLETED.name(), CertStage.SIGN_ISSUE.name());
                 certStatusList = List.of(CertStatus.SUCCESS.name());*/
             }
             case "INVALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_INVALID.name();
+                request.setCertValid(false);
                 /*certStageList = List.of(CertStage.VOIDED.name());
                 certStatusList = List.of(CertStatus.SUCCESS.name());*/
             }

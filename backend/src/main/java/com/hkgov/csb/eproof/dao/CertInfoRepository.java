@@ -39,7 +39,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
             ( ?#{#searchDto.blnstGrade} != null AND c.blnstGrade like %?#{#searchDto.blnstGrade}% ) OR
             ( ?#{#searchDto.ueGrade} != null AND c.ueGrade like %?#{#searchDto.ueGrade}% ) OR
             ( ?#{#searchDto.ucGrade} != null AND c.ucGrade like %?#{#searchDto.ucGrade}% ) OR
-            ( ?#{#searchDto.atGrade} != null AND c.atGrade like %?#{#searchDto.atGrade}% )
+            ( ?#{#searchDto.atGrade} != null AND c.atGrade like %?#{#searchDto.atGrade}% ) OR
+            ( ?#{#searchDto.certValid} != null AND c.valid like %?#{#searchDto.certValid}% )
         )
 """)
     Page<CertInfo> caseSearch(@Param("searchDto") CertSearchDto searchDto,
