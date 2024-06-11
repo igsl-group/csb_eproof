@@ -8,6 +8,7 @@ import com.hkgov.csb.eproof.service.AuthenticationService;
 import com.hkgov.csb.eproof.service.JwtService;
 import com.hkgov.csb.eproof.service.UserSessionService;
 import com.hkgov.csb.eproof.util.Result;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +36,8 @@ public class AuthenticationController {
 
 
     @GetMapping("/sso")
-    public Result sso(@RequestHeader String dpUserId,@RequestHeader String dpDeptId,
+    public Result sso(@RequestHeader String dpUserId,
+                      @RequestHeader String dpDeptId,
             HttpServletRequest req , HttpServletResponse resp){
 
         /*if(req.getCookies() == null){
