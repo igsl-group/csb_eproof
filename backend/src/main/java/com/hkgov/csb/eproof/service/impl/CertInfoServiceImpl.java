@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.CertPdfRepository;
+import com.hkgov.csb.eproof.dao.FileRepository;
 import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
@@ -23,6 +24,7 @@ import com.hkgov.csb.eproof.service.FileService;
 import com.hkgov.csb.eproof.service.LetterTemplateService;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
+import com.hkgov.csb.eproof.util.MinioUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +39,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.hkgov.csb.eproof.constants.Constants.*;
 
@@ -54,6 +59,8 @@ import static com.hkgov.csb.eproof.constants.Constants.*;
 @RequiredArgsConstructor
 public class CertInfoServiceImpl implements CertInfoService {
 
+    private final FileRepository fileRepository;
+    private final MinioUtil minioUtil;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
 
@@ -300,5 +307,27 @@ public class CertInfoServiceImpl implements CertInfoService {
             }
         }
         return list;
+    }
+
+    public byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException {
+        List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+
+        for (CertInfo certInfo : certInfoList) {
+            if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
+                continue;
+            }
+            File latestPdf = fileRepository.getLatestPdfForCert(certInfo.getId());
+
+            ZipEntry zipEntry = new ZipEntry(latestPdf.getName());
+            zos.putNextEntry(zipEntry);
+            zos.write(minioUtil.getFileAsByteArray(latestPdf.getPath()));
+            zos.closeEntry();
+        }
+        zos.finish();
+        zos.close();
+        return baos.toByteArray();
+
     }
 }

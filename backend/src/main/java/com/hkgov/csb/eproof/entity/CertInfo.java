@@ -110,8 +110,9 @@ public class CertInfo extends BaseEntity{
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
+            name = "cert_pdf",
             joinColumns = @JoinColumn(name = "cert_info_id"),
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
-    private List<CertPdf> pdfList;
+    private List<File> pdfList;
 }
