@@ -49,7 +49,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -321,6 +320,37 @@ public class CertInfoServiceImpl implements CertInfoService {
         infoRenew.setType(CertType.INFO_UPDATE);
         certInfoRenewRepository.save(infoRenew);
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchSignAndIssue(String examProfileSerialNo) {
+        List<CertInfo> signAndIssueInProgressCert = certInfoRepository.getCertByExamSerialAndStageAndStatus(
+                examProfileSerialNo,
+                CertStage.SIGN_ISSUE,
+                List.of(CertStatus.IN_PROGRESS)
+        );
+
+        try{
+            signAndIssueInProgressCert.forEach(this::singleSignAndIssue);
+        }catch(Exception e){
+            signAndIssueInProgressCert.forEach(x -> {
+                if(x.getCertStatus().equals(CertStatus.PENDING)){
+                    x.setCertStatus(CertStatus.FAILED);
+                }
+            });
+            certInfoRepository.saveAll(signAndIssueInProgressCert);
+        }
+
+    }
+
+    @Transactional(noRollbackFor = Exception.class)
+    void singleSignAndIssue(CertInfo certInfo){
+        //TODO Trigger sign and issue action
+
+        certInfo.setCertStatus(CertStatus.SUCCESS);
+
+        certInfoRepository.save(certInfo);
     }
 
 

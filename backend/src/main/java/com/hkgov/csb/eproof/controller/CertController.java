@@ -123,6 +123,14 @@ public class CertController {
 
         return Result.success();
     }
+
+
+    @PostMapping("/batch/signAndIssue/{examProfileSerialNo}")
+    public Result signAndIssue(@PathVariable String examProfileSerialNo){
+        certInfoService.changeCertStatusToInProgress(examProfileSerialNo,CertStage.SIGN_ISSUE);
+        certInfoService.batchSignAndIssue(examProfileSerialNo);
+        return Result.success();
+    }
     @PostMapping("/batch/updateEmail")
     public Result updateEmail(@RequestBody UpdateEmailDto updateEmailDto){
         return Result.success(certInfoService.updateEmail(updateEmailDto));
