@@ -95,7 +95,7 @@ type response = {
 ## [POST] /cert/batch/dispatch/:examProfileSerialNo
 ### Dispatch the cert with status = completed and stage = current stage and on hold = false
 
-> Remark 1: find all cert info under same :examProfileSerialNo, where cert.on_hold = false and cert.status = pending
+> Remark 1: find all cert info under same :examProfileSerialNo, where cert.on_hold = false and cert.status = SUCCESS
 
 > Remark 2: Follow this sequence to decide what is the next stage: IMPORTED -> GENERATED  -> SIGN_ISSUE -> NOTIFY -> COMPLETED. The stage are all stored in CertStage.java, you may reference to that class.
 
