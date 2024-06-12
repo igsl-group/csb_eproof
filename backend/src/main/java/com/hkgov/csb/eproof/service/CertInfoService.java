@@ -27,10 +27,10 @@ public interface CertInfoService {
 
     void batchGeneratePdf(String examProfileSerialNo) throws Exception;
 
-    void generatePdf(CertInfo certInfo,
-                     byte[] atLeastOnePassedTemplate,
-                     byte [] allFailedTemplate,
-                     boolean isBatchMode) throws Exception;
+    void singleGeneratePdf(CertInfo certInfo,
+                           byte[] atLeastOnePassedTemplate,
+                           byte [] allFailedTemplate,
+                           boolean isBatchMode) throws Exception;
     byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException;
 
 
@@ -39,4 +39,6 @@ public interface CertInfoService {
     Boolean updatePersonalParticular(UpdatePersonalDto personalDto);
 
     Boolean updateResult(Long certInfoId, UpdateResultDto resultDto);
+
+    void batchSignAndIssue(String examProfileSerialNo);
 }

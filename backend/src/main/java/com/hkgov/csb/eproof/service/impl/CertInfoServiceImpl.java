@@ -1,7 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
@@ -41,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,7 +138,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = Exception.class)
+    @Async
     public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
         List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
@@ -146,7 +147,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
         try{
             for (CertInfo cert : inProgressCertList) {
-                this.generatePdf(cert,passTemplateInputStream,allFailedTemplate,true);
+                this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true);
             }
         } catch (Exception e){
             inProgressCertList.forEach(cert->{
@@ -192,12 +193,12 @@ public class CertInfoServiceImpl implements CertInfoService {
         return map;
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = Exception.class)
     @Override
-    public void generatePdf(CertInfo certInfo,
-                            byte[] atLeastOnePassedTemplate,
-                            byte [] allFailedTemplate,
-                            boolean isBatchMode) throws Exception {
+    public void singleGeneratePdf(CertInfo certInfo,
+                                  byte[] atLeastOnePassedTemplate,
+                                  byte [] allFailedTemplate,
+                                  boolean isBatchMode) throws Exception {
         logger.info("Start generate.");
 
 
