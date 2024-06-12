@@ -8,23 +8,23 @@ import lombok.Setter;
 @Setter
 public class CertImportDto {
     @CsvBindByName(column = "Exam Date")
-    private String examDate;
+    private String examDate = "";
     @CsvBindByName(column = "Name in English ")
-    private String name;
+    private String name= "";
     @CsvBindByName(column = "HKID")
-    private String hkid;
-    @CsvBindByName(column = "Passport No")
-    private String passportNo;
+    private String hkid= "";
+    @CsvBindByName(column = "Passport No.")
+    private String passportNo= "";
     @CsvBindByName(column = "Email")
-    private String email;
+    private String email= "";
     @CsvBindByName(column = "BL Grade")
-    private String blnstGrade;
+    private String blnstGrade= "";
     @CsvBindByName(column = "UE Grade")
-    private String ueGrade;
+    private String ueGrade= "";
     @CsvBindByName(column = "UC Grade")
-    private String ucGrade;
+    private String ucGrade= "";
     @CsvBindByName(column = "AT Grade")
-    private String atGrade;
+    private String atGrade= "";
     @CsvBindByName(column = "Letter Type (Pass/Fail)")
-    private String letterType;
+    private String letterType= "";
 }

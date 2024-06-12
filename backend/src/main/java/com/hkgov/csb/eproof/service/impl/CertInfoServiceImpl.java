@@ -123,6 +123,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                     break;
                 }
             }
+            certInfo.setCertStatus(CertStatus.PENDING);
         }
         certInfoRepository.saveAll(list).size();
         return true;
@@ -358,8 +359,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.EXAM_DATE);
-        List<CertImportDto> certInfos = CertInfoMapper.INSTANCE.sourceToDestinationList(certInfoRepository.getinfoByNoList(examProfileSerialNo));
+        List<CertImportDto> certInfos = CertInfoMapper.INSTANCE.sourceToDestinationList(certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo));
         CodeUtil codeUtil = new CodeUtil();
         int count = certInfos.size();
         List<CertInfo> list = new ArrayList<>();
@@ -373,16 +373,20 @@ public class CertInfoServiceImpl implements CertInfoService {
                 LocalDate examDate;
                 int row = i+1-count;
                 try{
-                    examDate = LocalDate.parse(csv.getExamDate(), formatter);
+                    examDate = LocalDate.parse(csv.getExamDate());
                 }catch (Exception e){
                     throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
                 }
                 if(!examDate.equals(date)){
                     throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
                 }
-                if(csv.getHkid().contains("(") || csv.getHkid().contains("(")){
+
+                if(csv.getHkid().contains("(") || csv.getHkid().contains(")")){
                     csv.setHkid(csv.getHkid().replaceAll("\\)","").replaceAll("\\(",""));
                 }
+                // Remove all white space
+                csv.setHkid(csv.getHkid().replaceAll("\\s",""));
+
                 if(csv.getHkid().isEmpty() && csv.getPassportNo().isEmpty()){
                     throw new ServiceException(ResultCode.HKID_PANNPORT_ABSENT,row);
                 }
@@ -398,7 +402,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 if(!codeUtil.validEmai(csv.getEmail())){
                     throw new ServiceException(ResultCode.CSV_EMAIL_ERROR,row);
                 }
-                //组装batchinfo数据
+                //组装batch info数据
                 CertInfo certInfo = new CertInfo();
                 certInfo.setExamProfileSerialNo(examProfileSerialNo);
                 certInfo.setHkid(csv.getHkid());
@@ -411,7 +415,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 certInfo.setAtGrade(csv.getAtGrade());
                 certInfo.setBlnstGrade(csv.getBlnstGrade());
                 certInfo.setLetterType(csv.getLetterType());
-                certInfo.setCertStatus(CertStatus.PENDING);
+                certInfo.setCertStatus(CertStatus.SUCCESS);
                 certInfo.setCertStage(CertStage.IMPORTED);
                 certInfo.setOnHold(false);
                 list.add(certInfo);

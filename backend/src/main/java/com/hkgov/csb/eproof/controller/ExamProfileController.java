@@ -60,4 +60,10 @@ public class ExamProfileController {
         return Result.success(examProfileService.getSummary(examProfileSerialNo));
     }
 
+    @GetMapping("/reset/{examProfileSerialNo}")
+    public Result reset(@PathVariable String examProfileSerialNo){
+        examProfileService.reset(examProfileSerialNo);
+        return Result.success();
+    }
+
 }

@@ -92,4 +92,12 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
                 .build();
     }
+
+    @Override
+    public void reset(String examProfileSerialNo) {
+        List<CertInfo> certInfoList = certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo);
+        if(Objects.nonNull(certInfoList) && !certInfoList.isEmpty()){
+            certInfoRepository.deleteAll(certInfoList);
+        }
+    }
 }

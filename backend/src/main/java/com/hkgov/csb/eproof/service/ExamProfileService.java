@@ -24,4 +24,6 @@ public interface ExamProfileService {
     Boolean delete(String examProfileSerialNo);
 
     ExamProfileSummaryDto getSummary(String examProfileSerialNo);
+
+    void reset(String examProfileSerialNo);
 }
