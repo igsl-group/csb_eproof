@@ -149,13 +149,6 @@ const Candidate = () =>  {
       sorter: true,
     },
     {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
-    },
-    {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',

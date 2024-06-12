@@ -37,6 +37,8 @@ const Issue = () =>  {
     {
       serialNo: 'N000000001',
       candidateNo: 'C000001',
+      examDate: '2024-01-01',
+      type: 'Update Info',
       hkid: 'T7700002',
       name: 'Chan Tai Man',
       email: 'taiman.chan@hotmail.com',
@@ -44,6 +46,32 @@ const Issue = () =>  {
       uc: 'L1',
       at: 'Pass',
       blnst: 'Pass',
+      oldHkid: 'T7700002',
+      oldName: 'Wong Tai Man',
+      oldUe: 'L2',
+      oldUc: 'L1',
+      oldAt: 'Pass',
+      oldBlnst: 'Pass',
+      status: 'Success',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      type: 'Update Result',
+      examDate: '2024-01-01',
+      hkid: 'T7700002',
+      name: 'Chan Tai Man',
+      email: 'taiman.chan@hotmail.com',
+      ue: 'L1',
+      uc: 'L1',
+      at: 'Pass',
+      blnst: 'Pass',
+      oldHkid: 'T7700002',
+      oldName: 'Chan Tai Man',
+      oldUe: 'L2',
+      oldUc: 'L1',
+      oldAt: 'Pass',
+      oldBlnst: 'Fail',
       status: 'Success',
     }
   ]);
@@ -52,7 +80,7 @@ const Issue = () =>  {
     {
       title: 'Action',
       key: 'action',
-      width: 200,
+      width: 210,
       render: (row) => (
           <Space>
             <Button size={'small'} type={'primary'} onClick={() => {}}>Remove</Button>
@@ -61,16 +89,16 @@ const Issue = () =>  {
       )
     },
     {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
+      title: 'Type',
+      key: 'type',
+      dataIndex: 'type',
       width: 140,
       sorter: true,
     },
     {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
+      title: 'Exam Date',
+      key: 'examDate',
+      dataIndex: 'examDate',
       width: 140,
       sorter: true,
     },
@@ -82,9 +110,31 @@ const Issue = () =>  {
       sorter: true,
     },
     {
+      title: 'Passport',
+      key: 'passport',
+      dataIndex: 'passport',
+      width: 100,
+      sorter: true,
+    },
+    {
       title: 'Name',
       key: 'name',
-      dataIndex: 'name',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldName === row.name ? (
+                <span>{row.name}</span>
+              ) : (
+                <div>
+                  <div>{row.oldName}</div>
+                  <div style={{ color: 'red'}}>{row.name}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 160,
       sorter: true,
     },
@@ -98,28 +148,88 @@ const Issue = () =>  {
     {
       title: 'UE',
       key: 'ue',
-      dataIndex: 'ue',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldUe === row.ue ? (
+                <span>{row.ue}</span>
+              ) : (
+                <div>
+                  <div>{row.oldUe}</div>
+                  <div style={{ color: 'red'}}>{row.ue}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 100,
       sorter: true,
     },
     {
       title: 'UC',
       key: 'uc',
-      dataIndex: 'uc',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldUc === row.uc ? (
+                <span>{row.uc}</span>
+              ) : (
+                <div>
+                  <div>{row.oldUc}</div>
+                  <div style={{ color: 'red'}}>{row.uc}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 100,
       sorter: true,
     },
     {
       title: 'AT',
       key: 'at',
-      dataIndex: 'at',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldAt === row.at ? (
+                <span>{row.at}</span>
+              ) : (
+                <div>
+                  <div>{row.oldAt}</div>
+                  <div style={{ color: 'red'}}>{row.at}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 100,
       sorter: true,
     },
     {
       title: 'BLNST',
       key: 'blnst',
-      dataIndex: 'blnst',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldBlnst === row.blnst ? (
+                <span>{row.blnst}</span>
+              ) : (
+                <div>
+                  <div>{row.oldBlnst}</div>
+                  <div style={{ color: 'red'}}>{row.blnst}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 100,
       sorter: true,
     },
@@ -185,10 +295,10 @@ const Issue = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Cert. Issue Workflow (Renew)',
+      title: 'Certificate Reissuance',
     },
     {
-      title: 'Sign and Issue Cert.',
+      title: 'Sign and Issue Certificate',
     },
   ], []);
 
@@ -224,13 +334,13 @@ const Issue = () =>  {
 
   return (
     <div className={styles['exam-profile']}>
-      <Typography.Title level={3}>Sign and Issue Cert.</Typography.Title>
+      <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <Row justify={'space-between'}>
-        <Col>
-          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
-        </Col>
+      <Row justify={'end'}>
+        {/*<Col>*/}
+        {/*  <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>*/}
+        {/*</Col>*/}
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
@@ -258,19 +368,16 @@ const Issue = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
+                  <HKID name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'} />
+                  <Text name={'passportNo'} label={'Passport'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
                 </Col>
               </Row>
             </Col>
@@ -309,7 +416,7 @@ const Issue = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Issue Cert.'}
+        title={'Sign and Issue Certificate'}
       >
         <ResizeableTable
           size={'big'}

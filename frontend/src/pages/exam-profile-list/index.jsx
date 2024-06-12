@@ -66,6 +66,20 @@ const ExamProfileList = () =>  {
       width: 150,
       sorter: true,
     },
+    {
+      title: 'Result Letter Date',
+      key: 'resultLetterDate',
+      dataIndex: 'resultLetterDate',
+      width: 150,
+      sorter: true,
+    },
+    {
+      title: 'Planned Email Issuance Date',
+      key: 'plannedEmailIssuanceDate',
+      dataIndex: 'plannedEmailIssuanceDate',
+      width: 150,
+      sorter: true,
+    },
   ], []);
 
   const data = [{

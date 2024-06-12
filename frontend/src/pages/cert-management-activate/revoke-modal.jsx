@@ -4,6 +4,7 @@ import Text from "@/components/Text";
 import Date from "@/components/Date";
 import HKID from "@/components/HKID";
 import Textarea from "@/components/Textarea";
+import Email from "@/components/Email";
 import Checkbox from "@/components/Checkbox";
 import {validators} from "../../utils/validators";
 import Richtext from "../../components/Richtext";
@@ -24,43 +25,53 @@ const RevokeModal = (props) =>  {
   }, []);
 
     const [data, setData] = useState([
-        {
-            serialNo: 'N000000001',
-            candidateNo: 'C000001',
-            hkid: 'T7700002',
-            name: 'Chan Tai Man',
-            email: 'taiman.chan@hotmail.com',
-            ue: 'L2',
-            uc: 'L1',
-            at: 'Pass',
-            blnst: 'Pass',
-            status: 'Success',
-        }
+      {
+        serialNo: 'N000000001',
+        candidateNo: 'C000001',
+        hkid: 'T7700002',
+        name: 'Chan Tai Man',
+        email: 'taiman.chan@hotmail.com',
+        examDate: '2024-01-01',
+        resultLetterDate: '2024-01-25',
+        emailIssuanceDate: '2024-01-31',
+        ue: 'L2',
+        uc: 'L1',
+        at: 'Pass',
+        blnst: 'Pass',
+        status: 'Success',
+      }
     ]);
+
+    useEffect(() => {
+      form.setFieldsValue({
+        email: 'wilfred.lai@igsl-group.com',
+        informCandidateEmail: `Hi Wilfred,<br/><br/>Your certificate was revoked. `,
+      })
+    }, [])
 
 
     const columns = useMemo(() => [
-        {
-            title: 'Serial No.',
-            key: 'serialNo',
-            dataIndex: 'serialNo',
-            width: 140,
-            sorter: true,
-        },
-        {
-            title: 'Candidate No.',
-            key: 'candidateNo',
-            dataIndex: 'candidateNo',
-            width: 140,
-            sorter: true,
-        },
-        {
+      {
+        title: 'Exam Date',
+        key: 'examDate',
+        dataIndex: 'examDate',
+        width: 140,
+        sorter: true,
+      },
+      {
             title: 'HKID',
             key: 'hkid',
             dataIndex: 'hkid',
             width: 100,
             sorter: true,
         },
+      {
+        title: 'Passport',
+        key: 'passport',
+        dataIndex: 'passport',
+        width: 100,
+        sorter: true,
+      },
         {
             title: 'Name',
             key: 'name',
@@ -152,42 +163,21 @@ const RevokeModal = (props) =>  {
           />
 
         <br/>
-        {/*<Row gutter={24} justify={'end'}>*/}
-        {/*  <Col>*/}
-        {/*    <Button type={'primary'}>Upload Appeal result (CSV)</Button>*/}
-        {/*  </Col>*/}
-        {/*</Row>*/}
-        <br/>
         <Row gutter={24} justify={'center'}>
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'ue'} label={'Current UE'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'newUE'} label={'New UE'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'uc'} label={'Current UC'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'newUC'} label={'New UC'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'at'} label={'Current AT'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'newAt'} label={'New AT'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'blnst'} label={'Current BLNST'} size={100} disabled/>*/}
-          {/*</Col>*/}
-          {/*<Col span={24} md={12}>*/}
-          {/*  <Text name={'newBlnst'} label={'New BLNST'} size={100} disabled/>*/}
-          {/*</Col>*/}
           <Col span={24}>
             <Textarea name={'remark'} label={'Remark'} size={100}/>
           </Col>
           <Col span={24}>
-            <Richtext name={'informCandidateEmail'} label={'Inform candidate\'s email content after processing success'} size={100}/>
+            <Email
+              name={'email'}
+              label={'Latest Candidate\'s email address'}
+              required
+              disabled
+              size={100}
+            />
+          </Col>
+          <Col span={24}>
+            <Richtext name={'informCandidateEmail'} label={'Inform candidate’s email content after request is approved'} size={100}/>
           </Col>
         </Row>
         <br />

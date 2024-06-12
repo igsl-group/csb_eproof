@@ -45,12 +45,30 @@ const Candidate = () =>  {
       hkid: 'T7700002',
       name: 'Chan Tai Man',
       email: 'taiman.chan@hotmail.com',
+      examDate: '2024-01-01',
+      resultLetterDate: '2024-01-25',
+      emailIssuanceDate: '2024-01-31',
       ue: 'L2',
       uc: 'L1',
       at: 'Pass',
       blnst: 'Pass',
-      status: 'Success',
-    }
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700002',
+      name: 'Chan Tai Man',
+      email: 'taiman.chan@hotmail.com',
+      examDate: '2024-05-01',
+      resultLetterDate: '2024-05-25',
+      emailIssuanceDate: '2024-05-31',
+      ue: 'L1',
+      uc: 'L1',
+      at: 'Pass',
+      blnst: 'Pass',
+    },
+
+
   ]);
 
 
@@ -151,16 +169,9 @@ const Candidate = () =>  {
       )
     },
     {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
+      title: 'Exam Date',
+      key: 'examDate',
+      dataIndex: 'examDate',
       width: 140,
       sorter: true,
     },
@@ -168,6 +179,13 @@ const Candidate = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Passport',
+      key: 'passport',
+      dataIndex: 'passport',
       width: 100,
       sorter: true,
     },
@@ -182,6 +200,20 @@ const Candidate = () =>  {
       title: 'Email',
       key: 'email',
       dataIndex: 'email',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'Result Letter Date',
+      key: 'resultLetterDate',
+      dataIndex: 'resultLetterDate',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'Email Issuance Date',
+      key: 'emailIssuanceDate',
+      dataIndex: 'emailIssuanceDate',
       width: 180,
       sorter: true,
     },
@@ -210,13 +242,6 @@ const Candidate = () =>  {
       title: 'BLNST',
       key: 'blnst',
       dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
       width: 100,
       sorter: true,
     },
@@ -388,7 +413,7 @@ const Candidate = () =>  {
       />
       <RevokeCertModal
           open={revokeOpen}
-          title={'Revoke Cert.'}
+          title={'Revoke Certificate'}
           onCloseCallback={() => setRevokeOpen(false)}
           onFinishCallback={() => setRevokeOpen(false)}
       />

@@ -39,12 +39,13 @@ import Notify from "./notify";
 import dayjs from "dayjs";
 import ExceptionalCaseModal from "./exceptional-case-modal";
 import {useModal} from "../../context/modal-provider";
+import ExamProfileFormModal from "./modal";
 
 const ExamProfile = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
-  const [exceptionalCaseOpen, setExceptionalCaseOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [freezeExamProfile, setFreezeExamProfile] = useState(false);
   const [form] = Form.useForm();
   const {
@@ -70,6 +71,7 @@ const ExamProfile = () =>  {
   const [data, setData] = useState([
     {
       serialNo: 'N000000001',
+      reason: 'Checking',
       candidateNo: 'C000001',
       hkid: 'T7700002',
       name: 'Chan Tai Man',
@@ -88,7 +90,12 @@ const ExamProfile = () =>  {
       title: 'Action',
       key: 'action',
       width: 140,
-      render: (row) => <Button size={'small'} type={'primary'} danger onClick={() => {}}>Resume Case</Button>
+      render: (row) => (
+        <Row gutter={[8, 8]}>
+          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => {}}>Resume Case</Button></Col>
+          <Col span={24}><Button size={'small'} type={'primary'} danger onClick={() => {}}>Remove Case</Button></Col>
+        </Row>
+      )
     },
     {
       title: 'Current Stage',
@@ -98,30 +105,23 @@ const ExamProfile = () =>  {
       sorter: true,
     },
     {
-      title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
+      title: 'Reason',
+      key: 'reason',
+      dataIndex: 'reason',
       width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
       sorter: true,
     },
     {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Passport',
+      key: 'passport',
+      dataIndex: 'passport',
       width: 100,
       sorter: true,
     },
@@ -170,6 +170,9 @@ const ExamProfile = () =>  {
 
   ], []);
 
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+  });
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -197,8 +200,8 @@ const ExamProfile = () =>  {
   useEffect(() => {
     form.setFieldsValue({
       serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
+      examDate: '',
+      plannedAnnouncedDate: '',
       location: 'Hong Kong',
     })
   }, []);
@@ -211,12 +214,12 @@ const ExamProfile = () =>  {
     },
     {
       key: 2,
-      label: 'Generate Cert. (PDF)',
+      label: 'Generate PDF',
       children: <Generate />,
     },
     {
       key: 3,
-      label: 'Issue Cert.',
+      label: 'Sign and Issue Certificate',
       children: <Issue />,
     },
     {
@@ -240,7 +243,7 @@ const ExamProfile = () =>  {
 
   const onClickReset = useCallback(() => {
     modalApi.confirm({
-      title:'If you confirm to reset Exam Profile, all imported results and generated PDF and Sign and Issues will be removed. Are you sure to reset Exam Profile? ',
+      title:'If you confirm to reset Exam Profile, all imported results, generated PDFs, signed and issued certificates will be removed.',
       width: 500,
       okText: 'Confirm',
     });
@@ -271,13 +274,25 @@ const ExamProfile = () =>  {
                 <Text name={"serialNo"} label={'Serial No.'} required size={12} disabled/>
               </Col>
               <Col span={24} md={12}>
-                <Date name={'examDate'} label={'Exam Date'} required size={12} disabled/>
+                <Text name={'examDate'} label={'Exam Date'} required size={12} disabled placeholder={'YYYY-MM-DD'} size={12} />
               </Col>
               <Col span={24} md={12}>
-                <Text name={'actualAnnouncedDate'} label={'Actual Announced Date'} disabled={true}
+                <Text name={'actualAnnouncedDate'} label={'Result Letter Date'} disabled={true}
                       placeholder={'YYYY-MM-DD'} size={12}/>
               </Col>
-              <Col span={24} md={12} />
+              <Col span={24} md={12}>
+                <Text name={'actualAnnouncedDate'} label={'Planned Email Issuance Date'} disabled={true}
+                      placeholder={'YYYY-MM-DD'} size={12}/>
+              </Col>
+              <Col span={24} md={12}>
+                <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (From)'} disabled={true}
+                      placeholder={'YYYY-MM-DD'} size={12}/>
+              </Col>
+              <Col span={24} md={12}>
+                <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (To)'} disabled={true}
+                      placeholder={'YYYY-MM-DD'} size={12}/>
+              </Col>
+
               <Col span={24}>
                 <Text name={'location'} label={'Location'} size={50} disabled/>
               </Col>
@@ -285,6 +300,9 @@ const ExamProfile = () =>  {
           </Col>
           <Col span={8}>
             <Row gutter={[8, 8]} justify={'end'}>
+              <Col>
+                <Button type={'primary'} onClick={() => setOpen(true)}>Edit</Button>
+              </Col>
               <Col>
                 <Button type={'primary'} onClick={onClickReset}>Reset Exam Profile</Button>
               </Col>
@@ -297,6 +315,35 @@ const ExamProfile = () =>  {
           </Col>
         </Row>
       </Form>
+      <br/>
+      <fieldset style={{paddingLeft: 30}}>
+        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
+        <Descriptions
+          size={'small'}
+          items={[
+            {
+              key: 1,
+              label: 'Imported',
+              children: 30000,
+            },
+            {
+              key: 2,
+              label: 'Generated PDF',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 3,
+              label: 'Issued Cert.',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 4,
+              label: 'Sent Email',
+              children: '0 out of 0 failed',
+            }
+          ]}
+        />
+      </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
@@ -341,6 +388,10 @@ const ExamProfile = () =>  {
         </Row>
         <br/>
       </Card>
+      <ExamProfileFormModal
+        open={open}
+        onCloseCallback={onCloseCallback}
+      />
       {/*<fieldset style={{paddingLeft: 30}}>*/}
       {/*  <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>*/}
       {/*  <Descriptions*/}

@@ -12,6 +12,9 @@ import ModalProvider from "./context/modal-provider";
 
 function App() {
 
+
+
+
   return (
     <div className="App">
       <MainContext.Provider value={{}}>

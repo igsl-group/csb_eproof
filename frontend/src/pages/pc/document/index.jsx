@@ -1273,7 +1273,7 @@ const RejectModal = ({open, onCancelCallback, onFinishCallback, documentId}) => 
     if (values) {
       runDocumentAPI('doc-reject', documentId, values)
 
-    }
+    }auth
   };
 
   const onCancel = () => {

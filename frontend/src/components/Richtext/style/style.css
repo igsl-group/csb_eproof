@@ -1,0 +1,28 @@
+.ql-toolbar.ql-snow {
+    border: 1px solid #ccc;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.ql-container.ql-snow{
+    /*border-top: 0px;*/
+    border: 1px solid #ccc;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.ant-form-item-has-error .ql-container.ql-snow{
+    border: 1px solid #9f3a38;
+}
+
+.ant-form-item-has-error .ql-toolbar.ql-snow {
+    border: 1px solid #9f3a38;
+}
+.ql-disabled{
+    color: rgba(81, 90, 110, 0.88);
+    background-color: rgb(244, 240, 238, 0.88);
+    border-color: #d5d5d5;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 1;
+}

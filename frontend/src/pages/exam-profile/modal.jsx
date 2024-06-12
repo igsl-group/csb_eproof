@@ -11,10 +11,11 @@ const ExamProfileFormModal = (props) =>  {
 
   return (
     <Modal
-      width={1000}
-      title={'Create Exam Profile'}
+      width={600}
+      title={'Edit Exam Profile'}
       okText={'Save'}
       closable={false}
+      maskClosable={false}
       onCancel={onClose}
       {...props}
     >
@@ -38,9 +39,11 @@ const ExamProfileFormModal = (props) =>  {
             <Date name={'Exam Date'} label={'Exam Date'} required size={50}/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'Actual Announced Date'} label={'Actual Announced Date'} disabled={true} placeholder={'YYYY-MM-DD'} size={50}/>
+            <Date name={'Result Letter Date'} label={'Result Letter Date'} placeholder={'YYYY-MM-DD'} size={50}/>
           </Col>
-          <Col span={24} md={12} />
+          <Col span={24} md={12}>
+            <Date name={'Planned Email Issuance Date'} label={'Planned Email Issuance Date'} placeholder={'YYYY-MM-DD'} size={50}/>
+          </Col>
           <Col span={24}>
             <Text name={'Location'} label={'Location'} size={50}/>
           </Col>

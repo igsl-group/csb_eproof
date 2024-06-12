@@ -2,19 +2,8 @@ import request from '@/api/index';
 export function loginAPI(params, ...rest) {
     switch (params) {
         case 'authenticate':
-            return request(`/token?${rest[0]}`, 'authenticate', rest[1]);
-        case 'profile':
-            return request('/profile', 'get');
-        case 'logout':
-            return request('/api/v1/auth/logout', 'post');
-        case 'user':
-            return request('/api/v1/user/getCurrentUser', 'get');
-        case 'forgotPassword':
-            return request('/api/v1/user/forgotPassword?email=' + rest[0], 'post');
-        case 'resetPassword':
-            return request('/api/v1/user/resetPassword?token=' + rest[0], 'post', rest[1]);
-        case 'changePassword':
-            return request('/api/v1/user/changePassword?loginId=' + rest[0], 'post', rest[1]);
+            console.log(rest)
+            return request(`/sso`, 'authenticate', rest[0]);
         default:
             return;
     }
@@ -153,6 +142,33 @@ export function postAPI(params, ...rest) {
             return;
     }
 };
+
+export function userRoleAPI(params, ...rest) {
+    switch (params) {
+        case 'userGet':
+            return request(`/user/${rest[0]}`, "get");
+        case 'userCreate':
+            return request('/user/create', "post", rest[0]);
+        case 'userUpdate':
+            return request(`/user/update/${rest[0]}`, "patch", rest[1]);
+        case 'userList':
+            return request('/user/list', "get");
+        case 'userRemove':
+            return request(`/user/delete/${rest[0]}`, "delete");
+        case 'roleGet':
+            return request(`/role/${rest[0]}`, "get");
+        case 'roleCreate':
+            return request('/role/create', "post", rest[0]);
+        case 'roleUpdate':
+            return request(`/role/update/${rest[0]}`, "patch", rest[1]);
+        case 'roleList':
+            return request('/role/list', "get");
+        case 'roleRemove':
+            return request(`/role/delete/${rest[0]}`, "delete");
+        case 'permissionList':
+            return request('/permission/list', "get");
+    }
+}
 
 export function roleAPI(params, ...rest) {
     switch (params) {

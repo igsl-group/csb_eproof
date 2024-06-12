@@ -33,6 +33,7 @@ const Import = () =>  {
     {
       serialNo: 'N000000001',
       candidateNo: 'C000001',
+      examDate: '2024-01-01',
       hkid: 'T7700002',
       name: 'Chan Tai Man',
       email: 'taiman.chan@hotmail.com',
@@ -59,9 +60,9 @@ const Import = () =>  {
       sorter: true,
     },
     {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
+      title: 'Exam Date',
+      key: 'examDate',
+      dataIndex: 'examDate',
       width: 140,
       sorter: true,
     },
@@ -176,7 +177,7 @@ const Import = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Cert. Issue Workflow',
+      title: 'Certificate Reissuance',
     },
     {
       title: 'Import Result (CSV)',
@@ -185,7 +186,7 @@ const Import = () =>  {
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to dispatch to "Generate Cert. (PDF)" stage?',
+      title:'Are you sure to dispatch to generate PDF stage?',
       width: 500,
       okText: 'Confirm',
     });
@@ -203,7 +204,7 @@ const Import = () =>  {
         <Col>
           <Row gutter={[16, 16]}>
             <Col>
-              <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to Generate Cert. (PDF)</Button>
+              <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
             </Col>
             <Col>
               <Button type="primary" onClick={() => {
@@ -231,19 +232,16 @@ const Import = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
                   <HKID name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                  <Text name={'passportNo'} label={'Passport'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
+                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
                 </Col>
               </Row>
             </Col>

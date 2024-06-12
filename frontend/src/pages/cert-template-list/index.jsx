@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Form, Card, Typography, Breadcrumb, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {Table, Form, Card, Typography, Breadcrumb, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -13,11 +13,6 @@ import {
   SendOutlined,
   EditOutlined
 } from '@ant-design/icons';
-import Text from "@/components/Text";
-import Date from "@/components/Date";
-import Textarea from "@/components/Textarea";
-import HKID from "@/components/HKID";
-import Email from "@/components/Email";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
@@ -36,11 +31,12 @@ const CertTemplateList = () =>  {
 
   const [data, setData] = useState([
     {
-      type: 'Notify Normal Email',
-      description: 'Notify Normal Email',
-      cc: '',
-      bcc: '',
-      subject: 'Notify Normal Email',
+      type: 'Pass Cert. Template',
+      description: 'Issue the certificate when at least one subject is passed.',
+    },
+    {
+      type: 'Fail Cert. Template',
+      description: 'Issue the certificate when all subjects have failed.',
     }
   ]);
 
@@ -129,7 +125,7 @@ const CertTemplateList = () =>  {
       width: 80,
       render: (row) => (
         <Space>
-          <Button size={'small'} title={'Edit'} onClick={() => setOpen(true)} icon={<EditOutlined />}/>
+          <Button size={'small'} title={'Download'} onClick={() => setOpen(true)} icon={<DownloadOutlined />}/>
           {/*<Button size={'small'} title={'Remove'} icon={<DeleteOutlined />}/>*/}
         </Space>
       )
@@ -145,20 +141,13 @@ const CertTemplateList = () =>  {
       title: 'Description',
       key: 'description',
       dataIndex: 'description',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Subject',
-      key: 'subject',
-      dataIndex: 'subject',
-      width: 100,
+      width: 500,
       sorter: true,
     },
   ], []);
   return (
     <div className={styles['cert-template']}>
-      <Typography.Title level={3}>Template - Certificate</Typography.Title>
+      <Typography.Title level={3}>Template Management - Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>

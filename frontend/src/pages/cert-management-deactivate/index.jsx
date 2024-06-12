@@ -36,10 +36,20 @@ const CertificateManagementInvalid = () =>  {
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
   const [data, setData] = useState([
     {
+      serialNo: 'N000000001',
       revokeDate: '2024-01-01',
+      candidateNo: 'C000001',
       hkid: 'T7700002',
       name: 'Chan Tai Man',
       email: 'taiman.chan@hotmail.com',
+      examDate: '2024-01-01',
+      resultLetterDate: '2024-01-25',
+      emailIssuanceDate: '2024-01-31',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Pass',
+      blnst: 'Pass',
+      status: 'Success',
       remark: 'DQ',
     }
   ]);

@@ -44,7 +44,31 @@ const Notify = () =>  {
       uc: 'L1',
       at: 'Pass',
       blnst: 'Pass',
-      status: 'Success',
+      status: 'Pending',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      passport: 'K34567893912',
+      name: 'Yip Tai Man',
+      email: 'taiman.yip@hotmail.com',
+      ue: 'L2',
+      uc: 'L2',
+      at: 'Pass',
+      blnst: 'Pass',
+      status: 'Pending',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700005',
+      name: 'Lee Tai Man',
+      email: 'taiman.lee@hotmail.com',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Fail',
+      blnst: 'Fail',
+      status: 'Pending',
     }
   ]);
 
@@ -56,23 +80,16 @@ const Notify = () =>  {
     //   render: (row) => <Button size={'small'} icon={<DownloadOutlined />} onClick={() => {}}/>
     // },
     {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
-    },
-    {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Passport',
+      key: 'passport',
+      dataIndex: 'passport',
       width: 100,
       sorter: true,
     },
@@ -180,7 +197,7 @@ const Notify = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Cert. Issue Workflow',
+      title: 'Certificate Issuance',
     },
     {
       title: 'Notify Candidate',
@@ -257,19 +274,16 @@ const Notify = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
                   <HKID name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                  <Text name={'passportNo'} label={'Passport'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
+                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
                 </Col>
               </Row>
             </Col>
@@ -283,6 +297,35 @@ const Notify = () =>  {
             </Col>
           </Row>
         </Form>
+      </fieldset>
+      <br/>
+      <fieldset style={{paddingLeft: 30}}>
+        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
+        <Descriptions
+          size={'small'}
+          items={[
+            {
+              key: 1,
+              label: 'Imported',
+              children: 30000,
+            },
+            {
+              key: 2,
+              label: 'Generated PDF',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 3,
+              label: 'Issued Cert.',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 4,
+              label: 'Sent Email',
+              children: '0 out of 0 failed',
+            }
+          ]}
+        />
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>

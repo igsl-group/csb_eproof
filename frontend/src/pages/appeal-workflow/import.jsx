@@ -53,13 +53,6 @@ const Import = () =>  {
       sorter: true,
     },
     {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
-    },
-    {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
@@ -179,7 +172,7 @@ const Import = () =>  {
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to dispatch to "Generate Cert. (PDF)" stage?',
+      title:'Are you sure to dispatch to generate PDF stage?',
       width: 500,
       okText: 'Confirm',
     });
@@ -238,7 +231,7 @@ const Import = () =>  {
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to Generate Cert. (PDF)</Button>
+          <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
         </Col>
         <Col>
           <Button type="primary" onClick={() => {

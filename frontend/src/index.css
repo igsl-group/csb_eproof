@@ -13,6 +13,10 @@ code {
     monospace;
 }
 
+.ant-modal-content{
+  text-align: justify;
+}
+
 .ant-form-item{
   margin-bottom: 12px;
 }

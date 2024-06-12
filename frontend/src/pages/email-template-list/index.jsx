@@ -171,7 +171,7 @@ const EmailTemplateList = () =>  {
   ], []);
   return (
     <div className={styles['email-template']}>
-      <Typography.Title level={3}>Template - Email</Typography.Title>
+      <Typography.Title level={3}>Template Management - Email</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
