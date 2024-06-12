@@ -26,7 +26,8 @@ public class FileServiceImpl implements FileService {
 
         String saveDestination = "";
         if(StringUtils.equals(path.charAt(path.length() - 1)+"","/")){
-            saveDestination = path+name;
+            // If the last character is /
+            saveDestination = String.format("%s%s", path,name);
         }else{
             saveDestination = String.format("%s/%s", path,name);
         }
@@ -38,6 +39,7 @@ public class FileServiceImpl implements FileService {
         File file = new File();
         file.setType(type);
         file.setPath(saveDestination);
+        file.setName(name);
         file.setStatus(Constants.STATUS_ACTIVE);
         fileRepository.save(file);
 

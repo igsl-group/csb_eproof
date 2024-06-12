@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.controller;
 
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
 import com.hkgov.csb.eproof.dto.*;
@@ -17,13 +18,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -114,7 +120,7 @@ public class CertController {
 
         certInfoService.batchGeneratePdf(examProfileSerialNo);
 
-        return null;
+        return Result.success();
     }
     @PostMapping("/batch/updateEmail")
     public Result updateEmail(@RequestBody UpdateEmailDto updateEmailDto){
@@ -131,4 +137,24 @@ public class CertController {
         return Result.success(certInfoService.updateResult(certInfoId,resultDto));
     }
 
+
+    @PostMapping("/downloadCert")
+    @Operation(summary = "Download cert with provided cert ID list.")
+    public ResponseEntity downloadPdf(@RequestParam List<Long> certInfoIdList) throws IOException {
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename(this.getZipFileName())
+                .build()
+        );
+        byte [] zippedPdfListByteArray = certInfoService.getZippedPdfBinary(certInfoIdList);
+        return ResponseEntity.ok()
+                .headers(header)
+                .body(zippedPdfListByteArray);
+    }
+
+    private String getZipFileName(){
+        return String.format("%s-cert-pdf.zip",
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
+    }
 }

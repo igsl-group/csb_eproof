@@ -22,6 +22,7 @@ import Email from "@/components/Email";
 import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
+import OnholdModal from "./onhold-modal";
 
 const Generate = () =>  {
 
@@ -33,6 +34,7 @@ const Generate = () =>  {
   } = useParams();
 
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
+  const [open, setOpen] = useState('');
   const [data, setData] = useState([
     {
       serialNo: 'N000000001',
@@ -45,6 +47,42 @@ const Generate = () =>  {
       at: 'Pass',
       blnst: 'Pass',
       status: 'Success',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      passport: 'K34567893912',
+      name: 'Yip Tai Man',
+      email: 'taiman.yip@hotmail.com',
+      ue: 'L2',
+      uc: 'L2',
+      at: 'Pass',
+      blnst: 'Pass',
+      status: 'Pending',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700004',
+      name: 'Wong Tai Man',
+      email: 'taiman.wong@hotmail.com',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Fail',
+      blnst: 'Pass',
+      status: 'On hold',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700005',
+      name: 'Lee Tai Man',
+      email: 'taiman.lee@hotmail.com',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Fail',
+      blnst: 'Fail',
+      status: 'Pending',
     }
   ]);
 
@@ -53,26 +91,26 @@ const Generate = () =>  {
       title: 'Action',
       key: 'action',
       width: 100,
-      render: (row) => <Button size={'small'} type={'primary'} onClick={() => {}}>On Hold</Button>
-    },
-    {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
+      render: (row) => {
+        return (
+          <div>
+            { row.status === 'On hold' ? <Button size={'small'} type={'primary'} danger onClick={() => setOpen(true)}>Resume</Button> : null}
+            { row.status !== 'On hold' ? <Button size={'small'} type={'primary'} onClick={() => setOpen(true)}>On hold</Button> : null}
+          </div>
+        )
+      }
     },
     {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Passport',
+      key: 'passport',
+      dataIndex: 'passport',
       width: 100,
       sorter: true,
     },
@@ -180,7 +218,7 @@ const Generate = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Cert. Issue Workflow',
+      title: 'Certificate Issuance',
     },
     {
       title: 'Generate PDF',
@@ -189,7 +227,7 @@ const Generate = () =>  {
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to dispatch to "Issue Cert." stage?',
+      title:'Are you sure to dispatch to sign and issue Cert. stage?',
       width: 500,
       okText: 'Confirm',
     });
@@ -217,6 +255,10 @@ const Generate = () =>  {
     },
   }, []);
 
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+  });
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
@@ -229,7 +271,7 @@ const Generate = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
-              <Button type="primary" onClick={onClickDispatch}>Dispatch to Issue Cert.</Button>
+              <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
             </Col>
             <Col>
               <Button type="primary" onClick={() => {
@@ -257,19 +299,16 @@ const Generate = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
+                  <HKID name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'} />
+                  <Text name={'passportNo'} label={'Passport'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
                 </Col>
               </Row>
             </Col>
@@ -283,6 +322,35 @@ const Generate = () =>  {
             </Col>
           </Row>
         </Form>
+      </fieldset>
+      <br/>
+      <fieldset style={{paddingLeft: 30}}>
+        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
+        <Descriptions
+          size={'small'}
+          items={[
+            {
+              key: 1,
+              label: 'Imported',
+              children: 30000,
+            },
+            {
+              key: 2,
+              label: 'Generated PDF',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 3,
+              label: 'Issued Cert.',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 4,
+              label: 'Sent Email',
+              children: '0 out of 0 failed',
+            }
+          ]}
+        />
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
@@ -312,7 +380,7 @@ const Generate = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Generate Cert. (PDF)'}
+        title={'Generate PDF'}
       >
         <ResizeableTable
           size={'big'}
@@ -343,6 +411,10 @@ const Generate = () =>  {
         </Row>
         <br/>
       </Card>
+      <OnholdModal
+        open={open}
+        onCloseCallback={onCloseCallback}
+      />
     </div>
 
   )

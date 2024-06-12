@@ -43,6 +43,9 @@ const CertificateManagementValid = () =>  {
       hkid: 'T7700002',
       name: 'Chan Tai Man',
       email: 'taiman.chan@hotmail.com',
+      examDate: '2024-01-01',
+      resultLetterDate: '2024-01-25',
+      emailIssuanceDate: '2024-01-31',
       ue: 'L2',
       uc: 'L1',
       at: 'Pass',
@@ -171,16 +174,9 @@ const CertificateManagementValid = () =>  {
     //   )
     // },
     {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
+      title: 'Exam Date',
+      key: 'examDate',
+      dataIndex: 'examDate',
       width: 140,
       sorter: true,
     },
@@ -189,6 +185,13 @@ const CertificateManagementValid = () =>  {
       key: 'hkid',
       width: 100,
       render: (row) => <Link to={`/CertificateManagement/Valid/Candidate/${row.hkid}`}>{row.hkid}</Link>,
+      sorter: true,
+    },
+    {
+      title: 'Passport',
+      key: 'passport',
+      width: 100,
+      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate/${row.passport}`}>{row.passport}</Link>,
       sorter: true,
     },
     {
@@ -202,6 +205,20 @@ const CertificateManagementValid = () =>  {
       title: 'Email',
       key: 'email',
       dataIndex: 'email',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'Result Letter Date',
+      key: 'resultLetterDate',
+      dataIndex: 'resultLetterDate',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'Email Issuance Date',
+      key: 'emailIssuanceDate',
+      dataIndex: 'emailIssuanceDate',
       width: 180,
       sorter: true,
     },
@@ -259,22 +276,16 @@ const CertificateManagementValid = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12}>
-                  <Text name={"serialNo"} label={'Serial No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
                   <HKID name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                  <Text name={'passportNo'} label={'Passport'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
+                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
                 </Col>
               </Row>
             </Col>

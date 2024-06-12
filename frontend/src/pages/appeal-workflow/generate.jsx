@@ -63,13 +63,6 @@ const Generate = () =>  {
       sorter: true,
     },
     {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
-    },
-    {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
@@ -189,7 +182,7 @@ const Generate = () =>  {
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to dispatch to "Issue Cert." stage?',
+      title:'Are you sure to dispatch to sign and issue Cert. stage?',
       width: 500,
       okText: 'Confirm',
     });
@@ -270,7 +263,7 @@ const Generate = () =>  {
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={onClickDispatch}>Dispatch to Issue Cert.</Button>
+          <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
         </Col>
         <Col>
           <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
@@ -301,7 +294,7 @@ const Generate = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Generate Cert. (PDF)'}
+        title={'Generate PDF'}
       >
         <ResizeableTable
           size={'big'}

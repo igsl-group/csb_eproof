@@ -107,10 +107,7 @@ public class MinioUtil {
 
     public byte[] getFileAsByteArray(String path) {
         try {
-            return IOUtils.toByteArray(minioClient.getObject(GetObjectArgs.builder()
-                    .bucket(minioConfig.getBucket())
-                    .object(path)
-                    .build()));
+            return IOUtils.toByteArray(this.getFileAsStream(path));
         } catch (Exception e) {
             throw new GenericException();
         }

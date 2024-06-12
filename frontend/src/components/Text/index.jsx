@@ -23,7 +23,7 @@ function Text (props) {
   const required = props.required || false;
   const disabled = props.disabled || false;
   const hidden = props.hidden || false;
-  const placeholder = props.placeholder || false;
+  const placeholder = props.placeholder || '';
 
   return (
     <Form.Item

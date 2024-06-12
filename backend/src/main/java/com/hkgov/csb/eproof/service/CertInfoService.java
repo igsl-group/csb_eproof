@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public interface CertInfoService {
                      byte[] atLeastOnePassedTemplate,
                      byte [] allFailedTemplate,
                      boolean isBatchMode) throws Exception;
+    byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException;
 
 
     Boolean updateEmail(UpdateEmailDto updateEmailDto);

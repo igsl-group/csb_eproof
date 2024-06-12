@@ -53,8 +53,8 @@ const AuthProvider = ({ children }) => {
     return runLoginAPI('profile');
   };
 
-  const loginAction = async (name = '') => {
-    return runLoginAPI('authenticate', '');
+  const loginAction = async (values = '') => {
+    return runLoginAPI('authenticate', values);
   };
 
   const changePostAction = async (postId = '', name = '') => {

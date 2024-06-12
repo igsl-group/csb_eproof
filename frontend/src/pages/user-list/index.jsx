@@ -3,25 +3,26 @@ import {createSearchParams, useNavigate, Link} from "react-router-dom";
 
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Form, Card, Typography, Breadcrumb, Grid, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
+import {Divider, Table, Card, Typography, Breadcrumb, Tag, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
-  ProfileOutlined,
-  SettingOutlined,
-  FileTextOutlined,
-  FolderOpenOutlined,
-  FileDoneOutlined,
-  ScheduleOutlined,
-  AreaChartOutlined, DownloadOutlined, DeleteOutlined, CopyOutlined, SendOutlined,
+  DeleteOutlined,
   EditOutlined,
 } from '@ant-design/icons';
 import UserModal from "./modal";
+import { userRoleAPI } from '@/api/request';
+import {TYPE } from '@/config/enum';
+import {useMessage} from "../../context/message-provider";
 
 const UserList = () =>  {
 
+  const messageApi = useMessage();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState(false);
+  const [recordId, setRecordId] = useState('');
+  const [type, setType] = useState('');
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -39,9 +40,33 @@ const UserList = () =>  {
     orderBy: defaultPaginationInfo.orderBy,
   });
 
+  const onDeleteClickCallback = useCallback((id) => {
+    runUserRoleAPI('userRemove', id);
+    // runUserRoleAPI('userGet', recordId)
+
+  }, []);
+
+  const onEditClickCallback = useCallback((id) => {
+    setRecordId(id);
+    setOpen(true);
+    setType(TYPE.EDIT);
+    // runUserRoleAPI('userGet', recordId)
+
+  }, []);
+
+  const onCreateClickCallback = useCallback(() => {
+    setOpen(true);
+    setType(TYPE.CREATE);
+  }, []);
+
   const onCloseCallback = useCallback(() => {
     setOpen(false);
-  });
+  }, []);
+
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);
+    getUserList();
+  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -59,11 +84,11 @@ const UserList = () =>  {
     {
       title: 'Action',
       key: 'action',
-      width: 160,
+      width: 100,
       render: (row) => (
         <Space>
-          <Button size={'small'} title={'Edit'} icon={<EditOutlined />}/>
-          <Button size={'small'} title={'Remove'} icon={<DeleteOutlined />}/>
+          <Button size={'small'} title={'Edit'} icon={<EditOutlined />} onClick={() => onEditClickCallback(row.id)} />
+          <Button size={'small'} title={'Remove'} icon={<DeleteOutlined />} onClick={() => onDeleteClickCallback(row.id)}/>
         </Space>
       )
     },
@@ -71,7 +96,7 @@ const UserList = () =>  {
       title: `DP User Id`,
       key: "uid",
       dataIndex: "uid",
-      width: 200,
+      width: 120,
       sorter: true,
     },
     {
@@ -89,6 +114,19 @@ const UserList = () =>  {
       sorter: true,
     },
     {
+      title: `Role`,
+      key: "roles",
+      dataIndex: "roles",
+      width: 350,
+      render: (roles) => (
+        <div>
+          {
+            roles.map((row) => <Tag>{row.name}</Tag>)
+          }
+        </div>
+      )
+    },
+    {
       title: `Status`,
       key: "status",
       dataIndex: "status",
@@ -97,14 +135,15 @@ const UserList = () =>  {
     },
   ], []);
 
-  const data = [
-    {
-      uid: 'wilfred.lai',
-      name: 'Wilfred Lai',
-      post: 'System Analyst',
-      status: 'Active',
-    },
-  ];
+  // const data = [
+  //   // {
+  //   //   uid: 'wilfred.lai',
+  //   //   name: 'Wilfred Lai',
+  //   //   post: 'System Analyst',
+  //   //   status: 'Active',
+  //   //   role: ['Administrator', 'System Operator'],
+  //   // },
+  // ];
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -128,6 +167,41 @@ const UserList = () =>  {
     setPagination(tempPagination);
   }, [pagination]);
 
+  const { runAsync: runUserRoleAPI } = useRequest(userRoleAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'userList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setData(content);
+          break;
+        case 'userGet':
+          break;
+        case 'userRemove':
+          messageApi.success('Remove successfully.');
+          getUserList();
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      //Message.error('');
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getUserList();
+  }, []);
+
+  const getUserList = () => {
+    runUserRoleAPI('userList');
+  }
+
   return (
     <div className={styles['user-list']}>
       <Typography.Title level={3}>User</Typography.Title>
@@ -135,7 +209,7 @@ const UserList = () =>  {
       <br />
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={() => setOpen(true)}>Create</Button>
+          <Button type="primary" onClick={() => onCreateClickCallback()}>Create</Button>
         </Col>
         <Col>
           <Pagination
@@ -179,8 +253,11 @@ const UserList = () =>  {
         <br/>
       </Card>
       <UserModal
+        type={type}
+        recordId={recordId}
         open={open}
         onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
     </div>
 
