@@ -11,11 +11,13 @@ const ExamProfileFormModal = (props) =>  {
 
   return (
     <Modal
-      width={1000}
+      width={600}
       title={'Create Exam Profile'}
       okText={'Save'}
       closable={false}
+      maskClosable={false}
       onCancel={onClose}
+      style={{ top: 20 }}
       {...props}
     >
       <Form
@@ -35,14 +37,16 @@ const ExamProfileFormModal = (props) =>  {
             <Text name={"Serial No."} label={'Serial No.'} required size={50}/>
           </Col>
           <Col span={24} md={12}>
-            <Date name={'Exam Date'} label={'Exam Date'} required size={50}/>
+            <Date name={'examDate'} label={'Exam Date'} placeholder={'YYYY-MM-DD'} required size={50}/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'Actual Announced Date'} label={'Actual Announced Date'} disabled={true} placeholder={'YYYY-MM-DD'} size={50}/>
+            <Date name={'resultLetterDate'} label={'Result Letter Date'} placeholder={'YYYY-MM-DD'} size={50}/>
           </Col>
-          <Col span={24} md={12} />
+          <Col span={24} md={12}>
+            <Date name={'plannedEmailIssuanceDate'} label={'Planned Email Issuance Date'} placeholder={'YYYY-MM-DD'} size={50}/>
+          </Col>
           <Col span={24}>
-            <Text name={'Location'} label={'Location'} size={100}/>
+            <Text name={'Location'} label={'Location'} size={50}/>
           </Col>
         </Row>
       </Form>

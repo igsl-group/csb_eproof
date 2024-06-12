@@ -63,13 +63,6 @@ const Issue = () =>  {
       sorter: true,
     },
     {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
-    },
-    {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
@@ -301,7 +294,7 @@ const Issue = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Issue Cert.'}
+        title={'Sign and Issue Certificate'}
       >
         <ResizeableTable
           size={'big'}

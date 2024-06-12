@@ -11,10 +11,14 @@ import ImportWorkflow from '@/pages/cert-issue-workflow/import';
 import GenerateWorkflow from '@/pages/cert-issue-workflow/generate';
 import SignAndIssueWorkflow from '@/pages/cert-issue-workflow/issue';
 import NotifyWorkflow from '@/pages/cert-issue-workflow/notify';
+import HistoricalResultList from '@/pages/historical-result';
+import AuditLog from '@/pages/system/audit-log';
 
 import GenerateWorkflowRenew from '@/pages/cert-issue-workflow-renew/generate';
 import SignAndIssueWorkflowRenew from '@/pages/cert-issue-workflow-renew/issue';
 import NotifyWorkflowRenew from '@/pages/cert-issue-workflow-renew/notify';
+import Login from '@/pages/login';
+import StatisticalReport from '@/pages/statistical-report';
 
 
 import RoleList from '@/pages/role-list';
@@ -74,10 +78,32 @@ const routeList = [
       {
         id: 20,
         pid: 0,
-        name: 'Waiting Revoke',
+        name: 'Outstanding Tasks',
         icon: <AreaChartOutlined />,
         path: '/WaitingRevoke',
         element: <ApprovalWorkflow />,
+        ignore: false,
+        show: true,
+        role: [],
+      },
+      {
+        id: 50,
+        pid: 0,
+        name: 'Historical Result',
+        icon: <AreaChartOutlined />,
+        path: '/HistoricalResult',
+        element: <HistoricalResultList />,
+        ignore: false,
+        show: true,
+        role: [],
+      },
+      {
+        id: 60,
+        pid: 0,
+        name: 'Statistical Reports',
+        icon: <AreaChartOutlined />,
+        path: '/StatisticalReports',
+        element: <StatisticalReport />,
         ignore: false,
         show: true,
         role: [],
@@ -115,7 +141,7 @@ const routeList = [
       {
         id: 30,
         pid: 0,
-        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Cert. Issue Workflow (Normal)</span>),
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Certificate Issuance</span>),
         path: '/Workflow',
         icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         children: [
@@ -140,7 +166,7 @@ const routeList = [
           {
             id: 33,
             pid: 30,
-            name: 'Sign and Issue Cert.',
+            name: 'Sign and Issue Certificate',
             path: '/Workflow/SignAndIssueCert',
             element: <SignAndIssueWorkflow />,
             show: true,
@@ -164,7 +190,7 @@ const routeList = [
       {
         id: 40,
         pid: 0,
-        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Cert. Issue Workflow (Reissue)</span>),
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Certificate Reissuance</span>),
         path: '/WorkflowRenew',
         icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         children: [
@@ -180,7 +206,7 @@ const routeList = [
           {
             id: 43,
             pid: 40,
-            name: 'Sign and Issue Cert.',
+            name: 'Sign and Issue Certificate',
             path: '/WorkflowRenew/SignAndIssueCert',
             element: <SignAndIssueWorkflowRenew />,
             show: true,
@@ -200,7 +226,29 @@ const routeList = [
         show: true,
         role: [],
       },
+      {
+        id: 70,
+        pid: 0,
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>System</span>),
+        path: '/System',
+        icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        children: [
+          {
+            id: 71,
+            pid: 70,
+            name: 'Audit Log',
+            path: '/System/AuditLog',
+            element: <AuditLog />,
+            show: true,
+            role: [],
+          },
 
+
+        ],
+        ignore: false,
+        show: true,
+        role: [],
+      },
       // {
       //   id: 50,
       //   pid: 0,
@@ -249,7 +297,7 @@ const routeList = [
       {
         id: 7,
         pid: 0,
-        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Template</span>),
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Template Management</span>),
         path: '/Template',
         icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         children: [
@@ -283,7 +331,7 @@ const routeList = [
       {
         id: 10,
         pid: 0,
-        name: (<span style={{color: 'rgb(104, 111, 125)'}}>System</span>),
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>User Management</span>),
         path: '/System',
         icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         children: [
@@ -325,6 +373,10 @@ const routeList = [
   {
     path: '/Unauthorized',
     element: <Unauthorized />,
+  },
+  {
+    path: '/',
+    element: <Login />,
   },
   // {
   //   path: '/*',

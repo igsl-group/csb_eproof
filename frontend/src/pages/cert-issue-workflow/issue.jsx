@@ -45,6 +45,42 @@ const Issue = () =>  {
       at: 'Pass',
       blnst: 'Pass',
       status: 'Success',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      passport: 'K34567893912',
+      name: 'Yip Tai Man',
+      email: 'taiman.yip@hotmail.com',
+      ue: 'L2',
+      uc: 'L2',
+      at: 'Pass',
+      blnst: 'Pass',
+      status: 'Pending',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700004',
+      name: 'Wong Tai Man',
+      email: 'taiman.wong@hotmail.com',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Fail',
+      blnst: 'Pass',
+      status: 'On hold',
+    },
+    {
+      serialNo: 'N000000001',
+      candidateNo: 'C000001',
+      hkid: 'T7700005',
+      name: 'Lee Tai Man',
+      email: 'taiman.lee@hotmail.com',
+      ue: 'L2',
+      uc: 'L1',
+      at: 'Fail',
+      blnst: 'Fail',
+      status: 'Pending',
     }
   ]);
 
@@ -53,26 +89,26 @@ const Issue = () =>  {
       title: 'Action',
       key: 'action',
       width: 100,
-      render: (row) => <Button size={'small'} type={'primary'} onClick={() => {}}>On Hold</Button>
-    },
-    {
-      title: 'Serial No.',
-      key: 'serialNo',
-      dataIndex: 'serialNo',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'Candidate No.',
-      key: 'candidateNo',
-      dataIndex: 'candidateNo',
-      width: 140,
-      sorter: true,
+      render: (row) => {
+        return (
+          <div>
+            { row.status === 'On hold' ? <Button size={'small'} type={'primary'} danger onClick={() => {}}>Resume</Button> : null}
+            { row.status !== 'On hold' ? <Button size={'small'} type={'primary'} onClick={() => {}}>On hold</Button> : null}
+          </div>
+        )
+      }
     },
     {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Passport',
+      key: 'passport',
+      dataIndex: 'passport',
       width: 100,
       sorter: true,
     },
@@ -180,10 +216,10 @@ const Issue = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Cert. Issue Workflow',
+      title: 'Certificate Issuance',
     },
     {
-      title: 'Sign and Issue Cert.',
+      title: 'Sign and Issue Certificate',
     },
   ], []);
 
@@ -219,7 +255,7 @@ const Issue = () =>  {
 
   return (
     <div className={styles['exam-profile']}>
-      <Typography.Title level={3}>Sign and Issue Cert.</Typography.Title>
+      <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
       <Row justify={'space-between'}>
@@ -230,6 +266,10 @@ const Issue = () =>  {
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
               <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+            </Col>
+            <Col>
+              <Button type="primary" onClick={() => {
+              }}>Sign and Issue Cert.</Button>
             </Col>
           </Row>
         </Col>
@@ -253,19 +293,16 @@ const Issue = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
+                  <HKID name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'} />
+                  <Text name={'passportNo'} label={'Passport'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
                 </Col>
               </Row>
             </Col>
@@ -279,6 +316,35 @@ const Issue = () =>  {
             </Col>
           </Row>
         </Form>
+      </fieldset>
+      <br/>
+      <fieldset style={{paddingLeft: 30}}>
+        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
+        <Descriptions
+          size={'small'}
+          items={[
+            {
+              key: 1,
+              label: 'Imported',
+              children: 30000,
+            },
+            {
+              key: 2,
+              label: 'Generated PDF',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 3,
+              label: 'Issued Cert.',
+              children: '0 out of 0 failed',
+            },
+            {
+              key: 4,
+              label: 'Sent Email',
+              children: '0 out of 0 failed',
+            }
+          ]}
+        />
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
@@ -304,7 +370,7 @@ const Issue = () =>  {
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Issue Cert.'}
+        title={'Sign and Issue Certificate'}
       >
         <ResizeableTable
           size={'big'}

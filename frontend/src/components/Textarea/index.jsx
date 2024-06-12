@@ -23,7 +23,7 @@ function Textarea (props) {
   const disabled = props.disabled || false;
   const hidden = props.hidden || false;
   const row = props.row || 4;
-  const placeholder = props.placeholder || false;
+  const placeholder = props.placeholder || '';
 
   return (
     <Form.Item

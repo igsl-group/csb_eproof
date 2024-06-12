@@ -20,7 +20,7 @@ function Date (props) {
 
   const validation = props.validation || [];
   const required = props.required || false;
-  const defaultValue = props.defaultValue || '';
+  // const defaultValue = props.defaultValue || '';
   const disabled = props.disabled || false;
   const hidden = props.hidden || false;
   const format = props.format || 'YYYY-MM-DD';
@@ -58,7 +58,7 @@ function Date (props) {
               ...style,
             })}
             needConfirm={needConfirm}
-            defaultValue={defaultValue}
+            // defaultValue={defaultValue}
             disabled={disabled}
           />
         ) : (
@@ -69,7 +69,7 @@ function Date (props) {
               ...style,
             })}
             needConfirm={needConfirm}
-            defaultValue={defaultValue}
+            // defaultValue={defaultValue}
             disabled={disabled}
           />
         )

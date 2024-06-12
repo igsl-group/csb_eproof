@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Form, Input } from "antd";
 import format from "../../utils/string-template";
+import {
+  BulbOutlined
+} from '@ant-design/icons';
 
 const getStyle = (props) => {
   const style = {};
@@ -25,6 +28,20 @@ function Email (props) {
   const hidden = props.hidden || false;
   const max = 250;
   const placeholder = props.placeholder || '';
+  const message = props.message || '';
+
+  const extra  = useMemo(() => {
+    if (!message) {
+      return null;
+    }
+    return (
+      <div style={{display: "flex"}}>
+        <div><BulbOutlined style={{color: "#43B8E2"}}/></div>
+        <div style={{color: "#43B8E2", marginLeft: "8px", textAlign: "justify"}}><span>{message}</span>
+        </div>
+      </div>
+    )
+  }, [message])
 
   return (
     <Form.Item
@@ -35,6 +52,7 @@ function Email (props) {
       name={props.name}
       label={props.label}
       hidden={hidden}
+      extra={extra}
       rules={[
         {
           required,

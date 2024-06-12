@@ -87,12 +87,12 @@ const AppealWorkflow = () =>  {
     },
     {
       key: 2,
-      label: 'Generate Cert. (PDF)',
+      label: 'Generate PDF',
       children: <Generate />,
     },
     {
       key: 3,
-      label: 'Issue Cert.',
+      label: 'Sign and Issue Certificate',
       children: <Issue />,
     },
     {
