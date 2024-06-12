@@ -4,7 +4,6 @@ package com.hkgov.csb.eproof.service.impl;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dao.UserHasRoleRepository;
 import com.hkgov.csb.eproof.dao.UserRepository;
-import com.hkgov.csb.eproof.dto.RoleDto;
 import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserHasRole;
@@ -13,12 +12,13 @@ import com.hkgov.csb.eproof.mapper.UserMapper;
 import com.hkgov.csb.eproof.service.AuthenticationService;
 import com.hkgov.csb.eproof.service.UserService;
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -97,7 +97,13 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-
+    @Override
+    @Transactional
+    public User getUserByDpUserId(String dpUserId) {
+        User user = userRepository.getUserByDpUserId(dpUserId);
+        Hibernate.initialize(user.getAuthorities());
+        return user;
+    }
 
 
 }

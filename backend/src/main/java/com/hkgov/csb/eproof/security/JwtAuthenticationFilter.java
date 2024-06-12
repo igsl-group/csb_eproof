@@ -7,7 +7,7 @@ import com.hkgov.csb.eproof.dao.UserSessionRepository;
 import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserSession;
 import com.hkgov.csb.eproof.exception.GenericException;
-import com.hkgov.csb.eproof.service.UserSessionService;
+import com.hkgov.csb.eproof.service.UserService;
 import com.hkgov.csb.eproof.util.JwtHelper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -38,6 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserSessionRepository userSessionRepository;
 
+    private final UserService userService;
+
     @Value("${security.whitelist}")
     private String[] authWhitelist;
 
@@ -45,11 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String contextPath;
 
 
-    public JwtAuthenticationFilter(JwtHelper jwtHelper, HandlerExceptionResolver handlerExceptionResolver, UserRepository userRepository, UserSessionRepository userSessionRepository) {
+    public JwtAuthenticationFilter(JwtHelper jwtHelper, HandlerExceptionResolver handlerExceptionResolver, UserRepository userRepository, UserSessionRepository userSessionRepository, UserService userService) {
         this.jwtHelper = jwtHelper;
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.userRepository = userRepository;
         this.userSessionRepository = userSessionRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -67,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             dpUserId = jwtHelper.extractUsername(jwt);
             if (dpUserId != null && isAuthenticationContextEmpty()) {
                 Long sessionId = jwtHelper.extractClaimWithKey(jwt, Constants.JWT_KEY_SESSIONID,Long.class);
-                User user = userRepository.getUserBydpUserId(dpUserId);
+                User user = userService.getUserByDpUserId(dpUserId);
                 UserSession userSession = userSessionRepository.findById(sessionId).orElse(null);
                 jwtHelper.verifyToken(jwt, user, userSession);
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

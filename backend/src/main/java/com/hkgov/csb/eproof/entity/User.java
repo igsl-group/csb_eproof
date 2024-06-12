@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -68,7 +69,7 @@ public class User extends BaseEntity implements UserDetails {
     private LocalDateTime lastLoginDate;
 
     // 用户拥有的角色
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_has_role",
             joinColumns = @JoinColumn(name = "user_id"),
