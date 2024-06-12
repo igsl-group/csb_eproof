@@ -1,7 +1,6 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.dto.CertSearchDto;
-import com.hkgov.csb.eproof.dto.UpdateEmailDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
@@ -53,7 +52,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     List<CertInfo> getByIdIn(List<Long> certInfoIdList);
 
     @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo")
-    List<CertInfo> getinfoByNoList(@Param("serialNo") String serialNo);
+    List<CertInfo> getInfoListByExamSerialNo(@Param("serialNo") String serialNo);
 
     @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo and c.certStage= :stage and c.certStatus = 'pending' and c.onHold = false  ")
     List<CertInfo> getinfoByNoAndStatus(@Param("serialNo") String serialNo,@Param("stage") CertStage stage);
