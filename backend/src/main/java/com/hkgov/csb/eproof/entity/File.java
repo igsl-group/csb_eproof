@@ -1,6 +1,5 @@
 package com.hkgov.csb.eproof.entity;
 
-import com.hkgov.csb.eproof.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
