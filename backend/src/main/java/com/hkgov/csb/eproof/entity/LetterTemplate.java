@@ -18,6 +18,9 @@ public class LetterTemplate extends BaseEntity{
     @Column(name = "name")
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "file_id")
     private Long fileId;
 
