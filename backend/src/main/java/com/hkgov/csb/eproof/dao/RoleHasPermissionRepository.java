@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface RoleHasPermissionRepository extends JpaRepository<RoleHasPermission,Long> {
-    @Query("select r.id from RoleHasPermission r where r.roleId = :roleId")
-    List<Long> getAllByRoleId(@Param("roleId") Long roleId);
+    @Query("select r from RoleHasPermission r where r.roleId = :roleId")
+    List<RoleHasPermission> getAllByRoleId(@Param("roleId") Long roleId);
 
 }

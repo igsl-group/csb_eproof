@@ -17,7 +17,7 @@ public interface RoleService{
 
     Boolean removeRole(Long id);
 
-    Boolean updateRole(RoleDto requestDto);
+    Boolean updateRole(Long id, RoleDto requestDto);
 
     List<RoleDto> roles();
 

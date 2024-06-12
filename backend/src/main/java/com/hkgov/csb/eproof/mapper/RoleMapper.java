@@ -3,9 +3,7 @@ package com.hkgov.csb.eproof.mapper;
 
 import com.hkgov.csb.eproof.dto.RoleDto;
 import com.hkgov.csb.eproof.entity.Role;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -21,6 +19,10 @@ public interface RoleMapper {
     RoleDto sourceToDestination(Role source);
 
     Role destinationToSource(RoleDto dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    void partialUpdate(@MappingTarget Role role, RoleDto dto);
 
 }
 

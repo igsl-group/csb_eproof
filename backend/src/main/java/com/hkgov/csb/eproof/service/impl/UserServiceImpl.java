@@ -45,12 +45,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean createUser(UserDto request) {
         User user = UserMapper.INSTANCE.destinationToSource(request);
-        user.setStatus("Active");
-        user.setLastLoginDate(LocalDateTime.now());
+        user.setDpUserId("csb");
+        user.setStatus(request.getStatus());
         user =  userRepository.save(user);
-        Long id = user.getId();
-        List<UserHasRole> roles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
-        userHasRoleRepository.saveAll(roles);
+//        Long id = user.getId();
+//        List<UserHasRole> roles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
+//        userHasRoleRepository.saveAll(roles);
         return Objects.nonNull(user);
     }
 
@@ -58,13 +58,13 @@ public class UserServiceImpl implements UserService {
 //        User user = userRepository.getUserByDpUserIdAndDpDeptId(request.getDpUserId(),"CSB");
         User user = userRepository.getUserById(userId);
         UserMapper.INSTANCE.updateFromDto(request,user);
-        user.setLastLoginDate(LocalDateTime.now());
+
         user = userRepository.save(user);
-        Long id = user.getId();
         List<UserHasRole> oldRoles = userHasRoleRepository.roles(request.getId());
         userHasRoleRepository.deleteAllById(oldRoles.stream().map(UserHasRole::getId).collect(Collectors.toList()));
-        List<UserHasRole> newqroles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
-        userHasRoleRepository.saveAll(newqroles);
+//        Long id = user.getId();
+//        List<UserHasRole> newqroles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
+//        userHasRoleRepository.saveAll(newqroles);
         return Objects.nonNull(user);
     }
 

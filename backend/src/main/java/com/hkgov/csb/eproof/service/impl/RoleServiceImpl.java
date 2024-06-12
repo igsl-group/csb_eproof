@@ -1,21 +1,25 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.PermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dto.RoleDto;
-import com.hkgov.csb.eproof.entity.Permission;
 import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.RoleHasPermission;
+import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.RoleMapper;
 import com.hkgov.csb.eproof.service.RoleService;
 import jakarta.annotation.Resource;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
 * @author David
@@ -36,11 +40,11 @@ public class RoleServiceImpl implements RoleService {
     public Boolean createRole(RoleDto requestDto) {
         Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
         role = roleRepository.save(role);
-        Long id = role.getId();
-        if (requestDto.getPermissionList() != null && requestDto.getPermissionList().size()>0) {
-            List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null, id, x)).toList();
-            hasPermissionRepository.saveAll(roles);
-        }
+//        Long id = role.getId();
+//        if (requestDto.getPermissionList() != null && requestDto.getPermissionList().size()>0) {
+//            List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null, id, x)).toList();
+//            hasPermissionRepository.saveAll(roles);
+//        }
         return Objects.nonNull(role);
     }
 
@@ -51,15 +55,29 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Boolean updateRole(RoleDto requestDto) {
-        Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
-        List<Long> ids = hasPermissionRepository.getAllByRoleId(role.getId());
-        hasPermissionRepository.deleteAllById(ids);
+    public Boolean updateRole(Long id, RoleDto requestDto) {
+
+        deletePermissionMapping(id);
+
+        Role role = roleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+
+        roleMapper.INSTANCE.partialUpdate(role, requestDto);
         role = roleRepository.save(role);
-        Long id = role.getId();
-        List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null,id,x)).toList();
-        hasPermissionRepository.saveAll(roles);
+//        List<RoleHasPermission> roles = requestDto.getPermissions().stream().map(x -> new RoleHasPermission(null,id,x.getId())).toList();
+//        hasPermissionRepository.saveAll(roles);
         return Objects.nonNull(role);
+
+    }
+
+    @Transactional
+    void deletePermissionMapping(Long roleId) {
+        List<RoleHasPermission> permissions = hasPermissionRepository.getAllByRoleId(roleId);
+        if (permissions != null && !permissions.isEmpty()) {
+            List<Long> permissionIds = permissions.stream()
+                    .map(RoleHasPermission::getId)
+                    .collect(Collectors.toList());
+            hasPermissionRepository.deleteAllById(permissionIds);
+        }
     }
 
     @Override

@@ -16,24 +16,29 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/role")
-@Transactional(rollbackFor = Exception.class)
 public class RoleController {
     @Resource
     private RoleService roleService;
 
     @PostMapping("/create")
+    @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> createRole(@RequestBody RoleDto requestDto){
         return Result.success(roleService.createRole(requestDto));
     }
     @DeleteMapping("/delete/{roleId}")
+    @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> removeRole(@PathVariable Long roleId){
         return Result.success(roleService.removeRole(roleId));
     }
-    @PatchMapping("/update")
-    public Result<Boolean> updateRole(@RequestBody RoleDto requestDto){
-        return Result.success(roleService.updateRole(requestDto));
+    @PatchMapping("/update/{roleId}")
+    public Result<Boolean> updateRole(
+            @PathVariable Long roleId,
+            @RequestBody RoleDto requestDto){
+        return Result.success(roleService.updateRole(roleId,requestDto));
     }
+
     @GetMapping("/list")
+    @Transactional(rollbackFor = Exception.class)
     public Result<Page<RoleDto>> search(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
                                 @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
@@ -43,6 +48,7 @@ public class RoleController {
         return  Result.success(roleService.getAllRolePage(pageable,keyword).map(RoleMapper.INSTANCE::sourceToDestination));
     }
     @GetMapping("/{roleId}")
+    @Transactional(rollbackFor = Exception.class)
     public Result<RoleDto> getRole(@PathVariable Long roleId){
         return Result.success(RoleMapper.INSTANCE.sourceToDestination(roleService.getRole(roleId)));
     }

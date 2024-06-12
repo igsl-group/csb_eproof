@@ -14,8 +14,6 @@ public class RoleDto {
 
     private String description;
 
-    private List<Long> permissionList;
-
     private List<PermissionDto> permissions;
 
 }
