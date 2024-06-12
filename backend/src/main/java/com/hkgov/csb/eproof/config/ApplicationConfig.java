@@ -32,7 +32,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userRepository::getUserBydpUserId;
+        return userRepository::getUserByDpUserId;
     }
 
     @Bean
