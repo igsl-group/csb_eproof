@@ -2,18 +2,17 @@ package com.hkgov.csb.eproof.controller;
 
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
-import com.hkgov.csb.eproof.dto.CertImportDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
+import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.exception.GenericException;
+import com.hkgov.csb.eproof.service.CertInfoRenewService;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,6 +33,7 @@ public class CertController {
 
     private final CertInfoService certInfoService;
     private final PermissionService permissionService;
+    private final CertInfoRenewService certInfoRenewService;
 
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
@@ -116,6 +115,20 @@ public class CertController {
         certInfoService.batchGeneratePdf(examProfileSerialNo);
 
         return null;
+    }
+    @PostMapping("/batch/updateEmail")
+    public Result updateEmail(@RequestBody UpdateEmailDto updateEmailDto){
+        return Result.success(certInfoService.updateEmail(updateEmailDto));
+    }
+
+    @PostMapping("/batch/updatePersonalParticular")
+    public Result updatePersonalParticular(@RequestBody UpdatePersonalDto personalDto){
+        return Result.success(certInfoService.updatePersonalParticular(personalDto));
+    }
+
+    @PostMapping("/single/updateResult/{certInfoId}")
+    public Result updateResult(@PathVariable Long certInfoId,@RequestBody UpdateResultDto resultDto){
+        return Result.success(certInfoService.updateResult(certInfoId,resultDto));
     }
 
 }

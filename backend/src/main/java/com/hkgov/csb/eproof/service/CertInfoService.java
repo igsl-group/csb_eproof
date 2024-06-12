@@ -1,7 +1,6 @@
 package com.hkgov.csb.eproof.service;
 
-import com.hkgov.csb.eproof.dto.CertImportDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
+import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
@@ -31,4 +30,11 @@ public interface CertInfoService {
                      byte[] atLeastOnePassedTemplate,
                      byte [] allFailedTemplate,
                      boolean isBatchMode) throws Exception;
+
+
+    Boolean updateEmail(UpdateEmailDto updateEmailDto);
+
+    Boolean updatePersonalParticular(UpdatePersonalDto personalDto);
+
+    Boolean updateResult(Long certInfoId, UpdateResultDto resultDto);
 }

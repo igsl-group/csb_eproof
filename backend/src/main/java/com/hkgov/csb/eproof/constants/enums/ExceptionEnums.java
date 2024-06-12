@@ -23,6 +23,8 @@ public enum ExceptionEnums {
 
     // Document generation
     DOCUMENT_MERGE_ERROR("document.merge.error","Encountered error when merging document."),
+    CRET_INFO_VOIDED("cret.info.voided","Certificate is not valid."),
+    CRET_NOT_EXIST("cert.not.exist","Certificate does not exist."),
     ;
 
 

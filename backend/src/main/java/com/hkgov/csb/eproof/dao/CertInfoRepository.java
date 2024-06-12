@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.dto.CertSearchDto;
+import com.hkgov.csb.eproof.dto.UpdateEmailDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
@@ -61,4 +62,24 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)    
 """)
     Integer countByStageAndStatus(String examProfileSerialNo, CertStage certStage, CertStatus certStatus);
+
+    @Query("""
+            SELECT c FROM CertInfo c WHERE 
+            (
+                (:hkid != null AND c.hkid = :hkid) AND
+                (:passportNo != null  AND c.passportNo = :passportNo)
+             )
+        """)
+    List<CertInfo> findAllByHkidAndPassport(@Param("hkid") String hkid,@Param("passportNo") String passportNo);
+
+
+    @Query("""
+            SELECT c FROM CertInfo c WHERE 
+            (
+                (:hkid != null AND c.hkid = :hkid) OR
+                (:passportNo != null  AND c.passportNo = :passportNo)
+             )
+        """)
+    List<CertInfo> findAllByHkidOrPassport(@Param("hkid") String hkid,@Param("passportNo") String passportNo);
+
 }

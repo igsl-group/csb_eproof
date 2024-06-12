@@ -3,18 +3,17 @@ package com.hkgov.csb.eproof.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
+import com.hkgov.csb.eproof.dao.CertInfoRenewRepository;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.CertPdfRepository;
-import com.hkgov.csb.eproof.dto.CertImportDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
-import com.hkgov.csb.eproof.dto.ExamScoreDto;
-import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.CertPdf;
-import com.hkgov.csb.eproof.entity.ExamProfile;
-import com.hkgov.csb.eproof.entity.File;
+import com.hkgov.csb.eproof.dto.*;
+import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
+import com.hkgov.csb.eproof.entity.enums.CertType;
+import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
 import com.hkgov.csb.eproof.service.CertInfoService;
@@ -63,6 +62,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final DocxUtil docxUtil;
     private final FileService fileService;
     private final EntityManager entityManager;
+    private final CertInfoRenewRepository certInfoRenewRepository;
 
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -204,6 +204,109 @@ public class CertInfoServiceImpl implements CertInfoService {
         logger.info("Complete generate");
     }
 
+    @Override
+    public Boolean updateEmail(UpdateEmailDto updateEmailDto) {
+        List<CertInfo> certInfos = new ArrayList<>();
+        String hkid = updateEmailDto.getCurrentHkid();
+        String passport = updateEmailDto.getCurrentPassport();
+        if((Objects.isNull(hkid) && Objects.nonNull(passport)) || (Objects.nonNull(hkid) && Objects.isNull(passport))){
+            certInfos = certInfoRepository.findAllByHkidOrPassport(hkid,passport);
+        }
+        if(Objects.nonNull(hkid) && Objects.nonNull(passport)){
+            certInfos = certInfoRepository.findAllByHkidAndPassport(hkid,passport);
+        }
+        if(certInfos.isEmpty()){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        certInfos.forEach(x -> {
+            x.setEmail(updateEmailDto.getEmail());
+        });
+        List<CertInfo> newCertInfos = certInfoRepository.saveAll(certInfos);
+        return certInfos.size()==newCertInfos.size();
+    }
+
+    @Override
+    public Boolean updatePersonalParticular(UpdatePersonalDto personalDto) {
+        List<CertInfo> certInfos = new ArrayList<>();
+        String hkid = personalDto.getCurrentHkid();
+        String passport = personalDto.getCurrentPassport();
+        if((Objects.isNull(hkid) && Objects.nonNull(passport)) || (Objects.nonNull(hkid) && Objects.isNull(passport))){
+            certInfos = certInfoRepository.findAllByHkidOrPassport(hkid,passport);
+        }
+        if(Objects.nonNull(hkid) && Objects.nonNull(passport)){
+            certInfos = certInfoRepository.findAllByHkidAndPassport(hkid,passport);
+        }
+        if(certInfos.isEmpty()){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        List<CertInfoRenew> addList = new ArrayList<>();
+        certInfos.forEach(x -> {
+            CertInfoRenew certInfoRenew = new CertInfoRenew();
+            certInfoRenew.setCertInfoId(x.getId());
+            certInfoRenew.setNewHkid(personalDto.getNewHkid());
+            certInfoRenew.setOldHkid(x.getHkid());
+            certInfoRenew.setNewPassport(personalDto.getPrinewPassport());
+            certInfoRenew.setOldPassport(x.getPassportNo());
+            certInfoRenew.setNewEmail(personalDto.getNewEmail());
+            certInfoRenew.setOldEmail(x.getEmail());
+            certInfoRenew.setRemark(personalDto.getRemark());
+            certInfoRenew.setNewCname(x.getCname());
+            certInfoRenew.setOldCname(x.getCname());
+            certInfoRenew.setNewName(x.getName());
+            certInfoRenew.setOldName(x.getName());
+            certInfoRenew.setNewAtGrade(x.getAtGrade());
+            certInfoRenew.setOldAtGrade(x.getAtGrade());
+            certInfoRenew.setNewBlGrade(x.getBlnstGrade());
+            certInfoRenew.setOldBlGrade(x.getBlnstGrade());
+            certInfoRenew.setNewUcGrade(x.getUcGrade());
+            certInfoRenew.setOldUcGrade(x.getUcGrade());
+            certInfoRenew.setNewUeGrade(x.getUeGrade());
+            certInfoRenew.setOldUeGrade(x.getUeGrade());
+            certInfoRenew.setCertStage(x.getCertStage());
+            certInfoRenew.setLetterType(x.getLetterType());
+            certInfoRenew.setType(CertType.INFO_UPDATE);
+            addList.add(certInfoRenew);
+        });
+        return certInfoRenewRepository.saveAll(addList).size() == certInfos.size();
+    }
+
+    @Override
+    public Boolean updateResult(Long certInfoId, UpdateResultDto resultDto) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        CertInfoRenew infoRenew = new CertInfoRenew();
+        if(CertStage.VOIDED.equals(infoRenew.getCertStage())){
+            throw new GenericException(ExceptionEnums.CRET_INFO_VOIDED);
+        }
+
+        infoRenew.setNewHkid(certInfo.getHkid());
+        infoRenew.setOldHkid(certInfo.getHkid());
+        infoRenew.setNewPassport(certInfo.getPassportNo());
+        infoRenew.setOldPassport(certInfo.getPassportNo());
+        infoRenew.setNewEmail(certInfo.getEmail());
+        infoRenew.setOldEmail(certInfo.getEmail());
+        infoRenew.setNewCname(certInfo.getCname());
+        infoRenew.setOldCname(certInfo.getCname());
+        infoRenew.setNewName(certInfo.getName());
+        infoRenew.setOldName(certInfo.getName());
+        infoRenew.setCertInfoId(certInfo.getId());
+        infoRenew.setOldBlGrade(infoRenew.getNewBlGrade());
+        infoRenew.setOldUcGrade(infoRenew.getNewUcGrade());
+        infoRenew.setOldUeGrade(infoRenew.getNewUeGrade());
+        infoRenew.setOldAtGrade(infoRenew.getNewAtGrade());
+        infoRenew.setNewBlGrade(resultDto.getNewBlnstGrade());
+        infoRenew.setNewUcGrade(resultDto.getNewUcGrade());
+        infoRenew.setNewUeGrade(resultDto.getNewUeGrade());
+        infoRenew.setNewAtGrade(resultDto.getNewAtGrade());
+        infoRenew.setLetterType(certInfo.getLetterType());
+        infoRenew.setRemark(resultDto.getRemark());
+        infoRenew.setType(CertType.INFO_UPDATE);
+        certInfoRenewRepository.save(infoRenew);
+        return true;
+    }
+
 
     private void createCertPdfRecord(CertInfo certInfo,File uploadedPdf){
         // Update CertPdf table record
@@ -263,8 +366,9 @@ public class CertInfoServiceImpl implements CertInfoService {
                 if(!examDate.equals(date)){
                     throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
                 }
-                if(csv.getHkid().contains("(") && csv.getHkid().contains("("))
+                if(csv.getHkid().contains("(") || csv.getHkid().contains("(")){
                     csv.setHkid(csv.getHkid().replaceAll("\\)","").replaceAll("\\(",""));
+                }
                 if(csv.getHkid().isEmpty() && csv.getPassportNo().isEmpty()){
                     throw new ServiceException(ResultCode.HKID_PANNPORT_ABSENT,row);
                 }
