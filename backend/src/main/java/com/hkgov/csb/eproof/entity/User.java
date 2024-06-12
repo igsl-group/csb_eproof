@@ -68,7 +68,7 @@ public class User extends BaseEntity implements UserDetails {
     private LocalDateTime lastLoginDate;
 
     // 用户拥有的角色
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_has_role",
             joinColumns = @JoinColumn(name = "user_id"),
