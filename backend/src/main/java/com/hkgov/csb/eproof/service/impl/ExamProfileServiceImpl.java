@@ -95,6 +95,10 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public void reset(String examProfileSerialNo) {
+
+        //TODO Add revoke signed certificate
+        //TODO Block reset if email already sent
+        
         List<CertInfo> certInfoList = certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo);
         if(Objects.nonNull(certInfoList) && !certInfoList.isEmpty()){
             certInfoRepository.deleteAll(certInfoList);
