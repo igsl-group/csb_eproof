@@ -51,7 +51,8 @@ entity "Exam_Profile" as exam_profile {
   exam_serial_no: varchar <<PK>>
   --
   exam_date: datetime
-  announce_date: datetime
+ - planned_email_issuance_date: datetime
+ - effective_date: datetime
   location: varchar(255)
   status: varchar (50) -> Active
   is_freezed: bit -> 0 | 1
@@ -216,9 +217,17 @@ entity "Combined_Historical_Result_Before_2024" as combined_historical_result_be
     passport: varchar(255)
     email: varchar(255)
     bl_grade: varchar(255)
+    - bl_date: date
+    - bl_void: bit 0 = false, 1 = true
     ue_grade: varchar(255)
+    - ue_date: date
+    - ue_void: bit 0 = false, 1 = true
     uc_grade: varchar(255)
+    - uc_grade: date
+    - uc_void: bit 0 = false, 1 = true
     at_grade: varchar(255)
+    - at_date: date
+    - at_void: bit 0 = false, 1 = true
     remark: varchar(1000)
     valid: bit 0 = False, 1 = true
     created_by: varchar(255)
