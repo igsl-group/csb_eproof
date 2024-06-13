@@ -231,7 +231,7 @@ type response = {
 ```typescript
 
 type query_param = {
-  certInfoId: number
+  : number
 }
 // request
 type requestBody = {

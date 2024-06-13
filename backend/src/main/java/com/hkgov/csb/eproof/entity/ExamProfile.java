@@ -1,7 +1,5 @@
 package com.hkgov.csb.eproof.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hkgov.csb.eproof.constants.Constants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,7 +7,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,26 +20,13 @@ public class ExamProfile extends BaseEntity{
     private String serialNo;
 
     @Column(name = "exam_date")
-    @JsonFormat(pattern = Constants.DATE_PATTERN)
-    private LocalDate examDate;
-
-
-    @Column(name = "effective_date_from")
-    @JsonFormat(pattern = Constants.DATE_PATTERN)
-    private LocalDate effectiveDateFrom;
-
-    @Column(name = "effective_date_to")
-    @JsonFormat(pattern = Constants.DATE_PATTERN)
-    private LocalDate effectiveDateTo;
-
+    private LocalDateTime examDate;
 
     @Column(name = "result_letter_date")
-    @JsonFormat(pattern = Constants.DATE_PATTERN)
-    private LocalDate resultLetterDate;
+    private LocalDateTime resultLetterDate;
 
-    @Column(name = "announce_date")
-    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime announceDate;
+    @Column(name = "planned_email_issuance_date")
+    private LocalDateTime plannedEmailIssuanceDate;
 
     @Column(name = "location")
     private String location;

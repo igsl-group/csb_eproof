@@ -1,7 +1,7 @@
 package com.hkgov.csb.eproof.service;
 
 
-import com.hkgov.csb.eproof.dto.ExamProfileDto;
+import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.entity.ExamProfile;
 import org.springframework.data.domain.Page;
@@ -11,9 +11,11 @@ import java.util.List;
 
 public interface ExamProfileService {
 
-    Boolean create(ExamProfileDto request);
+    Boolean create(ExamProfileCreateDto request);
 
     Boolean freeze(String examProfileSerialNo);
+
+    Boolean update(ExamProfileCreateDto requestDto);
 
     ExamProfile getexamProfileInfo(String examProfileSerialNo);
 

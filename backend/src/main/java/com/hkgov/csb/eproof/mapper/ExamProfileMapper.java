@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.mapper;
 
+import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.entity.ExamProfile;
 import org.mapstruct.Mapper;
@@ -16,7 +17,7 @@ public interface ExamProfileMapper {
 
     ExamProfileDto sourceToDestination(ExamProfile source);
 
-    ExamProfile destinationToSource(ExamProfileDto dto);
+    ExamProfile destinationToSource(ExamProfileCreateDto dto);
 
     void updateFromDto(ExamProfileDto dto, @MappingTarget ExamProfile user);
 

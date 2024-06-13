@@ -1,8 +1,6 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.entity.ExamProfile;
-import com.hkgov.csb.eproof.entity.enums.CertStage;
-import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ExamProfileRepository extends JpaRepository<ExamProfile,String> {
@@ -28,6 +27,11 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     @Modifying
     @Query("delete from ExamProfile u where u.serialNo = :serialNo")
     Integer delExamProfile(@Param("serialNo") String serialNo);
+
+    @Modifying
+    @Query("update ExamProfile set examDate = :examDate,plannedEmailIssuanceDate = :plannedEmailIssuanceDate,location = :location,resultLetterDate = :resultLetterDate where serialNo = :serialNo")
+    Integer updateInfo(@Param("serialNo") String serialNo,@Param("examDate") LocalDateTime examDate
+            ,@Param("plannedEmailIssuanceDate") LocalDateTime plannedEmailIssuanceDate,@Param("location") String location,@Param("resultLetterDate") LocalDateTime resultLetterDate);
 
 
 }

@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.controller;
 
+import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
@@ -23,7 +24,7 @@ public class ExamProfileController {
     private  ExamProfileService examProfileService;
 
     @PostMapping("/create")
-    public Result<Boolean> create(@RequestBody ExamProfileDto requestDto){
+    public Result<Boolean> create(@RequestBody ExamProfileCreateDto requestDto){
         return Result.success(examProfileService.create(requestDto));
     }
 
@@ -31,6 +32,12 @@ public class ExamProfileController {
     public Result<Boolean> freeze(@PathVariable String examProfileSerialNo){
         return Result.success(examProfileService.freeze(examProfileSerialNo));
     }
+
+    @PatchMapping("/update")
+    public Result<Boolean> update(@RequestBody ExamProfileCreateDto requestDto){
+        return Result.success(examProfileService.update(requestDto));
+    }
+
     @GetMapping("/examProfile/{examProfileSerialNo}")
     public Result<ExamProfileDto> getexamProfileInfo(@PathVariable String examProfileSerialNo){
         return Result.success(ExamProfileMapper.INSTANCE.sourceToDestination(examProfileService.getexamProfileInfo(examProfileSerialNo)));

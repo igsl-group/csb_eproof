@@ -1,8 +1,9 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
-import com.hkgov.csb.eproof.dto.ExamProfileDto;
+import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.ExamProfile;
@@ -30,12 +31,14 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     private final CertInfoRepository certInfoRepository;
 
     @Override
-    public Boolean create(ExamProfileDto request) {
+    public Boolean create(ExamProfileCreateDto request) {
         var examProfile = examProfileRepository.getinfoByNo(request.getSerialNo());
-        if(Objects.nonNull(examProfile))
+        if(Objects.nonNull(examProfile)){
             throw new GenericException("400",SERIAL_HAS_EXITED);
+        }
         ExamProfile exam = ExamProfileMapper.INSTANCE.destinationToSource(request);
         exam.setIsFreezed(false);
+        exam.setStatus(Constants.STATUS_ACTIVE);
         exam = examProfileRepository.save(exam);
         return Objects.nonNull(exam);
     }
@@ -44,7 +47,10 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     public Boolean freeze(String examProfileSerialNo) {
         return examProfileRepository.updateIsFreezed(examProfileSerialNo) > 0;
     }
-
+    @Override
+    public Boolean update(ExamProfileCreateDto request) {
+        return examProfileRepository.updateInfo(request.getSerialNo(),request.getExamDate(),request.getPlannedEmailIssuanceDate(),request.getLocation(),request.getResultLetterDate()) == 1;
+    }
     @Override
     public ExamProfile getexamProfileInfo(String examProfileSerialNo) {
         return examProfileRepository.getinfoByNo(examProfileSerialNo);
