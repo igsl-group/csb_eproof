@@ -49,7 +49,8 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     }
     @Override
     public Boolean update(ExamProfileCreateDto request) {
-        return examProfileRepository.updateInfo(request.getSerialNo(),request.getExamDate(),request.getPlannedEmailIssuanceDate(),request.getLocation(),request.getResultLetterDate()) == 1;
+        return examProfileRepository.updateInfo(request.getSerialNo(),request.getExamDate(),
+                request.getPlannedEmailIssuanceDate(),request.getLocation(),request.getResultLetterDate(),request.getEffectiveDate()) == 1;
     }
     @Override
     public ExamProfile getexamProfileInfo(String examProfileSerialNo) {

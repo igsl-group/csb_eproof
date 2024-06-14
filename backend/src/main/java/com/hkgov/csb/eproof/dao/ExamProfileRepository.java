@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ExamProfileRepository extends JpaRepository<ExamProfile,String> {
@@ -29,9 +29,11 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     Integer delExamProfile(@Param("serialNo") String serialNo);
 
     @Modifying
-    @Query("update ExamProfile set examDate = :examDate,plannedEmailIssuanceDate = :plannedEmailIssuanceDate,location = :location,resultLetterDate = :resultLetterDate where serialNo = :serialNo")
-    Integer updateInfo(@Param("serialNo") String serialNo,@Param("examDate") LocalDateTime examDate
-            ,@Param("plannedEmailIssuanceDate") LocalDateTime plannedEmailIssuanceDate,@Param("location") String location,@Param("resultLetterDate") LocalDateTime resultLetterDate);
+    @Query("update ExamProfile set examDate = :examDate,plannedEmailIssuanceDate = :plannedEmailIssuanceDate," +
+            "location = :location,resultLetterDate = :resultLetterDate,effectiveDate = :effectiveDate where serialNo = :serialNo")
+    Integer updateInfo(@Param("serialNo") String serialNo, @Param("examDate") LocalDate examDate
+            , @Param("plannedEmailIssuanceDate") LocalDate plannedEmailIssuanceDate, @Param("location") String location,
+                       @Param("resultLetterDate") LocalDate resultLetterDate,@Param("effectiveDate") LocalDate effectiveDate);
 
 
 }

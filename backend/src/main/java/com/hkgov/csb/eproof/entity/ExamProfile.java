@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "exam_profile")
@@ -20,13 +20,16 @@ public class ExamProfile extends BaseEntity{
     private String serialNo;
 
     @Column(name = "exam_date")
-    private LocalDateTime examDate;
+    private LocalDate examDate;
 
     @Column(name = "result_letter_date")
-    private LocalDateTime resultLetterDate;
+    private LocalDate resultLetterDate;
+
+    @Column(name = "effective_date")
+    private LocalDate effectiveDate;
 
     @Column(name = "planned_email_issuance_date")
-    private LocalDateTime plannedEmailIssuanceDate;
+    private LocalDate plannedEmailIssuanceDate;
 
     @Column(name = "location")
     private String location;
