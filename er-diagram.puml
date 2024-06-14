@@ -70,6 +70,7 @@ entity "Email_Template" as email_template {
   subject: varchar(1000)
   body: text
   type: varchar (50) -> EXTERNAL | INTERNAL
+  include_emails: varchar(1000)
   created_by: varchar(255)
   modified_by: varchar(255)
   created_date: datetime
