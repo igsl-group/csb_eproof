@@ -13,8 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +41,13 @@ public class TemplateController {
                                                   @RequestParam(defaultValue = "id") String... sortField) {
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
         return  Result.success(templateService.list(pageable).map(LetterTemplateMapper.INSTANCE::toDto));
+    }
+
+    @GetMapping("/download/{templateId}")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity search(@PathVariable Long templateId) {
+
+        return templateService.downloadTemplate(templateId);
     }
 
 }
