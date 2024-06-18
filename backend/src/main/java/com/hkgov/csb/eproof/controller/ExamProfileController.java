@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.controller;
 import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
 import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
+import com.hkgov.csb.eproof.dto.ExamProfileUpdateDto;
 import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
 import com.hkgov.csb.eproof.service.ExamProfileService;
 import com.hkgov.csb.eproof.util.Result;
@@ -28,19 +29,19 @@ public class ExamProfileController {
         return Result.success(examProfileService.create(requestDto));
     }
 
-    @PatchMapping("/freeze/{examProfileSerialNo}")
-    public Result<Boolean> freeze(@PathVariable String examProfileSerialNo){
-        return Result.success(examProfileService.freeze(examProfileSerialNo));
+    @PatchMapping("/freeze/{id}")
+    public Result<Boolean> freeze(@PathVariable String id){
+        return Result.success(examProfileService.freeze(id));
     }
 
-    @PatchMapping("/update")
-    public Result<Boolean> update(@RequestBody ExamProfileCreateDto requestDto){
-        return Result.success(examProfileService.update(requestDto));
+    @PatchMapping("/update/{id}")
+    public Result<Boolean> update(@PathVariable String id,@RequestBody ExamProfileUpdateDto requestDto){
+        return Result.success(examProfileService.update(id,requestDto));
     }
 
-    @GetMapping("/examProfile/{examProfileSerialNo}")
-    public Result<ExamProfileDto> getexamProfileInfo(@PathVariable String examProfileSerialNo){
-        return Result.success(ExamProfileMapper.INSTANCE.sourceToDestination(examProfileService.getexamProfileInfo(examProfileSerialNo)));
+    @GetMapping("/{id}")
+    public Result<ExamProfileDto> getexamProfileInfo(@PathVariable String id){
+        return Result.success(ExamProfileMapper.INSTANCE.sourceToDestination(examProfileService.getexamProfileInfo(id)));
     }
 
     @GetMapping("/list")

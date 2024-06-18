@@ -5,6 +5,7 @@ import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
+import com.hkgov.csb.eproof.dto.ExamProfileUpdateDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
@@ -48,8 +49,8 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         return examProfileRepository.updateIsFreezed(examProfileSerialNo) > 0;
     }
     @Override
-    public Boolean update(ExamProfileCreateDto request) {
-        return examProfileRepository.updateInfo(request.getSerialNo(),request.getExamDate(),
+    public Boolean update(String id, ExamProfileUpdateDto request) {
+        return examProfileRepository.updateInfo(id,request.getExamDate(),
                 request.getPlannedEmailIssuanceDate(),request.getLocation(),request.getResultLetterDate(),request.getEffectiveDate()) == 1;
     }
     @Override

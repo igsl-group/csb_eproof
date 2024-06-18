@@ -66,7 +66,7 @@ entity "Exam_Profile" as exam_profile {
 entity "Email_Template" as email_template {
   id: number <<generated, PK>>
   --
-  key: varchar(255) <<unique>>
+  email_key: varchar(255) <<unique>>
   subject: varchar(1000)
   body: text
   type: varchar (50) -> EXTERNAL | INTERNAL
