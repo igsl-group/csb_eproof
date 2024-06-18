@@ -169,14 +169,18 @@ type response = {
 ### Update the email of all cert under the provided hkid in request
 > Steps:
 > 1. Frontend send request
-> 2. Backend got the request, find all VALID cert under same HKID
+> 2. Backend got the request, find all VALID cert under same HKID or passport
+     > 優先看currentHkid, 如果currentHkid===null, 才看 currentPassport
+     > 即使currentHkid 及 currentPassport同時存在, 也只需要看 currentHkid
+     > 如果 currentHkid == null 及 currentPassport == null, return 400
 > 3. Update the email of those certs
 > 4. Save the certs
 
 ```typescript
 // request
-type requestBody = {
+type requestBody = { 
   currentHkid: string,
+  currentPassport: string
   newEmail: string
 }
 
