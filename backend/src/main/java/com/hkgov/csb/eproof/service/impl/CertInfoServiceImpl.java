@@ -222,13 +222,16 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     public Boolean updateEmail(UpdateEmailDto updateEmailDto) {
         List<CertInfo> certInfos = new ArrayList<>();
-        String hkid = updateEmailDto.getCurrentHkid();
-        String passport = updateEmailDto.getCurrentPassport();
-        if((Objects.isNull(hkid) && Objects.nonNull(passport)) || (Objects.nonNull(hkid) && Objects.isNull(passport))){
-            certInfos = certInfoRepository.findAllByHkidOrPassport(hkid,passport);
+        String hkid = "".equals(updateEmailDto.getCurrentHkid()) ? null : updateEmailDto.getCurrentHkid();
+        String passport = "".equals(updateEmailDto.getCurrentPassport()) ? null : updateEmailDto.getCurrentPassport();
+        if((Objects.isNull(hkid) && Objects.isNull(passport))){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
         }
-        if(Objects.nonNull(hkid) && Objects.nonNull(passport)){
-            certInfos = certInfoRepository.findAllByHkidAndPassport(hkid,passport);
+        if(Objects.nonNull(hkid)){
+            certInfos = certInfoRepository.findAllByHkid(hkid);
+        }
+        if(Objects.isNull(hkid) && Objects.nonNull(passport)){
+            certInfos = certInfoRepository.findAllByPassport(passport);
         }
         if(certInfos.isEmpty()){
             throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
@@ -243,13 +246,16 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     public Boolean updatePersonalParticular(UpdatePersonalDto personalDto) {
         List<CertInfo> certInfos = new ArrayList<>();
-        String hkid = personalDto.getCurrentHkid();
-        String passport = personalDto.getCurrentPassport();
-        if((Objects.isNull(hkid) && Objects.nonNull(passport)) || (Objects.nonNull(hkid) && Objects.isNull(passport))){
-            certInfos = certInfoRepository.findAllByHkidOrPassport(hkid,passport);
+        String hkid = "".equals(personalDto.getCurrentHkid()) ? null : personalDto.getCurrentHkid();
+        String passport = "".equals(personalDto.getCurrentPassport()) ? null : personalDto.getCurrentPassport();
+        if((Objects.isNull(hkid) && Objects.isNull(passport))){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
         }
-        if(Objects.nonNull(hkid) && Objects.nonNull(passport)){
-            certInfos = certInfoRepository.findAllByHkidAndPassport(hkid,passport);
+        if(Objects.nonNull(hkid)){
+            certInfos = certInfoRepository.findAllByHkid(hkid);
+        }
+        if(Objects.isNull(hkid) && Objects.nonNull(passport)){
+            certInfos = certInfoRepository.findAllByPassport(passport);
         }
         if(certInfos.isEmpty()){
             throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
@@ -455,6 +461,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         return list;
     }
 
+    @Override
     public byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException {
         List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

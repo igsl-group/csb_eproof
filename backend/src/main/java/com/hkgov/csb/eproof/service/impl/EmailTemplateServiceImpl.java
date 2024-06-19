@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.EmailTemplateRepository;
-import com.hkgov.csb.eproof.dto.EmailTemplateDto;
+import com.hkgov.csb.eproof.dto.EmailTemplateUpdateDto;
 import com.hkgov.csb.eproof.entity.EmailTemplate;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.service.EmailTemplateService;
@@ -37,8 +37,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public void update(EmailTemplateDto requestDto) {
-        EmailTemplate emailTemplate = emailTemplateRepository.findById(requestDto.getId()).orElse(null);
+    public void update(Long emailId, EmailTemplateUpdateDto requestDto) {
+        EmailTemplate emailTemplate = emailTemplateRepository.findById(emailId).orElse(null);
         if(Objects.isNull(emailTemplate)){
             throw new GenericException(ExceptionEnums.TEMPLATE_NOT_EXIST);
         }
