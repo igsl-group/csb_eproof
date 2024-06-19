@@ -255,5 +255,26 @@ type response = {
 ```
 
 
+## [Post] /cert/batch/notify/:examProfileSerialNo
+### Notify the cert under same exam profile
+> Steps:
+> 1. Get all cert under exam the exam profile, which the email not yet sent
+> 2. If no email event is found for the cert >> Add a new email_message with rendered HTML using thymeleaf, and add the correspond email_event for the message.
+      >> Please create a email_template with key "NOTIFY_CERT", type "EXTERNAL" first
+> 3. Else if email event is found for the cert BUT the email not yet sent >> Update scheduled time in email_event of the email_message.
+> 4. Else if email event is found AND the email has been sent >> ignore. No action needed.
 
+```typescript
+
+type path_variable = {
+  examProfileSerialNo: string
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
 
