@@ -40,10 +40,16 @@ function Richtext (props) {
   useEffect(() => {
     if (ref.current) {
       ref.current.editor.scrollingContainer.style.height = `${row * 32}px`;
+      // console.log('kkkkkk',  `${row * 32}px`);
     }
     window.r = ref;
   }, [ref, row]);
 
+
+  // useEffect(() => {
+  //   console.log(props.row )
+  //   console.log(ref.current.editor.scrollingContainer.style.height)
+  // })
 
   return (
     <Form.Item

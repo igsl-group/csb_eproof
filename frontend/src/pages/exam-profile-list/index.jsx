@@ -16,11 +16,18 @@ import {
   AreaChartOutlined,
 } from '@ant-design/icons';
 import ExamProfileFormModal from "./modal";
+import {TYPE } from '@/config/enum';
+import { examProfileAPI } from '@/api/request';
+import {useMessage} from "../../context/message-provider";
+import {useModal} from "../../context/modal-provider";
 
 const ExamProfileList = () =>  {
 
+  const modalApi = useModal();
+  const messageApi = useMessage();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -41,6 +48,11 @@ const ExamProfileList = () =>  {
   const onCloseCallback = useCallback(() => {
     setOpen(false);
   });
+
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);
+    getExamProfileList();
+  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -80,12 +92,15 @@ const ExamProfileList = () =>  {
       width: 150,
       sorter: true,
     },
+    {
+      title: 'Location',
+      key: 'location',
+      dataIndex: 'location',
+      width: 150,
+      sorter: true,
+    },
   ], []);
 
-  const data = [{
-    serialNo: 'N000000001',
-    examDate: '2024-01-10',
-  }];
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -108,6 +123,42 @@ const ExamProfileList = () =>  {
     }
     setPagination(tempPagination);
   }, [pagination]);
+
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'examProfileList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setData(content);
+          break;
+        // case 'userGet':
+        //   break;
+        // case 'userRemove':
+        //   messageApi.success('Remove successfully.');
+        //   getUserList();
+        //   break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getExamProfileList();
+  }, []);
+
+  const getExamProfileList = () => {
+    runExamProfileAPI('examProfileList');
+  }
 
   return (
     <div className={styles['exam-profile-list']}>
@@ -160,8 +211,10 @@ const ExamProfileList = () =>  {
         <br/>
       </Card>
       <ExamProfileFormModal
+        type={TYPE.CREATE}
         open={open}
         onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
     </div>
 

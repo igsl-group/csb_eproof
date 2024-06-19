@@ -65,7 +65,7 @@ function HKID (props) {
       <Form.Item
         label={label}
         required={required}
-        style={{ marginBottom: 0, marginRight: 50 }}
+        style={{ marginBottom: 0, marginRight: 50, lineHeight: '32px' }}
       >
         <Row>
           <Col>
@@ -98,7 +98,7 @@ function HKID (props) {
                 disabled={disabled}
                 maxLength={7}
                 style={{
-                  width: 150,
+                  width: 130,
                   textTransform: 'uppercase'
                 }}
               />
@@ -136,8 +136,9 @@ function HKID (props) {
                 disabled={disabled}
                 maxLength={1}
                 style={{
-                  width: 40,
-                  textTransform: 'uppercase'
+                  width: 35,
+                  textTransform: 'uppercase',
+                  textAlign: 'center'
                 }}
               />
             </Form.Item>

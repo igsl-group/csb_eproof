@@ -26,23 +26,25 @@ const UserModal = (props) =>  {
 
   const statusOptions = useMemo(() => [
     {
+      label: 'ACTIVE',
+      value: 'ACTIVE',
+    },
+    {
       label: 'DISABLED',
       value: 'DISABLED',
     },
-    {
-      label: 'ACTIVE',
-      value: 'ACTIVE',
-    }
   ])
 
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
+      form.resetFields();
       onCloseCallback();
     }
   }, [onCloseCallback]);
 
   const onFinish = useCallback(() => {
     if (typeof onFinishCallback === "function") {
+      form.resetFields();
       onFinishCallback();
     }
   }, [onFinishCallback]);
@@ -79,11 +81,17 @@ const UserModal = (props) =>  {
     onSuccess: (response, params) => {
       switch (params[0]) {
         case 'userGet':
-          const data = response.data;
+          let data = {
+            ...response.data,
+            roles: response.data.roles.flatMap((row) => row.id),
+          };
           form.setFieldsValue(data)
           break;
         case 'userUpdate':
-          messageApi.success('Update successfully');
+          messageApi.success('Update successfully.');
+          break;
+        case 'userCreate':
+          messageApi.success('Create successfully.');
           break;
         case 'roleList':
         {
@@ -101,7 +109,8 @@ const UserModal = (props) =>  {
 
     },
     onError: (error) => {
-      //Message.error('');
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
     },
     onFinally: (params, result, error) => {
     },
@@ -110,7 +119,6 @@ const UserModal = (props) =>  {
   useEffect(() => {
     (async() => {
       if (open) {
-        form.resetFields();
         switch (type) {
           case TYPE.EDIT:
             await runUserRoleAPI('userGet', recordId)
@@ -119,7 +127,7 @@ const UserModal = (props) =>  {
         await runUserRoleAPI('roleList');
       }
     })()
-  }, [open, type]);
+  }, [open, type, recordId]);
 
   return (
     <Modal
@@ -144,6 +152,9 @@ const UserModal = (props) =>  {
           inline: 'center',
         }}
         name="form"
+        initialValues={{
+          status: 'ACTIVE'
+        }}
       >
         <Text name={"id"} size={50} hidden/>
         <Row gutter={24} justify={'center'}>

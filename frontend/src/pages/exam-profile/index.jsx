@@ -16,7 +16,8 @@ import {
   Descriptions,
   Modal,
   Pagination,
-  Button
+  Button,
+  Flex
 } from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
@@ -40,14 +41,20 @@ import dayjs from "dayjs";
 import ExceptionalCaseModal from "./exceptional-case-modal";
 import {useModal} from "../../context/modal-provider";
 import ExamProfileFormModal from "./modal";
+import { examProfileAPI } from '@/api/request';
+import {any} from "joi";
+import {TYPE} from '@/config/enum';
+import {useMessage} from "../../context/message-provider";
 
 const ExamProfile = () =>  {
 
-  const navigate = useNavigate();
   const modalApi = useModal();
+  const messageApi = useMessage();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [freezeExamProfile, setFreezeExamProfile] = useState(false);
   const [form] = Form.useForm();
+  const [summary, setSummary] = useState({});
   const {
     serialNo,
   } = useParams();
@@ -170,9 +177,65 @@ const ExamProfile = () =>  {
 
   ], []);
 
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'examProfileList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setData(content);
+          break;
+        case 'examProfileGet':
+        {
+          const data = response.data || {};
+          form.setFieldsValue({
+            ...data,
+          });
+          setFreezeExamProfile(data.isFreezed);
+          getExamProfileSummary();
+          break;
+        }
+        case 'examProfileSummaryGet':
+        {
+          const data = response.data || {};
+          setSummary(data);
+          break;
+        }
+        case 'examProfileFreeze':
+        {
+          getExamProfile();
+          messageApi.success('Freeze successfully.');
+          break;
+        }
+        case 'examProfileReset':
+        {
+          getExamProfileSummary();
+          messageApi.success('Reset successfully.');
+          break;
+        }
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+
   const onCloseCallback = useCallback(() => {
     setOpen(false);
   });
+
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);
+    getExamProfile();
+  }, []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -196,14 +259,19 @@ const ExamProfile = () =>  {
     setPagination(tempPagination);
   }, [pagination]);
 
+  const getExamProfile = useCallback(async () => {
+    return runExamProfileAPI('examProfileGet', serialNo);
+  }, [serialNo]);
+
+  const getExamProfileSummary = useCallback(async () => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNo);
+  }, [serialNo]);
 
   useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: '',
-      plannedAnnouncedDate: '',
-      location: 'Hong Kong',
-    })
+    (async () => {
+      await getExamProfile();
+      await getExamProfileSummary();
+    })()
   }, []);
 
   const tabItems = useMemo(() => [
@@ -239,15 +307,18 @@ const ExamProfile = () =>  {
     {
       title: serialNo,
     },
-  ], []);
+  ], [serialNo]);
 
   const onClickReset = useCallback(() => {
     modalApi.confirm({
       title:'If you confirm to reset Exam Profile, all imported results, generated PDFs, signed and issued certificates will be removed.',
       width: 500,
       okText: 'Confirm',
+      onOk: () => {
+        runExamProfileAPI('examProfileReset', serialNo)
+      }
     });
-  },[]);
+  },[serialNo]);
 
 
   return (
@@ -267,49 +338,75 @@ const ExamProfile = () =>  {
         }}
         name="form"
       >
-        <Row justify={'start'}>
-          <Col span={16}>
-            <Row gutter={24} justify={'center'}>
-              <Col span={24} md={12}>
-                <Text name={"serialNo"} label={'Serial No.'} required size={12} disabled/>
+        <Row justify={'start'} gutter={[8, 8]}>
+          <Col span={20} >
+            <Row gutter={24} justify={'start'}>
+              <Col span={24} md={12} xl={8} xxl={6}>
+                <Text name={"serialNo"} label={'Serial No.'} size={50} disabled/>
               </Col>
-              <Col span={24} md={12}>
-                <Text name={'examDate'} label={'Exam Date'} required size={12} disabled placeholder={'YYYY-MM-DD'} size={12} />
+              <Col span={24} md={12} xl={8} xxl={6}>
+                <Text name={'examDate'} label={'Exam Date'} size={50} disabled placeholder={'YYYY-MM-DD'} size={50} />
               </Col>
-              <Col span={24} md={12}>
-                <Text name={'actualAnnouncedDate'} label={'Result Letter Date'} disabled={true}
-                      placeholder={'YYYY-MM-DD'} size={12}/>
+              <Col span={24} md={12} xl={8} xxl={6}>
+                <Text name={'resultLetterDate'} label={'Result Letter Date'} disabled={true}
+                      placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
-              <Col span={24} md={12}>
-                <Text name={'actualAnnouncedDate'} label={'Planned Email Issuance Date'} disabled={true}
-                      placeholder={'YYYY-MM-DD'} size={12}/>
+              <Col span={24} md={12} xl={8} xxl={6}>
+                <Text name={'plannedEmailIssuanceDate'} label={'Planned Email Issuance Date'} disabled={true}
+                      placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
-              <Col span={24} md={12}>
+              <Col span={24} md={12} xl={8} xxl={6}>
+                <Text name={'examDate'} label={'Effective Date'} disabled placeholder={'YYYY-MM-DD'} size={50} />
+              </Col>
+              <Col span={24} md={12} xl={8} xxl={6}>
                 <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (From)'} disabled={true}
-                      placeholder={'YYYY-MM-DD'} size={12}/>
+                      placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
-              <Col span={24} md={12}>
+              <Col span={24} md={12} xl={8} xxl={6}>
                 <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (To)'} disabled={true}
-                      placeholder={'YYYY-MM-DD'} size={12}/>
+                      placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
-
-              <Col span={24}>
-                <Text name={'location'} label={'Location'} size={50} disabled/>
+              <Col span={24} md={12} xl={8} xxl={6}>
+                <Text name={'location'} label={'Location'} size={100} disabled/>
               </Col>
             </Row>
           </Col>
-          <Col span={8}>
+          <Col span={4}>
             <Row gutter={[8, 8]} justify={'end'}>
-              <Col>
-                <Button type={'primary'} onClick={() => setOpen(true)}>Edit</Button>
+              <Col span={24}>
+                <Row justify={'end'}>
+                  <Col>
+                    <Button style={{ width: 115}} type={'primary'} onClick={() => setOpen(true)}>Edit</Button>
+                  </Col>
+                </Row>
               </Col>
-              <Col>
-                <Button type={'primary'} onClick={onClickReset}>Reset Exam Profile</Button>
+              <Col span={24}>
+                <Row justify={'end'}>
+                  <Col>
+                    <Button
+                      style={{ width: 115}}
+                      type={'primary'}
+                      onClick={onClickReset}
+                    >
+                      Reset
+                    </Button>
+                  </Col>
+                </Row>
               </Col>
-              <Col>
-                <Button type={'primary'} danger={freezeExamProfile} onClick={() => {
-                  setFreezeExamProfile(!freezeExamProfile)
-                }}>{!freezeExamProfile ? 'Freeze Exam Profile' : 'Un-freeze Exam Profile'}</Button>
+              <Col span={24}>
+                <Row justify={'end'}>
+                  <Col>
+                    <Button
+                      style={{ width: 115}}
+                      type={'primary'}
+                      danger={freezeExamProfile}
+                      // onClick={() => runExamProfileAPI('examProfileFreeze', serialNo)}
+                      onClick={() => runExamProfileAPI('examProfileUnfreeze', serialNo)}
+                    >
+                      {!freezeExamProfile ? 'Freeze' : 'Un-freeze'}
+                    </Button>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </Col>
@@ -324,22 +421,23 @@ const ExamProfile = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: 30000,
+              children: summary.imported,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: '0 out of 0 failed',
+              children: `${summary.generatePdfTotal} out of ${summary.generatePdfFailed} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: '0 out of 0 failed',
+              children: `${summary.issuedPdfTotal} out of ${summary.issuedPdfFailed} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: '0 out of 0 failed',
+              children: `${summary.sendEmailTotal} out of ${summary.sendEmailFailed} failed`,
+
             }
           ]}
         />
@@ -389,8 +487,11 @@ const ExamProfile = () =>  {
         <br/>
       </Card>
       <ExamProfileFormModal
+        type={TYPE.EDIT}
         open={open}
+        recordId={serialNo}
         onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
       {/*<fieldset style={{paddingLeft: 30}}>*/}
       {/*  <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>*/}

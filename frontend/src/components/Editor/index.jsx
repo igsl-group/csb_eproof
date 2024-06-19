@@ -67,6 +67,7 @@ function Editor (props) {
         <div className={styles['editor-content']}>
           <DocumentEditorContainerComponent
             ref={ref}
+            style={{ 'height': '590px' }}
             id="container"
             enableToolbar={true}
             toolbarItems={[

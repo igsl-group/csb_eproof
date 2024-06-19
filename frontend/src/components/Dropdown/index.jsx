@@ -27,6 +27,7 @@ function Dropdown(props) {
   const placeholder = props.placeholder || 'Please choose ...';
   const options = props.options || [];
   const mode = props.mode || 'combobox';
+  const allowClear = props.allowClear !== false;
 
   return (
     <Form.Item
@@ -42,7 +43,7 @@ function Dropdown(props) {
       ]}
       hidden={hidden}
     >
-      <Select labelInValue={labelInValue} options={options} mode={mode} allowClear  disabled={disabled} placeholder={placeholder}/>
+      <Select labelInValue={labelInValue} options={options} mode={mode} allowClear={allowClear}  disabled={disabled} placeholder={placeholder}/>
     </Form.Item>
   );
 }

@@ -1,7 +1,7 @@
 {
   "token": {
     "colorPrimary": "#152B47",
-    "colorInfo": "#152B47",
+
     "colorSuccess": "#3c763d",
     "colorTextBase": "rgb(81, 90, 106)",
     "colorSuccessBg": "#f2fbf1",
@@ -10,7 +10,7 @@
     "colorBgBase": "#fbfbfb",
     "borderRadius": 2,
     "wireframe": false,
-    "fontFamily": "Open Sans, Arial, sans-serif, Microsoft JhengHei, 微軟正黑體, 微軟雅黑體, 細明體_HKSCS"
+    "fontFamily": "Sans-serif, Open Sans, Arial, sans-serif, Microsoft JhengHei, 微軟正黑體, 微軟雅黑體, 細明體_HKSCS"
   },
   "components": {
     "Typography": {
@@ -65,9 +65,10 @@
       "warningActiveShadow": "rgba(0, 0, 0, 0)"
     },
     "Table": {
-      "fontSize": 12,
+      "fontSize": 14,
       "headerColor": "rgb(56, 56, 56)",
-      "colorText": "rgb(56, 56, 56)"
+      "colorText": "rgb(56, 56, 56)",
+      "cellPaddingBlock": 10
     },
     "Button": {
       "paddingInline": 30,

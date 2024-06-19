@@ -316,14 +316,21 @@ function Layouts () {
         </Header>
         <Layout>
           <Sider
-            width={240}
+            width={260}
             breakpoint='xl'
             collapsed={collapsed}
             trigger={null}
             className={styles['layout-menu']}
           >
             <Menu
-              defaultOpenKeys={['/Maintenance']}
+              defaultOpenKeys={[
+                '/CertificateManagement',
+                '/Workflow',
+                // '/WorkflowRenew',
+                // '/System',
+                // '/Template',
+                // '/UserManagement',
+              ]}
               defaultSelectedKeys={['/Home']}
               selectedKeys={[currKey]}
               // onClickMenuItem={onClickMenuItem}

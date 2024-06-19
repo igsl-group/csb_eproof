@@ -45,7 +45,11 @@ function Date (props) {
         { required, message: 'Required'},
         ...validation
       ]}
-      normalize={normalize}
+      // normalize={normalize}
+      // getValueProps={(value) => ({
+      //   value: value && value.format(format),
+      // })}
+      // normalize={(value) => value && value.format(format) }
       hidden={hidden}
     >
       {
