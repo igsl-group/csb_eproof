@@ -20,14 +20,17 @@ const RoleModal = (props) =>  {
   const onFinishCallback = props.onFinishCallback;
   const [permissionList, setPermissionList] = useState([]);
   const [form] = Form.useForm();
+
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
+      form.resetFields();
       onCloseCallback();
     }
   }, [onCloseCallback]);
 
   const onFinish = useCallback(() => {
     if (typeof onFinishCallback === "function") {
+      form.resetFields();
       onFinishCallback();
     }
   }, [onFinishCallback]);
@@ -75,12 +78,12 @@ const RoleModal = (props) =>  {
         }
         case 'roleUpdate':
         {
-          messageApi.success('Update successfully');
+          messageApi.success('Update successfully.');
           break;
         }
         case 'roleCreate':
         {
-          messageApi.success('Create successfully');
+          messageApi.success('Create successfully.');
           break;
         }
         case 'permissionList':
@@ -91,7 +94,7 @@ const RoleModal = (props) =>  {
             label: row.description,
           }))
           setPermissionList(options);
-          // messageApi.success('Create successfully');
+          // messageApi.success('Create successfully.');
           break;
         }
         default:
@@ -109,7 +112,6 @@ const RoleModal = (props) =>  {
   useEffect(() => {
      (async() => {
       if (open) {
-        form.resetFields();
         switch (type) {
           case TYPE.EDIT:
             await runUserRoleAPI('roleGet', recordId)
@@ -118,7 +120,7 @@ const RoleModal = (props) =>  {
         await runUserRoleAPI('permissionList');
       }
     })()
-  }, [open, type]);
+  }, [open, type, recordId]);
 
   return (
     <Modal

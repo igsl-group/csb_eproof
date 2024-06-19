@@ -64,23 +64,11 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
 """)
     Integer countByStageAndStatus(String examProfileSerialNo, CertStage certStage, CertStatus certStatus);
 
-    @Query("""
-            SELECT c FROM CertInfo c WHERE 
-            (
-                (:hkid != null AND c.hkid = :hkid) AND
-                (:passportNo != null  AND c.passportNo = :passportNo)
-             )
-        """)
-    List<CertInfo> findAllByHkidAndPassport(@Param("hkid") String hkid,@Param("passportNo") String passportNo);
+    @Query("select c from CertInfo c where c.hkid = :hkid")
+    List<CertInfo> findAllByHkid(@Param("hkid") String hkid);
 
 
-    @Query("""
-            SELECT c FROM CertInfo c WHERE 
-            (
-                (:hkid != null AND c.hkid = :hkid) OR
-                (:passportNo != null  AND c.passportNo = :passportNo)
-             )
-        """)
-    List<CertInfo> findAllByHkidOrPassport(@Param("hkid") String hkid,@Param("passportNo") String passportNo);
+    @Query("select c from CertInfo c where c.passportNo = :passportNo")
+    List<CertInfo> findAllByPassport(@Param("passportNo") String passportNo);
 
 }

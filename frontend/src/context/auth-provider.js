@@ -23,8 +23,14 @@ const AuthProvider = ({ children }) => {
     onSuccess: (response, params) => {
       switch (params[0]) {
         case 'authenticate':
+        {
+          const token = response.data;
+          console.log(`Token: ${token}`);
+          localStorage.setItem('eproof-token', token);
           break;
+        }
         case 'profile':
+        {
           const data  = response.result?.data || {};
           setUser(data.user_name);
           setSection(data.section?.label || '');
@@ -32,6 +38,7 @@ const AuthProvider = ({ children }) => {
           setPost(data.selected_post?.name || '');
           setAvailablePosts(data.all_available_posts || []);
           break;
+        }
         default:
           break;
       }

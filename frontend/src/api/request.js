@@ -143,6 +143,49 @@ export function postAPI(params, ...rest) {
     }
 };
 
+export function generalAPI(params, ...rest) {
+    switch (params) {
+        case 'certTemplateDownload':
+            return request(`/download/${rest[0]}`, "download");
+        case 'certTemplateList':
+            return request('/list', "get");
+        case 'emailTemplateUpdate':
+            return request(`/email/update/${rest[0]}`, "patch", rest[1]);
+        case 'emailTemplateList':
+            return request('/email/list', "get");
+        case 'emailTemplateGet':
+            return request(`/email/${rest[0]}`, "get");
+    }
+}
+
+export function examProfileAPI(params, ...rest) {
+    switch (params) {
+        case 'examProfileGet':
+            return request(`/examProfile/${rest[0]}`, "get");
+        case 'examProfileSummaryGet':
+            return request(`/examProfile/getSummary/${rest[0]}`, "get");
+        case 'examProfileCreate':
+            return request('/examProfile/create', "post", rest[0]);
+        case 'examProfileUpdate':
+            return request(`/examProfile/update/${rest[0]}`, "patch", rest[1]);
+        case 'examProfileList':
+            return request('/examProfile/list', "get");
+        case 'examProfileRemove':
+            return request(`/examProfile/delete/${rest[0]}`, "delete");
+        case 'examProfileFreeze':
+            return request(`/examProfile/freeze/${rest[0]}`, "patch");
+        case 'examProfileUnfreeze':
+            return request(`/examProfile/unfreeze/${rest[0]}`, "patch");
+        case 'examProfileReset':
+            return request(`/examProfile/reset/${rest[0]}`, "get");
+        case 'examProfileDropdown':
+            return request(`/examProfile/dropDown`, "get");
+        case 'certList':
+            return request(`/cert/search/${rest[0]}`, "post", rest[1]);
+
+    }
+}
+
 export function userRoleAPI(params, ...rest) {
     switch (params) {
         case 'userGet':

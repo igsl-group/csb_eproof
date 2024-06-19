@@ -17,7 +17,8 @@ import {
   Flex,
   Modal,
   Pagination,
-  Tag
+  Tag,
+  Table
 } from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
@@ -34,9 +35,11 @@ import RoleModal from "./modal";
 import { userRoleAPI } from '@/api/request';
 import {TYPE } from '@/config/enum';
 import {useMessage} from "../../context/message-provider";
+import {useModal} from "../../context/modal-provider";
 
 const RoleList = () =>  {
 
+  const modalApi = useModal();
   const messageApi = useMessage();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -116,14 +119,14 @@ const RoleList = () =>  {
       title: `Name`,
       key: "name",
       dataIndex: "name",
-      width: 180,
+      width: 250,
       sorter: true,
     },
     {
       title: `Description`,
       key: "description",
       dataIndex: "description",
-      width: 180,
+      width: 250,
       sorter: true,
     },
     {
@@ -131,11 +134,11 @@ const RoleList = () =>  {
       key: "permission",
       sorter: true,
       render: (row) => (
-        <div>
+        <Space size={[0, 8]} wrap>
           {
             row.permissions?.map((values) => <Tag>{values.description}</Tag>)
           }
-        </div>
+        </Space>
       )
     },
   ], []);
@@ -183,7 +186,8 @@ const RoleList = () =>  {
 
     },
     onError: (error) => {
-      //Message.error('');
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
     },
     onFinally: (params, result, error) => {
     },
@@ -223,7 +227,7 @@ const RoleList = () =>  {
         className={'card-body-nopadding'}
         title={''}
       >
-        <ResizeableTable
+        <Table
           size={'big'}
           onChange={tableOnChange}
           pagination={false}

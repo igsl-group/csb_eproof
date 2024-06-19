@@ -5,12 +5,12 @@ import { API_ERROR_MESSAGE, LOGIN_ERROR_MESSAGE } from "../utils/util";
 import { showLoading, hideLoading } from "@/components/Loading";
 
 let baseURL = `/api/v1`;
-const token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
+let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
 const headers = {};
-
+window.token = token;
 if (process.env.NODE_ENV === 'development') {
-  // baseURL = 'http://192.168.2.227:8080/api/v1';
   baseURL = 'http://192.168.2.227:8081/api/v1';
+  // baseURL = 'http://192.168.26.153:8080/api/v1';
   headers.Authorization = `Bearer ${token}`;
 }
 
@@ -20,7 +20,6 @@ const signRequest = axios.create({
   headers: {
     "Content-Type": "multipart/form-data",
     ...headers,
-
   }
 });
 
@@ -38,9 +37,9 @@ const normalRequest = axios.create({
 normalRequest.interceptors.request.use(
   config => {
     // do something before request is sent
-    // if (getToken() != null) {
-    //   config.headers['Authorization'] = getToken()
-    // }
+    if (process.env.NODE_ENV === 'development') {
+      headers.Authorization = `Bearer ${localStorage.getItem('eproof-token')}`;
+    }
     return config;
   },
   error => {
@@ -63,21 +62,6 @@ normalRequest.interceptors.response.use(
     if (error.response.status === 403 && (error.response.request.responseURL.includes("/token"))) {
       // window.location.href = "/Unauthorized";
     }
-
-    // else if (error.response.status === 403 && (error.response.request.responseURL.includes("authenticate"))) {
-    //   // Message.warning(LOGIN_ERROR_MESSAGE);
-    //   if (error.response.data.properties.code && error.response.data.properties.code === "password.expire.exception") {
-    //     window.location.href = "/SOM/ChangePassword"
-    //   }
-    // } else if (error.response.status === 400 && error.response.data.properties) {
-    //   if (["jwt.token.invalid.exception", "jwt.token.replaced.exception"].includes(error.response.data.properties.code)) {
-    //     window.location.href = `/SOM`;
-    //   } else {
-    //     // Message.warning(error.response.data.properties.message);
-    //   }
-    // } else {
-    //   // Message.warning(API_ERROR_MESSAGE);
-    // }
     return Promise.reject(error.response);
   }
 );
@@ -115,23 +99,6 @@ fileRequest.interceptors.response.use(
     return response;
   },
   error => {
-
-    if (error.response.status === 403 && !(error.response.request.responseURL.includes("authenticate"))) {
-      // window.location.href = "/login";
-    } else if (error.response.status === 403 && (error.response.request.responseURL.includes("authenticate"))) {
-      // Message.warning(LOGIN_ERROR_MESSAGE);
-      if (error.response.data.properties.code && error.response.data.properties.code === "password.expire.exception") {
-        window.location.href = "/SOM/ChangePassword"
-      }
-    } else if (error.response.status === 400 && error.response.data.properties) {
-      if (["jwt.token.invalid.exception", "jwt.token.replaced.exception"].includes(error.response.data.properties.code)) {
-        window.location.href = `/SOM`;
-      } else {
-        // Message.warning(error.response.data.properties.message);
-      }
-    } else {
-      // Message.warning(API_ERROR_MESSAGE);
-    }
     return Promise.reject(error.response);
   }
 );
@@ -185,7 +152,7 @@ export default function sendRes (url, method, data) {
           data: {},
           headers: data || {},
         })
-          .then(res => resolve(res))
+          .then(res => resolve(res.data))
           .catch(err => reject(err))
           .finally(() => hideLoading());
       });

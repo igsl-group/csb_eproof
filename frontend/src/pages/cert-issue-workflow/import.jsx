@@ -25,18 +25,21 @@ import { useMessage } from "../../context/message-provider";
 import OnholdModal from "./onhold-modal";
 import CSVFileValidator from 'csv-file-validator';
 import ImportModal from "./import-modal";
+import { examProfileAPI } from '@/api/request';
 
 const Import = () =>  {
+
   const navigate = useNavigate();
   const modalApi = useModal();
   const messageApi = useMessage();
   const [form] = Form.useForm();
+  const [serialNoForm] = Form.useForm();
+  const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [file, setFile] = useState(null);
+  const [serialNoOptions, setSerialNoOptions] = useState([]);
   const [openImportModal, setImportModal] = useState(false);
-  const {
-    serialNo,
-  } = useParams();
   const [open, setOpen] = useState(false)
+  const [summary, setSummary] = useState({});
 
   const [data, setData] = useState([
     {
@@ -199,14 +202,14 @@ const Import = () =>  {
   }, [pagination]);
 
 
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
+  // useEffect(() => {
+  //   form.setFieldsValue({
+  //     serialNo: 'N000000001',
+  //     examDate: dayjs('2024-01-11'),
+  //     plannedAnnouncedDate: dayjs('2024-01-11'),
+  //     location: 'Hong Kong',
+  //   })
+  // }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -228,44 +231,133 @@ const Import = () =>  {
     });
   },[]);
 
+
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'examProfileList':
+
+          break;
+        case 'examProfileGet':
+        {
+
+          break;
+        }
+        case 'examProfileSummaryGet':
+        {
+          const data = response.data || {};
+          setSummary(data);
+          break;
+        }
+        case 'examProfileDropdown':
+        {
+          const data = response.data || [];
+          const options = data.flatMap((row) => ({
+            value: row.serialNo,
+            label: row.serialNo,
+          }))
+          setSerialNoOptions(options);
+          if (options.length > 0) {
+            serialNoForm.setFieldValue('serialNo', options[0].value);
+          }
+          break;
+        }
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  const getExamProfileSummary = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
+  }, []);
+
+  const getCertList = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('certList', 'IMPORTED', {
+      examProfileSerialNo: serialNoValue
+    });
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (serialNoValue) {
+        await getExamProfileSummary(serialNoValue);
+        await getCertList(serialNoValue);
+      }
+    })()
+  }, [serialNoValue]);
+
+  useEffect(() => {
+    runExamProfileAPI('examProfileDropdown');
+  }, []);
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Import Result (CSV)</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <Row justify={'space-between'}>
-        <Col>
-          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
-        </Col>
-        <Col>
-          <Row gutter={[16, 16]}>
-            <Col>
-              <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
-            </Col>
-            <Col>
+      <Form
+        layout="horizontal"
+        autoComplete="off"
+        form={serialNoForm}
+        colon={true}
+        scrollToFirstError={{
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center',
+        }}
+        name="serialNoForm"
+      >
+        <Row justify={'space-between'}>
+          <Col>
+            <Dropdown
+              name={"serialNo"}
+              label={'Serial No.'}
+              size={20}
+              options={serialNoOptions}
+              allowClear={false}
+              onChange={(values) => console.log(values)}
+            />
+          </Col>
+          <Col>
+            <Row gutter={[16, 16]}>
+              <Col>
+                <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
+              </Col>
+              <Col>
 
-              <Upload
-                accept={'text/csv'}
-                multiple={false}
-                maxCount={1}
-                showUploadList={false}
-                beforeUpload={async (file) => {
-                  if (file.type !== 'text/csv') {
-                    messageApi.error(`${file.name} is not a csv file`);
-                  } else {
-                    setImportModal(true);
-                    setFile(file);
-                  }
-                  return false;
-                }}
-              >
-                <Button type="primary" onClick={() => {
-                }}>Import Result (CSV)</Button>
-              </Upload>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+                <Upload
+                  accept={'text/csv'}
+                  multiple={false}
+                  maxCount={1}
+                  showUploadList={false}
+                  beforeUpload={async (file) => {
+                    if (file.type !== 'text/csv') {
+                      messageApi.error(`${file.name} is not a csv file`);
+                    } else {
+                      setImportModal(true);
+                      setFile(file);
+                    }
+                    return false;
+                  }}
+                >
+                  <Button type="primary" onClick={() => {
+                  }}>Import Result (CSV)</Button>
+                </Upload>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Form>
+
       <br/>
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
@@ -318,22 +410,23 @@ const Import = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: 30000,
+              children: summary.imported,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: '0 out of 0 failed',
+              children: `${summary.generatePdfTotal} out of ${summary.generatePdfFailed} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: '0 out of 0 failed',
+              children: `${summary.issuedPdfTotal} out of ${summary.issuedPdfFailed} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: '0 out of 0 failed',
+              children: `${summary.sendEmailTotal} out of ${summary.sendEmailFailed} failed`,
+
             }
           ]}
         />

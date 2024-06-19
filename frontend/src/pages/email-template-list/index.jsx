@@ -21,6 +21,10 @@ import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import EmailModal from "./modal";
+import {download} from "../../utils/util";
+import { generalAPI } from '@/api/request';
+import {TYPE } from '@/config/enum';
+import parse, { attributesToProps } from 'html-react-parser';
 
 const EmailTemplateList = () =>  {
 
@@ -29,19 +33,22 @@ const EmailTemplateList = () =>  {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
+  const [type, setType] = useState('');
+  const [recordId, setRecordId] = useState('');
   const {
     serialNo,
   } = useParams();
 
-  const [data, setData] = useState([
-    {
-      type: 'Notify Normal Email',
-      description: 'Notify Normal Email',
-      cc: '',
-      bcc: '',
-      subject: 'Notify Normal Email',
-    }
-  ]);
+  // const [data, setData] = useState([
+  //   {
+  //     type: 'Notify Normal Email',
+  //     description: 'Notify Normal Email',
+  //     cc: '',
+  //     bcc: '',
+  //     subject: 'Notify Normal Email',
+  //   }
+  // ]);
 
 
 
@@ -60,6 +67,34 @@ const EmailTemplateList = () =>  {
     sortBy: defaultPaginationInfo.sortBy,
     orderBy: defaultPaginationInfo.orderBy,
   });
+
+  // const onDeleteClickCallback = useCallback((id) => {
+  //   // runUserRoleAPI('userRemove', id);
+  //   // runUserRoleAPI('userGet', recordId)
+  //
+  // }, []);
+
+  const onEditClickCallback = useCallback((id) => {
+    setRecordId(id);
+    setOpen(true);
+    setType(TYPE.EDIT);
+    // runUserRoleAPI('userGet', recordId)
+
+  }, []);
+
+  // const onCreateClickCallback = useCallback(() => {
+  //   setOpen(true);
+  //   setType(TYPE.CREATE);
+  // }, []);
+
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);
+    getEmailTemplateList();
+  }, []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -128,7 +163,7 @@ const EmailTemplateList = () =>  {
       width: 80,
       render: (row) => (
         <Space>
-          <Button size={'small'} title={'Edit'} onClick={() => setOpen(true)} icon={<EditOutlined />}/>
+          <Button size={'small'} title={'Edit'} onClick={() => onEditClickCallback(row.id)} icon={<EditOutlined />}/>
           {/*<Button size={'small'} title={'Remove'} icon={<DeleteOutlined />}/>*/}
         </Space>
       )
@@ -141,34 +176,73 @@ const EmailTemplateList = () =>  {
       sorter: true,
     },
     {
-      title: 'Description',
-      key: 'description',
-      dataIndex: 'description',
+      title: 'Key',
+      key: 'emailKey',
+      dataIndex: 'emailKey',
       width: 140,
       sorter: true,
     },
     {
-      title: 'Cc',
-      key: 'cc',
-      dataIndex: 'cc',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Bcc',
-      key: 'bcc',
-      dataIndex: 'bcc',
-      width: 100,
-      sorter: true,
+      title: 'Include Email Address',
+      key: 'includeEmails',
+      dataIndex: 'includeEmails',
+      width: 200,
+      render: (value) => (
+        <div>
+          {
+            value.split(',').map((row, index) => <div key={index}>{row}</div>)
+          }
+        </div>
+      )
+      // sorter: true,
     },
     {
       title: 'Subject',
       key: 'subject',
       dataIndex: 'subject',
-      width: 100,
+      width: 200,
+      sorter: true,
+    },
+    {
+      title: 'Body',
+      key: 'body',
+      dataIndex: 'body',
+      // width: 200,
+      render: (value) => parse(value),
       sorter: true,
     },
   ], []);
+
+  const { runAsync: runGeneralAPI } = useRequest(generalAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'emailTemplateList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setData(content);
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getEmailTemplateList();
+  }, []);
+
+  const getEmailTemplateList = () => {
+    runGeneralAPI('emailTemplateList');
+  }
+
   return (
     <div className={styles['email-template']}>
       <Typography.Title level={3}>Template Management - Email</Typography.Title>
@@ -220,9 +294,11 @@ const EmailTemplateList = () =>  {
         <br/>
       </Card>
       <EmailModal
+        type={type}
+        recordId={recordId}
         open={open}
-        onCloseCallback={() => setOpen(false)}
-        onFinishCallback={() => setOpen(false)}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
     </div>
 

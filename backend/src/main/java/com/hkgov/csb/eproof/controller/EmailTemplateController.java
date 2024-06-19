@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.controller;
 
 import com.hkgov.csb.eproof.dto.EmailTemplateDto;
+import com.hkgov.csb.eproof.dto.EmailTemplateUpdateDto;
 import com.hkgov.csb.eproof.mapper.EmailTemplateMapper;
 import com.hkgov.csb.eproof.service.EmailTemplateService;
 import com.hkgov.csb.eproof.util.Result;
@@ -35,9 +36,9 @@ public class EmailTemplateController {
         return Result.success(emailTemplateService.list(pageable,keyword).map(EmailTemplateMapper.INSTANCE::sourceToDestination));
     }
 
-    @PatchMapping("/update")
-    public Result update(@RequestBody EmailTemplateDto requestDto){
-        emailTemplateService.update(requestDto);
+    @PatchMapping("/update/{emailId}")
+    public Result update(@PathVariable Long emailId,@RequestBody EmailTemplateUpdateDto requestDto){
+        emailTemplateService.update(emailId,requestDto);
         return Result.success();
     }
 }

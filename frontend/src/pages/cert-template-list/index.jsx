@@ -17,6 +17,8 @@ import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import EmailModal from "./modal";
+import {download } from "../../utils/util";
+import { generalAPI } from '@/api/request';
 
 const CertTemplateList = () =>  {
 
@@ -25,21 +27,22 @@ const CertTemplateList = () =>  {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
   const {
     serialNo,
   } = useParams();
 
-  const [data, setData] = useState([
-    {
-      type: 'Pass Cert. Template',
-      description: 'Issue the certificate when at least one subject is passed.',
-    },
-    {
-      type: 'Fail Cert. Template',
-      description: 'Issue the certificate when all subjects have failed.',
-    }
-  ]);
-
+  // const [data, setData] = useState([
+  //   {
+  //     type: 'Pass Cert. Template',
+  //     description: 'Issue the certificate when at least one subject is passed.',
+  //   },
+  //   {
+  //     type: 'Fail Cert. Template',
+  //     description: 'Issue the certificate when all subjects have failed.',
+  //   }
+  // ]);
+  //
 
 
   const defaultPaginationInfo = useMemo(() => ({
@@ -125,16 +128,16 @@ const CertTemplateList = () =>  {
       width: 80,
       render: (row) => (
         <Space>
-          <Button size={'small'} title={'Download'} onClick={() => setOpen(true)} icon={<DownloadOutlined />}/>
+          <Button size={'small'} title={'Download'} onClick={() => runGeneralAPI('certTemplateDownload', row.id)} icon={<DownloadOutlined />}/>
           {/*<Button size={'small'} title={'Remove'} icon={<DeleteOutlined />}/>*/}
         </Space>
       )
     },
     {
-      title: 'Type',
-      key: 'type',
-      dataIndex: 'type',
-      width: 140,
+      title: 'Key',
+      key: 'name',
+      dataIndex: 'name',
+      width: 260,
       sorter: true,
     },
     {
@@ -145,6 +148,40 @@ const CertTemplateList = () =>  {
       sorter: true,
     },
   ], []);
+
+  const { runAsync: runGeneralAPI } = useRequest(generalAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'certTemplateList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setData(content);
+          break;
+        case 'certTemplateDownload':
+          download(response);
+          messageApi.success('Download successfully.');
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      //Message.error('');
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getCertTemplateList();
+  }, []);
+
+  const getCertTemplateList = () => {
+    runGeneralAPI('certTemplateList');
+  }
+
   return (
     <div className={styles['cert-template']}>
       <Typography.Title level={3}>Template Management - Certificate</Typography.Title>
@@ -195,11 +232,11 @@ const CertTemplateList = () =>  {
         </Row>
         <br/>
       </Card>
-      <EmailModal
-        open={open}
-        onCloseCallback={() => setOpen(false)}
-        onFinishCallback={() => setOpen(false)}
-      />
+      {/*<EmailModal*/}
+      {/*  open={open}*/}
+      {/*  onCloseCallback={() => setOpen(false)}*/}
+      {/*  onFinishCallback={() => setOpen(false)}*/}
+      {/*/>*/}
     </div>
 
   )

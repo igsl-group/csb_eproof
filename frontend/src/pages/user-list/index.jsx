@@ -14,9 +14,11 @@ import UserModal from "./modal";
 import { userRoleAPI } from '@/api/request';
 import {TYPE } from '@/config/enum';
 import {useMessage} from "../../context/message-provider";
+import {useModal} from "../../context/modal-provider";
 
 const UserList = () =>  {
 
+  const modalApi = useModal();
   const messageApi = useMessage();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -94,9 +96,9 @@ const UserList = () =>  {
     },
     {
       title: `DP User Id`,
-      key: "uid",
-      dataIndex: "uid",
-      width: 120,
+      key: "dpUserId",
+      dataIndex: "dpUserId",
+      width: 150,
       sorter: true,
     },
     {
@@ -110,6 +112,13 @@ const UserList = () =>  {
       title: `Post`,
       key: "post",
       dataIndex: "post",
+      width: 150,
+      sorter: true,
+    },
+    {
+      title: `Email`,
+      key: "email",
+      dataIndex: "email",
       width: 200,
       sorter: true,
     },
@@ -117,7 +126,7 @@ const UserList = () =>  {
       title: `Role`,
       key: "roles",
       dataIndex: "roles",
-      width: 350,
+      // width: 350,
       render: (roles) => (
         <div>
           {
@@ -130,20 +139,10 @@ const UserList = () =>  {
       title: `Status`,
       key: "status",
       dataIndex: "status",
-      width: 200,
+      width: 150,
       sorter: true,
     },
   ], []);
-
-  // const data = [
-  //   // {
-  //   //   uid: 'wilfred.lai',
-  //   //   name: 'Wilfred Lai',
-  //   //   post: 'System Analyst',
-  //   //   status: 'Active',
-  //   //   role: ['Administrator', 'System Operator'],
-  //   // },
-  // ];
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -188,7 +187,8 @@ const UserList = () =>  {
 
     },
     onError: (error) => {
-      //Message.error('');
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
     },
     onFinally: (params, result, error) => {
     },
@@ -228,7 +228,7 @@ const UserList = () =>  {
         className={'card-body-nopadding'}
         title={''}
       >
-        <ResizeableTable
+        <Table
           size={'big'}
           onChange={tableOnChange}
           pagination={false}

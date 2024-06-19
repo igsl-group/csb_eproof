@@ -47,9 +47,10 @@ const Login = () =>  {
     serialNo,
   } = useParams();
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log('Success:', values);
-    auth.loginAction(values);
+    await auth.loginAction(values);
+    navigate('/ExamProfile');
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
