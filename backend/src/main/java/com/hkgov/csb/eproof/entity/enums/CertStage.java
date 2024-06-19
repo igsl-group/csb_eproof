@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum CertStage {
     IMPORTED("IMPORTED", "Imported"),
-    GENERATED("REJECTED", "Reject"),
+    GENERATED("GENERATED", "Generated"),
     SIGN_ISSUE("SIGN_ISSUE", "Sign and issue"),
     NOTIFY("NOTIFY", "Notify"),
     COMPLETED("COMPLETED", "Completed"),
