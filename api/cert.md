@@ -270,6 +270,10 @@ type path_variable = {
   examProfileSerialNo: string
 }
 
+type request_body = {
+  scheduledNotfiyDate: date
+}
+
 // 200
 type response = {
   success: true,
