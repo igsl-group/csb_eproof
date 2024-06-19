@@ -109,6 +109,11 @@ logging:
     name: backend.log
     max-age: 1d
   level:
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: TRACE
     root: INFO
   logback:
     rollingpolicy:

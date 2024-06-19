@@ -21,5 +21,7 @@ public interface ExamProfileMapper {
 
     void updateFromDto(ExamProfileDto dto, @MappingTarget ExamProfile user);
 
-    List<ExamProfileDto> sourceToDestinationList (List<ExamProfile> source);
+    List<ExamProfileDto> sourceToDestinationList(List<ExamProfile> source);
+
+    ExamProfile toEntity(ExamProfileDto examProfileDto);
 }

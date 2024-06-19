@@ -83,7 +83,8 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     public Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
-        return certInfoRepository.caseSearch(request,certStageList,certStatusList,pageable);
+
+        return certInfoRepository.certSearch(request,certStageList,certStatusList,pageable);
     }
 
     @Override

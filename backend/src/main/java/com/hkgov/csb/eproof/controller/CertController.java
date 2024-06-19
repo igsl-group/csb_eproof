@@ -6,7 +6,9 @@ import com.hkgov.csb.eproof.constants.enums.Permissions;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
+import com.hkgov.csb.eproof.mapper.CertInfoMapper;
 import com.hkgov.csb.eproof.service.CertInfoRenewService;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.PermissionService;
@@ -14,14 +16,12 @@ import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +31,7 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -42,6 +43,7 @@ public class CertController {
     private final PermissionService permissionService;
     private final CertInfoRenewService certInfoRenewService;
 
+
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
     public Result searchCert(@RequestBody CertSearchDto request,
@@ -50,11 +52,11 @@ public class CertController {
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "20") int size,
                              @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
-                             @RequestParam(defaultValue = "serialNo") String... sortField) throws AccessDeniedException {
+                             @RequestParam(defaultValue = "id") String... sortField) throws AccessDeniedException {
 
         String requiredPermission = "";
-        List<String> certStageList = null;
-//        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
+        List<String> certStageList = List.of(CertStage.IMPORTED.name(),CertStage.GENERATED.name(),CertStage.SIGN_ISSUE.name(),CertStage.NOTIFY.name(),CertStage.COMPLETED.name(),CertStage.VOIDED.name());
+        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
         switch (searchType) {
             case "IMPORTED" -> {
                 requiredPermission = Permissions.CERT_SEARCH_IMPORT.name();
@@ -95,9 +97,13 @@ public class CertController {
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
 
         // set certStatusList to null to show all cert regardless what status
-        Page<CertInfo> searchResult = certInfoService.search(request,certStageList,null ,pageable);
+        Page<CertInfo> searchResult = certInfoService.search(request,certStageList,certStatusList ,pageable);
 
-        return Result.success(searchResult);
+        List<CertInfoDto> resultList = CertInfoMapper.INSTANCE.toDtoList(searchResult.getContent());
+
+        Page<CertInfoDto> returnResult = new PageImpl<>(resultList, pageable, searchResult.getTotalElements());
+
+        return Result.success(returnResult);
     }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/batch/import/{examProfileSerialNo}")
     @Transactional(rollbackFor = Exception.class)
@@ -147,6 +153,7 @@ public class CertController {
     }
 
 
+    @PreAuthorize("hasRole('Permissions.CERT_SEARCH_INVALID')")
     @PostMapping("/downloadCert")
     @Operation(summary = "Download cert with provided cert ID list.")
     public ResponseEntity downloadPdf(@RequestParam List<Long> certInfoIdList) throws IOException {

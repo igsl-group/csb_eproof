@@ -4,6 +4,7 @@ import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,32 +21,30 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     List<CertInfo> getCertByExamSerialAndStageAndStatus(String serialNo,
                                                         CertStage stage,
                                                         List<CertStatus> statusList);
-    @Query("""
-        SELECT c FROM CertInfo c WHERE
+    @Query(nativeQuery = true,value = """
+        SELECT * FROM cert_info c WHERE
         (
-            (:caseStageList != null AND c.certStage IN :caseStageList) AND
-            (:caseStatusList != null AND c.certStatus IN :caseStatusList)
+            (c.cert_stage IN :certStageList) AND
+            (c.status IN :certStatusList)
         )
         AND
         (
-            ( ?#{#searchDto.certValid} != null AND c.valid = ?#{#searchDto.certValid} ) OR
-            ( ?#{#searchDto.hkid} != null AND c.hkid like %?#{#searchDto.hkid}% ) OR
-            ( ?#{#searchDto.passportNo} != null AND c.passportNo like %?#{#searchDto.passportNo}% ) OR
-            ( ?#{#searchDto.canName} != null AND c.name like %?#{#searchDto.canName}% ) OR
-            ( ?#{#searchDto.canCName} != null AND c.cname like %?#{#searchDto.canCName}% ) OR
-            ( ?#{#searchDto.canEmail} != null AND c.email like %?#{#searchDto.canEmail}% ) OR
-            ( ?#{#searchDto.examProfileSerialNo} != null AND c.examProfile.serialNo like %?#{#searchDto.examProfileSerialNo}% ) OR
-            
-            ( ?#{#searchDto.blnstGrade} != null AND c.blnstGrade like %?#{#searchDto.blnstGrade}% ) OR
-            ( ?#{#searchDto.ueGrade} != null AND c.ueGrade like %?#{#searchDto.ueGrade}% ) OR
-            ( ?#{#searchDto.ucGrade} != null AND c.ucGrade like %?#{#searchDto.ucGrade}% ) OR
-            ( ?#{#searchDto.atGrade} != null AND c.atGrade like %?#{#searchDto.atGrade}% ) OR
-            ( ?#{#searchDto.certValid} != null AND c.valid like %?#{#searchDto.certValid}% )
+            ( ?#{#searchDto.hkid} IS NOT null AND c.hkid like %?#{#searchDto.hkid}% ) OR
+            ( ?#{#searchDto.passportNo} IS NOT null AND c.passport_no like %?#{#searchDto.passportNo}% ) OR
+            ( ?#{#searchDto.canName} IS NOT null AND c.name like %?#{#searchDto.canName}% ) OR
+            ( ?#{#searchDto.canCName} IS NOT null AND c.cname like %?#{#searchDto.canCName}% ) OR
+            ( ?#{#searchDto.canEmail} IS NOT null AND c.email like %?#{#searchDto.canEmail}% ) OR
+            ( ?#{#searchDto.examProfileSerialNo} IS NOT null AND c.exam_profile_serial like %?#{#searchDto.examProfileSerialNo}% ) OR
+            ( ?#{#searchDto.blnstGrade} IS NOT null AND c.blnst_grade like %?#{#searchDto.blnstGrade}% ) OR
+            ( ?#{#searchDto.ueGrade} IS NOT null AND c.ue_grade like %?#{#searchDto.ueGrade}% ) OR
+            ( ?#{#searchDto.ucGrade} IS NOT null AND c.uc_grade like %?#{#searchDto.ucGrade}% ) OR
+            ( ?#{#searchDto.atGrade} IS NOT null AND c.at_grade like %?#{#searchDto.atGrade}% ) OR
+            ( ?#{#searchDto.certValid} IS NOT null AND c.is_valid = ?#{#searchDto.certValid} )
         )
 """)
-    Page<CertInfo> caseSearch(@Param("searchDto") CertSearchDto searchDto,
-                              @Param("caseStageList") List<String> certStageList,
-                              @Param("caseStatusList") List<String> certStatusList,
+    Page<CertInfo> certSearch(@Param("searchDto") CertSearchDto searchDto,
+                              @Param("certStageList") @NotNull List<String> certStageList,
+                              @Param("certStatusList") @NotNull List<String> certStatusList,
                               Pageable pageable);
 
     @Query("SELECT c FROM CertInfo c WHERE c.id in :certInfoIdList")
