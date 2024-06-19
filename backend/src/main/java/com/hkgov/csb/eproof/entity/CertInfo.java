@@ -40,7 +40,7 @@ public class CertInfo extends BaseEntity{
     @Column(name = "hkid")
     private String hkid;
 
-    @Column(name = "passportNo")
+    @Column(name = "passport_no")
     private String passportNo;
 
     @Column(name = "email")
