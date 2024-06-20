@@ -25,6 +25,8 @@ public enum ExceptionEnums {
     DOCUMENT_MERGE_ERROR("document.merge.error","Encountered error when merging document."),
     CRET_INFO_VOIDED("cret.info.voided","Certificate is not valid."),
     CRET_NOT_EXIST("cert.not.exist","Certificate does not exist."),
+
+    EXAM_PROFILE_NOT_EXIST("exam.profile.not.exist","Exam profile does not exist."),
     ;
 
 

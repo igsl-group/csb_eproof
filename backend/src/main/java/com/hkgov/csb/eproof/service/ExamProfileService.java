@@ -16,6 +16,8 @@ public interface ExamProfileService {
 
     Boolean freeze(String examProfileSerialNo);
 
+    Boolean unfreeze(String examProfileSerialNo);
+
     Boolean update(String id, ExamProfileUpdateDto requestDto);
 
     ExamProfile getexamProfileInfo(String examProfileSerialNo);

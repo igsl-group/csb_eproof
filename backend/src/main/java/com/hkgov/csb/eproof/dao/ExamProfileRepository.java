@@ -19,6 +19,10 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     @Query("update ExamProfile set isFreezed = true where serialNo = :serialNo")
     Integer updateIsFreezed(@Param("serialNo") String serialNo);
 
+    @Modifying
+    @Query("update ExamProfile set isFreezed = false where serialNo = :serialNo")
+    Integer updateUnFreezed(@Param("serialNo") String serialNo);
+
     @Query("select u from ExamProfile u where:keyword is null or (u.location like %:keyword%)")
     Page<ExamProfile> findPage(Pageable pageable, @Param("keyword") String keyWord);
 

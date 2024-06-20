@@ -34,6 +34,11 @@ public class ExamProfileController {
         return Result.success(examProfileService.freeze(id));
     }
 
+    @PatchMapping("/unfreeze/{id}")
+    public Result<Boolean> unfreeze(@PathVariable String id){
+        return Result.success(examProfileService.unfreeze(id));
+    }
+
     @PatchMapping("/update/{id}")
     public Result<Boolean> update(@PathVariable String id,@RequestBody ExamProfileUpdateDto requestDto){
         return Result.success(examProfileService.update(id,requestDto));

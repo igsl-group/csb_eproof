@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.hkgov.csb.eproof.constants.Constants;
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
@@ -46,8 +47,22 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public Boolean freeze(String examProfileSerialNo) {
+        ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).orElse(null);
+        if(Objects.isNull(examProfile)){
+            throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
+        }
         return examProfileRepository.updateIsFreezed(examProfileSerialNo) > 0;
     }
+
+    @Override
+    public Boolean unfreeze(String examProfileSerialNo) {
+        ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).orElse(null);
+        if(Objects.isNull(examProfile)){
+            throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
+        }
+        return examProfileRepository.updateUnFreezed(examProfileSerialNo) > 0;
+    }
+
     @Override
     public Boolean update(String id, ExamProfileUpdateDto request) {
         return examProfileRepository.updateInfo(id,request.getExamDate(),
