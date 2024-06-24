@@ -101,6 +101,9 @@ public class CertInfoServiceImpl implements CertInfoService {
             throw new ServiceException(ResultCode.STAGE_ERROR);
         }
         List<CertInfo> list = certInfoRepository.getinfoByNoAndStatus(examProfileSerialNo,currentStage);
+        if(list.isEmpty()){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
         for(CertInfo certInfo : list){
             switch (certInfo.getCertStage()) {
                 case IMPORTED -> {

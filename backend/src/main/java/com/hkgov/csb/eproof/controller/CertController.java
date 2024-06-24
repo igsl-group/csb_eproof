@@ -31,7 +31,6 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -112,9 +111,9 @@ public class CertController {
         List<CertImportDto> csvData = csvUtil.getCsvData(file, CertImportDto.class);
         return Result.success(certInfoService.batchImport(examProfileSerialNo,examDate,csvData));
     }
-    @GetMapping("/batch/dispatch")
+    @PostMapping("/batch/dispatch/{examProfileSerialNo}")
     @Transactional(rollbackFor = Exception.class)
-    public Result<Boolean> dispatch(@RequestParam String examProfileSerialNo, @RequestParam CertStage currentStage){
+    public Result<Boolean> dispatch(@PathVariable String examProfileSerialNo, @RequestParam CertStage currentStage){
         return Result.success(certInfoService.dispatch(examProfileSerialNo,currentStage));
     }
 
