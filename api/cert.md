@@ -282,3 +282,57 @@ type response = {
 }
 ```
 
+## [Post] /cert/hold/:certInfoId
+### Set on_hold = true
+> Steps:
+> 1. Check Cert_Info table, if cert_stage = Imported or Generated or Sign_Issue. Otherwise, not allows to change on_hold status
+
+```typescript
+
+type request_body = {
+  remark: string
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
+
+## [Post] /cert/resume/:certInfoId
+### Set on_hold = false
+> Steps:
+> 1. Check Cert_Info table, if cert_stage = Imported or Generated or Sign_Issue. Otherwise, not allows to change on_hold status
+
+```typescript
+
+type request_body = {
+  remark: string
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
+
+## [Delete] /cert/delete/:certInfoId
+### Delete an cert info
+
+```typescript
+
+type request_body = {
+  
+}
+
+// 200
+type response = {
+  success: true,
+  code: 200,
+  message: string,
+}
+```
