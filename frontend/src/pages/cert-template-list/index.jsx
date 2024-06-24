@@ -129,7 +129,6 @@ const CertTemplateList = () =>  {
       render: (row) => (
         <Space>
           <Button size={'small'} title={'Download'} onClick={() => runGeneralAPI('certTemplateDownload', row.id)} icon={<DownloadOutlined />}/>
-          {/*<Button size={'small'} title={'Remove'} icon={<DeleteOutlined />}/>*/}
         </Space>
       )
     },

@@ -10,6 +10,7 @@ const headers = {};
 window.token = token;
 if (process.env.NODE_ENV === 'development') {
   baseURL = 'http://192.168.2.227:8081/api/v1';
+  // baseURL = 'http://192.168.26.130:8080/api/v1';
   // baseURL = 'http://192.168.26.153:8080/api/v1';
   headers.Authorization = `Bearer ${token}`;
 }
@@ -185,7 +186,7 @@ export default function sendRes (url, method, data) {
       return new Promise((resolve, reject) => {
         downloadRequest.request({
           url,
-          method: "get",
+          method: "post",
           responseType: "blob",
           data: data || {},
         })

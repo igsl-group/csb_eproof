@@ -70,6 +70,10 @@
       "colorText": "rgb(56, 56, 56)",
       "cellPaddingBlock": 10
     },
+    "Layout": {
+      "triggerBg": "#fbfbfb",
+      "triggerColor": "#152B47"
+    },
     "Button": {
       "paddingInline": 30,
       "defaultShadow": "rgba(0, 0, 0, 0)",

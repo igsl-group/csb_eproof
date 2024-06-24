@@ -1,0 +1,140 @@
+#Database config
+spring:
+  datasource:
+    #    url: jdbc:mariadb://192.168.2.227:3306/eproof
+    url: jdbc:mariadb://localhost:3306/eproof
+    username: root
+    password: CSB@ss2023
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MariaDBDialect
+  sql:
+    init:
+      mode: never
+      data-locations:
+        - classpath:data_local.sql
+  messages:
+    basename: i18n/messages
+  mail:
+    host: mail.igsl-group.com
+    port: 465
+    username: hong.cheung@igsl-group.com
+    password: HongIgs@P@ssw0rd
+    from: cepf@test.com
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+            required: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    db:
+      enabled: false
+    mail:
+      enabled: false
+
+application:
+  jwt:
+    secretKey: SldUX1NlY3JldEtleV8xMjM0NV9FUHJvb2ZAQ1NCX0lHU19FbmNyeXB0Snd0QDEyMzQ1Ng==
+    tokenPrefix: "Bearer "
+    authorizationHeader: "Authorization"
+    expirationSeconds: 7200
+
+password:
+  tokenExpirationAfterDays: 1
+
+server:
+  url: http://localhost:8080
+  servlet:
+    context-path: /api/v1
+security:
+  #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
+  whitelist: /api-docs/**,/sso,/test/**
+
+filter:
+  config:
+    urlPatterns: /api/*, /actuator/*
+
+
+audit:
+  trail:
+    manager:
+      include: DBAuditTrailManager, Slf4jLoggingAuditTrailManager
+
+
+login:
+  allowMultipleLogin: true
+  max:
+    attempts: 3
+
+
+#swagger config
+springdoc:
+  api-docs:
+    path: /api-docs/json
+  swagger-ui:
+    path: /api-docs/swagger
+    display-request-duration: true
+
+#logging config
+logging:
+  file:
+    path: logs/backend/
+    name: backend.log
+    max-age: 1d
+  level:
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: TRACE
+    root: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+
+
+document:
+  #   Path for the temporary document to be generated.
+  #   The generated document will be deleted immediately after generation
+  #   Used for libre office conversion
+  generate-temp-path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
+  libreoffice-program-path: C:\Program Files\LibreOffice\program
+
+minio:
+  endpoint: https://csbeprof.t1cosg-obj001.gcisdctr.hksarg
+  accessKey: Y3NiZXByb2ZfdXNlcg==
+  secretKey: d023c3ada786f2218a635aee3bcf8b21
+  bucket: eproof
+  path:
+    cert-record: /cert_record
+
+
+

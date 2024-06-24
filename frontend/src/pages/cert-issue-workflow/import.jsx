@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Upload, Form, Card, Typography, Breadcrumb, Grid, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {Upload, Form, Card, Typography, Breadcrumb, Tag, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -22,7 +22,7 @@ import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import { useModal } from "../../context/modal-provider";
 import { useMessage } from "../../context/message-provider";
-import OnholdModal from "./onhold-modal";
+import OnHoldModal from "./onhold-modal";
 import CSVFileValidator from 'csv-file-validator';
 import ImportModal from "./import-modal";
 import { examProfileAPI } from '@/api/request';
@@ -40,64 +40,34 @@ const Import = () =>  {
   const [openImportModal, setImportModal] = useState(false);
   const [open, setOpen] = useState(false)
   const [summary, setSummary] = useState({});
-
-  const [data, setData] = useState([
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700002',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Success',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      passport: 'K34567893912',
-      name: 'Yip Tai Man',
-      email: 'taiman.yip@hotmail.com',
-      ue: 'L2',
-      uc: 'L2',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Success',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700004',
-      name: 'Wong Tai Man',
-      email: 'taiman.wong@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Fail',
-      blnst: 'Pass',
-      status: 'Success',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700005',
-      name: 'Lee Tai Man',
-      email: 'taiman.lee@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Fail',
-      blnst: 'Fail',
-      status: 'Success',
-    }
-  ]);
+  const [importedData, setImportedData] = useState([]);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
     setImportModal(false)
   });
 
+  const onFinishCallback = useCallback(async () => {
+    setOpen(false);
+    setImportModal(false);
+    await getExamProfileSummary(serialNoValue);
+    await getCertList(serialNoValue);
+  }, [serialNoValue]);
+
   const columns = useMemo(() => [
+    {
+      title: 'Action',
+      key: 'action',
+      width: 100,
+      render: (row) => {
+        return (
+          <div>
+            { row.status === 'On hold' ? <Button size={'small'} type={'primary'} danger onClick={() => setOpen(true)}>Resume</Button> : null}
+            { row.status !== 'On hold' ? <Button size={'small'} type={'primary'} onClick={() => setOpen(true)}>On hold</Button> : null}
+          </div>
+        )
+      }
+    },
     {
       title: 'HKID',
       key: 'hkid',
@@ -107,8 +77,8 @@ const Import = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
       sorter: true,
     },
@@ -128,37 +98,34 @@ const Import = () =>  {
     },
     {
       title: 'UE',
-      key: 'ue',
-      dataIndex: 'ue',
-      width: 100,
-      sorter: true,
+      key: 'ueGrade',
+      dataIndex: 'ueGrade',
+      width: 80,
     },
     {
       title: 'UC',
-      key: 'uc',
-      dataIndex: 'uc',
-      width: 100,
-      sorter: true,
+      key: 'ucGrade',
+      dataIndex: 'ucGrade',
+      width: 80,
     },
     {
       title: 'AT',
-      key: 'at',
-      dataIndex: 'at',
-      width: 100,
-      sorter: true,
+      key: 'atGrade',
+      dataIndex: 'atGrade',
+      width: 80,
     },
     {
       title: 'BLNST',
-      key: 'blnst',
-      dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
+      key: 'blnstGrade',
+      dataIndex: 'blnstGrade',
+      width: 80,
     },
     {
       title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
+      key: 'certStatus',
+      dataIndex: 'certStatus',
       width: 100,
+      render: (row) => <Tag>{row.code}</Tag>,
       sorter: true,
     },
   ], []);
@@ -228,13 +195,14 @@ const Import = () =>  {
       title:'Are you sure to dispatch to generate PDF stage?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceDispatch', serialNoValue, 'IMPORTED')
     });
-  },[]);
+  },[serialNoValue]);
 
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
-    onSuccess: (response, params) => {
+    onSuccess: async (response, params) => {
       switch (params[0]) {
         case 'examProfileList':
 
@@ -263,6 +231,19 @@ const Import = () =>  {
           }
           break;
         }
+        case 'certList':
+        {
+          // const data = response.data || {};
+          const data = response.data || {};
+          const content = data.content || [];
+          setImportedData(content);
+          break;
+        }
+        case 'certIssuanceDispatch':
+          messageApi.success('Dispatch successfully.');
+          await getExamProfileSummary(serialNoValue);
+          await getCertList(serialNoValue);
+          break;
         default:
           break;
       }
@@ -415,17 +396,17 @@ const Import = () =>  {
             {
               key: 2,
               label: 'Generated PDF',
-              children: `${summary.generatePdfTotal} out of ${summary.generatePdfFailed} failed`,
+              children: `${summary.generatePdfFailed} out of ${summary.generatePdfTotal} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: `${summary.issuedPdfTotal} out of ${summary.issuedPdfFailed} failed`,
+              children: `${summary.issuedPdfFailed} out of ${summary.issuedPdfTotal} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: `${summary.sendEmailTotal} out of ${summary.sendEmailFailed} failed`,
+              children: `${summary.sendEmailFailed} out of ${summary.sendEmailTotal} failed`,
 
             }
           ]}
@@ -458,7 +439,7 @@ const Import = () =>  {
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={importedData}
         />
         <br/>
         <Row justify={'end'}>
@@ -474,14 +455,16 @@ const Import = () =>  {
         </Row>
         <br/>
       </Card>
-      <OnholdModal
+      <OnHoldModal
         open={open}
         onCloseCallback={onCloseCallback}
       />
       <ImportModal
         file={file}
+        recordId={serialNoValue}
         open={openImportModal}
         onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
     </div>
 

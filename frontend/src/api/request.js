@@ -182,7 +182,14 @@ export function examProfileAPI(params, ...rest) {
             return request(`/examProfile/dropDown`, "get");
         case 'certList':
             return request(`/cert/search/${rest[0]}`, "post", rest[1]);
-
+        case 'certIssuanceImport':
+            return request(`/cert/batch/import/${rest[0]}?examDate=${rest[1]}`, "formData", rest[2]);
+        case 'certIssuanceDispatch':
+            return request(`/cert/batch/dispatch?examProfileSerialNo=${rest[0]}&currentStage=${rest[1]}`, "get");
+        case 'certIssuanceGenerate':
+            return request(`/cert/batch/generate/${rest[0]}`, "post");
+        case 'certIssuanceBulkDownload':
+            return request(`/cert/downloadCert?certInfoIdList=${rest[0]}`, "download");
     }
 }
 

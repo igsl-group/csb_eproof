@@ -267,7 +267,25 @@ function Layouts () {
       }
     },
   });
-
+  function getItem(label, key, icon, children) {
+    return {
+      key,
+      icon,
+      children,
+      label,
+    };
+  }
+  const items = [
+    getItem('Option 1', '1'),
+    getItem('Option 2', '2'),
+    getItem('User', 'sub1', null, [
+      getItem('Tom', '3'),
+      getItem('Bill', '4'),
+      getItem('Alex', '5'),
+    ]),
+    getItem('Team', 'sub2', null, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+    getItem('Files', '9', null),
+  ];
   return (
     <div className={styles['layout']}>
       <Layout style={{ height: '100%', overflowY: 'hidden' }}>
@@ -316,10 +334,14 @@ function Layouts () {
         </Header>
         <Layout>
           <Sider
+
             width={260}
             breakpoint='xl'
+            collapsible
             collapsed={collapsed}
-            trigger={null}
+            onCollapse={toggleCollapsed}
+            collapsedWidth={50}
+            // trigger={null}
             className={styles['layout-menu']}
           >
             <Menu
@@ -337,7 +359,7 @@ function Layouts () {
               // inlineCollapsed={false}
               style={{
                 width: '100%',
-                height: `calc(100vh - 70px - 32px)`
+                // height: `calc(100vh - 70px - 48px)`
               }}
               mode={'inline'}
             >
@@ -354,21 +376,21 @@ function Layouts () {
                 })
               }
             </Menu>
-            <Row className={styles['layout-menu-footer']} aligutter={[4, 4]} justify={'end'}>
-              {/*<Col span={20} className={'layout-menu-footer-text'}>*/}
-              {/*  <div style={{fontSize: 12}}><b>2024 ©</b></div>*/}
-              {/*  <div style={{fontSize: 12}}><b>Fire Services Department</b></div>*/}
-              {/*</Col>*/}
-              <Col>
-                <Button
-                  className={styles['layout-menu-collapse-button']}
-                  type="dashed"
-                  onClick={toggleCollapsed}
-                >
-                  {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                </Button>
-              </Col>
-            </Row>
+            {/*<Row className={styles['layout-menu-footer']} aligutter={[4, 4]} justify={'end'}>*/}
+            {/*  /!*<Col span={20} className={'layout-menu-footer-text'}>*!/*/}
+            {/*  /!*  <div style={{fontSize: 12}}><b>2024 ©</b></div>*!/*/}
+            {/*  /!*  <div style={{fontSize: 12}}><b>Fire Services Department</b></div>*!/*/}
+            {/*  /!*</Col>*!/*/}
+            {/*  <Col>*/}
+            {/*    <Button*/}
+            {/*      className={styles['layout-menu-collapse-button']}*/}
+            {/*      type="dashed"*/}
+            {/*      onClick={toggleCollapsed}*/}
+            {/*    >*/}
+            {/*      {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}*/}
+            {/*    </Button>*/}
+            {/*  </Col>*/}
+            {/*</Row>*/}
           </Sider>
           <Layout
             id={'layout-content'}

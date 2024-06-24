@@ -2,7 +2,23 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Button, Form, Card, Typography, Breadcrumb, Grid, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {
+  Divider,
+  Button,
+  Form,
+  Card,
+  Typography,
+  Breadcrumb,
+  Grid,
+  Space,
+  Tabs,
+  Col,
+  Row,
+  Descriptions,
+  Modal,
+  Pagination,
+  Upload, Tag
+} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -22,69 +38,37 @@ import Email from "@/components/Email";
 import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
-import OnholdModal from "./onhold-modal";
+import OnHoldModal from "./onhold-modal";
+import {useMessage} from "../../context/message-provider";
+import { examProfileAPI } from '@/api/request';
+import {download} from "../../utils/util";
 
 const Generate = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
+  const messageApi = useMessage();
   const [form] = Form.useForm();
-  const {
-    serialNo,
-  } = useParams();
-
+  const [serialNoForm] = Form.useForm();
+  const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
-  const [open, setOpen] = useState('');
-  const [data, setData] = useState([
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700002',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Success',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      passport: 'K34567893912',
-      name: 'Yip Tai Man',
-      email: 'taiman.yip@hotmail.com',
-      ue: 'L2',
-      uc: 'L2',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Pending',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700004',
-      name: 'Wong Tai Man',
-      email: 'taiman.wong@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Fail',
-      blnst: 'Pass',
-      status: 'On hold',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700005',
-      name: 'Lee Tai Man',
-      email: 'taiman.lee@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Fail',
-      blnst: 'Fail',
-      status: 'Pending',
-    }
-  ]);
+  const [serialNoOptions, setSerialNoOptions] = useState([]);
+  const [openImportModal, setImportModal] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [summary, setSummary] = useState({});
+  const [generatedData, setGeneratedData] = useState([]);
+
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+    setImportModal(false)
+  });
+
+  const onFinishCallback = useCallback(async () => {
+    setOpen(false);
+    setImportModal(false);
+    await getExamProfileSummary(serialNoValue);
+    await getCertList(serialNoValue);
+  }, [serialNoValue]);
 
   const columns = useMemo(() => [
     {
@@ -109,8 +93,8 @@ const Generate = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
       sorter: true,
     },
@@ -130,37 +114,34 @@ const Generate = () =>  {
     },
     {
       title: 'UE',
-      key: 'ue',
-      dataIndex: 'ue',
-      width: 100,
-      sorter: true,
+      key: 'ueGrade',
+      dataIndex: 'ueGrade',
+      width: 80,
     },
     {
       title: 'UC',
-      key: 'uc',
-      dataIndex: 'uc',
-      width: 100,
-      sorter: true,
+      key: 'ucGrade',
+      dataIndex: 'ucGrade',
+      width: 80,
     },
     {
       title: 'AT',
-      key: 'at',
-      dataIndex: 'at',
-      width: 100,
-      sorter: true,
+      key: 'atGrade',
+      dataIndex: 'atGrade',
+      width: 80,
     },
     {
       title: 'BLNST',
-      key: 'blnst',
-      dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
+      key: 'blnstGrade',
+      dataIndex: 'blnstGrade',
+      width: 80,
     },
     {
       title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
+      key: 'certStatus',
+      dataIndex: 'certStatus',
       width: 100,
+      render: (row) => <Tag>{row.code}</Tag>,
       sorter: true,
     },
   ], []);
@@ -203,16 +184,6 @@ const Generate = () =>  {
     setPagination(tempPagination);
   }, [pagination]);
 
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
-
   const breadcrumbItems = useMemo(() => [
     {
       title: <HomeOutlined />,
@@ -224,6 +195,10 @@ const Generate = () =>  {
       title: 'Generate PDF',
     },
   ], []);
+
+  const onClickGeneratePdf = useCallback(() => {
+    runExamProfileAPI('certIssuanceGenerate', serialNoValue)
+  },[serialNoValue]);
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
@@ -246,8 +221,9 @@ const Generate = () =>  {
       title:'Are you sure to download selected PDF?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceBulkDownload', selectedRowKeys.join(','))
     });
-  },[]);
+  },[selectedRowKeys]);
 
   const rowSelection = useCallback({
     onChange: (selectedRowKeys, selectedRows) => {
@@ -255,31 +231,131 @@ const Generate = () =>  {
     },
   }, []);
 
-  const onCloseCallback = useCallback(() => {
-    setOpen(false);
+
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: async (response, params) => {
+      switch (params[0]) {
+        case 'examProfileList':
+
+          break;
+        case 'examProfileGet':
+        {
+
+          break;
+        }
+        case 'examProfileSummaryGet':
+        {
+          const data = response.data || {};
+          setSummary(data);
+          break;
+        }
+        case 'examProfileDropdown':
+        {
+          const data = response.data || [];
+          const options = data.flatMap((row) => ({
+            value: row.serialNo,
+            label: row.serialNo,
+          }))
+          setSerialNoOptions(options);
+          if (options.length > 0) {
+            serialNoForm.setFieldValue('serialNo', options[0].value);
+          }
+          break;
+        }
+        case 'certList':
+        {
+          // const data = response.data || {};
+          const data = response.data || {};
+          const content = data.content || [];
+          setGeneratedData(content);
+          break;
+        }
+        case 'certIssuanceDispatch':
+          messageApi.success('Dispatch successfully.');
+          await getExamProfileSummary(serialNoValue);
+          await getCertList(serialNoValue);
+          break;
+        case 'certIssuanceBulkDownload':
+          download(response);
+          messageApi.success('Download successfully.');
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
   });
+
+  const getExamProfileSummary = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
+  }, []);
+
+  const getCertList = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('certList', 'GENERATED', {
+      examProfileSerialNo: serialNoValue
+    });
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (serialNoValue) {
+        await getExamProfileSummary(serialNoValue);
+        await getCertList(serialNoValue);
+      }
+    })()
+  }, [serialNoValue]);
+
+  useEffect(() => {
+    runExamProfileAPI('examProfileDropdown');
+  }, []);
 
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <Row justify={'space-between'}>
-        <Col>
-          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
-        </Col>
-        <Col>
-          <Row gutter={[16, 16]} justify={'end'}>
-            <Col>
-              <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
-            </Col>
-            <Col>
-              <Button type="primary" onClick={() => {
-              }}>Generate PDF</Button>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+      <Form
+        layout="horizontal"
+        autoComplete="off"
+        form={serialNoForm}
+        colon={true}
+        scrollToFirstError={{
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center',
+        }}
+        name="serialNoForm"
+      >
+        <Row justify={'space-between'}>
+          <Col>
+            <Dropdown
+              name={"serialNo"}
+              label={'Serial No.'}
+              size={20}
+              options={serialNoOptions}
+              allowClear={false}
+              onChange={(values) => console.log(values)}
+            />
+          </Col>
+          <Col>
+            <Row gutter={[16, 16]} justify={'end'}>
+              <Col>
+                <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
+              </Col>
+              <Col>
+                <Button type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Form>
       <br/>
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
@@ -332,22 +408,23 @@ const Generate = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: 30000,
+              children: summary.imported,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: '0 out of 0 failed',
+              children: `${summary.generatePdfFailed} out of ${summary.generatePdfTotal} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: '0 out of 0 failed',
+              children: `${summary.issuedPdfFailed} out of ${summary.issuedPdfTotal} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: '0 out of 0 failed',
+              children: `${summary.sendEmailFailed} out of ${summary.sendEmailTotal} failed`,
+
             }
           ]}
         />
@@ -360,9 +437,9 @@ const Generate = () =>  {
               <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
-            <Col>
-              <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>
-            </Col>
+            {/*<Col>*/}
+            {/*  <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>*/}
+            {/*</Col>*/}
           </Row>
         </Col>
         <Col>
@@ -384,7 +461,7 @@ const Generate = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          rowKey={'candidateNo'}
+          rowKey={'id'}
           rowSelection={{
             type: 'checkbox',
             ...rowSelection,
@@ -395,7 +472,7 @@ const Generate = () =>  {
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={generatedData}
         />
         <br/>
         <Row justify={'end'}>
@@ -411,9 +488,11 @@ const Generate = () =>  {
         </Row>
         <br/>
       </Card>
-      <OnholdModal
+      <OnHoldModal
         open={open}
+        recordId={serialNoValue}
         onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
     </div>
 

@@ -103,7 +103,8 @@ const RoleModal = (props) =>  {
 
     },
     onError: (error) => {
-      //Message.error('');
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
     },
     onFinally: (params, result, error) => {
     },

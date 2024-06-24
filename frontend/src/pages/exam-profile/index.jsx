@@ -203,9 +203,16 @@ const ExamProfile = () =>  {
           break;
         }
         case 'examProfileFreeze':
+
         {
           getExamProfile();
           messageApi.success('Freeze successfully.');
+          break;
+        }
+        case 'examProfileUnfreeze':
+        {
+          getExamProfile();
+          messageApi.success('Un-freeze successfully.');
           break;
         }
         case 'examProfileReset':
@@ -320,6 +327,14 @@ const ExamProfile = () =>  {
     });
   },[serialNo]);
 
+  const freezeExamProfileCallback = useCallback(() => {
+    if (freezeExamProfile) {
+      runExamProfileAPI('examProfileUnfreeze', serialNo);
+    } else {
+      runExamProfileAPI('examProfileFreeze', serialNo);
+    }
+
+  }, [freezeExamProfile])
 
   return (
     <div className={styles['exam-profile']}>
@@ -401,7 +416,7 @@ const ExamProfile = () =>  {
                       type={'primary'}
                       danger={freezeExamProfile}
                       // onClick={() => runExamProfileAPI('examProfileFreeze', serialNo)}
-                      onClick={() => runExamProfileAPI('examProfileUnfreeze', serialNo)}
+                      onClick={freezeExamProfileCallback}
                     >
                       {!freezeExamProfile ? 'Freeze' : 'Un-freeze'}
                     </Button>
