@@ -152,7 +152,7 @@ public class CertController {
     }
 
 
-    @PreAuthorize("hasRole('Permissions.CERT_SEARCH_INVALID')")
+//    @PreAuthorize("hasRole('Permissions.CERT_SEARCH_INVALID')")
     @PostMapping("/downloadCert")
     @Operation(summary = "Download cert with provided cert ID list.")
     public ResponseEntity downloadPdf(@RequestParam List<Long> certInfoIdList) throws IOException {

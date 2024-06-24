@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +61,8 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
             }
             case PDF ->{
                 logger.info("Start convert pdf.");
-                returnBinary = docxUtil.convertDocxToPdf(tempDocxFile);
+//                returnBinary = docxUtil.convertDocxToPdf(tempDocxFile);
+                returnBinary = docxUtil.convertDocxToPdf2(Files.readAllBytes(tempDocxFile.toPath()));
 //                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
                 logger.info("Finish convert pdf.");
             }

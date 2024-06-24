@@ -141,18 +141,18 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    @Transactional(noRollbackFor = Exception.class)
+//    @Transactional(noRollbackFor = Exception.class)
     @Async
     public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
         List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
         byte[] passTemplateInputStream = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
-        try{
-            for (CertInfo cert : inProgressCertList) {
-                this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true);
-            }
-        } catch (Exception e){
+//        try{
+        for (CertInfo cert : inProgressCertList) {
+            this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true);
+        }
+        /*} catch (Exception e){
             inProgressCertList.forEach(cert->{
                 if (cert.getCertStatus() != CertStatus.SUCCESS){
                     cert.setCertStatus(CertStatus.FAILED);
@@ -160,7 +160,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             });
             certInfoRepository.saveAll(inProgressCertList);
             throw e;
-        }
+        }*/
     }
 
 
@@ -202,25 +202,30 @@ public class CertInfoServiceImpl implements CertInfoService {
                                   byte[] atLeastOnePassedTemplate,
                                   byte [] allFailedTemplate,
                                   boolean isBatchMode) throws Exception {
-        logger.info("Start generate.");
+        try{
+            logger.info("Start generate.");
 
+            if (!isBatchMode){
+                // added this logic to avoid querying db using a bunch of time for the same template in batch mode.
+                atLeastOnePassedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS));
+                allFailedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE));
+            }
 
-        if (!isBatchMode){
-            // added this logic to avoid querying db using a bunch of time for the same template in batch mode.
-            atLeastOnePassedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_AT_LEAST_ONE_PASS));
-            allFailedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE));
+            InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
+            appliedTemplate.close();
+            IOUtils.close(appliedTemplate);
+
+            File uploadFileRecord = this.uploadCertPdf(certInfo, mergedPdf);
+            this.createCertPdfRecord(certInfo,uploadFileRecord);
+            this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
+
+            logger.info("Complete generate");
+        } catch(Exception e){
+            certInfo.setCertStatus(CertStatus.FAILED);
+            certInfoRepository.save(certInfo);
         }
 
-        InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
-        byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
-        appliedTemplate.close();
-        IOUtils.close(appliedTemplate);
-
-        File uploadFileRecord = this.uploadCertPdf(certInfo, mergedPdf);
-        this.createCertPdfRecord(certInfo,uploadFileRecord);
-        this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
-
-        logger.info("Complete generate");
     }
 
     @Override

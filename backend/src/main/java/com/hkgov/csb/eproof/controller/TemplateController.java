@@ -43,7 +43,7 @@ public class TemplateController {
         return  Result.success(templateService.list(pageable).map(LetterTemplateMapper.INSTANCE::toDto));
     }
 
-    @GetMapping("/download/{templateId}")
+    @PostMapping("/download/{templateId}")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity search(@PathVariable Long templateId) {
 
