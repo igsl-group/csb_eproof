@@ -322,6 +322,7 @@ type response = {
 
 ## [Delete] /cert/delete/:certInfoId
 ### Delete an cert info
+> 1. Check on_hold = true. Otherwise, not allows to delete 
 
 ```typescript
 
