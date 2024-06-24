@@ -362,6 +362,50 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     }
 
+    @Override
+    public void resume(Long certInfoId, String remark) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        boolean updateFlag = CertStage.IMPORTED.equals(certInfo.getCertStage())
+                || CertStage.GENERATED.equals(certInfo.getCertStage()) || CertStage.SIGN_ISSUE.equals(certInfo.getCertStage());
+        if(!updateFlag){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }
+        certInfo.setOnHold(false);
+        certInfo.setOnHoldRemark(remark);
+        certInfoRepository.save(certInfo);
+    }
+
+    @Override
+    public void hold(Long certInfoId, String remark) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        boolean updateFlag = CertStage.IMPORTED.equals(certInfo.getCertStage())
+                || CertStage.GENERATED.equals(certInfo.getCertStage()) || CertStage.SIGN_ISSUE.equals(certInfo.getCertStage());
+        if(!updateFlag){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }
+        certInfo.setOnHold(true);
+        certInfo.setOnHoldRemark(remark);
+        certInfoRepository.save(certInfo);
+    }
+
+    @Override
+    public void delete(Long certInfoId) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        if(certInfo.getOnHold()){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_DELETE);
+        }
+       certInfoRepository.delete(certInfo);
+    }
+
     @Transactional(noRollbackFor = Exception.class)
     void singleSignAndIssue(CertInfo certInfo){
         //TODO Trigger sign and issue action

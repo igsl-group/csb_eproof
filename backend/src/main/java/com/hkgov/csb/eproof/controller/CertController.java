@@ -23,7 +23,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -150,6 +149,24 @@ public class CertController {
     @PostMapping("/single/updateResult/{certInfoId}")
     public Result updateResult(@PathVariable Long certInfoId,@RequestBody UpdateResultDto resultDto){
         return Result.success(certInfoService.updateResult(certInfoId,resultDto));
+    }
+
+    @PostMapping("/hold/{certInfoId}")
+    public Result hold(@PathVariable Long certInfoId,@RequestParam String remark){
+        certInfoService.hold(certInfoId,remark);
+        return Result.success();
+    }
+
+    @PostMapping("/resume/{certInfoId}")
+    public Result resume(@PathVariable Long certInfoId,@RequestParam String remark){
+        certInfoService.resume(certInfoId,remark);
+        return Result.success();
+    }
+
+    @DeleteMapping("/delete/{certInfoId}")
+    public Result resume(@PathVariable Long certInfoId){
+        certInfoService.delete(certInfoId);
+        return Result.success();
     }
 
 
