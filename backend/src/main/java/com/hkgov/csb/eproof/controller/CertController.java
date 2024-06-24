@@ -15,6 +15,8 @@ import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ContentDisposition;
@@ -46,8 +48,7 @@ public class CertController {
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
     public Result searchCert(@RequestBody CertSearchDto request,
-                             @PathVariable String searchType,
-
+                             @Schema(type = "string", allowableValues = { "IMPORTED", })                             @PathVariable String searchType,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "20") int size,
                              @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,

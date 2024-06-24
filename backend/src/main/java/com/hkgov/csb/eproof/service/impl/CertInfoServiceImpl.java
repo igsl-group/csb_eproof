@@ -161,6 +161,8 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfoRepository.saveAll(inProgressCertList);
             throw e;
         }*/
+
+
     }
 
 
@@ -202,6 +204,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                                   byte[] atLeastOnePassedTemplate,
                                   byte [] allFailedTemplate,
                                   boolean isBatchMode) throws Exception {
+
         try{
             logger.info("Start generate.");
 
