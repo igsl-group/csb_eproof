@@ -68,7 +68,7 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
             }
         }
 
-//        docxUtil.deleteFile(tempDocxFile.getAbsolutePath());
+        docxUtil.deleteFile(tempDocxFile.getAbsolutePath());
         return returnBinary;
     }
 

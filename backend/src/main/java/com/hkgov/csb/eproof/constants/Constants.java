@@ -20,6 +20,8 @@ public final class Constants {
     public static final String FILE_TYPE_CERT_RECORD = "CERT_RECORD";
 
 
+    public static final String SYS_PARAM_HEALTH_CHECK_MAIL_TEMPLATE = "HEALTH_CHECK_MAIL_TEMPLATE";
+
 
 
 

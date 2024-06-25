@@ -243,4 +243,9 @@ public class TestController {
         return ResponseEntity.ok().body(IOUtils.toByteArray(minioUtil.getFileAsStream("/letter_template/pass_template.docx")));
     }
 
+    @GetMapping("/testEmail")
+    public void testEmail(){
+
+    }
+
 }

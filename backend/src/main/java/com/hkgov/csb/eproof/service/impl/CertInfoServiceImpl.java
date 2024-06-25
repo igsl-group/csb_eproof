@@ -263,6 +263,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         if((Objects.isNull(hkid) && Objects.isNull(passport))){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
+
         if(Objects.nonNull(hkid)){
             certInfos = certInfoRepository.findAllByHkid(hkid);
         }

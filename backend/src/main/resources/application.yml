@@ -25,15 +25,15 @@ spring:
     host: mail.igsl-group.com
     port: 465
     username: hong.cheung@igsl-group.com
-    password: HongIgs@P@ssw0rd
-    from: cepf@test.com
-    protocol: smtp
+    password: HongIgs_P@ssw0rd
+    from: csbeproof@test.com
+    protocol: smtps
     properties:
       mail:
         smtp:
           auth: true
           starttls:
-            enable: false
+            enable: true
             required: false
           connectiontimeout: 5000
           timeout: 5000
@@ -108,12 +108,7 @@ logging:
     path: logs/backend/
     name: backend.log
     max-age: 1d
-  level:
-    org:
-      hibernate:
-        orm:
-          jdbc:
-            bind: TRACE
+
     root: INFO
   logback:
     rollingpolicy:
@@ -134,6 +129,18 @@ minio:
   bucket: csbeproof
   path:
     cert-record: /cert_record
+
+
+mail:
+  mode: SMTP
+  health-check:
+    enabled: true
+    to: hong.cheung@igsl-group.com
+    subject: EProof Mail Health Check
+  whitelist:
+    enabled: true
+    email-list: hong.cheung@igsl-group.com
+
 
 
 
