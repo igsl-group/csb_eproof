@@ -14,8 +14,10 @@ public enum ExceptionEnums {
     // Authentication
     ACCESS_DENIED("access.denied","Your access is denied."),
 
-    // Case
+    // Cert info
     ILLEGAL_SEARCH_TYPE("illegal.search.type","Illegal search type provided."),
+    CERT_INFO_VOIDED("cert.info.voided","Certificate is not valid."),
+    CERT_NOT_EXIST("cert.not.exist","Certificate does not exist."),
 
     // Letter template
     TEMPLATE_NAME_CANNOT_BE_NULL("template.name.cannot.null","Not accept null template name."),
@@ -23,8 +25,7 @@ public enum ExceptionEnums {
 
     // Document generation
     DOCUMENT_MERGE_ERROR("document.merge.error","Encountered error when merging document."),
-    CRET_INFO_VOIDED("cret.info.voided","Certificate is not valid."),
-    CRET_NOT_EXIST("cert.not.exist","Certificate does not exist."),
+
 
     EXAM_PROFILE_NOT_EXIST("exam.profile.not.exist","Exam profile does not exist."),
     ;

@@ -102,7 +102,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
         List<CertInfo> list = certInfoRepository.getinfoByNoAndStatus(examProfileSerialNo,currentStage);
         if(list.isEmpty()){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         for(CertInfo certInfo : list){
             switch (certInfo.getCertStage()) {
@@ -237,7 +237,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         String hkid = "".equals(updateEmailDto.getCurrentHkid()) ? null : updateEmailDto.getCurrentHkid();
         String passport = "".equals(updateEmailDto.getCurrentPassport()) ? null : updateEmailDto.getCurrentPassport();
         if((Objects.isNull(hkid) && Objects.isNull(passport))){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         if(Objects.nonNull(hkid)){
             certInfos = certInfoRepository.findAllByHkid(hkid);
@@ -246,7 +246,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfos = certInfoRepository.findAllByPassport(passport);
         }
         if(certInfos.isEmpty()){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         certInfos.forEach(x -> {
             x.setEmail(updateEmailDto.getEmail());
@@ -261,7 +261,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         String hkid = "".equals(personalDto.getCurrentHkid()) ? null : personalDto.getCurrentHkid();
         String passport = "".equals(personalDto.getCurrentPassport()) ? null : personalDto.getCurrentPassport();
         if((Objects.isNull(hkid) && Objects.isNull(passport))){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         if(Objects.nonNull(hkid)){
             certInfos = certInfoRepository.findAllByHkid(hkid);
@@ -270,7 +270,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfos = certInfoRepository.findAllByPassport(passport);
         }
         if(certInfos.isEmpty()){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         List<CertInfoRenew> addList = new ArrayList<>();
         certInfos.forEach(x -> {
@@ -307,11 +307,11 @@ public class CertInfoServiceImpl implements CertInfoService {
     public Boolean updateResult(Long certInfoId, UpdateResultDto resultDto) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         CertInfoRenew infoRenew = new CertInfoRenew();
         if(CertStage.VOIDED.equals(infoRenew.getCertStage())){
-            throw new GenericException(ExceptionEnums.CRET_INFO_VOIDED);
+            throw new GenericException(ExceptionEnums.CERT_INFO_VOIDED);
         }
 
         infoRenew.setNewHkid(certInfo.getHkid());
@@ -366,6 +366,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     void singleSignAndIssue(CertInfo certInfo){
         //TODO Trigger sign and issue action
 
+        certInfo.setValid(true);
         certInfo.setCertStatus(CertStatus.SUCCESS);
 
         certInfoRepository.save(certInfo);
