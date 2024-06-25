@@ -8,7 +8,6 @@ import lombok.Setter;
 public class UpdatePersonalDto {
     private String currentPassport;
     private String currentHkid;
-    private String newEmail;
     private String newHkid;
     private String prinewPassport;
     private String remark;
