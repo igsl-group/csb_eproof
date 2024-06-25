@@ -234,16 +234,16 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     public Boolean updateEmail(UpdateEmailDto updateEmailDto) {
         List<CertInfo> certInfos = new ArrayList<>();
-        String hkid = "".equals(updateEmailDto.getCurrentHkid()) ? null : updateEmailDto.getCurrentHkid();
-        String passport = "".equals(updateEmailDto.getCurrentPassport()) ? null : updateEmailDto.getCurrentPassport();
-        if((Objects.isNull(hkid) && Objects.isNull(passport))){
+
+        if(StringUtils.isBlank(updateEmailDto.getCurrentHkid()) && StringUtils.isBlank(updateEmailDto.getCurrentPassport())){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
-        if(Objects.nonNull(hkid)){
-            certInfos = certInfoRepository.findAllByHkid(hkid);
+
+        if(StringUtils.isNotBlank(updateEmailDto.getCurrentHkid())){
+            certInfos = certInfoRepository.findAllByHkid(updateEmailDto.getCurrentHkid());
         }
-        if(Objects.isNull(hkid) && Objects.nonNull(passport)){
-            certInfos = certInfoRepository.findAllByPassport(passport);
+        if(StringUtils.isBlank(updateEmailDto.getCurrentHkid()) && StringUtils.isNotBlank(updateEmailDto.getCurrentPassport())){
+            certInfos = certInfoRepository.findAllByPassport(updateEmailDto.getCurrentPassport());
         }
         if(certInfos.isEmpty()){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
@@ -258,17 +258,15 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     public Boolean updatePersonalParticular(UpdatePersonalDto personalDto) {
         List<CertInfo> certInfos = new ArrayList<>();
-        String hkid = "".equals(personalDto.getCurrentHkid()) ? null : personalDto.getCurrentHkid();
-        String passport = "".equals(personalDto.getCurrentPassport()) ? null : personalDto.getCurrentPassport();
-        if((Objects.isNull(hkid) && Objects.isNull(passport))){
+
+        if(StringUtils.isBlank(personalDto.getCurrentHkid()) && StringUtils.isBlank(personalDto.getCurrentPassport())){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
-
-        if(Objects.nonNull(hkid)){
-            certInfos = certInfoRepository.findAllByHkid(hkid);
+        if(StringUtils.isNotBlank(personalDto.getCurrentHkid())){
+            certInfos = certInfoRepository.findAllByHkid(personalDto.getCurrentHkid());
         }
-        if(Objects.isNull(hkid) && Objects.nonNull(passport)){
-            certInfos = certInfoRepository.findAllByPassport(passport);
+        if(StringUtils.isBlank(personalDto.getCurrentHkid()) && StringUtils.isNotBlank(personalDto.getCurrentPassport())){
+            certInfos = certInfoRepository.findAllByPassport(personalDto.getCurrentPassport());
         }
         if(certInfos.isEmpty()){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
@@ -281,7 +279,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfoRenew.setOldHkid(x.getHkid());
             certInfoRenew.setNewPassport(personalDto.getPrinewPassport());
             certInfoRenew.setOldPassport(x.getPassportNo());
-            certInfoRenew.setNewEmail(personalDto.getNewEmail());
+            certInfoRenew.setNewEmail(x.getEmail());
             certInfoRenew.setOldEmail(x.getEmail());
             certInfoRenew.setRemark(personalDto.getRemark());
             certInfoRenew.setNewCname(x.getCname());
@@ -361,6 +359,50 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfoRepository.saveAll(signAndIssueInProgressCert);
         }
 
+    }
+
+    @Override
+    public void resume(Long certInfoId, String remark) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        boolean updateFlag = CertStage.IMPORTED.equals(certInfo.getCertStage())
+                || CertStage.GENERATED.equals(certInfo.getCertStage()) || CertStage.SIGN_ISSUE.equals(certInfo.getCertStage());
+        if(!updateFlag){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }
+        certInfo.setOnHold(false);
+        certInfo.setOnHoldRemark(remark);
+        certInfoRepository.save(certInfo);
+    }
+
+    @Override
+    public void hold(Long certInfoId, String remark) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        boolean updateFlag = CertStage.IMPORTED.equals(certInfo.getCertStage())
+                || CertStage.GENERATED.equals(certInfo.getCertStage()) || CertStage.SIGN_ISSUE.equals(certInfo.getCertStage());
+        if(!updateFlag){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }
+        certInfo.setOnHold(true);
+        certInfo.setOnHoldRemark(remark);
+        certInfoRepository.save(certInfo);
+    }
+
+    @Override
+    public void delete(Long certInfoId) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+        }
+        if(certInfo.getOnHold()){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_DELETE);
+        }
+       certInfoRepository.delete(certInfo);
     }
 
     @Transactional(noRollbackFor = Exception.class)

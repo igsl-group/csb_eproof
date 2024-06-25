@@ -41,4 +41,10 @@ public interface CertInfoService {
     Boolean updateResult(Long certInfoId, UpdateResultDto resultDto);
 
     void batchSignAndIssue(String examProfileSerialNo);
+
+    void resume(Long certInfoId, String remark);
+
+    void hold(Long certInfoId, String remark);
+
+    void delete(Long certInfoId);
 }

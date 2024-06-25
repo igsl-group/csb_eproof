@@ -28,6 +28,8 @@ public enum ExceptionEnums {
 
 
     EXAM_PROFILE_NOT_EXIST("exam.profile.not.exist","Exam profile does not exist."),
+    CERT_INFO_NOT_UPDATE("cert.info.not.update","Current Cert does not allow updates."),
+    CERT_INFO_NOT_DELETE("cert.info.not.delete","Current Cert does not allow deletion.")
     ;
 
 
