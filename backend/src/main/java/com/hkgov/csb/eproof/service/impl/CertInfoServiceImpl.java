@@ -365,7 +365,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     public void resume(Long certInfoId, String remark) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         boolean updateFlag = CertStage.IMPORTED.equals(certInfo.getCertStage())
                 || CertStage.GENERATED.equals(certInfo.getCertStage()) || CertStage.SIGN_ISSUE.equals(certInfo.getCertStage());
@@ -381,7 +381,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     public void hold(Long certInfoId, String remark) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         boolean updateFlag = CertStage.IMPORTED.equals(certInfo.getCertStage())
                 || CertStage.GENERATED.equals(certInfo.getCertStage()) || CertStage.SIGN_ISSUE.equals(certInfo.getCertStage());
@@ -397,7 +397,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     public void delete(Long certInfoId) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){
-            throw new GenericException(ExceptionEnums.CRET_NOT_EXIST);
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
         if(certInfo.getOnHold()){
             throw new GenericException(ExceptionEnums.CERT_INFO_NOT_DELETE);
