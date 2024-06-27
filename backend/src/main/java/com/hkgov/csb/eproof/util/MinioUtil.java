@@ -13,6 +13,7 @@ import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,11 +25,14 @@ import java.io.InputStream;
 @Component
 public class MinioUtil {
 
-    @Autowired
-    private MinioClient minioClient;
+    private final MinioClient minioClient;
 
     @Resource
     private MinioConfig minioConfig;
+
+    public MinioUtil(@Lazy MinioClient minioClient) {
+        this.minioClient = minioClient;
+    }
 
 
     @SneakyThrows
@@ -101,6 +105,7 @@ public class MinioUtil {
                     .object(path)
                     .build());
         } catch (Exception e) {
+            e.printStackTrace();
             throw new GenericException();
         }
     }
@@ -109,6 +114,7 @@ public class MinioUtil {
         try {
             return IOUtils.toByteArray(this.getFileAsStream(path));
         } catch (Exception e) {
+            e.printStackTrace();
             throw new GenericException();
         }
     }
