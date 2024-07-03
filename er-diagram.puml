@@ -51,12 +51,12 @@ entity "Exam_Profile" as exam_profile {
   exam_serial_no: varchar <<PK>>
   --
   exam_date: datetime
- - planned_email_issuance_date: datetime
- - effective_date: datetime
+ - planned_email_issuance_date: date
+ - effective_date: date
+ - result_letter_date: date
   location: varchar(255)
   status: varchar (50) -> Active
   is_freezed: bit -> 0 | 1
- - result_letter_date: datetime
   created_by: varchar(255)
   modified_by: varchar(255)
   created_date: datetime
@@ -66,21 +66,33 @@ entity "Exam_Profile" as exam_profile {
 entity "Email_Template" as email_template {
   id: number <<generated, PK>>
   --
-  email_key: varchar(255) <<unique>>
+  template_name: varchar(255) <<unique>>
   subject: varchar(1000)
   body: text
   type: varchar (50) -> EXTERNAL | INTERNAL
-  include_emails: varchar(1000)
   created_by: varchar(255)
   modified_by: varchar(255)
   created_date: datetime
   modified_date: datetime
 }
 
+entity "GCIS_BATCH_EMAIL" as gcis_batch_email {
+    id: number <<generated, PK>>
+    --
+    email_template_id: number <<FK-Email_Template.id>>
+    schedule_datetime: datetime
+    status: varchar(255) -> PENDING | COMPLETED | FAILED
+    created_by: varchar(255)
+    modified_by: varchar(255)
+    created_date: datetime
+    modified_date: datetime
+}
+
 entity "Letter_Template" as letter_template {
   id: number <<generated, PK>>
   --
   name: varchar(255) <<unique>>
+  description: varchar(255)
   file_id: number <<FK-File.id>>
   created_by: varchar(255)
   modified_by: varchar(255)
@@ -123,11 +135,12 @@ entity "Cert_Info" as cert_info {
     id: number <<generated, PK>>
     --
     exam_profile_serial: : varchar <<FK>>
+    gcis_batch_email_id: number <<FK-GCIS_BATCH_EMAIL.id>>
     exam_date: date
     name: varchar(255)
     cname: varchar(255)
     hkid: varchar(255)
-    passport: varchar(255)
+    passport_no: varchar(255)
     email: varchar(255)
     bl_grade: varchar(255)
     ue_grade: varchar(255)
@@ -242,8 +255,7 @@ entity "Email_Message" as email_message {
   --
   to: varchar(255)
   cc: varchar(255)
-  - type: varchar(255)
-  - cert_info_id: number <<FK-Cert_Info.id>>
+  + type: varchar(255)
   subject: varchar(1000)
   body: text
   created_by: varchar(255)
@@ -320,6 +332,9 @@ cert_info ||--|{ email_message
 
 cert_info ||--o{ cert_pdf
 file ||--|{ cert_pdf
+
+gcis_batch_email ||--|| email_template
+gcis_batch_email |o--|{ cert_info
 
 letter_template ||--|| file
 

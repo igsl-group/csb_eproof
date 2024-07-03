@@ -13,8 +13,8 @@ public class EmailTemplate extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email_key")
-    private String emailKey;
+    @Column(name = "template_name")
+    private String templateName;
 
     @Column(name = "subject")
     private String subject;
@@ -23,8 +23,5 @@ public class EmailTemplate extends BaseEntity{
     private String body;
 
     @Column(name = "type")
-    private String type;
-
-    @Column(name = "include_emails")
-    private String includeEmails;
+    private String type;;
 }
