@@ -5,7 +5,6 @@ import com.hkgov.csb.eproof.service.CsvService;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.io.input.BOMInputStream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,9 +28,6 @@ public class CsvServiceImpl implements CsvService {
                     .build();
             return csvToBean.parse();
         } catch (Exception e) {
-            if (e.getCause() instanceof CsvRequiredFieldEmptyException csvEx) {
-
-            }
             throw new GenericException(FAILED_TO_READ_CSV_EXCEPTION_CODE, FAILED_TO_READ_CSV_EXCEPTION_MESSAGE, e);
         }
     }

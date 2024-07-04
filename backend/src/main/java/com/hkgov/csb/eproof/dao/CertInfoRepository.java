@@ -10,9 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
     CertInfo getInfoByNo(@Param("serialNo") String serialNo);
@@ -76,4 +77,6 @@ select c from CertInfo c
     @Query("select c from CertInfo c where c.passportNo = :passportNo")
     List<CertInfo> findAllByPassport(@Param("passportNo") String passportNo);
 
+    @Query("select c from CertInfo c left join CertEproof d on c.id = d.certInfoId where d.uuid = :uuid and d.version = :version")
+    CertInfo findEmail(@Param("uuid") String uuid, @Param("version") Integer version);
 }
