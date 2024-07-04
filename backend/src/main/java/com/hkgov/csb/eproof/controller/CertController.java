@@ -15,7 +15,6 @@ import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -152,14 +151,14 @@ public class CertController {
     }
 
     @PostMapping("/hold/{certInfoId}")
-    public Result hold(@PathVariable Long certInfoId,@RequestParam String remark){
-        certInfoService.hold(certInfoId,remark);
+    public Result hold(@PathVariable Long certInfoId,@RequestBody CertIntoUpHoldDto dto){
+        certInfoService.hold(certInfoId,dto.getRemark());
         return Result.success();
     }
 
     @PostMapping("/resume/{certInfoId}")
-    public Result resume(@PathVariable Long certInfoId,@RequestParam String remark){
-        certInfoService.resume(certInfoId,remark);
+    public Result resume(@PathVariable Long certInfoId,@RequestBody CertIntoUpHoldDto dto){
+        certInfoService.resume(certInfoId,dto.getRemark());
         return Result.success();
     }
 

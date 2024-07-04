@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class EmailTemplateUpdateDto {
 
-    private String emailKey;
+    private String templateName;
 
     private String subject;
 
