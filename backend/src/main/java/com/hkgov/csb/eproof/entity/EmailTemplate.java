@@ -16,10 +16,10 @@ public class EmailTemplate extends BaseEntity{
     @Column(name = "template_name")
     private String templateName;
 
-    @Column(name = "subject")
+    @Column(name = "subject",columnDefinition = "varchar(1000)")
     private String subject;
 
-    @Column(name = "body")
+    @Column(name = "body",columnDefinition = "text")
     private String body;
 
     @Column(name = "type")

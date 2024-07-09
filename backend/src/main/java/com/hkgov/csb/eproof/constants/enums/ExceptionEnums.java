@@ -31,7 +31,9 @@ public enum ExceptionEnums {
     CERT_INFO_NOT_UPDATE("cert.info.not.update","Current Cert does not allow updates."),
     CERT_INFO_NOT_DELETE("cert.info.not.delete","Current Cert does not allow deletion."),
 
-    EMAIL_CONTENT_ERROR("email.content.error","Email content conversion failed.")
+    EMAIL_CONTENT_ERROR("email.content.error","Email content conversion failed."),
+    //system
+    SYSTEM_PARAMETER_NOT_EXIST("system.parameter.not.exist","System parameter does not exist.")
     ;
 
 
