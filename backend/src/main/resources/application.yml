@@ -113,7 +113,8 @@ logging:
   logback:
     rollingpolicy:
       max-file-size: 10MB
-
+  level:
+    org.hibernate.orm.jdbc.bind: trace
 
 document:
   #   Path for the temporary document to be generated.
@@ -134,7 +135,7 @@ minio:
 mail:
   mode: SMTP
   health-check:
-    enabled: true
+    enabled: false
     to: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
     subject: EProof Mail Health Check
   whitelist:
@@ -157,7 +158,4 @@ thread-pool:
 #second minute hour dayOfMonth month dayOfWeek
 cron-expression:
   # Run every second
-  normal-email-sending: 0 * * * * ?
-
-
-
+  normal-email-sending: "-"

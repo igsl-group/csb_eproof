@@ -16,7 +16,6 @@ import java.util.List;
 @Repository
 public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
-    CertInfo getInfoByNo(@Param("serialNo") String serialNo);
     List<CertInfo> getInfoByExamProfileSerialNo(@Param("serialNo") String serialNo);
     @Query(value = """
 select c from CertInfo c
@@ -35,17 +34,17 @@ select c from CertInfo c
         )
         AND
         (
-            ( ?#{#searchDto.hkid} IS NOT null AND c.hkid like %?#{#searchDto.hkid}% ) OR
-            ( ?#{#searchDto.passportNo} IS NOT null AND c.passport_no like %?#{#searchDto.passportNo}% ) OR
-            ( ?#{#searchDto.canName} IS NOT null AND c.name like %?#{#searchDto.canName}% ) OR
-            ( ?#{#searchDto.canCName} IS NOT null AND c.cname like %?#{#searchDto.canCName}% ) OR
-            ( ?#{#searchDto.canEmail} IS NOT null AND c.email like %?#{#searchDto.canEmail}% ) OR
-            ( ?#{#searchDto.examProfileSerialNo} IS NOT null AND c.exam_profile_serial like %?#{#searchDto.examProfileSerialNo}% ) OR
-            ( ?#{#searchDto.blnstGrade} IS NOT null AND c.blnst_grade like %?#{#searchDto.blnstGrade}% ) OR
-            ( ?#{#searchDto.ueGrade} IS NOT null AND c.ue_grade like %?#{#searchDto.ueGrade}% ) OR
-            ( ?#{#searchDto.ucGrade} IS NOT null AND c.uc_grade like %?#{#searchDto.ucGrade}% ) OR
-            ( ?#{#searchDto.atGrade} IS NOT null AND c.at_grade like %?#{#searchDto.atGrade}% ) OR
-            ( ?#{#searchDto.certValid} IS NOT null AND c.is_valid = ?#{#searchDto.certValid} )
+            ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
+            ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
+            ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
+            ( ?#{#searchDto.canCName} IS null OR c.cname like %?#{#searchDto.canCName}% ) AND
+            ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
+            ( ?#{#searchDto.examProfileSerialNo} IS null OR c.exam_profile_serial = ?#{#searchDto.examProfileSerialNo} ) AND
+            ( ?#{#searchDto.blnstGrade} IS null OR c.blnst_grade like %?#{#searchDto.blnstGrade}% ) AND
+            ( ?#{#searchDto.ueGrade} IS null OR c.ue_grade like %?#{#searchDto.ueGrade}% ) AND
+            ( ?#{#searchDto.ucGrade} IS null OR c.uc_grade like %?#{#searchDto.ucGrade}% ) AND
+            ( ?#{#searchDto.atGrade} IS null OR c.at_grade like %?#{#searchDto.atGrade}% ) AND
+            ( ?#{#searchDto.certValid} IS null OR c.is_valid = ?#{#searchDto.certValid} )
         )
 """)
     Page<CertInfo> certSearch(@Param("searchDto") CertSearchDto searchDto,
@@ -66,7 +65,7 @@ select c from CertInfo c
     @Query("""
     SELECT COUNT(c) FROM CertInfo c
     WHERE (:certStatus != null AND c.certStatus = :certStatus AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)
-    OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)    
+    OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)
 """)
     Integer countByStageAndStatus(String examProfileSerialNo, CertStage certStage, CertStatus certStatus);
 
