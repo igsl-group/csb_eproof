@@ -34,8 +34,8 @@ public class UserController {
     public Result<Page<UserDto>> getUserList(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size,
                                              @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
-                                             @RequestParam(defaultValue = "id") String... properties){
-        Pageable pageable = PageRequest.of(page, size, sortDirection, properties);
+                                             @RequestParam(defaultValue = "id") String... sortField){
+        Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
         return Result.success(userService.getAllUser(pageable).map(UserMapper.INSTANCE::sourceToDestination));
     }
     @GetMapping("/{userId}")
