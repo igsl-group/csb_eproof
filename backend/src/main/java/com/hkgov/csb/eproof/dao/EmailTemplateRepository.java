@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmailTemplateRepository  extends JpaRepository<EmailTemplate,Long> {
-    @Query("select u from EmailTemplate u where:keyword is null or (u.templateName like %:keyword%)")
+    @Query("select u from EmailTemplate u where:keyword is null or (u.templateName like %:keyword% or u.body like %:keyword% or u.subject like %:keyword% or u.type like %:keyword%)")
     Page<EmailTemplate> findPage(Pageable pageable, @Param("keyword") String keyWord);
     @Query("select u from EmailTemplate u where u.templateName = :name")
     EmailTemplate findByName(@Param("name") String name);

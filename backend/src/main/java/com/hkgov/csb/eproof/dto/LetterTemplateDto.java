@@ -20,4 +20,5 @@ public class LetterTemplateDto implements Serializable {
     Long id;
     String name;
     Long fileId;
+    String description;
 }

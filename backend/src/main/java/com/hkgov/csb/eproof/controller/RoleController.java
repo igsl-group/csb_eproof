@@ -12,8 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/role")
 public class RoleController {
@@ -42,10 +40,9 @@ public class RoleController {
     public Result<Page<RoleDto>> search(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
                                 @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
-                                @RequestParam(required = false) String keyword,
                                 @RequestParam(defaultValue = "id") String... sortField) {
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
-        return  Result.success(roleService.getAllRolePage(pageable,keyword).map(RoleMapper.INSTANCE::sourceToDestination));
+        return  Result.success(roleService.getAllRolePage(pageable).map(RoleMapper.INSTANCE::sourceToDestination));
     }
     @GetMapping("/{roleId}")
     @Transactional(rollbackFor = Exception.class)

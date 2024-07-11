@@ -2,7 +2,6 @@ package com.hkgov.csb.eproof.service.impl;
 
 
 import com.hkgov.csb.eproof.dao.LetterTemplateRepository;
-import com.hkgov.csb.eproof.dto.LetterTemplateDto;
 import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.LetterTemplate;
 import com.hkgov.csb.eproof.service.TemplateService;
@@ -14,8 +13,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TemplateServiceImpl implements TemplateService{

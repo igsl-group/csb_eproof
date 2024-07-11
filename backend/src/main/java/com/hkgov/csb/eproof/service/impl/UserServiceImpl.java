@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> getAllUser(Pageable pageable) {
-        var user = userRepository.findUserPage(pageable);
+        var user = userRepository.findAll(pageable);
         return user;
     }
 

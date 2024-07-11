@@ -21,7 +21,7 @@ public interface RoleService{
 
     List<RoleDto> roles();
 
-    Page<Role> getAllRolePage(Pageable pageable, String keyword);
+    Page<Role> getAllRolePage(Pageable pageable);
 
     Role getRole(Long id);
 }

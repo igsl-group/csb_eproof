@@ -46,7 +46,7 @@ public class CertController {
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
     public Result searchCert(@RequestBody CertSearchDto request,
-                             @Schema(type = "string", allowableValues = { "IMPORTED", })                             @PathVariable String searchType,
+                             @Schema(type = "string", allowableValues = { "IMPORTED","GENERATED","SIGN_ISSUE","NOTIFY", })   @PathVariable String searchType,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "20") int size,
                              @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,

@@ -1,13 +1,11 @@
 package com.hkgov.csb.eproof.service.impl;
 
-import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.PermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dto.RoleDto;
 import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.RoleHasPermission;
-import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.RoleMapper;
 import com.hkgov.csb.eproof.service.RoleService;
 import jakarta.annotation.Resource;
@@ -86,8 +84,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Page<Role> getAllRolePage(Pageable pageable,String keyword) {
-        var role = roleRepository.findByCodeOrName(pageable,keyword);
+    public Page<Role> getAllRolePage(Pageable pageable) {
+        var role = roleRepository.findAll(pageable);
         return role;
     }
 
