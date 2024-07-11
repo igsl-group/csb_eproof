@@ -39,4 +39,9 @@ public class GcisEmailServiceImpl implements EmailService {
 
 
     }
+
+    @Override
+    public void sendBatchEmail(List<String> to, String subject, String content, String attachmentName, byte[] attachment) throws MessagingException {
+
+    }
 }

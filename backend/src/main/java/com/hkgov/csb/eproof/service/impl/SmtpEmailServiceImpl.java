@@ -4,6 +4,8 @@ import com.hkgov.csb.eproof.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -22,6 +24,8 @@ public class SmtpEmailServiceImpl implements EmailService {
     @Value("${spring.mail.from}")
     private String mailFrom;
 
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     public SmtpEmailServiceImpl(JavaMailSender javaMailSender) {
         this.mailSender = javaMailSender;
@@ -36,6 +40,7 @@ public class SmtpEmailServiceImpl implements EmailService {
                           String content,
                           String attachmentName,
                           byte[] attachment) throws MessagingException {
+        logger.info("Sending email. To: {},CC: {}, BCC: {}, Subject: {}",to,cc,bcc,subject);
 
         if(whitelistEnabled){
             to.removeIf(email -> !whitelist.contains(email));
@@ -70,5 +75,14 @@ public class SmtpEmailServiceImpl implements EmailService {
         }
 
         mailSender.send(mimeMessage);
+    }
+
+    @Override
+    public void sendBatchEmail(List<String> toList, String subject, String content, String attachmentName, byte[] attachment) throws MessagingException {
+        if(toList != null && !toList.isEmpty()){
+            for (String to : toList) {
+                sendEmail(List.of(to),null,null,subject,content,attachmentName,attachment);
+            }
+        }
     }
 }

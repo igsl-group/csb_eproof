@@ -7,7 +7,14 @@ public final class Constants {
     public static final String COOKIE_KEY_LOGIN_UID = "uid";
     public static final String COOKIE_KEY_LOGIN_DPDEPTID = "dpdeptid";
     public static final String EXAM_DATE = "MM/dd/yyyy";
+
+
     public static final String STATUS_ACTIVE = "ACTIVE";
+
+    public static final String EMAIL_STATUS_COMPLETED = "COMPLETED";
+    public static final String EMAIL_STATUS_PENDING = "PENDING";
+    public static final String EMAIL_STATUS_IN_PROGRESS = "IN_PROGRESS";
+    public static final String EMAIL_STATUS_FAILED = "FAILED";
 
     public static final String JWT_KEY_USERNAME = "uname";
     public static final String JWT_KEY_DPUSERID = "dpuserid";

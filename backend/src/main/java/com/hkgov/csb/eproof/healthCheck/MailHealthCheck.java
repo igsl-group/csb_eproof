@@ -11,12 +11,16 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class MailHealthCheck implements ApplicationRunner {
@@ -50,9 +54,24 @@ public class MailHealthCheck implements ApplicationRunner {
         try{
             if(healthCheckOnStart){
                 logger.info("Sending health check email...");
+
+                Stream<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces()).stream();
+
+                String serverIpList = interfaces
+                        .filter(ni -> {
+                            try {
+                                return !ni.isLoopback() && ni.isUp();
+                            } catch (SocketException e) {
+                                return false;
+                            }
+                        })
+                        .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())
+                        .map(inetAddress -> inetAddress.getHostAddress())
+                        .collect(Collectors.joining(" | "));
+
                 Map<String,Object> map = new HashMap<>();
                 map.put("serverTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN)));
-                map.put("serverIp", InetAddress.getLocalHost().getHostAddress());
+                map.put("serverIp", serverIpList);
                 map.put("mailMode", mailMode);
 
                 String htmlEmailTemplate = systemParameterRepository.findByName(Constants.SYS_PARAM_HEALTH_CHECK_MAIL_TEMPLATE).get().getValue();
@@ -67,8 +86,11 @@ public class MailHealthCheck implements ApplicationRunner {
                 logger.info("Health check email sent.");
             }
         } catch(Exception e){
-            logger.error("Mail health check failed. Application startup failed.");
-            throw e;
+            logger.error("""
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        WARNING : Mail health check failed. Email will not be able to be sent. Please check email setting.
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        """);
         }
 
     }

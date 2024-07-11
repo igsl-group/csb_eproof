@@ -15,7 +15,5 @@ public class EmailTemplateDto {
 
     private String body;
 
-    private String type;
-
-    private String includeEmails;
+    private String type;;
 }

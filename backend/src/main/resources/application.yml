@@ -135,12 +135,29 @@ mail:
   mode: SMTP
   health-check:
     enabled: true
-    to: hong.cheung@igsl-group.com
+    to: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
     subject: EProof Mail Health Check
   whitelist:
     enabled: true
-    email-list: hong.cheung@igsl-group.com
+    email-list: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
 
+
+thread-pool:
+  scheduled-task:
+    core-pool-size: 10
+    max-pool-size: 20
+    queue-capacity: 100
+    thread-name-prefix: scheduled-task-thread-pool-
+  normal:
+    core-pool-size: 10
+    max-pool-size: 20
+    queue-capacity: 100
+    thread-name-prefix: normal-thread-pool-
+
+#second minute hour dayOfMonth month dayOfWeek
+cron-expression:
+  # Run every second
+  normal-email-sending: 0 * * * * ?
 
 
 

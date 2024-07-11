@@ -23,4 +23,10 @@ public interface EmailService {
                    String content,
                    String attachmentName,
                    byte [] attachment) throws MessagingException;
+
+    void sendBatchEmail(List<String> to,
+                        String subject,
+                        String content,
+                        String attachmentName,
+                        byte [] attachment) throws MessagingException;
 }
