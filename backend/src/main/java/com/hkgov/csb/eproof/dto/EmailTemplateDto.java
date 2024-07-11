@@ -9,7 +9,7 @@ public class EmailTemplateDto {
 
     private Long id;
 
-    private String emailKey;
+    private String templateName;
 
     private String subject;
 
