@@ -23,5 +23,8 @@ public class EmailTemplate extends BaseEntity{
     private String body;
 
     @Column(name = "type")
-    private String type;;
+    private String type;
+
+    @Column(name = "include_emails")
+    private String includeEmails;
 }
