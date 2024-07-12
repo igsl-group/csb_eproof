@@ -18,7 +18,7 @@ import java.util.List;
 public interface CertInfoService {
     Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
-    Boolean batchImport(String examProfileSerialNo, LocalDate examDate, List<CertImportDto> csvData);
+    Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData);
 
     Boolean dispatch(String examProfileSerialNo, CertStage currentStage);
 

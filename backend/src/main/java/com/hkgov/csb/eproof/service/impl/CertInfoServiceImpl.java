@@ -4,12 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
-import com.hkgov.csb.eproof.dao.CertInfoRenewRepository;
-import com.hkgov.csb.eproof.dao.CertInfoRepository;
-import com.hkgov.csb.eproof.dao.CertPdfRepository;
+import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.*;
-import com.hkgov.csb.eproof.dao.FileRepository;
 import com.hkgov.csb.eproof.dto.CertImportDto;
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
@@ -66,6 +63,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     private final FileRepository fileRepository;
     private final MinioUtil minioUtil;
+    private final ExamProfileRepository examProfileRepository;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
 
@@ -88,8 +86,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public Boolean batchImport(String examProfileSerialNo,LocalDate examDate, List<CertImportDto> csvData) {
-        List<CertInfo> certInfos = checkScv(examProfileSerialNo,examDate,csvData);
+    public Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) {
+        List<CertInfo> certInfos = checkScv(examProfileSerialNo,csvData);
         return certInfoRepository.saveAll(certInfos).size() == csvData.size();
     }
 
@@ -449,9 +447,11 @@ public class CertInfoServiceImpl implements CertInfoService {
         return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
-    public List<CertInfo> checkScv(String examProfileSerialNo, LocalDate date,List<CertImportDto> csvData){
+    public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData){
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
+        ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
+        LocalDate dbExamDate = examProfile.getExamDate();
         List<CertImportDto> certInfos = CertInfoMapper.INSTANCE.sourceToDestinationList(certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo));
         CodeUtil codeUtil = new CodeUtil();
         int count = certInfos.size();
@@ -470,7 +470,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 }catch (Exception e){
                     throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
                 }
-                if(!examDate.equals(date)){
+                if(!examDate.equals(dbExamDate)){
                     throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
                 }
 
