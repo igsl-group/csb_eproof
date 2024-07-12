@@ -21,5 +21,5 @@ public class CertSearchDto {
     private String atGrade;
 
     private Boolean certValid;
-
+    private Boolean onHold;
 }
