@@ -46,7 +46,7 @@ select c from CertInfo c
             ( ?#{#searchDto.ucGrade} IS null OR c.uc_grade like %?#{#searchDto.ucGrade}% ) AND
             ( ?#{#searchDto.atGrade} IS null OR c.at_grade like %?#{#searchDto.atGrade}% ) AND
             ( ?#{#searchDto.certValid} IS null OR c.is_valid = ?#{#searchDto.certValid} ) AND
-            ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold}
+            ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold} )
         )
 """,countQuery = """
  SELECT count(*) FROM cert_info c WHERE
@@ -67,7 +67,7 @@ select c from CertInfo c
             ( ?#{#searchDto.ucGrade} IS null OR c.uc_grade like %?#{#searchDto.ucGrade}% ) AND
             ( ?#{#searchDto.atGrade} IS null OR c.at_grade like %?#{#searchDto.atGrade}% ) AND
             ( ?#{#searchDto.certValid} IS null OR c.is_valid = ?#{#searchDto.certValid} )AND
-            ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold}
+            ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold} )
         )
 """)
     Page<CertInfo> certSearch(@Param("searchDto") CertSearchDto searchDto,
