@@ -97,13 +97,13 @@ public class TestController {
                 .filename("test.pdf")
                 .build()
         );
-        CertInfo certInfo = certInfoRepository.findById(1L).get();
+        CertInfo certInfo = certInfoRepository.findById(442L).get();
         ExamProfile exam = certInfo.getExamProfile();
 
         Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
-        FileInputStream inputStream = new FileInputStream("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template.docx");
+        FileInputStream inputStream = new FileInputStream("/var/csb_eproof/test_template.docx");
 
         return ResponseEntity.ok().headers(header).body(documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),null));
     }
@@ -143,7 +143,7 @@ public class TestController {
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
 
-        FileInputStream inputStream = new FileInputStream("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template_2.docx");
+        FileInputStream inputStream = new FileInputStream("/var/csb_eproof/test_template.docx");
 
         byte [] mergedDocument = documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),map);
         /*Configure config = Configure.builder().bind("examResults",policy).build();

@@ -85,7 +85,9 @@ public class DocxUtil {
         String randomFileName = this.generateRandomFileName();
         logger.info("Random file name: {}",randomFileName);
 
-        String docxLocation = String.format("%s\\%s.docx",tempDocumentPath,randomFileName);
+        String docxLocation = String.format("%s/%s.docx",tempDocumentPath,randomFileName);
+
+
         logger.info("Generated TEMP DOCX path: {}",docxLocation);
 
         FileOutputStream docxFos = new FileOutputStream(docxLocation);
@@ -104,18 +106,19 @@ public class DocxUtil {
     }
     public byte [] convertDocxToPdf(File docxFile) throws IOException, InterruptedException {
 
-        String pdfLocation = String.format("%s\\%s.pdf",docxFile.getParent(), FilenameUtils.getBaseName(docxFile.getAbsolutePath()));
+        String pdfLocation = String.format("%s/%s.pdf",docxFile.getParent(), FilenameUtils.getBaseName(docxFile.getAbsolutePath()));
 
 
         String libreConversionCommand = "";
 
         if (SystemUtils.IS_OS_WINDOWS) {
             // Current OS is Windows
-            libreConversionCommand = "\"%s\\soffice\" --headless --convert-to pdf \"%s\" --outdir \"%s\""
+            libreConversionCommand = "\"%s/soffice\" --headless --convert-to pdf \"%s\" --outdir \"%s\""
                     .formatted(libreOfficeProgramPath,docxFile.getAbsolutePath(),tempDocumentPath);
         } else if (SystemUtils.IS_OS_LINUX) {
             // Current OS is Linux
-            libreConversionCommand ="sudo soffice --convert-to pdf \"%s\" --outdir \"%s\"".formatted(docxFile.getAbsolutePath(),tempDocumentPath);
+            libreConversionCommand ="%s"
+                    .formatted(libreOfficeProgramPath);
         }
         Process process = Runtime.getRuntime().exec(new String[]{libreConversionCommand});
         int exitCode = process.waitFor();
