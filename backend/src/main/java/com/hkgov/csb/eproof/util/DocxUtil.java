@@ -110,17 +110,32 @@ public class DocxUtil {
 
 
         String libreConversionCommand = "";
+        Process process = null;
 
         if (SystemUtils.IS_OS_WINDOWS) {
             // Current OS is Windows
             libreConversionCommand = "\"%s/soffice\" --headless --convert-to pdf \"%s\" --outdir \"%s\""
                     .formatted(libreOfficeProgramPath,docxFile.getAbsolutePath(),tempDocumentPath);
+            process = Runtime.getRuntime().exec(new String[]{libreConversionCommand});
         } else if (SystemUtils.IS_OS_LINUX) {
             // Current OS is Linux
-            libreConversionCommand ="%s"
-                    .formatted(libreOfficeProgramPath);
+            String[] command = new String[]{libreOfficeProgramPath + "/soffice", "--convert-to", "pdf", docxFile.getAbsolutePath(), "--outdir", tempDocumentPath};
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.directory(new File(libreOfficeProgramPath).getParentFile());
+            process = processBuilder.start();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+                while ((line = errorReader.readLine()) != null) {
+                    System.err.println(line);
+                }
+            }
         }
-        Process process = Runtime.getRuntime().exec(new String[]{libreConversionCommand});
+
         int exitCode = process.waitFor();
         logger.debug("Command executed with exit code: " + exitCode);
         if(exitCode != 0){
