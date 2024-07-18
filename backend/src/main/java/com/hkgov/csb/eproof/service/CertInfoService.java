@@ -5,6 +5,7 @@ import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -24,6 +25,8 @@ public interface CertInfoService {
 
 
     void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage);
+
+    List<CertInfo> batchScheduleCertSignAndIssue(String examProfileSerialNo);
 
     void batchGeneratePdf(String examProfileSerialNo) throws Exception;
 
@@ -47,4 +50,10 @@ public interface CertInfoService {
     void hold(Long certInfoId, String remark);
 
     void delete(Long certInfoId);
+
+    CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo);
+
+    void uploadSignedPdf(Long certInfoId, MultipartFile file);
+
+    void issueCert(Long certInfoId);
 }

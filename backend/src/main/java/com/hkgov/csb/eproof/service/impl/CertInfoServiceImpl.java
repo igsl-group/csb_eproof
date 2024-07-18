@@ -30,6 +30,7 @@ import com.hkgov.csb.eproof.util.MinioUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.slf4j.Logger;
@@ -40,12 +41,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -64,6 +67,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final FileRepository fileRepository;
     private final MinioUtil minioUtil;
     private final ExamProfileRepository examProfileRepository;
+    private final EmailEventRepository emailEventRepository;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
 
@@ -136,6 +140,24 @@ public class CertInfoServiceImpl implements CertInfoService {
         List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,List.of(CertStatus.PENDING,CertStatus.FAILED));
         certInfoList.forEach(cert->cert.setCertStatus(CertStatus.IN_PROGRESS));
         certInfoRepository.saveAll(certInfoList);
+    }
+
+    @Override
+    @Transactional
+    public List<CertInfo> batchScheduleCertSignAndIssue(String examProfileSerialNo) {
+
+        List<CertInfo> alreadyScheduledCert = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.SCHEDULED));
+        if (!alreadyScheduledCert.isEmpty()){
+            return null;
+        }
+
+        List<CertInfo> pendingSignAndIssueCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.PENDING));
+        pendingSignAndIssueCertList.forEach(cert->{
+            cert.setCertStatus(CertStatus.SCHEDULED);
+        });
+        certInfoRepository.saveAll(pendingSignAndIssueCertList);
+
+        return pendingSignAndIssueCertList;
     }
 
     @Override
@@ -403,6 +425,64 @@ public class CertInfoServiceImpl implements CertInfoService {
        certInfoRepository.delete(certInfo);
     }
 
+    @Override
+    public CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo) {
+        CertInfo certInfo = certInfoRepository.getNextScheduledSignAndIssueCert(examProfileSerialNo);
+        if(certInfo != null){
+            certInfo.setCertStatus(CertStatus.IN_PROGRESS);
+            certInfoRepository.save(certInfo);
+        }
+        return certInfo;
+    }
+
+    @Override
+    public void uploadSignedPdf(Long certInfoId, MultipartFile file) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
+        }
+        if(!CertStage.SIGN_ISSUE.equals(certInfo.getCertStage()) && !CertStatus.IN_PROGRESS.equals(certInfo.getCertStatus())){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }
+
+        try{
+
+            certInfo.setActualSignTime(LocalDateTime.now());
+            certInfoRepository.save(certInfo);
+
+//            File uploadedPdf = fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath,file.getName(),file.getInputStream());
+            deleteCertPdf(certInfo);
+            File uploadedPdf = this.uploadCertPdf(certInfo, file.getBytes());
+            this.createCertPdfRecord(certInfo,uploadedPdf);
+
+        }catch (IOException e){
+            throw new GenericException(ExceptionEnums.CANNOT_UPLOAD_SIGNED_PDF_FOR_CERT);
+        }
+    }
+
+    @Override
+    public void issueCert(Long certInfoId) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
+        }
+        if(!CertStage.SIGN_ISSUE.equals(certInfo.getCertStage()) && !CertStatus.SUCCESS.equals(certInfo.getCertStatus())){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }
+
+        //TODO: Call eProof API for issuing cert
+        certInfo.setCertStage(CertStage.SIGN_ISSUE);
+        certInfo.setCertStatus(CertStatus.SUCCESS);
+        certInfoRepository.save(certInfo);
+    }
+
+    void deleteCertPdf(CertInfo certInfo){
+        CertPdf certPdf = certPdfRepository.findByCertInfoId(certInfo.getId());
+        if(certPdf != null){
+            certPdfRepository.delete(certPdf);
+        }
+    }
+
     @Transactional(noRollbackFor = Exception.class)
     void singleSignAndIssue(CertInfo certInfo){
         //TODO Trigger sign and issue action
@@ -414,7 +494,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
 
-    private void createCertPdfRecord(CertInfo certInfo,File uploadedPdf){
+    @Transactional
+    public void createCertPdfRecord(CertInfo certInfo,File uploadedPdf){
         // Update CertPdf table record
         CertPdf certPdf = new CertPdf();
         certPdf.setCertInfoId(certInfo.getId());
@@ -422,6 +503,14 @@ public class CertInfoServiceImpl implements CertInfoService {
         certPdfRepository.save(certPdf);
     }
 
+    @Transactional
+    public void updateCertPdfRecord(CertInfo certInfo, File uploadedPdf){
+        CertPdf certPdf = certPdfRepository.findByCertInfoId(certInfo.getId());
+        if(certPdf != null){
+            certPdf.setFileId(uploadedPdf.getId());
+            certPdfRepository.save(certPdf);
+        }
+    }
 
     private void updateCertStageAndStatus(CertInfo certInfo,CertStage stage, CertStatus status){
         if(stage != null){

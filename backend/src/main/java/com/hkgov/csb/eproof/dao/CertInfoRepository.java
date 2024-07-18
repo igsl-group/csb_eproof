@@ -101,4 +101,7 @@ select c from CertInfo c
 
     @Query("select c from CertInfo c left join CertEproof d on c.id = d.certInfoId where d.uuid = :uuid and d.version = :version")
     CertInfo findEmail(@Param("uuid") String uuid, @Param("version") Integer version);
+
+    @Query(nativeQuery = true,value="select * from cert_info c where c.exam_profile_serial = :examProfileSerialNo and c.cert_stage = 'SIGN_ISSUE' and c.status = 'SCHEDULED' order by c.id LIMIT 1")
+    CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo);
 }
