@@ -1,0 +1,15 @@
+--------------------------------------------------
+This is the command line eProof Sample Program to facilitate B/D to perform the operations on the eProof.
+Below is the instruction for running the command
+
+Parameter [0]: Action to be performed
+        Below are the supported actions
+        1) INIT-OR-TEST: Initialized the folder if it does not exist. Also to test the connection to the server.
+        2) ISSUE-EPROOF: Issue eProof according to the defined config file.
+
+Parameter [1]: Root folder path
+        e.g. C:\eproofsampleprog
+
+Parameter [2]: EProof Issuance config file under [Root]\eproof\
+        e.g. issueEproofSample4.json
+

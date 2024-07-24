@@ -1,0 +1,15 @@
+{
+  "bd_informantion" : {
+    "en_name": "ASL Testing BD",
+    "issuerDID": "did:eproof:19916083-176f-4b3c-b2b0-daae9725c079",
+    "verificationMethod": "did:eproof:19916083-176f-4b3c-b2b0-daae9725c079#key-1",
+    "privateKey": "privateKey.pem",
+    "p12certfilename" : "E8EBD064F37E73443C57B290B01FDF5B49C9A0.p12",
+    "p12certSecret": "2917069296522169"
+  },
+  "api_information" : {
+    "environment": "dev",
+    "clientId": "260862210",
+    "clientSecret": "F-kXp2s5vJaNdRgU"
+  }
+}

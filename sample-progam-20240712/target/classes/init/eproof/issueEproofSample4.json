@@ -1,0 +1,37 @@
+{
+  "eproofMeta": {
+    "eProofId": "ASL-DEV-SAMPLE4-001",
+    "eProofTypeId": "7bfec286-5d89-4c95-b5fc-25ab3d805dae",
+    "templateCode": "ASLDEV-ASL-DEV-SAMPLE4-1",
+    "SaltID": "ASLDEV-ASL-DEV-SAMPLE4-SALT-1",
+    "hkic": "G503914",
+    "expiryDate": "2030-04-16",
+    "authMethod": "03",
+    "dataUrl": "http://192.168.8.6:9010/eProof/b5e1f0c5-9306-421b-ac12-6401bf668805/version/1/data",
+    "otpUrl": "http://192.168.8.6:9010/eProof/b5e1f0c5-9306-421b-ac12-6401bf668805/version/1/otp",
+    "downloadMaxCount": 10,
+    "downloadExpiryDate": "2030-04-16T09:46:33.000Z",
+    "salt": "SgVkYp3NcRfU4u7x!A%D*G-KaPdjXnZr"
+  },
+
+  "eProofData": {
+    "eProofSourceData": "sample4/eproof_data.json",
+    "eProofOutputDataStoreOnBDSystem": "sample4/eproof_[[UUID]].json",
+    "issuanceDate": "2010-01-01T19:23:24Z",
+    "expirationDate": "2025-11-13T18:19:39Z"
+  },
+
+  "eproofPDF": {
+    "hasEProofPDF": true,
+    "qrcodeMaxAccessCount": -1,
+    "qrCodeWidth": 200,
+    "qrCodeHeight": 200,
+
+    "pdfUrl": "http://192.168.8.6:9010/eProof/b5e1f0c5-9306-421b-ac12-6401bf668805/version/1/pdf",
+    "title" : "HK Registered Gas Installer Card",
+    "pdfEncryptionOwnerPassword": "abc123",
+    "pdfEncryptionUserPassword": "",
+    "wordTemplatePath" : "eprooftemplates/sample4/HK_Registered_Gas_Installer_Card_PDF.docx",
+    "pdfOutputName" : "sample4/HK_Registered_Gas_Installer_Card_PDF_[[UUID]].pdf"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "subfolder_structure": {
+    "bdconfig": {
+      "type": "dir",
+      "foldername": "bdconfig",
+      "description": "Folder containing B/D config files",
+      "files": [
+        {
+          "name": "bdconfigfile",
+          "description": "B/D Config File",
+          "filename": "bdconfig.json"
+        }
+      ]
+    },
+    "eprooftemplates": {
+      "type": "dir",
+      "foldername": "eprooftemplates",
+      "description": "Folder for eproof type operation"
+    },
+    "eproof": {
+      "type": "dir",
+      "foldername": "eproof",
+      "description": "Folder for eproof operation"
+    },
+    "logs": {
+      "type": "dir",
+      "foldername": "logs",
+      "description": "Folder containing all logs files"
+    }
+  },
+  "eproofAPI": {
+    "env-dev" : {
+      "url":"https://dev.eproof.gov.hk/api",
+      "urldownloadeProofen" : "https://dev.eproof.gov.hk/web/ec/download?eProofId=[UUID]&version=[VERSION]",
+      "urldownloadeProoftc" : "https://dev.eproof.gov.hk/web/tc/download?eProofId=[UUID]&version=[VERSION]",
+      "urldownloadeProofsc" : "https://dev.eproof.gov.hk/web/sc/download?eProofId=[UUID]&version=[VERSION]"
+    },
+    "env-uat" : {
+      "url":"https://10.148.10.143/api",
+      "urldownloadeProofen" : "https://10.148.10.143/web/tc/download?eProofId=[UUID]&version=[VERSION]",
+      "urldownloadeProoftc" : "https://10.148.10.143/web/tc/download?eProofId=[UUID]&version=[VERSION]",
+      "urldownloadeProofsc" : "https://10.148.10.143/web/tc/download?eProofId=[UUID]&version=[VERSION]"
+    },
+    "env-prod" : {
+      "url":"https://prod.eproof.gov.hk/api",
+      "urldownloadeProofen" : "https://eproof.gov.hk/web/tc/download?eProofId=[UUID]&version=[VERSION]",
+      "urldownloadeProoftc" : "https://eproof.gov.hk/web/tc/download?eProofId=[UUID]&version=[VERSION]",
+      "urldownloadeProofsc" : "https://eproof.gov.hk/web/tc/download?eProofId=[UUID]&version=[VERSION]"
+    }
+  }
+}

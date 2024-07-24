@@ -1,0 +1,40 @@
+
+{
+  "eproofMeta": {
+    "eProofId": "ASL-DEV-SAMPLE5-001",
+    "eProofTypeId": "f9a405d0-2cab-4066-8396-3b2cfd62a9f3",
+    "templateCode": "ASLDEV-ASL-DEV-SAMPLE5-1",
+    "SaltID": "ASLDEV-ASL-DEV-SAMPLE5-SALT-1",
+    "hkic": "G503914",
+    "expiryDate": "2030-04-16",
+    "authMethod": "01",
+    "dataUrl": "http://192.168.8.6:9010/eProof/f9a405d0-2cab-4066-8396-3b2cfd62a9f3/version/1/data",
+    "otpUrl": "http://192.168.8.6:9010/eProof/f9a405d0-2cab-4066-8396-3b2cfd62a9f3/version/1/otp",
+    "downloadMaxCount": 1,
+    "downloadExpiryDate": "2030-04-16T09:46:33.000Z",
+    "salt": "AgVkYpjXnPd7x!A%D*Zr4u3NcRfUG-Ka"
+  },
+
+  "eProofData": {
+    "eProofSourceData": "sample5/eproof_data.json",
+    "eProofOutputDataStoreOnBDSystem": "sample5/eproof_[[UUID]].json",
+    "issuanceDate": "2010-01-01T19:23:24Z",
+    "expirationDate": "2025-11-13T18:19:39Z"
+  },
+
+  "eproofPDF": {
+    "hasEProofPDF": true,
+    "hasQRCode": true,
+    "qrcodeMaxAccessCount": -1,
+    "qrCodeWidth": 200,
+    "qrCodeHeight": 200,
+
+    "pdfUrl": "http://192.168.8.6:9010/eProof/f9a405d0-2cab-4066-8396-3b2cfd62a9f3/version/1/pdf",
+    "title" : "CRE & BLT Result Notification",
+    "pdfEncryptionOwnerPassword": "abc123",
+    "pdfEncryptionUserPassword": "",
+    "wordTemplatePath" : "eprooftemplates/sample5/CRE_BLT_PDF.docx",
+    "pdfOutputName" : "sample5/CRE_BLT_PDF_[[UUID]].pdf"
+  }
+
+}
