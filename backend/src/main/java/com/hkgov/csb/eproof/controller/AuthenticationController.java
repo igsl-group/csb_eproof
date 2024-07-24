@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.scanner.Constant;
+import java.util.Enumeration;
 
 @RestController(value = "/auth")
 public class AuthenticationController {
@@ -36,32 +37,30 @@ public class AuthenticationController {
 
 
     @GetMapping("/sso")
-    public Result sso(@RequestHeader String dpUserId,
-                      @RequestHeader String dpDeptId,
+    public Result sso(
+            @RequestHeader(value = "uid", required = false) String uid,
+            @RequestHeader(value = "dpdeptid", required = false) String dpDeptId,
+            @RequestHeader(value = "host", required = false) String host,
             HttpServletRequest req , HttpServletResponse resp){
-
-        /*if(req.getCookies() == null){
-            throw new GenericException(ExceptionEnums.ACCESS_DENIED);
-        }
-        String dpUserId = "",dpDeptId="";
-
-        for(Cookie cookie:req.getCookies()){
-            logger.info(cookie.getName()+" : "+cookie.getValue());
-            if(Constants.COOKIE_KEY_LOGIN_UID.equals(cookie.getName())){
-                dpUserId=cookie.getValue();
-            }else if (Constants.COOKIE_KEY_LOGIN_DPDEPTID.equals(cookie.getName())){
-                dpDeptId = cookie.getValue();
-            }
-        }*/
-
-        authenticationService.authenticate(dpUserId,dpDeptId);
-        UserSession us = userSessionService.persistUserSession(dpUserId,dpDeptId);
-        String token = jwtService.generateToken(dpUserId,dpDeptId,us);
+        logger.info("uid: {} DeDeptId: {} host: {}", uid, dpDeptId, host);
+        logAllRequestHeaders(req);
+        authenticationService.authenticate(uid,dpDeptId);
+        UserSession us = userSessionService.persistUserSession(uid,dpDeptId);
+        String token = jwtService.generateToken(uid,dpDeptId,us);
         resp.addCookie(new Cookie(Constants.COOKIE_KEY_ACCESS_TOKEN, token));
         userSessionService.updateSessionJwt(us.getId(),token);
 
         return Result.success(token);
     }
-
+    private void logAllRequestHeaders(HttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames != null) {
+            while (headerNames.hasMoreElements()) {
+                String headerName = headerNames.nextElement();
+                String headerValue = request.getHeader(headerName);
+                logger.info("Header: {} = {}", headerName, headerValue);
+            }
+        }
+    }
 
 }
