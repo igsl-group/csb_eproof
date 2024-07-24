@@ -10,7 +10,8 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   CopyOutlined,
-  SendOutlined
+  SendOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -22,15 +23,22 @@ import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import ResendEmailModal from "./modal";
 import RevokeEmailModal from "./modal";
+import { examProfileAPI } from '@/api/request';
+import {
+  toQueryString
+} from "@/utils/util";
+import {dataMapper} from "../pc/document-list/data-mapper";
 
 const CertificateManagementValid = () =>  {
 
   const modalApi = useModal();
   const messageApi = useMessage();
   const navigate = useNavigate();
-  const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
   const [resendopen, setResendOpen] = useState(false);
   const [revokeOpen, setRevokeOpen] = useState(false);
+  const [validCertData, setValidCertData] = useState([]);
+  const [filterCondition, setFilterCondition] = useState(null);
   const {
     serialNo,
   } = useParams();
@@ -81,7 +89,8 @@ const CertificateManagementValid = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(tempPagination, filterCondition);
+  }, [pagination, filterCondition]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -90,16 +99,16 @@ const CertificateManagementValid = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-  }, [pagination]);
-
+    getCertList(tempPagination, filterCondition);
+  }, [pagination, filterCondition]);
 
   useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
+    // searchForm.setFieldsValue({
+    //   serialNo: 'N000000001',
+    //   examDate: dayjs('2024-01-11'),
+    //   plannedAnnouncedDate: dayjs('2024-01-11'),
+    //   location: 'Hong Kong',
+    // })
   }, []);
 
   const breadcrumbItems = useMemo(() => [
@@ -184,14 +193,14 @@ const CertificateManagementValid = () =>  {
       title: 'HKID',
       key: 'hkid',
       width: 100,
-      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate/${row.hkid}`}>{row.hkid}</Link>,
+      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?hkid=${row.hkid}`}>{row.hkid}</Link>,
       sorter: true,
     },
     {
       title: 'Passport',
-      key: 'passport',
+      key: 'passportNo',
       width: 100,
-      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate/${row.passport}`}>{row.passport}</Link>,
+      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?passport=${row.passportNo}`}>{row.passportNo}</Link>,
       sorter: true,
     },
     {
@@ -210,47 +219,132 @@ const CertificateManagementValid = () =>  {
     },
     {
       title: 'Result Letter Date',
-      key: 'resultLetterDate',
-      dataIndex: 'resultLetterDate',
+      key: 'actualSignTime',
+      dataIndex: 'actualSignTime',
       width: 180,
       sorter: true,
     },
     {
       title: 'Email Issuance Date',
-      key: 'emailIssuanceDate',
-      dataIndex: 'emailIssuanceDate',
+      key: 'actualEmailSendTime',
+      dataIndex: 'actualEmailSendTime',
       width: 180,
       sorter: true,
     },
     {
       title: 'UE',
-      key: 'ue',
-      dataIndex: 'ue',
-      width: 100,
-      sorter: true,
+      key: 'ueGrade',
+      dataIndex: 'ueGrade',
+      width: 80,
     },
     {
       title: 'UC',
-      key: 'uc',
-      dataIndex: 'uc',
-      width: 100,
-      sorter: true,
+      key: 'ucGrade',
+      dataIndex: 'ucGrade',
+      width: 80,
     },
     {
       title: 'AT',
-      key: 'at',
-      dataIndex: 'at',
-      width: 100,
-      sorter: true,
+      key: 'atGrade',
+      dataIndex: 'atGrade',
+      width: 80,
     },
     {
       title: 'BLNST',
-      key: 'blnst',
-      dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
+      key: 'blnstGrade',
+      dataIndex: 'blnstGrade',
+      width: 80,
     },
   ], []);
+
+
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: async (response, params) => {
+      switch (params[0]) {
+        case 'certList':
+        {
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+          setValidCertData(content);
+          break;
+        }
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      console.log(error.data)
+      const message = error.data?.properties?.message || error.data?.detail || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
+        }))
+        .catch(() => false);
+
+      if (values) {
+        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if (payload[key]) {
+            isEmpty = false;
+            finalPayload[key] = payload[key];
+          }
+        }
+
+        const resetPage = resetPagination();
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getCertList(resetPage);
+        } else {
+          await getCertList(resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [pagination, filterCondition]
+  );
+
+  const getCertList = useCallback(async (pagination = {}, filterCondition) => {
+    return runExamProfileAPI('certList', 'VALID', filterCondition, toQueryString(pagination));
+  }, []);
+
+  useEffect(() => {
+    getCertList();
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Certificate Management - Valid</Typography.Title>
@@ -263,7 +357,7 @@ const CertificateManagementValid = () =>  {
         <Form
           layout="vertical"
           autoComplete="off"
-          form={form}
+          form={searchForm}
           colon={false}
           scrollToFirstError={{
             behavior: 'smooth',
@@ -272,28 +366,35 @@ const CertificateManagementValid = () =>  {
           }}
           name="form"
         >
-          <Row justify={'start'}>
+          <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <HKID name={'hkid'} label={'HKID'} size={50} />
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'passportNo'} label={'Passport'} size={50} />
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50} />
                 </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Email name={'email'} label={'Candidate’s Email'} size={50} />
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
+                  <Button shape="circle" icon={<CloseOutlined />} title={'Clean'} onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary': 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
                 </Col>
               </Row>
             </Col>
@@ -302,14 +403,6 @@ const CertificateManagementValid = () =>  {
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
-        {/*<Col>*/}
-        {/*  <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download*/}
-        {/*    Selected ({selectedRowKeys.length})</Button>*/}
-        {/*</Col>*/}
-        {/*<Col>*/}
-        {/*  <Button type="primary" onClick={onClickRevokeSelected} disabled={selectedRowKeys.length === 0}>Revoke*/}
-        {/*    Selected ({selectedRowKeys.length})</Button>*/}
-        {/*</Col>*/}
         <Col>
           <Pagination
             showSizeChanger
@@ -329,18 +422,13 @@ const CertificateManagementValid = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          // rowKey={'candidateNo'}
-          // rowSelection={{
-          //   type: 'checkbox',
-          //   ...rowSelection,
-          // }}
           onChange={tableOnChange}
           pagination={false}
           scroll={{
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={validCertData}
         />
         <br/>
         <Row justify={'end'}>
@@ -349,8 +437,8 @@ const CertificateManagementValid = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

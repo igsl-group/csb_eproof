@@ -8,6 +8,7 @@ import {
   Card,
   Typography,
   Breadcrumb,
+  Watermark,
   Grid,
   Space,
   Tabs,
@@ -16,7 +17,7 @@ import {
   Descriptions,
   Modal,
   Pagination,
-  Button
+  Button, Alert
 } from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
@@ -248,7 +249,13 @@ const StatisticalReports = () =>  {
 
 
   return (
-    <div className={styles['exam-profile']}>
+    <Watermark content={'Mockup'} className={styles['exam-profile']}>
+      <Alert
+        message={<b>The functionality of historical result management page will be fully developed by the end of 2024.</b>}
+        type="warning"
+        closable
+      />
+      <br/>
       <Typography.Title level={3}>Statistical Reports</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -435,7 +442,7 @@ const StatisticalReports = () =>  {
       {/*  onCloseCallback={() => setExceptionalCaseOpen(false)}*/}
       {/*  // onFinishCallback={() => setRevokeOpen(false)}*/}
       {/*/>*/}
-    </div>
+    </Watermark>
 
   )
 }

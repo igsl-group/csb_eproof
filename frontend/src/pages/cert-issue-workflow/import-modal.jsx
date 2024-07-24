@@ -45,23 +45,12 @@ const ImportModal = (props) =>  {
             required: true,
             requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "hkid" is not allowed to be empty`,
           },
-          // {
-          //   name: 'can_serial',
-          //   inputName: 'can_serial',
-          //   required: true,
-          //   requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "can_serial" is not allowed to be empty`,
-          // },
           {
             name: 'Name in English ',
             inputName: 'Name in English ',
             required: true,
             requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "name" is not allowed to be empty`,
           },
-          // {
-          //   name: 'cname',
-          //   inputName: 'cname',
-          //   optional: true,
-          // },
           {
             name: 'HKID',
             inputName: 'HKID',
@@ -138,14 +127,15 @@ const ImportModal = (props) =>  {
     },
     onError: (error) => {
       const message = error.data?.properties?.message || '';
-      dataMsg.push(message)
-      // messageApi.error(message);
+      dataMsg.push({
+        message
+      })
 
     },
     onFinally: (params, result, error) => {
     },
   });
-
+  console.log(dataMsg)
   const onSave = useCallback(async () => {
     // const values = await form.validateFields()
     //   .then((values) => ({
@@ -160,7 +150,7 @@ const ImportModal = (props) =>  {
     }
 
     if (values) {
-      runExamProfileAPI('certIssuanceImport', recordId, '2024-06-12', values)
+      runExamProfileAPI('certIssuanceImport', recordId, values)
         .then(() => onFinish());
     }
   }, [recordId, file]);
@@ -179,7 +169,7 @@ const ImportModal = (props) =>  {
     >
       {
         file && dataMsg.map((row, i) => <List.Item>
-          <Alert message={row.message} type="error" showIcon />
+          <Alert style={{marginBottom: 8}} message={row.message} type="error" showIcon />
         </List.Item>)
       }
       {

@@ -36,6 +36,9 @@ import { userRoleAPI } from '@/api/request';
 import {TYPE } from '@/config/enum';
 import {useMessage} from "../../context/message-provider";
 import {useModal} from "../../context/modal-provider";
+import {
+  toQueryString
+} from "@/utils/util";
 
 const RoleList = () =>  {
 
@@ -46,6 +49,7 @@ const RoleList = () =>  {
   const [data, setData] = useState(false);
   const [recordId, setRecordId] = useState('');
   const [type, setType] = useState('');
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -88,7 +92,7 @@ const RoleList = () =>  {
 
   const onFinishCallback = useCallback(() => {
     setOpen(false);
-    getRoleList();
+    getRoleList(pagination);
   }, []);
 
   const breadcrumbItems = useMemo(() => [
@@ -132,7 +136,7 @@ const RoleList = () =>  {
     {
       title: `Permission`,
       key: "permission",
-      sorter: true,
+      sorter: false,
       render: (row) => (
         <Space size={[0, 8]} wrap>
           {
@@ -154,6 +158,7 @@ const RoleList = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
+    getRoleList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -163,6 +168,7 @@ const RoleList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getRoleList(tempPagination, filterCondition);
   }, [pagination]);
 
   const { runAsync: runUserRoleAPI } = useRequest(userRoleAPI, {
@@ -172,13 +178,17 @@ const RoleList = () =>  {
         case 'roleList':
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setData(content);
           break;
         case 'roleGet':
           break;
         case 'roleRemove':
           messageApi.success('Remove successfully.');
-          getRoleList();
+          getRoleList(pagination);
           break;
         default:
           break;
@@ -194,12 +204,25 @@ const RoleList = () =>  {
   });
 
   useEffect(() => {
-    getRoleList();
+    getRoleList(pagination);
   }, []);
 
-  const getRoleList = () => {
-    runUserRoleAPI('roleList');
-  }
+  const getRoleList = useCallback((pagination = {}, filter = {}) => {
+    runUserRoleAPI('roleList', toQueryString(pagination, filter));
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
 
   return (
     <div className={styles['role-list']}>
@@ -244,8 +267,8 @@ const RoleList = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

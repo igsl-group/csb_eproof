@@ -13,8 +13,6 @@ export function documentAPI(params, ...rest) {
     switch (params) {
         case 'create':
             return request('/documents', 'post', rest[0]);
-        case 'create':
-            return request('/documents', 'post', rest[0]);
         case 'update':
             return request('/documents', 'put', rest[0]);
         case 'list':
@@ -148,11 +146,11 @@ export function generalAPI(params, ...rest) {
         case 'certTemplateDownload':
             return request(`/download/${rest[0]}`, "download");
         case 'certTemplateList':
-            return request('/list', "get");
+            return request(`/list?${rest[0]}`, "get");
         case 'emailTemplateUpdate':
             return request(`/email/update/${rest[0]}`, "patch", rest[1]);
         case 'emailTemplateList':
-            return request('/email/list', "get");
+            return request(`/email/list?${rest[0]}`, "get");
         case 'emailTemplateGet':
             return request(`/email/${rest[0]}`, "get");
     }
@@ -169,7 +167,7 @@ export function examProfileAPI(params, ...rest) {
         case 'examProfileUpdate':
             return request(`/examProfile/update/${rest[0]}`, "patch", rest[1]);
         case 'examProfileList':
-            return request('/examProfile/list', "get");
+            return request(`/examProfile/list?${rest[0]}`, "get");
         case 'examProfileRemove':
             return request(`/examProfile/delete/${rest[0]}`, "delete");
         case 'examProfileFreeze':
@@ -181,15 +179,27 @@ export function examProfileAPI(params, ...rest) {
         case 'examProfileDropdown':
             return request(`/examProfile/dropDown`, "get");
         case 'certList':
-            return request(`/cert/search/${rest[0]}`, "post", rest[1]);
+            return request(`/cert/search/${rest[0]}?${rest[2]}`, "post", rest[1]);
+        case 'certLatestCandidateInfo':
+            return request(`/cert/search/VALID?${rest[1]}`, "post", rest[0]);
         case 'certIssuanceImport':
-            return request(`/cert/batch/import/${rest[0]}?examDate=${rest[1]}`, "formData", rest[2]);
+            return request(`/cert/batch/import/${rest[0]}`, "formData", rest[1]);
         case 'certIssuanceDispatch':
-            return request(`/cert/batch/dispatch?examProfileSerialNo=${rest[0]}&currentStage=${rest[1]}`, "get");
+            return request(`/cert/batch/dispatch/${rest[0]}?currentStage=${rest[1]}`, "post");
         case 'certIssuanceGenerate':
             return request(`/cert/batch/generate/${rest[0]}`, "post");
+        case 'certIssuanceSign':
+            return request(`/cert/batch/signAndIssue/${rest[0]}`, "post");
         case 'certIssuanceBulkDownload':
             return request(`/cert/downloadCert?certInfoIdList=${rest[0]}`, "download");
+        case 'certIssuanceHold':
+            return request(`/cert/hold/${rest[0]}`, "post", rest[1]);
+        case 'certIssuanceResume':
+            return request(`/cert/resume/${rest[0]}`, "post", rest[1]);
+        case 'certIssuanceDelete':
+            return request(`/cert/delete/${rest[0]}`, "delete");
+        case 'certBatchUpdateEmail':
+            return request(`/cert/batch/updateEmail`, "post", rest[0]);
     }
 }
 
@@ -202,7 +212,7 @@ export function userRoleAPI(params, ...rest) {
         case 'userUpdate':
             return request(`/user/update/${rest[0]}`, "patch", rest[1]);
         case 'userList':
-            return request('/user/list', "get");
+            return request(`/user/list?${rest[0]}`, "get");
         case 'userRemove':
             return request(`/user/delete/${rest[0]}`, "delete");
         case 'roleGet':
@@ -212,7 +222,7 @@ export function userRoleAPI(params, ...rest) {
         case 'roleUpdate':
             return request(`/role/update/${rest[0]}`, "patch", rest[1]);
         case 'roleList':
-            return request('/role/list', "get");
+            return request(`/role/list?${rest[0]}`, "get");
         case 'roleRemove':
             return request(`/role/delete/${rest[0]}`, "delete");
         case 'permissionList':

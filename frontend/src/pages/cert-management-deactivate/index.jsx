@@ -10,7 +10,7 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   CopyOutlined,
-  SendOutlined
+  SendOutlined, CloseOutlined
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -21,14 +21,20 @@ import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import EmailModal from "./modal";
+import { examProfileAPI } from '@/api/request';
+import {
+  toQueryString
+} from "@/utils/util";
 
 const CertificateManagementInvalid = () =>  {
 
   const modalApi = useModal();
   const messageApi = useMessage();
   const navigate = useNavigate();
-  const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
   const [open, setOpen] = useState(false);
+  const [invalidCertData, setInvalidCertData] = useState([]);
+  const [filterCondition, setFilterCondition] = useState(null);
   const {
     serialNo,
   } = useParams();
@@ -95,7 +101,8 @@ const CertificateManagementInvalid = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(tempPagination, filterCondition);
+  }, [pagination, filterCondition]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -104,17 +111,18 @@ const CertificateManagementInvalid = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(tempPagination, filterCondition);
+  }, [pagination, filterCondition]);
 
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
+  //
+  // useEffect(() => {
+  //   form.setFieldsValue({
+  //     serialNo: 'N000000001',
+  //     examDate: dayjs('2024-01-11'),
+  //     plannedAnnouncedDate: dayjs('2024-01-11'),
+  //     location: 'Hong Kong',
+  //   })
+  // }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -198,6 +206,93 @@ const CertificateManagementInvalid = () =>  {
       sorter: true,
     },
   ], []);
+
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: async (response, params) => {
+      switch (params[0]) {
+        case 'certList':
+        {
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+          setInvalidCertData(content);
+          break;
+        }
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      console.log(error.data)
+      const message = error.data?.properties?.message || error.data?.detail || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
+        }))
+        .catch(() => false);
+
+      if (values) {
+        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if (payload[key]) {
+            isEmpty = false;
+            finalPayload[key] = payload[key];
+          }
+        }
+
+        const resetPage = resetPagination();
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getCertList(resetPage);
+        } else {
+          await getCertList(resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [pagination, filterCondition]
+  );
+
+  const getCertList = useCallback(async (pagination = {}, filterCondition) => {
+    return runExamProfileAPI('certList', 'INVALID', filterCondition, toQueryString(pagination));
+  }, []);
+
+  useEffect(() => {
+    getCertList();
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Certificate Management - Invalid</Typography.Title>
@@ -210,7 +305,7 @@ const CertificateManagementInvalid = () =>  {
         <Form
           layout="vertical"
           autoComplete="off"
-          form={form}
+          form={searchForm}
           colon={false}
           scrollToFirstError={{
             behavior: 'smooth',
@@ -219,34 +314,36 @@ const CertificateManagementInvalid = () =>  {
           }}
           name="form"
         >
-          <Row justify={'start'}>
+          <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                {/*<Col span={24} md={12}>*/}
-                {/*  <Text name={"serialNo"} label={'Serial No.'} size={12}/>*/}
-                {/*</Col>*/}
-                {/*<Col span={24} md={12}>*/}
-                {/*  /!*<Text name={'candidateNo'} label={'Candidate No.'} size={12}/>*!/*/}
-                {/*</Col>*/}
-                <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'passportNo'} label={'Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
+                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
+                          onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary' : 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
                 </Col>
               </Row>
             </Col>
@@ -289,7 +386,7 @@ const CertificateManagementInvalid = () =>  {
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={invalidCertData}
         />
         <br/>
         <Row justify={'end'}>
@@ -298,8 +395,8 @@ const CertificateManagementInvalid = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

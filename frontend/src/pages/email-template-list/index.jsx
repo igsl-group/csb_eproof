@@ -25,6 +25,9 @@ import {download} from "../../utils/util";
 import { generalAPI } from '@/api/request';
 import {TYPE } from '@/config/enum';
 import parse, { attributesToProps } from 'html-react-parser';
+import {
+  toQueryString
+} from "@/utils/util";
 
 const EmailTemplateList = () =>  {
 
@@ -36,21 +39,7 @@ const EmailTemplateList = () =>  {
   const [data, setData] = useState([]);
   const [type, setType] = useState('');
   const [recordId, setRecordId] = useState('');
-  const {
-    serialNo,
-  } = useParams();
-
-  // const [data, setData] = useState([
-  //   {
-  //     type: 'Notify Normal Email',
-  //     description: 'Notify Normal Email',
-  //     cc: '',
-  //     bcc: '',
-  //     subject: 'Notify Normal Email',
-  //   }
-  // ]);
-
-
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -93,7 +82,7 @@ const EmailTemplateList = () =>  {
 
   const onFinishCallback = useCallback(() => {
     setOpen(false);
-    getEmailTemplateList();
+    getEmailTemplateList(pagination);
   }, []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
@@ -107,6 +96,7 @@ const EmailTemplateList = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
+    getEmailTemplateList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -116,17 +106,8 @@ const EmailTemplateList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getEmailTemplateList(tempPagination, filterCondition);
   }, [pagination]);
-
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -140,22 +121,6 @@ const EmailTemplateList = () =>  {
     },
   ], []);
 
-  const onClickDownload = useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to download PDF?',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
-
-  const onClickRevoke= useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to revoke PDF?',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
-
   const columns = useMemo(() => [
     {
       title: 'Action',
@@ -164,7 +129,6 @@ const EmailTemplateList = () =>  {
       render: (row) => (
         <Space>
           <Button size={'small'} title={'Edit'} onClick={() => onEditClickCallback(row.id)} icon={<EditOutlined />}/>
-          {/*<Button size={'small'} title={'Remove'} icon={<DeleteOutlined />}/>*/}
         </Space>
       )
     },
@@ -177,8 +141,8 @@ const EmailTemplateList = () =>  {
     },
     {
       title: 'Key',
-      key: 'emailKey',
-      dataIndex: 'emailKey',
+      key: 'templateName',
+      dataIndex: 'templateName',
       width: 140,
       sorter: true,
     },
@@ -190,7 +154,7 @@ const EmailTemplateList = () =>  {
       render: (value) => (
         <div>
           {
-            value.split(',').map((row, index) => <div key={index}>{row}</div>)
+            value?.split(',').map((row, index) => <div key={index}>{row}</div>)
           }
         </div>
       )
@@ -220,6 +184,10 @@ const EmailTemplateList = () =>  {
         case 'emailTemplateList':
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setData(content);
           break;
         default:
@@ -236,12 +204,26 @@ const EmailTemplateList = () =>  {
   });
 
   useEffect(() => {
-    getEmailTemplateList();
+    getEmailTemplateList(pagination);
   }, []);
 
-  const getEmailTemplateList = () => {
-    runGeneralAPI('emailTemplateList');
-  }
+  const getEmailTemplateList = useCallback((pagination = {}, filter = {}) => {
+    runGeneralAPI('emailTemplateList', toQueryString(pagination, filter));
+  }, [])
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
 
   return (
     <div className={styles['email-template']}>

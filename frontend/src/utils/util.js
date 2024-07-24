@@ -45,9 +45,9 @@ export const toQueryString = (pagination = {}, others = {}) => {
   if (Object.keys(pagination).length > 0) {
     paginationInfo = {
       page: pagination.page - 1 || 0,
-      pageSize: pagination.pageSize || 10,
-      orderBy: pagination.sortBy || '',
-      isDescending: pagination.orderBy !== "ascend",
+      size: pagination.pageSize || 10,
+      sortField: pagination.sortBy || '',
+      sortDirection: pagination.orderBy !== "ascend" ? 'DESC' : 'ASC',
     }
   }
 

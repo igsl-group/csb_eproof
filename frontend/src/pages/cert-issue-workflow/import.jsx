@@ -12,7 +12,7 @@ import {
   FolderOpenOutlined,
   FileDoneOutlined,
   ScheduleOutlined,
-  AreaChartOutlined, SearchOutlined,
+  AreaChartOutlined, SearchOutlined, CloseOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -26,21 +26,27 @@ import OnHoldModal from "./onhold-modal";
 import CSVFileValidator from 'csv-file-validator';
 import ImportModal from "./import-modal";
 import { examProfileAPI } from '@/api/request';
+import {
+  toQueryString
+} from "@/utils/util";
 
 const Import = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
   const messageApi = useMessage();
-  const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
   const [serialNoForm] = Form.useForm();
   const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [file, setFile] = useState(null);
   const [serialNoOptions, setSerialNoOptions] = useState([]);
   const [openImportModal, setImportModal] = useState(false);
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [isOnHold, setIsOnHold] = useState(false);
   const [summary, setSummary] = useState({});
   const [importedData, setImportedData] = useState([]);
+  const [record, setRecord] = useState({});
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
@@ -50,9 +56,8 @@ const Import = () =>  {
   const onFinishCallback = useCallback(async () => {
     setOpen(false);
     setImportModal(false);
-    await getExamProfileSummary(serialNoValue);
-    await getCertList(serialNoValue);
-  }, [serialNoValue]);
+    getImportListAndSummary();
+  }, []);
 
   const columns = useMemo(() => [
     {
@@ -62,8 +67,8 @@ const Import = () =>  {
       render: (row) => {
         return (
           <div>
-            { row.status === 'On hold' ? <Button size={'small'} type={'primary'} danger onClick={() => setOpen(true)}>Resume</Button> : null}
-            { row.status !== 'On hold' ? <Button size={'small'} type={'primary'} onClick={() => setOpen(true)}>On hold</Button> : null}
+            { row.onHold ? <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button> : null}
+            { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
       }
@@ -157,7 +162,8 @@ const Import = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -166,9 +172,21 @@ const Import = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
 
+  const onOnHoldClickCallback = useCallback((row) => {
+    setRecord(row);
+    setOpen(true);
+    setIsOnHold(true);
+  }, []);
 
+  const onResumeClickCallback = useCallback((row) => {
+    setRecord(row);
+    setOpen(true);
+    setIsOnHold(false);
+  }, []);
+  
   // useEffect(() => {
   //   form.setFieldsValue({
   //     serialNo: 'N000000001',
@@ -189,6 +207,16 @@ const Import = () =>  {
       title: 'Import Result (CSV)',
     },
   ], []);
+
+  const onClickOnHold = useCallback((recordId) => {
+    modalApi.confirm({
+      title:'Are you sure to on-hold the case?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceHold', recordId, )
+    });
+  },[serialNoValue]);
+
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
@@ -236,13 +264,24 @@ const Import = () =>  {
           // const data = response.data || {};
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setImportedData(content);
           break;
         }
         case 'certIssuanceDispatch':
           messageApi.success('Dispatch successfully.');
           await getExamProfileSummary(serialNoValue);
-          await getCertList(serialNoValue);
+          await getCertList(serialNoValue, pagination, filterCondition);
+          getImportListAndSummary();
+          break;
+        case 'certIssuanceHold':
+          messageApi.success('Hold case successfully.');
+          // await getExamProfileSummary(serialNoValue);
+          // await getCertList(serialNoValue, pagination, filterCondition);
+          getImportListAndSummary();
           break;
         default:
           break;
@@ -257,28 +296,86 @@ const Import = () =>  {
     },
   });
 
-  const getExamProfileSummary = useCallback(async (serialNoValue) => {
-    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
-  }, []);
-
-  const getCertList = useCallback(async (serialNoValue) => {
-    return runExamProfileAPI('certList', 'IMPORTED', {
-      examProfileSerialNo: serialNoValue
-    });
-  }, []);
 
   useEffect(() => {
-    (async () => {
-      if (serialNoValue) {
-        await getExamProfileSummary(serialNoValue);
-        await getCertList(serialNoValue);
-      }
-    })()
+    getImportListAndSummary();
   }, [serialNoValue]);
 
   useEffect(() => {
     runExamProfileAPI('examProfileDropdown');
   }, []);
+
+  const getExamProfileSummary = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
+  }, []);
+
+  const getCertList = useCallback(async (serialNoValue, pagination = {}, filterCondition) => {
+    return runExamProfileAPI('certList', 'IMPORTED', {
+      ...filterCondition,
+      examProfileSerialNo: serialNoValue,
+      onHold: false,
+    }, toQueryString(pagination));
+  }, []);
+console.log('serialNoValue', serialNoValue)
+  const getImportListAndSummary = useCallback(async() => {
+    console.log("1", serialNoValue)
+    if (serialNoValue) {
+      console.log("2", serialNoValue)
+      await getExamProfileSummary(serialNoValue);
+      await getCertList(serialNoValue, pagination, filterCondition);
+    }
+  }, [serialNoValue, pagination, filterCondition]);
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
+        }))
+        .catch(() => false);
+
+      if (values) {
+        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if (payload[key]) {
+            isEmpty = false;
+            finalPayload[key] = payload[key];
+          }
+        }
+
+        const resetPage = resetPagination();
+        console.log(finalPayload)
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getCertList(serialNoValue, resetPage);
+        } else {
+          await getCertList(serialNoValue, resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [serialNoValue, pagination, filterCondition]
+  );
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
 
   return (
     <div className={styles['exam-profile']}>
@@ -314,7 +411,16 @@ const Import = () =>  {
                 <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
               </Col>
               <Col>
-
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    window.open('/import_csv_template.csv', 'Download');
+                  }}
+                >
+                  Download Template (CSV)
+                </Button>
+              </Col>
+              <Col>
                 <Upload
                   accept={'text/csv'}
                   multiple={false}
@@ -345,7 +451,7 @@ const Import = () =>  {
         <Form
           layout="vertical"
           autoComplete="off"
-          form={form}
+          form={searchForm}
           colon={false}
           scrollToFirstError={{
             behavior: 'smooth',
@@ -354,28 +460,36 @@ const Import = () =>  {
           }}
           name="form"
         >
-          <Row justify={'start'}>
+          <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'passportNo'} label={'Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
+                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
+                          onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary' : 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
                 </Col>
               </Row>
             </Col>
@@ -448,8 +562,8 @@ const Import = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>
@@ -457,7 +571,10 @@ const Import = () =>  {
       </Card>
       <OnHoldModal
         open={open}
+        record={record}
+        isOnHold={isOnHold}
         onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
       <ImportModal
         file={file}

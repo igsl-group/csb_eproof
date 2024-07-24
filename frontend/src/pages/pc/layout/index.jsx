@@ -306,19 +306,20 @@ function Layouts () {
                     {auth?.section ? <div>{auth?.section}</div> : null}
                     <div>{auth?.role}</div>
                     <Dropdown
-                      menu={{
-                        items: auth.availablePosts
-                          .flatMap((row) => ({
-                            label: row.name,
-                            key: row.id
-                          })),
-                        onClick: async (row) => {
-                          if (row.key !== auth.post) {
-                            await auth.changePostAction(row.key);
-                            auth.getProfile();
-                          }
-                        },
-                      }}
+                      menu={{}}
+                      // menu={{
+                      //   items: auth.availablePosts
+                      //     .flatMap((row) => ({
+                      //       label: row.name,
+                      //       key: row.id
+                      //     })),
+                      //   onClick: async (row) => {
+                      //     if (row.key !== auth.post) {
+                      //       await auth.changePostAction(row.key);
+                      //       auth.getProfile();
+                      //     }
+                      //   },
+                      // }}
                     >
                       <a onClick={(e) => e.preventDefault()}>
                         <Space>
@@ -397,7 +398,7 @@ function Layouts () {
             style={{
               height: `calc(${100}vh - 70px)`
             }}
-            className={isMobile && permissions?.length > 0 ? styles['layout-container-mobile'] : styles['layout-container']}
+            className={styles['layout-container']}
           >
 
             <Content className={styles['layout-content']}>

@@ -2,7 +2,23 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Button, Form, Card, Typography, Breadcrumb, Grid, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {
+  Divider,
+  Button,
+  Form,
+  Card,
+  Typography,
+  Breadcrumb,
+  Grid,
+  Space,
+  Tabs,
+  Col,
+  Row,
+  Descriptions,
+  Modal,
+  Pagination,
+  Tag
+} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -13,7 +29,8 @@ import {
   FileDoneOutlined,
   ScheduleOutlined,
   AreaChartOutlined,
-  DownloadOutlined, SearchOutlined,
+  DownloadOutlined,
+  SearchOutlined, CloseOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -21,63 +38,46 @@ import HKID from "@/components/HKID";
 import Email from "@/components/Email";
 import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
+import { examProfileAPI } from '@/api/request';
 import {useModal} from "../../context/modal-provider";
+import {useMessage} from "../../context/message-provider";
+import {download} from "../../utils/util";
+import {
+  toQueryString
+} from "@/utils/util";
 
 const Notify = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
-  const [form] = Form.useForm();
-  const {
-    serialNo,
-  } = useParams();
-
+  const messageApi = useMessage();
+  const [searchForm] = Form.useForm();
+  const [serialNoForm] = Form.useForm();
+  const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
-  const [data, setData] = useState([
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700002',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Pending',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      passport: 'K34567893912',
-      name: 'Yip Tai Man',
-      email: 'taiman.yip@hotmail.com',
-      ue: 'L2',
-      uc: 'L2',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Pending',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700005',
-      name: 'Lee Tai Man',
-      email: 'taiman.lee@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Fail',
-      blnst: 'Fail',
-      status: 'Pending',
-    }
-  ]);
+  const [serialNoOptions, setSerialNoOptions] = useState([]);
+  const [openImportModal, setImportModal] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [issueCertData, setIssueCertData] = useState([])
+  const [isOnHold, setIsOnHold] = useState(false)
+  const [summary, setSummary] = useState({});
+  const [notifyData, setNotifyData] = useState([]);
+  const [record, setRecord] = useState({});
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const columns = useMemo(() => [
     // {
     //   title: 'Action',
     //   key: 'action',
-    //   width: 80,
-    //   render: (row) => <Button size={'small'} icon={<DownloadOutlined />} onClick={() => {}}/>
+    //   width: 100,
+    //   render: (row) => {
+    //     return (
+    //       <div>
+    //         { row.onHold ? <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button> : null}
+    //         { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
+    //       </div>
+    //     )
+    //   }
     // },
     {
       title: 'HKID',
@@ -88,8 +88,8 @@ const Notify = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
       sorter: true,
     },
@@ -109,37 +109,34 @@ const Notify = () =>  {
     },
     {
       title: 'UE',
-      key: 'ue',
-      dataIndex: 'ue',
-      width: 100,
-      sorter: true,
+      key: 'ueGrade',
+      dataIndex: 'ueGrade',
+      width: 80,
     },
     {
       title: 'UC',
-      key: 'uc',
-      dataIndex: 'uc',
-      width: 100,
-      sorter: true,
+      key: 'ucGrade',
+      dataIndex: 'ucGrade',
+      width: 80,
     },
     {
       title: 'AT',
-      key: 'at',
-      dataIndex: 'at',
-      width: 100,
-      sorter: true,
+      key: 'atGrade',
+      dataIndex: 'atGrade',
+      width: 80,
     },
     {
       title: 'BLNST',
-      key: 'blnst',
-      dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
+      key: 'blnstGrade',
+      dataIndex: 'blnstGrade',
+      width: 80,
     },
     {
       title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
+      key: 'certStatus',
+      dataIndex: 'certStatus',
       width: 100,
+      render: (row) => <Tag>{row.code}</Tag>,
       sorter: true,
     },
   ], []);
@@ -171,7 +168,8 @@ const Notify = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -180,17 +178,9 @@ const Notify = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
 
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -206,9 +196,10 @@ const Notify = () =>  {
 
   const onClickDispatch = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to dispatch to "Notify Candidate" stage?',
+      title:'Are you sure to dispatch to complete stage?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceDispatch', serialNoValue, 'SIGN_ISSUE')
     });
   },[]);
 
@@ -225,6 +216,8 @@ const Notify = () =>  {
       title:'Are you sure to download selected PDF?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceBulkDownload', selectedRowKeys.join(','))
+
     });
   },[]);
 
@@ -234,34 +227,198 @@ const Notify = () =>  {
     },
   }, []);
 
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: async (response, params) => {
+      switch (params[0]) {
+        case 'examProfileList':
+
+          break;
+        case 'examProfileGet':
+        {
+
+          break;
+        }
+        case 'examProfileSummaryGet':
+        {
+          const data = response.data || {};
+          setSummary(data);
+          break;
+        }
+        case 'examProfileDropdown':
+        {
+          const data = response.data || [];
+          const options = data.flatMap((row) => ({
+            value: row.serialNo,
+            label: row.serialNo,
+          }))
+          setSerialNoOptions(options);
+          if (options.length > 0) {
+            serialNoForm.setFieldValue('serialNo', options[0].value);
+          }
+          break;
+        }
+        case 'certList':
+        {
+          // const data = response.data || {};
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+          setNotifyData(content);
+          break;
+        }
+        case 'certIssuanceDispatch':
+          messageApi.success('Dispatch successfully.');
+          await getExamProfileSummary(serialNoValue);
+          await getCertList(serialNoValue);
+          break;
+        case 'certIssuanceBulkDownload':
+          download(response);
+          messageApi.success('Download successfully.');
+          break;
+        case 'certIssuanceSign':
+          messageApi.success('Sign and issue certificates are in-progress, please wait a moment.');
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getImportListAndSummary();
+  }, [serialNoValue]);
+
+  useEffect(() => {
+    runExamProfileAPI('examProfileDropdown');
+  }, []);
+
+  const getExamProfileSummary = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
+  }, []);
+
+  const getCertList = useCallback(async (serialNoValue, pagination = {}, filterCondition = {}) => {
+    return runExamProfileAPI('certList', 'NOTIFY', {
+      ...filterCondition,
+      examProfileSerialNo: serialNoValue,
+      onHold: false
+    }, toQueryString(pagination));
+  }, []);
+
+  const getImportListAndSummary = useCallback(async() => {
+    if (serialNoValue) {
+      await getExamProfileSummary(serialNoValue);
+      await getCertList(serialNoValue, pagination, filterCondition);
+    }
+  }, [serialNoValue, pagination, filterCondition]);
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
+        }))
+        .catch(() => false);
+
+      if (values) {
+        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if (payload[key]) {
+            isEmpty = false;
+            finalPayload[key] = payload[key];
+          }
+        }
+
+        const resetPage = resetPagination();
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getCertList(serialNoValue, resetPage);
+        } else {
+          await getCertList(serialNoValue, resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [serialNoValue, pagination, filterCondition]
+  );
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Notify Candidate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <Row justify={'space-between'}>
-        <Col>
-          <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>
-        </Col>
-        <Col>
-          <Row gutter={[16, 16]} justify={'end'}>
-            <Col>
-              <Button type="primary" onClick={onClickDispatch}>Dispatch to Complete</Button>
-            </Col>
-            <Col>
-              <Button type="primary" onClick={() => {
-              }}>Email Release</Button>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+      <Form
+        layout="horizontal"
+        autoComplete="off"
+        form={serialNoForm}
+        colon={true}
+        scrollToFirstError={{
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center',
+        }}
+        name="serialNoForm"
+      >
+        <Row justify={'space-between'}>
+          <Col>
+            <Dropdown
+              name={"serialNo"}
+              label={'Serial No.'}
+              size={20}
+              options={serialNoOptions}
+              allowClear={false}
+              onChange={(values) => console.log(values)}
+            />
+          </Col>
+          <Col>
+            <Row gutter={[16, 16]} justify={'end'}>
+              <Col>
+                <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+              </Col>
+              <Col>
+                <Button type="primary" onClick={() => {
+                }}>Email Release</Button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Form>
       <br/>
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
         <Form
           layout="vertical"
           autoComplete="off"
-          form={form}
+          form={searchForm}
           colon={false}
           scrollToFirstError={{
             behavior: 'smooth',
@@ -270,28 +427,36 @@ const Notify = () =>  {
           }}
           name="form"
         >
-          <Row justify={'start'}>
+          <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'passportNo'} label={'Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
+                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
+                          onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary' : 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
                 </Col>
               </Row>
             </Col>
@@ -307,28 +472,40 @@ const Notify = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: 30000,
+              children: summary.imported,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: '0 out of 0 failed',
+              children: `${summary.generatePdfFailed} out of ${summary.generatePdfTotal} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: '0 out of 0 failed',
+              children: `${summary.issuedPdfFailed} out of ${summary.issuedPdfTotal} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: '0 out of 0 failed',
+              children: `${summary.sendEmailFailed} out of ${summary.sendEmailTotal} failed`,
+
             }
           ]}
         />
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
+        <Col>
+          <Row gutter={[16, 16]} justify={'end'}>
+            <Col>
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
+                Selected ({selectedRowKeys.length})</Button>
+            </Col>
+            {/*<Col>*/}
+            {/*  <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>*/}
+            {/*</Col>*/}
+          </Row>
+        </Col>
         <Col>
           <Pagination
             showSizeChanger
@@ -348,7 +525,7 @@ const Notify = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          rowKey={'candidateNo'}
+          rowKey={'id'}
           rowSelection={{
             type: 'checkbox',
             ...rowSelection,
@@ -359,7 +536,7 @@ const Notify = () =>  {
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={notifyData}
         />
         <br/>
         <Row justify={'end'}>
@@ -368,8 +545,8 @@ const Notify = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

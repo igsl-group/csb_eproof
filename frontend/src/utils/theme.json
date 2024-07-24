@@ -68,7 +68,8 @@
       "fontSize": 14,
       "headerColor": "rgb(56, 56, 56)",
       "colorText": "rgb(56, 56, 56)",
-      "cellPaddingBlock": 10
+      "cellPaddingBlock": 10,
+      "controlItemBgActive": "rgb(209, 217, 222)"
     },
     "Layout": {
       "triggerBg": "#fbfbfb",
