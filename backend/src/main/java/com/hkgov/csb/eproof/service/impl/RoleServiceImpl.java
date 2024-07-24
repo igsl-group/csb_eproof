@@ -7,6 +7,7 @@ import com.hkgov.csb.eproof.dto.RoleDto;
 import com.hkgov.csb.eproof.entity.Role;
 import com.hkgov.csb.eproof.entity.RoleHasPermission;
 import com.hkgov.csb.eproof.mapper.RoleMapper;
+import com.hkgov.csb.eproof.service.AuditLogService;
 import com.hkgov.csb.eproof.service.RoleService;
 import jakarta.annotation.Resource;
 import jakarta.persistence.EntityNotFoundException;
@@ -34,6 +35,8 @@ public class RoleServiceImpl implements RoleService {
     private RoleHasPermissionRepository hasPermissionRepository;
     @Resource
     private PermissionRepository permissionRepository;
+    @Resource
+    private AuditLogService auditLogService;
     @Override
     public Boolean createRole(RoleDto requestDto) {
         Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
@@ -43,12 +46,18 @@ public class RoleServiceImpl implements RoleService {
 //            List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null, id, x)).toList();
 //            hasPermissionRepository.saveAll(roles);
 //        }
+        auditLogService.addLog("Create","Create role " +role.getName(), requestDto);
         return Objects.nonNull(role);
     }
 
     @Override
     public Boolean removeRole(Long id) {
-        roleRepository.deleteById(id);
+        Role role = roleRepository.findById(id).orElse(null);
+
+        if(Objects.nonNull(role)){
+            roleRepository.deleteById(id);
+            auditLogService.addLog("Delete","Delete role " +role.getName(), null);
+        }
         return true;
     }
 
@@ -63,6 +72,7 @@ public class RoleServiceImpl implements RoleService {
         role = roleRepository.save(role);
 //        List<RoleHasPermission> roles = requestDto.getPermissions().stream().map(x -> new RoleHasPermission(null,id,x.getId())).toList();
 //        hasPermissionRepository.saveAll(roles);
+        auditLogService.addLog("Update","Update role " + role.getName() + " information", requestDto);
         return Objects.nonNull(role);
 
     }

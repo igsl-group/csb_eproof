@@ -6,8 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.*;
 
@@ -45,7 +46,7 @@ public final class HttpUtils {
                 .forEach(pattern -> ignoreRequestMatchers.add(new AntPathRequestMatcher(pattern)));
     }*/
 
-    public static String getRequestIP(HttpServletRequest request) {
+   /* public static String getRequestIP(HttpServletRequest request) {
         for (String header : IP_HEADERS) {
             String value = request.getHeader(header);
             if (value == null || value.isEmpty()) {
@@ -55,6 +56,18 @@ public final class HttpUtils {
             return parts[0];
         }
         return request.getRemoteAddr();
+    }*/
+
+    public static String getClientIp() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+        return request.getRemoteAddr();
+    }
+
+    public static String getUserAgent() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+        return request.getHeader("User-Agent");
     }
 
     public static Map<String, String> getResponseHeaders(HttpServletResponse response) {
