@@ -6,6 +6,8 @@ import com.hkgov.csb.eproof.service.AuditLogService;
 import com.hkgov.csb.eproof.util.HttpUtils;
 import jakarta.annotation.Resource;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -27,5 +29,11 @@ public class AuditLogServiceImpl implements AuditLogService {
             auditLog.setRequestBody(jsonObject.toString());
         }
         auditLogRepository.save(auditLog);
+    }
+
+    @Override
+    public Page<AuditLog> list(Pageable pageable, String keyWord) {
+        var examProfile = auditLogRepository.findPage(pageable,keyWord);
+        return examProfile;
     }
 }
