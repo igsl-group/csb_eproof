@@ -19,6 +19,9 @@ import {useMessage} from "../../context/message-provider";
 import EmailModal from "./modal";
 import {download } from "../../utils/util";
 import { generalAPI } from '@/api/request';
+import {
+  toQueryString
+} from "@/utils/util";
 
 const CertTemplateList = () =>  {
 
@@ -28,6 +31,7 @@ const CertTemplateList = () =>  {
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [filterCondition, setFilterCondition] = useState(null);
   const {
     serialNo,
   } = useParams();
@@ -72,6 +76,7 @@ const CertTemplateList = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
+    getCertTemplateList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -81,17 +86,8 @@ const CertTemplateList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getCertTemplateList(tempPagination, filterCondition);
   }, [pagination]);
-
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -155,6 +151,10 @@ const CertTemplateList = () =>  {
         case 'certTemplateList':
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setData(content);
           break;
         case 'certTemplateDownload':
@@ -174,12 +174,26 @@ const CertTemplateList = () =>  {
   });
 
   useEffect(() => {
-    getCertTemplateList();
+    getCertTemplateList(pagination);
   }, []);
 
-  const getCertTemplateList = () => {
-    runGeneralAPI('certTemplateList');
-  }
+  const getCertTemplateList = useCallback((pagination = {}, filter = {}) => {
+    runGeneralAPI('certTemplateList', toQueryString(pagination, filter));
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
 
   return (
     <div className={styles['cert-template']}>
@@ -224,8 +238,8 @@ const CertTemplateList = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

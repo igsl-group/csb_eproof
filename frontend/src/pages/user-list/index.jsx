@@ -15,6 +15,9 @@ import { userRoleAPI } from '@/api/request';
 import {TYPE } from '@/config/enum';
 import {useMessage} from "../../context/message-provider";
 import {useModal} from "../../context/modal-provider";
+import {
+  toQueryString
+} from "@/utils/util";
 
 const UserList = () =>  {
 
@@ -25,6 +28,7 @@ const UserList = () =>  {
   const [data, setData] = useState(false);
   const [recordId, setRecordId] = useState('');
   const [type, setType] = useState('');
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -67,7 +71,7 @@ const UserList = () =>  {
 
   const onFinishCallback = useCallback(() => {
     setOpen(false);
-    getUserList();
+    getUserList(pagination);
   }, []);
 
   const breadcrumbItems = useMemo(() => [
@@ -155,6 +159,7 @@ const UserList = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
+    getUserList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -164,6 +169,7 @@ const UserList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getUserList(tempPagination, filterCondition);
   }, [pagination]);
 
   const { runAsync: runUserRoleAPI } = useRequest(userRoleAPI, {
@@ -173,13 +179,17 @@ const UserList = () =>  {
         case 'userList':
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setData(content);
           break;
         case 'userGet':
           break;
         case 'userRemove':
           messageApi.success('Remove successfully.');
-          getUserList();
+          getUserList(pagination);
           break;
         default:
           break;
@@ -195,12 +205,25 @@ const UserList = () =>  {
   });
 
   useEffect(() => {
-    getUserList();
+    getUserList(pagination);
   }, []);
 
-  const getUserList = () => {
-    runUserRoleAPI('userList');
-  }
+  const getUserList = useCallback((pagination = {}, filter = {}) => {
+    runUserRoleAPI('userList', toQueryString(pagination, filter));
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
 
   return (
     <div className={styles['user-list']}>
@@ -245,8 +268,8 @@ const UserList = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

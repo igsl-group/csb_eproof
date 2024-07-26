@@ -24,21 +24,6 @@ const EmailModal = (props) =>  {
   const [form] = Form.useForm();
   const [roleList, setRoleList] = useState([]);
 
-  // const onClose = useMemo(() => typeof props.onCloseCallback === "function" ? props.onCloseCallback : () => {}, [props.onCloseCallback ]);
-  // const onFinish = useMemo(() => typeof props.onCloseCallback === "function" ? props.onFinishCallback : () => {}, [props.onFinishCallback ]);
-  // const onSave = useCallback(async () => {
-  //   form.validateFields()
-  //     .then((value) => {
-  //       console.log(value)
-  //       // onFinish()
-  //     })
-  //     // .then(() => form.resetFields())
-  //     .catch((e) => console.error(e))
-  // }, []);
-
-
-
-
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
       onCloseCallback();
@@ -71,10 +56,6 @@ const EmailModal = (props) =>  {
           runGeneralAPI('emailTemplateUpdate', id, values)
             .then(() => onFinish());
           break;
-        // case TYPE.CREATE:
-        //   runGeneralAPI('userCreate', values)
-        //     .then(() => onFinish());
-        //   break;
       }
     }
   }, [type]);
@@ -86,26 +67,13 @@ const EmailModal = (props) =>  {
         case 'emailTemplateGet':
           let data = {
             ...response.data,
-            includeEmails: response.data.includeEmails.split(',')
+            includeEmails: response.data.includeEmails?.split(',')
           };
           form.setFieldsValue(data)
           break;
         case 'emailTemplateUpdate':
           messageApi.success('Update successfully.');
           break;
-        // case 'userCreate':
-        //   messageApi.success('Create successfully.');
-        //   break;
-        // case 'roleList':
-        // {
-        //   const data = response.data || {};
-        //   const content = data.content || [];
-        //   setRoleList(content.flatMap((row) => ({
-        //     label: row.description,
-        //     value: row.id,
-        //   })));
-        //   break;
-        // }
         default:
           break;
       }
@@ -141,6 +109,7 @@ const EmailModal = (props) =>  {
       okText={'Save'}
       closable={false}
       maskClosable={false}
+      keyboard={false}
       onCancel={onClose}
       onOk={onSave}
       {...props}
@@ -173,10 +142,10 @@ const EmailModal = (props) =>  {
           </Col>
           <Col span={24} md={12}>
             <Text
-              name={"emailKey"}
+              name={"templateName"}
               label={'Key'}
               disabled
-              required
+              // required
               size={100}
             />
           </Col>

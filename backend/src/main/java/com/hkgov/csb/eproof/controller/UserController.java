@@ -4,7 +4,7 @@ import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.mapper.UserMapper;
 import com.hkgov.csb.eproof.service.UserService;
 import com.hkgov.csb.eproof.util.Result;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class UserController {
-    @Resource
-    private UserService userService;
+    private final UserService userService;
     @PostMapping("/create")
     public Result<Boolean> createUser(@RequestBody UserDto requestDto) {
         return Result.success(userService.createUser(requestDto));

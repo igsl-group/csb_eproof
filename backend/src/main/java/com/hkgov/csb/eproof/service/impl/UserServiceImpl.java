@@ -9,6 +9,7 @@ import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserHasRole;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.UserMapper;
+import com.hkgov.csb.eproof.service.AuditLogService;
 import com.hkgov.csb.eproof.service.AuthenticationService;
 import com.hkgov.csb.eproof.service.UserService;
 import jakarta.annotation.Resource;
@@ -41,6 +42,9 @@ public class UserServiceImpl implements UserService {
     private RoleRepository roleRepository;
     @Resource
     private AuthenticationService authenticationService;
+    @Resource
+    private AuditLogService auditLogService;
+
 
     @Override
     public Boolean createUser(UserDto request) {
@@ -51,9 +55,11 @@ public class UserServiceImpl implements UserService {
 //        Long id = user.getId();
 //        List<UserHasRole> roles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
 //        userHasRoleRepository.saveAll(roles);
+        auditLogService.addLog("Create","Create User" +user.getUsername(), request);
         return Objects.nonNull(user);
     }
 
+    @Override
     public Boolean updateUser(Long userId, UserDto request) {
 //        User user = userRepository.getUserByDpUserIdAndDpDeptId(request.getDpUserId(),"CSB");
         User user = userRepository.getUserById(userId);
@@ -65,6 +71,7 @@ public class UserServiceImpl implements UserService {
 //        Long id = user.getId();
 //        List<UserHasRole> newqroles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
 //        userHasRoleRepository.saveAll(newqroles);
+        auditLogService.addLog("Update","Update User " +user.getUsername() + " information", request);
         return Objects.nonNull(user);
     }
 
@@ -93,6 +100,7 @@ public class UserServiceImpl implements UserService {
         }
         if (ObjectUtils.isNotEmpty(user)) {
             userRepository.delete(user);
+            auditLogService.addLog("Delete","Delete User " +user.getUsername(), null);
         }
         return user;
     }

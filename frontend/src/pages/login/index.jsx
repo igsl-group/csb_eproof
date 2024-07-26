@@ -69,11 +69,11 @@ const Login = () =>  {
               onFinishFailed={onFinishFailed}
               autoComplete="off"
               initialValues={{
-                dpUserId:'admin_test',
+                uid:'admin_test',
                 dpDeptId:'csb',
               }}
             >
-              <Text name={'dpUserId'} label={'DP User Id'} size={50}/>
+              <Text name={'uid'} label={'DP User Id'} size={50}/>
               <Text name={'dpDeptId'} label={'DP Dept Id'} size={50}/>
               <Button type={'primary'} htmlType={'submit'}>Login</Button>
             </Form>

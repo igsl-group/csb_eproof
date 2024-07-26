@@ -2,6 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import {Input, Form, Button, Space, Select, InputNumber, Row, Col} from "antd";
 import _ from "lodash";
 
+export const stringToHKID = (hkid) => {
+  const _hkid = hkid.replaceAll(/\(|\)/g, '')
+
+  return {
+    id: _hkid.substring(0,  _hkid.length - 1),
+    checkDigit: _hkid.charAt(_hkid.length - 1)
+  }
+}
+
 const checkHKIDCheckDigit = (id, checkdigit) => {
   let valid = false;
   const hkidPattern = /^([A-Z]{1,2})([0-9]{6})$/;
@@ -65,7 +74,7 @@ function HKID (props) {
       <Form.Item
         label={label}
         required={required}
-        style={{ marginBottom: 0, marginRight: 50, lineHeight: '32px' }}
+        style={{ marginBottom: 0, marginRight: 0 }}
       >
         <Row>
           <Col>
@@ -105,7 +114,7 @@ function HKID (props) {
             </Form.Item>
           </Col>
           <Col>
-            &nbsp;&nbsp;(&nbsp;&nbsp;
+            <span style={{ lineHeight: '32px'}}>&nbsp;&nbsp;(&nbsp;&nbsp;</span>
           </Col>
           <Col>
             <Form.Item
@@ -144,7 +153,7 @@ function HKID (props) {
             </Form.Item>
           </Col>
           <Col>
-            &nbsp;&nbsp;)
+            <span style={{lineHeight: '32px'}}>&nbsp;&nbsp;)</span>
           </Col>
         </Row>
 

@@ -9,7 +9,9 @@ let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6Im
 const headers = {};
 window.token = token;
 if (process.env.NODE_ENV === 'development') {
-  baseURL = 'http://192.168.2.227:8081/api/v1';
+  // baseURL = 'http://192.168.2.227:8081/api/v1';
+  // baseURL = 'http://192.168.26.130:8080/api/v1';
+  baseURL = 'http://localhost:8080/api/v1';
   // baseURL = 'http://192.168.26.130:8080/api/v1';
   // baseURL = 'http://192.168.26.153:8080/api/v1';
   headers.Authorization = `Bearer ${token}`;

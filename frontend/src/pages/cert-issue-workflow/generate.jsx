@@ -29,7 +29,7 @@ import {
   FileDoneOutlined,
   ScheduleOutlined,
   AreaChartOutlined,
-  DownloadOutlined, SearchOutlined,
+  DownloadOutlined, SearchOutlined, CloseOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -42,21 +42,27 @@ import OnHoldModal from "./onhold-modal";
 import {useMessage} from "../../context/message-provider";
 import { examProfileAPI } from '@/api/request';
 import {download} from "../../utils/util";
+import {
+  toQueryString
+} from "@/utils/util";
 
 const Generate = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
   const messageApi = useMessage();
-  const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
   const [serialNoForm] = Form.useForm();
   const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
   const [serialNoOptions, setSerialNoOptions] = useState([]);
   const [openImportModal, setImportModal] = useState(false);
   const [open, setOpen] = useState(false)
+  const [isOnHold, setIsOnHold] = useState(false)
   const [summary, setSummary] = useState({});
   const [generatedData, setGeneratedData] = useState([]);
+  const [record, setRecord] = useState({});
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
@@ -66,9 +72,8 @@ const Generate = () =>  {
   const onFinishCallback = useCallback(async () => {
     setOpen(false);
     setImportModal(false);
-    await getExamProfileSummary(serialNoValue);
-    await getCertList(serialNoValue);
-  }, [serialNoValue]);
+    getImportListAndSummary();
+  }, []);
 
   const columns = useMemo(() => [
     {
@@ -78,8 +83,8 @@ const Generate = () =>  {
       render: (row) => {
         return (
           <div>
-            { row.status === 'On hold' ? <Button size={'small'} type={'primary'} danger onClick={() => setOpen(true)}>Resume</Button> : null}
-            { row.status !== 'On hold' ? <Button size={'small'} type={'primary'} onClick={() => setOpen(true)}>On hold</Button> : null}
+            { row.onHold ? <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button> : null}
+            { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
       }
@@ -173,7 +178,8 @@ const Generate = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -182,7 +188,20 @@ const Generate = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
+
+  const onOnHoldClickCallback = useCallback((row) => {
+    setRecord(row);
+    setOpen(true);
+    setIsOnHold(true);
+  }, []);
+
+  const onResumeClickCallback = useCallback((row) => {
+    setRecord(row);
+    setOpen(true);
+    setIsOnHold(false);
+  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -197,7 +216,13 @@ const Generate = () =>  {
   ], []);
 
   const onClickGeneratePdf = useCallback(() => {
-    runExamProfileAPI('certIssuanceGenerate', serialNoValue)
+    modalApi.confirm({
+      title:'Are you sure to generate PDF?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceGenerate', serialNoValue),
+    });
+
   },[serialNoValue]);
 
   const onClickDispatch = useCallback(() => {
@@ -205,16 +230,9 @@ const Generate = () =>  {
       title:'Are you sure to dispatch to sign and issue Cert. stage?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceDispatch', serialNoValue, 'GENERATED')
     });
-  },[]);
-
-  const onClickDownloadAll = useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to download all PDF?',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
+  },[serialNoValue]);
 
   const onClickDownloadSelected = useCallback(() => {
     modalApi.confirm({
@@ -268,6 +286,10 @@ const Generate = () =>  {
           // const data = response.data || {};
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setGeneratedData(content);
           break;
         }
@@ -279,6 +301,9 @@ const Generate = () =>  {
         case 'certIssuanceBulkDownload':
           download(response);
           messageApi.success('Download successfully.');
+          break;
+        case 'certIssuanceGenerate':
+          messageApi.success('Generate certificates as PDF are in-progress, please wait a moment.');
           break;
         default:
           break;
@@ -293,28 +318,83 @@ const Generate = () =>  {
     },
   });
 
-  const getExamProfileSummary = useCallback(async (serialNoValue) => {
-    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
-  }, []);
 
-  const getCertList = useCallback(async (serialNoValue) => {
-    return runExamProfileAPI('certList', 'GENERATED', {
-      examProfileSerialNo: serialNoValue
-    });
-  }, []);
 
   useEffect(() => {
-    (async () => {
-      if (serialNoValue) {
-        await getExamProfileSummary(serialNoValue);
-        await getCertList(serialNoValue);
-      }
-    })()
+    getImportListAndSummary();
   }, [serialNoValue]);
 
   useEffect(() => {
     runExamProfileAPI('examProfileDropdown');
   }, []);
+
+  const getExamProfileSummary = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
+  }, []);
+
+  const getCertList = useCallback(async (serialNoValue, pagination = {}, filterCondition = {}) => {
+    return runExamProfileAPI('certList', 'GENERATED', {
+      ...filterCondition,
+      examProfileSerialNo: serialNoValue,
+      onHold: false
+    }, toQueryString(pagination));
+  }, []);
+
+  const getImportListAndSummary = useCallback(async() => {
+    if (serialNoValue) {
+      await getExamProfileSummary(serialNoValue);
+      await getCertList(serialNoValue, pagination, filterCondition);
+    }
+  }, [serialNoValue, pagination, filterCondition]);
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
+        }))
+        .catch(() => false);
+
+      if (values) {
+        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if (payload[key]) {
+            isEmpty = false;
+            finalPayload[key] = payload[key];
+          }
+        }
+
+        const resetPage = resetPagination();
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getCertList(serialNoValue, resetPage);
+        } else {
+          await getCertList(serialNoValue, resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [serialNoValue, pagination, filterCondition]
+  );
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
 
   return (
     <div className={styles['exam-profile']}>
@@ -362,7 +442,7 @@ const Generate = () =>  {
         <Form
           layout="vertical"
           autoComplete="off"
-          form={form}
+          form={searchForm}
           colon={false}
           scrollToFirstError={{
             behavior: 'smooth',
@@ -371,28 +451,36 @@ const Generate = () =>  {
           }}
           name="form"
         >
-          <Row justify={'start'}>
+          <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'passportNo'} label={'Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
+                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
+                          onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary' : 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
                 </Col>
               </Row>
             </Col>
@@ -481,8 +569,8 @@ const Generate = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>
@@ -490,7 +578,8 @@ const Generate = () =>  {
       </Card>
       <OnHoldModal
         open={open}
-        recordId={serialNoValue}
+        record={record}
+        isOnHold={isOnHold}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />

@@ -20,6 +20,10 @@ import {TYPE } from '@/config/enum';
 import { examProfileAPI } from '@/api/request';
 import {useMessage} from "../../context/message-provider";
 import {useModal} from "../../context/modal-provider";
+import axios from "axios";
+import {
+  toQueryString
+} from "@/utils/util";
 
 const ExamProfileList = () =>  {
 
@@ -28,6 +32,7 @@ const ExamProfileList = () =>  {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -112,7 +117,7 @@ const ExamProfileList = () =>  {
       orderBy: order || defaultPaginationInfo.orderBy,
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
-    setPagination(tempPagination);
+    getExamProfileList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -122,6 +127,7 @@ const ExamProfileList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getExamProfileList(tempPagination, filterCondition);
   }, [pagination]);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
@@ -131,14 +137,12 @@ const ExamProfileList = () =>  {
         case 'examProfileList':
           const data = response.data || {};
           const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
           setData(content);
           break;
-        // case 'userGet':
-        //   break;
-        // case 'userRemove':
-        //   messageApi.success('Remove successfully.');
-        //   getUserList();
-        //   break;
         default:
           break;
       }
@@ -153,12 +157,25 @@ const ExamProfileList = () =>  {
   });
 
   useEffect(() => {
-    getExamProfileList();
+    getExamProfileList(pagination);
   }, []);
 
-  const getExamProfileList = () => {
-    runExamProfileAPI('examProfileList');
-  }
+  const getExamProfileList = useCallback((pagination = {}, filter = {}) => {
+    runExamProfileAPI('examProfileList', toQueryString(pagination, filter));
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
 
   return (
     <div className={styles['exam-profile-list']}>
@@ -203,8 +220,8 @@ const ExamProfileList = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

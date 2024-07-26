@@ -16,7 +16,6 @@ import {
   Descriptions,
   Modal,
   Pagination,
-  Button,
   Flex
 } from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
@@ -31,6 +30,7 @@ import {
   AreaChartOutlined, SearchOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
+import Button from "@/components/Button";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
 import Import from "./import";
@@ -45,6 +45,10 @@ import { examProfileAPI } from '@/api/request';
 import {any} from "joi";
 import {TYPE} from '@/config/enum';
 import {useMessage} from "../../context/message-provider";
+import {
+  toQueryString
+} from "@/utils/util";
+import OnHoldModal from "./onhold-modal";
 
 const ExamProfile = () =>  {
 
@@ -55,8 +59,13 @@ const ExamProfile = () =>  {
   const [freezeExamProfile, setFreezeExamProfile] = useState(false);
   const [form] = Form.useForm();
   const [summary, setSummary] = useState({});
+  const [onHoldData, setOnHoldData] = useState([]);
+  const [record, setRecord] = useState({});
+  const [openOnHoldModal, setOpenOnHoldModal] = useState(false);
+
+  const [filterCondition, setFilterCondition] = useState(null);
   const {
-    serialNo,
+    serialNo: serialNoValue,
   } = useParams();
 
   const defaultPaginationInfo = useMemo(() => ({
@@ -99,22 +108,23 @@ const ExamProfile = () =>  {
       width: 140,
       render: (row) => (
         <Row gutter={[8, 8]}>
-          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => {}}>Resume Case</Button></Col>
-          <Col span={24}><Button size={'small'} type={'primary'} danger onClick={() => {}}>Remove Case</Button></Col>
+          <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button>
+          <Button size={'small'} type={'primary'} onClick={() => onRemoveClickCallback(row)}>Remove</Button>
         </Row>
       )
     },
     {
       title: 'Current Stage',
-      key: 'stage',
-      dataIndex: 'stage',
+      key: 'certStage',
+      dataIndex: 'certStage',
       width: 130,
+      render: (row) => row.label,
       sorter: true,
     },
     {
       title: 'Reason',
-      key: 'reason',
-      dataIndex: 'reason',
+      key: 'onHoldRemark',
+      dataIndex: 'onHoldRemark',
       width: 100,
       sorter: true,
     },
@@ -127,8 +137,8 @@ const ExamProfile = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
       sorter: true,
     },
@@ -148,34 +158,52 @@ const ExamProfile = () =>  {
     },
     {
       title: 'UE',
-      key: 'ue',
-      dataIndex: 'ue',
-      width: 100,
-      sorter: true,
+      key: 'ueGrade',
+      dataIndex: 'ueGrade',
+      width: 80,
     },
     {
       title: 'UC',
-      key: 'uc',
-      dataIndex: 'uc',
-      width: 100,
-      sorter: true,
+      key: 'ucGrade',
+      dataIndex: 'ucGrade',
+      width: 80,
     },
     {
       title: 'AT',
-      key: 'at',
-      dataIndex: 'at',
-      width: 100,
-      sorter: true,
+      key: 'atGrade',
+      dataIndex: 'atGrade',
+      width: 80,
     },
     {
       title: 'BLNST',
-      key: 'blnst',
-      dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
+      key: 'blnstGrade',
+      dataIndex: 'blnstGrade',
+      width: 80,
     },
-
+    // {
+    //   title: 'Remark',
+    //   key: 'remark',
+    //   dataIndex: 'remark',
+    //   width: 80,
+    // },
   ], []);
+
+  const onRemoveClickCallback = useCallback((row) => {
+    setRecord(row);
+    modalApi.confirm({
+      title:'Are you sure to remove case?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceDelete', row.id)
+    });
+  }, []);
+
+  const onResumeClickCallback = useCallback((row) => {
+    setRecord(row);
+    setOpenOnHoldModal(true);
+    // setIsOnHold(false);
+  }, []);
+
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
@@ -193,7 +221,7 @@ const ExamProfile = () =>  {
             ...data,
           });
           setFreezeExamProfile(data.isFreezed);
-          getExamProfileSummary();
+          // getExamProfileSummary();
           break;
         }
         case 'examProfileSummaryGet':
@@ -205,20 +233,32 @@ const ExamProfile = () =>  {
         case 'examProfileFreeze':
 
         {
-          getExamProfile();
+          getOnHoldListAndSummary();
           messageApi.success('Freeze successfully.');
           break;
         }
         case 'examProfileUnfreeze':
         {
-          getExamProfile();
+          getOnHoldListAndSummary();
           messageApi.success('Un-freeze successfully.');
           break;
         }
         case 'examProfileReset':
         {
-          getExamProfileSummary();
+          getOnHoldListAndSummary();
           messageApi.success('Reset successfully.');
+          break;
+        }
+        case 'certList':
+        {
+          // const data = response.data || {};
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+          setOnHoldData(content);
           break;
         }
         default:
@@ -235,13 +275,16 @@ const ExamProfile = () =>  {
   });
 
 
+
   const onCloseCallback = useCallback(() => {
     setOpen(false);
+    setOpenOnHoldModal(false);
   });
 
   const onFinishCallback = useCallback(() => {
     setOpen(false);
-    getExamProfile();
+    setOpenOnHoldModal(false);
+    getOnHoldListAndSummary();
   }, []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
@@ -255,7 +298,9 @@ const ExamProfile = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
+
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -264,22 +309,12 @@ const ExamProfile = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-  }, [pagination]);
+    getCertList(serialNoValue, tempPagination, filterCondition);
+  }, [serialNoValue, pagination]);
 
   const getExamProfile = useCallback(async () => {
-    return runExamProfileAPI('examProfileGet', serialNo);
-  }, [serialNo]);
-
-  const getExamProfileSummary = useCallback(async () => {
-    return runExamProfileAPI('examProfileSummaryGet', serialNo);
-  }, [serialNo]);
-
-  useEffect(() => {
-    (async () => {
-      await getExamProfile();
-      await getExamProfileSummary();
-    })()
-  }, []);
+    return runExamProfileAPI('examProfileGet', serialNoValue);
+  }, [serialNoValue]);
 
   const tabItems = useMemo(() => [
     {
@@ -312,9 +347,9 @@ const ExamProfile = () =>  {
       title: 'Exam Profile',
     },
     {
-      title: serialNo,
+      title: serialNoValue,
     },
-  ], [serialNo]);
+  ], [serialNoValue]);
 
   const onClickReset = useCallback(() => {
     modalApi.confirm({
@@ -322,19 +357,55 @@ const ExamProfile = () =>  {
       width: 500,
       okText: 'Confirm',
       onOk: () => {
-        runExamProfileAPI('examProfileReset', serialNo)
+        runExamProfileAPI('examProfileReset', serialNoValue)
       }
     });
-  },[serialNo]);
+  },[serialNoValue]);
 
   const freezeExamProfileCallback = useCallback(() => {
     if (freezeExamProfile) {
-      runExamProfileAPI('examProfileUnfreeze', serialNo);
+      runExamProfileAPI('examProfileUnfreeze', serialNoValue);
     } else {
-      runExamProfileAPI('examProfileFreeze', serialNo);
+      runExamProfileAPI('examProfileFreeze', serialNoValue);
     }
 
   }, [freezeExamProfile])
+
+  useEffect(() => {
+    getOnHoldListAndSummary();
+  }, [serialNoValue]);
+
+  const getExamProfileSummary = useCallback(async (serialNoValue) => {
+    return runExamProfileAPI('examProfileSummaryGet', serialNoValue);
+  }, []);
+
+  const getCertList = useCallback(async (serialNoValue, pagination = {}, filter = {}) => {
+    return runExamProfileAPI('certList', 'IMPORTED', {
+      examProfileSerialNo: serialNoValue,
+      onHold: true,
+    }, toQueryString(pagination, filter));
+  }, []);
+
+  const getOnHoldListAndSummary = useCallback(async() => {
+    if (serialNoValue) {
+      await getExamProfile();
+      await getExamProfileSummary(serialNoValue);
+      await getCertList(serialNoValue, pagination, filterCondition);
+    }
+  }, [serialNoValue, pagination, filterCondition]);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
 
   return (
     <div className={styles['exam-profile']}>
@@ -391,7 +462,14 @@ const ExamProfile = () =>  {
               <Col span={24}>
                 <Row justify={'end'}>
                   <Col>
-                    <Button style={{ width: 115}} type={'primary'} onClick={() => setOpen(true)}>Edit</Button>
+                    <Button
+                      style={{ width: 115}}
+                      type={'primary'}
+                      hidden={freezeExamProfile}
+                      onClick={() => setOpen(true)}
+                    >
+                      Edit
+                    </Button>
                   </Col>
                 </Row>
               </Col>
@@ -402,6 +480,7 @@ const ExamProfile = () =>  {
                       style={{ width: 115}}
                       type={'primary'}
                       onClick={onClickReset}
+                      hidden={freezeExamProfile}
                     >
                       Reset
                     </Button>
@@ -485,7 +564,7 @@ const ExamProfile = () =>  {
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={onHoldData}
         />
         <br/>
         <Row justify={'end'}>
@@ -494,8 +573,8 @@ const ExamProfile = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>
@@ -504,51 +583,17 @@ const ExamProfile = () =>  {
       <ExamProfileFormModal
         type={TYPE.EDIT}
         open={open}
-        recordId={serialNo}
+        recordId={serialNoValue}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-      {/*<fieldset style={{paddingLeft: 30}}>*/}
-      {/*  <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>*/}
-      {/*  <Descriptions*/}
-      {/*    size={'small'}*/}
-      {/*    items={[*/}
-      {/*      {*/}
-      {/*        key: 1,*/}
-      {/*        label: 'Imported',*/}
-      {/*        children: 30000,*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 2,*/}
-      {/*        label: 'Generated PDF',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 3,*/}
-      {/*        label: 'Issued Cert.',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 4,*/}
-      {/*        label: 'Sent Email',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      }*/}
-      {/*    ]}*/}
-      {/*  />*/}
-      {/*</fieldset>*/}
-      {/*<br/>*/}
-      {/*<Import />*/}
-      {/*<Tabs*/}
-      {/*  onChange={() => {}}*/}
-      {/*  items={tabItems}*/}
-      {/*/>*/}
-      {/*<br/>*/}
-      {/*<ExceptionalCaseModal*/}
-      {/*  open={exceptionalCaseOpen}*/}
-      {/*  title={'Exceptional Case'}*/}
-      {/*  onCloseCallback={() => setExceptionalCaseOpen(false)}*/}
-      {/*  // onFinishCallback={() => setRevokeOpen(false)}*/}
-      {/*/>*/}
+      <OnHoldModal
+        open={openOnHoldModal}
+        record={record}
+        isOnHold={false}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+      />
     </div>
 
   )

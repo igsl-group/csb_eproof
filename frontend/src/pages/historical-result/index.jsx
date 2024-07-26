@@ -3,7 +3,7 @@ import {createSearchParams, useNavigate, Link} from "react-router-dom";
 
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Form, Card, Typography, Breadcrumb, Popconfirm, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
+import {Watermark, Alert, Form, Card, Typography, Breadcrumb, Popconfirm, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -244,7 +244,13 @@ const HistoricalResultList = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['user-list']}>
+    <Watermark content={'Mockup'} className={styles['user-list']}>
+      <Alert
+        message={<b>The functionality of historical result management page will be fully developed by the end of 2024.</b>}
+        type="warning"
+        closable
+      />
+      <br/>
       <Typography.Title level={3}>Historical Result</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -339,7 +345,7 @@ const HistoricalResultList = () =>  {
         </Row>
         <br/>
       </Card>
-    </div>
+    </Watermark>
 
   )
 }

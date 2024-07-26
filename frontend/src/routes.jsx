@@ -314,7 +314,7 @@ const routeList = [
         pid: 0,
         name: 'Certificate Management',
         icon: <ScheduleOutlined />,
-        path: '/CertificateManagement/Valid/Candidate/:hkid',
+        path: '/CertificateManagement/Valid/Candidate',
         element: <Candidate />,
         ignore: true,
         show: true,
