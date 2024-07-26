@@ -81,6 +81,7 @@ entity "GCIS_BATCH_EMAIL" as gcis_batch_email {
     --
     email_template_id: number <<FK-Email_Template.id>>
     schedule_datetime: datetime
+    xml: text
     status: varchar(255) -> PENDING | COMPLETED | FAILED
     created_by: varchar(255)
     modified_by: varchar(255)
@@ -117,6 +118,25 @@ entity "Cert_Pdf" as cert_pdf {
   cert_info_id: number <<PK>> <<FK_Cert_Info.id>>
   --
   file_id: varchar <<FK-File.id>>
+}
+
+entity "Cert_Renew_Pdf" as cert_renew_pdf {
+  cert_info_renew_id: number <<PK>> <<FK_Cert_Info.id>>
+  --
+  file_id: varchar <<FK-File.id>>
+}
+
+entity "Cert_renew_eProof" as cert_renew_eproof {
+  cert_info_renew_id: number <<FK>>
+  --
+  eproof_id: varchar(20)
+  key_name: varchar(8)
+  uuid: varchar(100)
+  version: number
+  token: varchar(100)
+  e_wallet_json: text
+  e_cert_html: text
+  url: varchar(1000)
 }
 
 entity "File" as file {
@@ -162,7 +182,7 @@ entity "Cert_Info" as cert_info {
     modified_date: datetime
 }
 
-entity "Cert_Info_Renew" as cert_info_approve {
+entity "Cert_Info_Renew" as cert_info_renew {
     cert_info_id: number <<generated, PK>>
     --
     type: Appeal | Info_Update | Reissue_Historical_Cert
@@ -315,7 +335,7 @@ exam_profile |o--o{ cert_info
 user_has_role }o--|| role
 role ||--o{ role_has_permission
 role_has_permission }o--|| permission
-cert_info ||--o{ cert_info_approve
+cert_info ||--o{ cert_info_renew
 cert_info ||--o| cert_eproof
 email_message ||--|| email_event
 
@@ -332,6 +352,10 @@ cert_info ||--|{ email_message
 
 cert_info ||--o{ cert_pdf
 file ||--|{ cert_pdf
+
+file ||--|{ cert_renew_pdf
+cert_info_renew ||--o{ cert_renew_pdf
+cert_info_renew ||--o| cert_renew_eproof
 
 gcis_batch_email ||--|| email_template
 gcis_batch_email |o--|{ cert_info
