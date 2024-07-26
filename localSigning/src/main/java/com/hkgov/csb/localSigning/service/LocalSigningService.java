@@ -7,6 +7,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.hkgov.csb.localSigning.util.PdfBoxSign;
+import io.micrometer.common.util.StringUtils;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
@@ -27,21 +28,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.Provider;
-import java.security.Security;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Scanner;
 
 @Service
 public class LocalSigningService {
@@ -328,6 +331,7 @@ public class LocalSigningService {
 
 //        InputStreamResource resource = new InputStreamResource(new FileInputStream(dest));
         //TODO remove local signed pdf after response
+        doc.close();
         baos.close();
         return baos.toByteArray();
     }
@@ -347,6 +351,10 @@ public class LocalSigningService {
 
         */
 
+        if(outputPublicKey == null){
+            this.init();
+        }
+
         String publicKeyCert = Base64.getEncoder().encodeToString(outputPublicKey.getEncoded());
         String publicKeyFormatted = "-----BEGIN PUBLIC KEY-----" + "\r\n";
         for (final String row: Splitter.fixedLength(64).split(publicKeyCert))
@@ -358,4 +366,26 @@ public class LocalSigningService {
         return Base64.getEncoder().encodeToString(publicKeyFormatted.getBytes());
     }
 
+
+    public ResponseEntity signJson(String json) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, CertificateEncodingException {
+
+        String publicKey = this.getSigningCert();
+
+
+        if(!comparePublicKeyCert(publicKey))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("errorMessageNotMatch");
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(pk);
+        signature.update(json.getBytes(StandardCharsets.UTF_8));
+        byte[] sigValue = signature.sign();
+        String sigValueBase64 =  Base64.getEncoder().encodeToString(sigValue);
+
+        //verify
+        Signature signForVerify = Signature.getInstance("SHA256withRSA");
+        signForVerify.initVerify(outputPublicKey.getPublicKey());
+        signForVerify.update(json.getBytes(StandardCharsets.UTF_8));
+
+        return ResponseEntity.ok(sigValueBase64);
+    }
 }

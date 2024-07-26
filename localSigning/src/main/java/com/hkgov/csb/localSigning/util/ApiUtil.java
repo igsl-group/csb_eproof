@@ -1,6 +1,7 @@
 package com.hkgov.csb.localSigning.util;
 
 
+import com.google.gson.JsonObject;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,12 @@ public class ApiUtil {
     @Value("${backend.endpoint.start.schedule.signing}")
     private String startScheduleSigningEndpoint;
 
+    @Value("${backend.endpoint.get.unsigned.json}")
+    private String getUnsignedJsonEndpoint;
+
+    @Value("${backend.endpoint.prepare.eproof.pdf}")
+    private String prepareEproofPdfUrl;
+
     @Value("${backend.endpoint.get.next.job}")
     private String getNextJobEndpoint;
 
@@ -35,6 +42,28 @@ public class ApiUtil {
     private String certDownloadTempPath;
 
     private static final OkHttpClient CLIENT = new OkHttpClient();
+
+    public String getUnsignedJsonForCert(Long certId,String jwtTokenFromFrontEnd){
+        String getUnsignedJsonEndpoint = this.getUnsignedJsonEndpoint.replace("{certInfoId}",certId.toString());
+
+        Request request = new Request.Builder()
+                .url(getUnsignedJsonEndpoint)
+                .get()
+                .addHeader("Authorization", jwtTokenFromFrontEnd)
+                .build();
+
+        try (Response response = CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                System.err.println("Request failed with status code: " + response.code());
+                return null;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     public Long getNextCertIdForSigning(String examProfileSerialNo, String jwtTokenFromFrontEnd) throws IOException {
         String getNextJobEndpoint = this.getNextJobEndpoint.replace("{examProfileSerialNo}", examProfileSerialNo);
@@ -187,5 +216,35 @@ public class ApiUtil {
         }
 
         return destFile;
+    }
+
+    public void prepareEproofPdfForSigning(String jwtTokenFromFrontEnd,Long certId, String unsignedJson, String signedValue) {
+        // Define the endpoint for uploading signed PDF
+        String prepareEproofPdfUrl2 = prepareEproofPdfUrl.replace("{certInfoId}", certId.toString());
+
+        System.out.println("Preparing EProof PDF: " + prepareEproofPdfUrl2);
+
+        JsonObject jsonData = new JsonObject();
+        jsonData.addProperty("eproofDataJson", unsignedJson);
+        jsonData.addProperty("signedProofValue", signedValue);
+
+        // Create a RequestBody with the JSON data
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonData.toString());
+
+        Request request = new Request.Builder()
+                .url(prepareEproofPdfUrl2)
+                .post(requestBody)
+                .addHeader("Authorization", jwtTokenFromFrontEnd)
+                .build();
+
+        try (Response response = CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                System.out.println("Response: " + response.body().string());
+            } else {
+                System.err.println("Request failed with status code: " + response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
