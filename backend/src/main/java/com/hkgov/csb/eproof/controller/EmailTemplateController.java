@@ -22,7 +22,7 @@ public class EmailTemplateController {
     private final EmailTemplateService emailTemplateService;
 
     @GetMapping("/{emailId}")
-    public Result<EmailTemplateDto> getexamProfileInfo(@PathVariable Long emailId){
+    public Result<EmailTemplateDto> getEmailTemplateINfo(@PathVariable Long emailId){
         return Result.success(EmailTemplateMapper.INSTANCE.sourceToDestination(emailTemplateService.email(emailId)));
     }
 
