@@ -21,8 +21,12 @@ public class UserSession implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    @Column(name = "user_id")
+    private Long userId;
+
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",insertable = false, updatable = false)
     private User user;
 
     @Column(name = "jwt")

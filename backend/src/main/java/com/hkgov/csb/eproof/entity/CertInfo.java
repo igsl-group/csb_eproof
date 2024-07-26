@@ -102,6 +102,10 @@ public class CertInfo extends BaseEntity{
         }
     }
 
+    public String getEproofId(){
+        return examProfileSerialNo + "-" + id;
+    }
+
     // Mapped tables
     @ManyToOne
     @JoinColumn(name = "exam_profile_serial", insertable = false, updatable = false)

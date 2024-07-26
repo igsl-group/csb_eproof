@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -116,37 +115,6 @@ public class CertController {
         return Result.success(certInfoService.dispatch(examProfileSerialNo,currentStage));
     }
 
-    @PutMapping("/batch/startScheduleSign/{examProfileSerialNo}")
-    public Result startScheduledSign(@PathVariable String examProfileSerialNo){
-
-        List<CertInfo>scheduledCert = certInfoService.batchScheduleCertSignAndIssue(examProfileSerialNo);
-        if (scheduledCert!=null && !scheduledCert.isEmpty()){
-            return Result.success("Scheduled sign and issue started for "+scheduledCert.size()+" cert(s).");
-        } else {
-            return Result.success("Already scheduled certs found. No new cert scheduled for sign and issue.");
-        }
-    }
-
-    @GetMapping("/getNextScheduledSignAndIssueCert/{examProfileSerialNo}")
-    public ResponseEntity getNextScheduledSignAndIssueCert(@PathVariable String examProfileSerialNo){
-
-        CertInfo nextScheduledCertForProcessing = certInfoService.getNextScheduledSignAndIssueCert(examProfileSerialNo);
-        if(nextScheduledCertForProcessing!=null){
-            return ResponseEntity.ok(nextScheduledCertForProcessing.getId());
-        } else {
-            return ResponseEntity.badRequest().body("No next scheduled cert found.");
-        }
-    }
-
-    @PostMapping("/uploadSignedPdf/{certInfoId}")
-    public Result uploadSignedPdf(@PathVariable Long certInfoId, @RequestPart("file") MultipartFile file) throws IOException {
-        certInfoService.uploadSignedPdf(certInfoId,file);
-        certInfoService.issueCert(certInfoId);
-        return Result.success();
-    }
-
-
-
     @PostMapping("/batch/generate/{examProfileSerialNo}")
     @Operation(summary = "Generate cert pdf in batch mode.",description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
     public Result batchGeneratePdf(@PathVariable String examProfileSerialNo) throws Exception {
@@ -201,7 +169,7 @@ public class CertController {
     }
 
 
-//    @PreAuthorize("hasRole('Permissions.CERT_SEARCH_INVALID')")
+//  @PreAuthorize("hasRole('Permissions.CERT_SEARCH_INVALID')")
     @PostMapping("/downloadCert")
     @Operation(summary = "Download cert with provided cert ID list.")
     public ResponseEntity downloadPdf(@RequestParam List<Long> certInfoIdList) throws IOException {
@@ -220,5 +188,51 @@ public class CertController {
     private String getZipFileName(){
         return String.format("%s-cert-pdf.zip",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
+    }
+
+    @GetMapping("/eproof/getUnsignedJson/{certInfoId}")
+    public ResponseEntity getUnsignedJson(@PathVariable Long certInfoId){
+
+        return ResponseEntity.ok(certInfoService.prepareEproofUnsignJson(certInfoId));
+    }
+
+    @PostMapping("/eproof/prepareEproofPdf/{certInfoId}")
+    public ResponseEntity prepareEproofPdf(
+            @PathVariable Long certInfoId,
+            @RequestBody PrepareEproofPdfRequest prepareEproofPdfRequest
+    ) throws Exception {
+
+        certInfoService.prepareEproofPdf(certInfoId, prepareEproofPdfRequest);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @PutMapping("/eproof/batch/startScheduleSign/{examProfileSerialNo}")
+    public Result startScheduledSign(@PathVariable String examProfileSerialNo){
+
+        List<CertInfo>scheduledCert = certInfoService.batchScheduleCertSignAndIssue(examProfileSerialNo);
+        if (scheduledCert!=null && !scheduledCert.isEmpty()){
+            return Result.success("Scheduled sign and issue started for "+scheduledCert.size()+" cert(s).");
+        } else {
+            return Result.success("Already scheduled certs found. No new cert scheduled for sign and issue.");
+        }
+    }
+
+    @GetMapping("/eproof/getNextScheduledSignAndIssueCert/{examProfileSerialNo}")
+    public ResponseEntity getNextScheduledSignAndIssueCert(@PathVariable String examProfileSerialNo){
+
+        CertInfo nextScheduledCertForProcessing = certInfoService.getNextScheduledSignAndIssueCert(examProfileSerialNo);
+        if(nextScheduledCertForProcessing!=null){
+            return ResponseEntity.ok(nextScheduledCertForProcessing.getId());
+        } else {
+            return ResponseEntity.badRequest().body("No next scheduled cert found.");
+        }
+    }
+
+    @PostMapping("/uploadSignedPdf/{certInfoId}")
+    public Result uploadSignedPdf(@PathVariable Long certInfoId, @RequestPart("file") MultipartFile file) throws Exception {
+        certInfoService.uploadSignedPdf(certInfoId,file);
+        certInfoService.issueCert(certInfoId);
+        return Result.success();
     }
 }

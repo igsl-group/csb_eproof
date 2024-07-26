@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -27,6 +28,12 @@ public class CommonUtil {
 			}
 			return digest.digest();
 		}
+	}
+
+
+	public static byte[] updateDigestWithByteArray(byte[] inputByteArray, MessageDigest digest) throws Exception {
+		digest.update(inputByteArray);
+		return digest.digest();
 	}
 
 	public static Map<String, Object> toMap(JSONObject jsonObject) {

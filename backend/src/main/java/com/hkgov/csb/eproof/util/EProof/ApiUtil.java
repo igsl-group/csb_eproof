@@ -28,7 +28,7 @@ public class ApiUtil {
 			throw new RuntimeException(e);
 		}
 	}
-	public static Boolean getAccessTokenByClientCredentials(EProofConfig config) throws Exception {
+	public static Boolean getAccessTokenByClientCredentials(EProofConfigProperties config) throws Exception {
 		// check if the token is valid
 		Boolean ret = false;
 		if ( config.getAccessToken() == null || config.getAccessToken().length()== 0 ) {
@@ -69,7 +69,7 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response addSigner(EProofConfig config, String keyName, String publicKeyCert) throws Exception {
+	public static Response addSigner(EProofConfigProperties config, String keyName, String publicKeyCert) throws Exception {
 		Response ret = null;
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
 			String url = config.getUrl() +  "/didDoc";
@@ -104,7 +104,7 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response shareEProof(EProofConfig config, String uuid, int version, LocalDateTime expirationDate, int qrCodeMaxCount, String eproof) throws Exception {
+	public static Response shareEProof(EProofConfigProperties config, String uuid, int version, LocalDateTime expirationDate, int qrCodeMaxCount, String eproof) throws Exception {
 		Response ret = null;
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
@@ -142,8 +142,8 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response registerEproof(String uuid, EProofConfig config, String eproofId, String eproofTypeId, String templateCode,
-	                                      String expiryDate, String issuranceDate, String dataHash, int downloadMaxCount, String downloadExpiryDate) throws Exception {
+	public static Response registerEproof(String uuid, EProofConfigProperties config, String eproofId, String eproofTypeId, String templateCode,
+										  String expiryDate, String issuranceDate, String dataHash, int downloadMaxCount, String downloadExpiryDate) throws Exception {
 		Response ret= null;
 
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
@@ -156,8 +156,8 @@ public class ApiUtil {
 			requestBodyJsonMap.put("eProofId", eproofId);
 			requestBodyJsonMap.put("eProofTypeId", eproofTypeId);
 			requestBodyJsonMap.put("templateCode", templateCode);
-			if (expiryDate != null)
-				requestBodyJsonMap.put("expiryDate", expiryDate);
+//			if (expiryDate != null)
+			requestBodyJsonMap.put("expiryDate", "9999-12-31T09:46:33.000Z");
 			requestBodyJsonMap.put("issuanceDate",  issuranceDate);
 			requestBodyJsonMap.put("dataHash", dataHash);
 			requestBodyJsonMap.put("authMethod", "01");
@@ -165,7 +165,7 @@ public class ApiUtil {
 			requestBodyJsonMap.put("otpUrl", config.getOtpUrl());
 			requestBodyJsonMap.put("downloadMaxCount", String.valueOf(downloadMaxCount));
 			if(downloadExpiryDate != null)
-				requestBodyJsonMap.put("downloadExpiryDate", downloadExpiryDate);
+				requestBodyJsonMap.put("downloadExpiryDate", "9999-12-31T09:46:33.000Z");
 
 			//Request Headers
 			List<String> headersArray = new ArrayList<String>();
@@ -176,8 +176,8 @@ public class ApiUtil {
 			String[] headers = headersArray.toArray(new String[0]);
 
 			String jsonRequestBody = gson.toJson(requestBodyJsonMap);
-			logger.debug("POST /eProofMetadata Request Body");
-			logger.debug(jsonRequestBody);
+			logger.info("POST /eProofMetadata Request Body");
+			logger.info(jsonRequestBody);
 
 			Response response = httpUtil.post(url, headers, jsonRequestBody);
 			ret = response;
@@ -190,7 +190,7 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response issueEproofAddPDF(EProofConfig config, String uuid) throws Exception {
+	public static Response issueEproofAddPDF(EProofConfigProperties config, String uuid) throws Exception {
 		Response ret = null;
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
 			String url = config.getUrl() +  "/eProofMetadata";
@@ -199,7 +199,7 @@ public class ApiUtil {
 			HashMap requestBodyJsonMap = new HashMap<>();
 			requestBodyJsonMap.put("id", uuid);
 			requestBodyJsonMap.put("pdfUrl", config.getPdfUrl());
-			requestBodyJsonMap.remove("qrCode"); //TODO for no QR code
+			requestBodyJsonMap.remove("qrCode");
 
 			//Request Headers
 			List<String> headersArray = new ArrayList<String>();
@@ -225,7 +225,7 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response issueEproofUpdatePDFHash(EProofConfig config, String uuid, String pdfHash) throws Exception {
+	public static Response issueEproofUpdatePDFHash(EProofConfigProperties config, String uuid, String pdfHash) throws Exception {
 		Response ret = null;
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
 			String url = config.getUrl() +  "/eProofMetadata/pdfHash";
@@ -260,7 +260,7 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response getEProof(EProofConfig config, String uuid) throws Exception {
+	public static Response getEProof(EProofConfigProperties config, String uuid) throws Exception {
 		//JSONObject ret = null;
 		Response ret = null;
 
@@ -282,7 +282,7 @@ public class ApiUtil {
 		return ret;
 	}
 
-	public static Response revocation(EProofConfig config, String uuid, boolean isRevoked, boolean isWithdrawn) throws Exception {
+	public static Response revocation(EProofConfigProperties config, String uuid, boolean isRevoked, boolean isWithdrawn) throws Exception {
 		Response ret = null;
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
 			String url = config.getUrl() +  "/eProofMetadata/revocation";

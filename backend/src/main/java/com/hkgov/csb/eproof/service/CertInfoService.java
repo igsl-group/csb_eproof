@@ -37,6 +37,7 @@ public interface CertInfoService {
     byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException;
 
 
+
     Boolean updateEmail(UpdateEmailDto updateEmailDto);
 
     Boolean updatePersonalParticular(UpdatePersonalDto personalDto);
@@ -55,5 +56,9 @@ public interface CertInfoService {
 
     void uploadSignedPdf(Long certInfoId, MultipartFile file);
 
-    void issueCert(Long certInfoId);
+    void issueCert(Long certInfoId) throws Exception;
+
+    String prepareEproofUnsignJson(Long certInfoId);
+
+    void prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception;
 }

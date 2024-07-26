@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
@@ -26,12 +27,16 @@ import com.hkgov.csb.eproof.service.FileService;
 import com.hkgov.csb.eproof.service.LetterTemplateService;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
+import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
+import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +73,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final MinioUtil minioUtil;
     private final ExamProfileRepository examProfileRepository;
     private final EmailEventRepository emailEventRepository;
+    private final EProofConfigProperties eProofConfigProperties;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
 
@@ -78,6 +84,10 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final FileService fileService;
     private final EntityManager entityManager;
     private final CertInfoRenewRepository certInfoRenewRepository;
+    private final CertEproofRepository certEproofRepository;
+
+    private static final Gson GSON = new Gson();
+
 
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -461,19 +471,200 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public void issueCert(Long certInfoId) {
-        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
-        if(Objects.isNull(certInfo)){
-            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
-        }
-        if(!CertStage.SIGN_ISSUE.equals(certInfo.getCertStage()) && !CertStatus.SUCCESS.equals(certInfo.getCertStatus())){
-            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
-        }
+    public void issueCert(Long certInfoId) throws Exception {
 
-        //TODO: Call eProof API for issuing cert
+
+        List<CertEproof> certEproofList = certEproofRepository.findByCertInfoId(certInfoId);
+
+        CertEproof certEproof = null;
+        if(certEproofList!=null && !certEproofList.isEmpty()){
+            certEproof = certEproofList.get(0);
+        }
+       /* if(!CertStage.SIGN_ISSUE.equals(certInfo.getCertStage()) && !CertStatus.SUCCESS.equals(certInfo.getCertStatus())){
+            throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
+        }*/
+
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
+
+        File certPdf = certInfo.getPdfList()!=null&&certInfo.getPdfList().size()>0?certInfo.getPdfList().get(0):null;
+
+        byte[] certPdfBinary = minioUtil.getFileAsByteArray(certPdf.getPath());
+
+
+        EProofUtil.issuePdf(certEproof.getUuid(),EProofUtil.calcPdfHash(certPdfBinary));
+
         certInfo.setCertStage(CertStage.SIGN_ISSUE);
         certInfo.setCertStatus(CertStatus.SUCCESS);
+
         certInfoRepository.save(certInfo);
+    }
+
+    @Override
+    public String prepareEproofUnsignJson(Long certInfoId) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElseThrow(()->new EntityNotFoundException("Cert info with provided id not found. Cert info ID: "+certInfoId));
+
+
+
+        String issueToEn = certInfo.getName();
+        String issueToTc = certInfo.getCname();
+        String issueToSc = certInfo.getCname();
+        String eproofType = "personal";
+
+        String  en1, en2, en3,
+                tc1, tc2, tc3,
+                sc1, sc2, sc3;
+
+        en1 = en2 = en3 = tc1 = tc2 = tc3 = sc1 = sc2 = sc3 = "";
+
+        Map<String, String> extraInfo = new HashMap<>();
+        extraInfo.put("certInfoId", certInfo.getId().toString());
+        extraInfo.put("examProfileSerialNo", certInfo.getExamProfileSerialNo());
+
+        LocalDateTime expiryDate = LocalDateTime.of(2099,12,31,23,59,59);
+        LocalDateTime issueDate = LocalDateTime.now();
+
+
+
+        String eproofId = certInfo.getEproofId();
+
+        String eproofTemplateCode = "CSBEPROOF";
+        int majorVersion = 1;
+
+
+        return EProofUtil.getUnsignedEproofJson(
+                null,
+                issueDate,
+                eproofId,
+                eproofTemplateCode,
+                majorVersion,
+                tc1,
+                tc2,
+                tc3,
+                sc1,
+                sc2,
+                sc3,
+                en1,
+                en2,
+                en3,
+                extraInfo,
+                EProofUtil.type.personal
+        );
+    }
+
+    @Override
+    public void prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception {
+
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
+        //Register the json to get the UUID from EProof
+        String uuid = null;
+        String keyName = "1";
+        String eproofTypeId = "40f848bc-856c-4e6a-a1f1-a6b872efe752";
+        LocalDateTime downloadExpiryDateTime = LocalDateTime.of(2099,12,31,23,59,59);
+
+        Map<String, Object> registerResult = EProofUtil.registerOrUpdateEproof(
+                uuid,
+                prepareEproofPdfRequest.getEproofDataJson(),
+                prepareEproofPdfRequest.getSignedProofValue(),
+                keyName,
+                eproofTypeId,
+                -1,
+                downloadExpiryDateTime
+        );
+
+        logger.debug("[registerResult]" + GSON.toJson(registerResult));
+
+
+        uuid = (String) registerResult.get("uuid");
+        Integer returnVersion = (Integer) registerResult.get("version");
+        String token = (String) registerResult.get("token");
+
+
+        logger.debug("[KeyName]" + keyName);
+        logger.debug("[uuid]" + uuid);
+        logger.debug("[returnVersion]" + returnVersion);
+
+        //Create CertEproof record with response from eProof
+        createCertEproofRecord(
+                certInfoId,
+                uuid,
+                returnVersion,
+                token,
+                prepareEproofPdfRequest.getEproofDataJson(),
+                "",
+                "",
+                "1",
+                certInfo.getEproofId()
+        );
+
+
+        // Get QR code string from eProof
+        String qrCodeString = EProofUtil.getQrCodeString(
+                (String) registerResult.get("eProofJson"),
+                uuid,
+                returnVersion,
+                null,
+                -1
+        );
+        logger.debug("[qrCodeString]" + qrCodeString);
+
+        // Update the PDF
+        File latestCert = fileRepository.getLatestPdfForCert(certInfoId);
+        InputStream is = minioUtil.getFileAsStream(latestCert.getPath());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try (PDDocument pdDocument = PDDocument.load(is)) {
+            // Retrieve the document information
+            PDDocumentInformation info = pdDocument.getDocumentInformation();
+            // Set the title and author
+            String pdfTitle = "";
+
+            if(certInfo.getPassed() != null && certInfo.getPassed()){
+                pdfTitle = "Passed cert";
+            }else{
+                pdfTitle = "Failed cert";
+            }
+            info.setTitle(pdfTitle);
+            info.setAuthor(eProofConfigProperties.getIssuerNameEn());
+
+            String pdfKeyword = "";
+
+            pdfKeyword = EProofUtil.getPdfKeyword(uuid, returnVersion, keyName, qrCodeString);
+
+            info.setKeywords(pdfKeyword);
+
+            pdDocument.save(baos);
+        }
+        baos.close();
+
+        // Upload the updated PDF
+        minioUtil.uploadFile(latestCert.getPath(), baos);
+
+        //Completed preparing for Eproof PDF
+    }
+
+    private CertEproof createCertEproofRecord(
+                                        Long certInfoId,
+                                        String uuid,
+                                        Integer version,
+                                        String token,
+                                        String eWalletJson,
+                                        String eCertHtml,
+                                        String url,
+                                        String keyName,
+                                        String eproofId){
+        CertEproof certEproof = new CertEproof();
+        certEproof.setCertInfoId(certInfoId);
+        certEproof.setEproofId(eproofId);
+        certEproof.setKeyName(keyName);
+        certEproof.setUuid(uuid);
+        certEproof.setVersion(version);
+        certEproof.setToken(token);
+        certEproof.setEWalletJson(eWalletJson);
+        certEproof.setECertHtml(eCertHtml);
+        certEproof.setUrl(url);
+        certEproofRepository.save(certEproof);
+
+        return certEproof;
     }
 
     void deleteCertPdf(CertInfo certInfo){
@@ -616,7 +807,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
                 continue;
             }
-            File latestPdf = fileRepository.getLatestPdfForCert(certInfo.getId());
+            File latestPdf = fileRepository. getLatestPdfForCert(certInfo.getId());
 
             ZipEntry zipEntry = new ZipEntry(latestPdf.getName());
             zos.putNextEntry(zipEntry);

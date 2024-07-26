@@ -1,41 +1,49 @@
 package com.hkgov.csb.eproof.util.EProof;
 
+import cn.hutool.core.codec.Base64Encoder;
+import com.google.gson.Gson;
 import com.hkgov.csb.eproof.util.CommonUtil;
-import okhttp3.Response;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.Resource;
+import okhttp3.*;
+import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.util.Strings;
-import org.json.JSONObject;
-import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.json.*;
+import org.springframework.stereotype.Component;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.io.*;
+import java.security.*;
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
-import static com.hkgov.csb.eproof.util.CommonUtil.base64Encode;
-import static com.hkgov.csb.eproof.util.CommonUtil.gson;
-
+@Component
 public class EProofUtil {
 	private static final Logger logger = LogManager.getLogger(EProofUtil.class);
-	private static EProofConfig config;
+	private static final Gson GSON = new Gson();
 
-	public static enum type{
+
+	private static EProofConfigProperties config;
+
+	public EProofUtil(EProofConfigProperties config){
+		EProofUtil.config = config;
+	}
+
+
+	public enum type{
 		personal, organisational
 	}
 
 	public static boolean simulation = false;
+	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	// Define a DateTimeFormatter for ISO 8601 format
+//	static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-	public static void init(String issuerDID, String url, String pdfUrl, String otpUrl, String dataUrl, String clientId, String clientSecret) {
-			config = new EProofConfig();
+	/*public static void init(String issuerDID, String url, String pdfUrl, String otpUrl, String dataUrl, String clientId, String clientSecret) {
+		config = new EProofConfigProperties();
 		config.init(issuerDID,  url,  pdfUrl, otpUrl, dataUrl, clientId, clientSecret);
-	}
+	}*/
 
 	/** This is a demo method to show the usage of eproof module **/
 	public static void main(String[] args) throws Exception {
@@ -50,14 +58,14 @@ public class EProofUtil {
 
 		EProofUtil.simulation = false;
 
-		EProofUtil.init(
-				"did:eproof:7f9fd645-c24e-40db-9b1a-2de920823403",
-				"https://10.148.10.143/api",
-				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
-				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
-				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
-				"FSD001",
-				"bkAGCE@X8s9w!90hPjXq");
+//		EProofUtil.init(
+//				"did:eproof:7f9fd645-c24e-40db-9b1a-2de920823403",
+//				"https://10.148.10.143/api",
+//				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
+//				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
+//				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
+//				"FSD001",
+//				"bkAGCE@X8s9w!90hPjXq");
 
 		Map<String, String> extraInfo = new HashMap<>();
 		extraInfo.put("document_title_en", "document_title_en");
@@ -110,7 +118,7 @@ public class EProofUtil {
 		);
 
 
-		System.out.println("gson.toJson(registerResult): " + gson.toJson(registerResult));
+		System.out.println("gson.toJson(registerResult): " + GSON.toJson(registerResult));
 
 		JSONObject qrCodeJson = new JSONObject(qrCodeString);
 		System.out.println("qrCodeString: " + qrCodeString);
@@ -132,9 +140,13 @@ public class EProofUtil {
 
 	public static String calcPdfHash(File file) throws Exception {
 		byte[] pdfBytes = CommonUtil.readBytesFromFile(file, MessageDigest.getInstance("SHA-256"));
-		String pdfBase64Hash = base64Encode(pdfBytes);
+		return CommonUtil.base64Encode(pdfBytes);
+	}
 
-		return pdfBase64Hash;
+	public static String calcPdfHash(byte[] pdfBytes) throws Exception {
+//		byte[] pdfBytes = CommonUtil.readBytesFromFile(file, MessageDigest.getInstance("SHA-256"));
+		byte[] updatedBytes = CommonUtil.updateDigestWithByteArray(pdfBytes,MessageDigest.getInstance("SHA-256"));
+		return CommonUtil.base64Encode(updatedBytes);
 	}
 
 	public static String getPdfKeyword(String uuid, int version, String keyName){
@@ -142,10 +154,10 @@ public class EProofUtil {
 		Map vcJsonMap = new TreeMap<>();
 		vcJsonMap.put("uuid", uuid);
 		vcJsonMap.put("version", version);
-		vcJsonMap.put("verificationMethodId", config.getIssuerDID() + "#" + keyName);
+		vcJsonMap.put("verificationMethodId", config.getIssuerDid() + "#" + keyName);
 
-		String vcString = gson.toJson(vcJsonMap);
-		return base64Encode(vcString); //JSON String
+		String vcString = GSON.toJson(vcJsonMap);
+		return Base64Encoder.encode(vcString); //JSON String
 	}
 
 	public static String getPdfKeyword(String uuid, int version, String keyName, String qrCode){
@@ -153,14 +165,14 @@ public class EProofUtil {
 		Map vcJsonMap = new TreeMap<>();
 		vcJsonMap.put("uuid", uuid);
 		vcJsonMap.put("version", version);
-		vcJsonMap.put("verificationMethodId", config.getIssuerDID() + "#" + keyName);
+		vcJsonMap.put("verificationMethodId", config.getIssuerDid() + "#" + keyName);
 		if(qrCode != null){
 			vcJsonMap.put("qrCode", CommonUtil.toMap(new JSONObject(qrCode)));
 		}
 
-		String vcString = gson.toJson(vcJsonMap);
+		String vcString = GSON.toJson(vcJsonMap);
 		logger.debug("EProofUtil - getPdfKeyword - vcStirng:" + vcString);
-		return base64Encode(vcString); //JSON String
+		return Base64Encoder.encode(vcString); //JSON String
 	}
 
 	public static void addSigner(String keyName, String publicKeyCert) throws Exception {
@@ -189,7 +201,7 @@ public class EProofUtil {
 		cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 
 		byte[] encrypted = cipher.doFinal(eProofDataOutput.getBytes());
-		String encryptedBase64 = base64Encode(encrypted);
+		String encryptedBase64 = Base64Encoder.encode(encrypted);
 
 		Map<String, Object> out = new HashMap<>();
 		out.put("qrCodeEncryptedString", encryptedBase64);
@@ -225,7 +237,7 @@ public class EProofUtil {
 		Map vcJsonMap = new TreeMap<>();
 		vcJsonMap.put("type_id", "2c"); // 1: Download     2a: Verification (time-limited)   2b: Verification (face-to-face) 2c: Verification (PDF)
 		vcJsonMap.put("data", vcJsonMapData);
-		String vcString = gson.toJson(vcJsonMap);
+		String vcString = GSON.toJson(vcJsonMap);
 		return vcString;
 	}
 
@@ -240,8 +252,7 @@ public class EProofUtil {
 			String en1, String en2, String en3,
 			Map<String, String> extraInfo,
 			type eproofType
-	) throws Exception {
-		DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_DATE_TIME;
+	) {
 
 		//TreeMap eProofData = gson.fromJson(eproofData, TreeMap.class);
 
@@ -249,9 +260,13 @@ public class EProofUtil {
 
 		eProofData.put("eproof_id", eproofId);
 		eProofData.put("template_code", String.format("%s-%s-%d", config.getClientId(), eproofTemplateCode, majorVersion));
-		eProofData.put("issue_date", issuranceDate.format(isoFormatter));
+		eProofData.put("issue_date", issuranceDate.minusHours(8).format(formatter));
 		if (expiryDate != null)
-			eProofData.put("expire_date", expiryDate.format(isoFormatter));
+			eProofData.put("expire_date", expiryDate.minusHours(8).format(formatter));
+		else{
+			// Empty string means neven expire
+			eProofData.put("expire_date", "");
+		}
 		eProofData.put("schema", "1.0");
 
 		if (eproofType == type.personal)
@@ -276,8 +291,9 @@ public class EProofUtil {
 		}
 
 		Map systemJsonMap = new TreeMap<>();
-		if (expiryDate != null)
-			systemJsonMap.put("expirationDate", expiryDate.format(isoFormatter));
+		if (expiryDate != null){
+			systemJsonMap.put("expirationDate", expiryDate.minusHours(8).format(formatter));
+		}
 
 		Map credentialSubjectJsonMap = new TreeMap<>();
 		credentialSubjectJsonMap.put("display", eProofData);
@@ -289,20 +305,20 @@ public class EProofUtil {
 		vcJsonMap.put("@context", new ArrayList<>(Arrays.asList("https://www.w3.org/2018/credentials/v1")));
 		vcJsonMap.put("type", new ArrayList<>(Arrays.asList("VerifiableCredential")));
 		//vcJsonMap.put("issuer", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46" );
-		vcJsonMap.put("issuer", config.getIssuerDID());
+		vcJsonMap.put("issuer", config.getIssuerDid());
 		//vcJsonMap.put("issuanceDate", "2010-01-01T19:23:24Z" );
 		//LocalDateTime now = LocalDateTime.now();
 		//String formattedDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-		vcJsonMap.put("issuanceDate", issuranceDate.format(isoFormatter)); // Update as UTC format
+		vcJsonMap.put("issuanceDate", issuranceDate.minusHours(8).format(formatter)); // Update as UTC format
 		vcJsonMap.put("credentialSubject", credentialSubjectJsonMap);
 
-		logger.debug("EProofUtil - getUnsignedEproofJson - gson.toJson(vcJsonMap): " + gson.toJson(vcJsonMap));
-		return gson.toJson(vcJsonMap);
+		logger.debug("EProofUtil - getUnsignedEproofJson - gson.toJson(vcJsonMap): " + GSON.toJson(vcJsonMap));
+		return GSON.toJson(vcJsonMap);
 	}
 
 	public static Map<String, Object> updateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
-	                                               String eproofTypeId,
-	                                               int downloadMaxCount, LocalDateTime downloadExpiryDate
+												   String eproofTypeId,
+												   int downloadMaxCount, LocalDateTime downloadExpiryDate
 	) throws Exception {
 		return registerOrUpdateEproof(uuid, unsignedMap,  proofValue,  keyName,
 				eproofTypeId,
@@ -310,8 +326,8 @@ public class EProofUtil {
 	}
 
 	public static Map<String, Object> registerEproof(String unsignedMap, String proofValue, String keyName,
-	                                                 String eproofTypeId,
-	                                                 int downloadMaxCount, LocalDateTime downloadExpiryDate
+													 String eproofTypeId,
+													 int downloadMaxCount, LocalDateTime downloadExpiryDate
 	) throws Exception {
 		return registerOrUpdateEproof(null, unsignedMap,  proofValue,  keyName,
 				eproofTypeId,
@@ -320,8 +336,8 @@ public class EProofUtil {
 
 
 	public static Map<String, Object> registerOrUpdateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
-	                                                         String eproofTypeId,
-	                                                         int downloadMaxCount, LocalDateTime downloadExpiryDate
+															 String eproofTypeId,
+															 int downloadMaxCount, LocalDateTime downloadExpiryDate
 	) throws Exception {
 
 		if (simulation) {
@@ -334,24 +350,22 @@ public class EProofUtil {
 			return out;
 		}
 
-		Map vcJsonMap = gson.fromJson(unsignedMap, Map.class);
+		Map vcJsonMap = GSON.fromJson(unsignedMap, Map.class);
 		logger.debug("EProffUtil - registerOrUpdateEproof - vcJsonMap: " + vcJsonMap);
-		DateTimeFormatter isoformatter = DateTimeFormatter.ISO_DATE_TIME;
 		//vc proof
 		Map vcProofJsonMap = new TreeMap<>();
 		vcProofJsonMap.put("type", "SHA256withRSA");
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		vcProofJsonMap.put("created", LocalDateTime.now().format(formatter));
-		vcProofJsonMap.put("verificationMethod", config.getIssuerDID() + "#" + keyName);
+		vcProofJsonMap.put("created", LocalDateTime.now().minusHours(8).format(formatter));
+		vcProofJsonMap.put("verificationMethod", config.getIssuerDid() + "#" + keyName);
 		vcProofJsonMap.put("proofPurpose", "assertionMethod");
 		vcProofJsonMap.put("proofValue", proofValue);
 
 		vcJsonMap.put("proof", vcProofJsonMap);
 
 		//hash vc
-		String vcString = gson.toJson(vcJsonMap);
+		String vcString = GSON.toJson(vcJsonMap);
 		byte[] vcBytes = CommonUtil.readBytesFromString(vcString, MessageDigest.getInstance("SHA-256"));
-		String vcBase64Hash = base64Encode(vcBytes);
+		String vcBase64Hash = Base64Encoder.encode(vcBytes);
 
 		Map<String, Object> out = new HashMap<>();
 		out.put("eProofJson", vcString);
@@ -361,7 +375,10 @@ public class EProofUtil {
 				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("template_code"),
 				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("expire_date"),
 				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("issue_date"),
-				vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null?downloadExpiryDate.format(isoformatter):null)) {
+				vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null
+						?downloadExpiryDate.minusHours(8).format(formatter)
+						:null
+		)) {
 			checkResponse(httpResponse);
 			JSONObject jret = new JSONObject(httpResponse.body().string());
 			logger.info("status= " + jret.getString("status").equals("Successful"));
@@ -377,13 +394,13 @@ public class EProofUtil {
 	}
 
 	public static String getQrCodeString(String eProoJsonString, String uuid, int version, LocalDateTime accessExpirationDate,
-	                                     int qrCodeMaxCount
+										 int qrCodeMaxCount
 	) throws Exception {
 
-		if (simulation) {
+		/*if (simulation) {
 			logger.debug("This is simulation of getQrCodeString");
 			return "{\"data\":{\"initVector\":\"OITjOAL9+6qLhxdzABxlQA==\",\"jwt\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTA3ODQ5OTQsInR5cGUiOiIwNyIsImlhdCI6MTcxMDc1NjE5NCwic3ViIjoiODFkZjk2ODctMzQ4MS00MzMyLWE4ZGEtM2RmZjQzMDg3MzdkIn0.LCXmO4lbshb6D4pu8cbpszsAl99e1_2wjRD0ej4o0qw\",\"key\":\"Cii5Na58AxLYwLBAruVP7xImOnWnT9w4Xtc8SOF0/Z4=\",\"shared_eproof_uuid\":\"81df9687-3481-4332-a8da-3dff4308737d\"},\"type_id\":\"2c\"}";
-		}
+		}*/
 
 		Map<String, Object> qrCodeInfo = encryptEProofData(eProoJsonString);
 		logger.debug("EProofUtil - getQrCodeString - eProofJsonString: " + eProoJsonString);
@@ -435,13 +452,11 @@ public class EProofUtil {
 			return out;
 		}
 
-		DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_DATE_TIME;
-
-		TreeMap eProofData = gson.fromJson(eproofData, TreeMap.class);
+		TreeMap eProofData = GSON.fromJson(eproofData, TreeMap.class);
 
 		Map systemJsonMap = new TreeMap<>();
 		if (expirationDate != null)
-			systemJsonMap.put("expirationDate", expirationDate.format(isoFormatter));
+			systemJsonMap.put("expirationDate", expirationDate.minusHours(8).format(formatter));
 
 		Map credentialSubjectJsonMap = new TreeMap<>();
 		credentialSubjectJsonMap.put("display", eProofData);
@@ -452,11 +467,11 @@ public class EProofUtil {
 		vcJsonMap.put("@context", new ArrayList<>(Arrays.asList("https://www.w3.org/2018/credentials/v1")));
 		vcJsonMap.put("type", new ArrayList<>(Arrays.asList("VerifiableCredential")));
 		//vcJsonMap.put("issuer", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46" );
-		vcJsonMap.put("issuer", config.getIssuerDID());
+		vcJsonMap.put("issuer", config.getIssuerDid());
 		//vcJsonMap.put("issuanceDate", "2010-01-01T19:23:24Z" );
 		//LocalDateTime now = LocalDateTime.now();
 		//String formattedDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-		vcJsonMap.put("issuanceDate", issuranceDate.format(isoFormatter)); // Update as UTC format
+		vcJsonMap.put("issuanceDate", issuranceDate.minusHours(8).format(formatter)); // Update as UTC format
 		vcJsonMap.put("credentialSubject", credentialSubjectJsonMap);
 
 		//vc proof
@@ -464,11 +479,10 @@ public class EProofUtil {
 		vcProofJsonMap.put("type", "SHA256withRSA");
 		//vcProofJsonMap.put(  "created", "2023-04-20T00:15:39.910Z");
 		LocalDateTime now = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		String formattedDate = now.format(formatter);
+		String formattedDate = now.minusHours(8).format(formatter);
 		vcProofJsonMap.put("created", formattedDate);
 		//vcProofJsonMap.put(  "verificationMethod", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46#key-1");
-		vcProofJsonMap.put("verificationMethod", config.getIssuerDID() + "#" + keyName);
+		vcProofJsonMap.put("verificationMethod", config.getIssuerDid() + "#" + keyName);
 		vcProofJsonMap.put("proofPurpose", "assertionMethod");
 
 		//String proofValue = signatureWithPrivateKey(gson.toJson(vcJsonMap),privateKeyPath);
@@ -480,9 +494,9 @@ public class EProofUtil {
 		vcJsonMap.put("proof", vcProofJsonMap);
 
 		//hash vc
-		String vcString = gson.toJson(vcJsonMap);
+		String vcString = GSON .toJson(vcJsonMap);
 		byte[] vcBytes = CommonUtil.readBytesFromString(vcString, MessageDigest.getInstance("SHA-256"));
-		String vcBase64Hash = base64Encode(vcBytes);
+		String vcBase64Hash = CommonUtil.base64Encode(vcBytes);
 //
 //		eproof.setEProofDataOutput(vcString);
 //		eproof.setVcBase64Hash(vcBase64Hash);
@@ -491,9 +505,9 @@ public class EProofUtil {
 
 		try (Response httpResponse = ApiUtil.registerEproof(
 				null, config, eproofId, eproofTypeId, templateCode,
-				(expiryDate == null) ? null : expiryDate.format(isoFormatter),
-				issuranceDate.format(isoFormatter), vcBase64Hash, downloadMaxCount,
-				(downloadExpiryDate == null) ? null : downloadExpiryDate.format(isoFormatter)
+				(expiryDate == null) ? null : expiryDate.minusHours(8).format(formatter),
+				issuranceDate.minusHours(8).format(formatter), vcBase64Hash, downloadMaxCount,
+				(downloadExpiryDate == null) ? null : downloadExpiryDate.minusHours(8).format(formatter)
 		)) {
 			checkResponse(httpResponse);
 			JSONObject jret = new JSONObject(httpResponse.body().string());
@@ -557,7 +571,7 @@ public class EProofUtil {
 		}
 	}
 
-	private static void checkResponse(Response httpResponse) throws IOException, JSONException {
+	private static void checkResponse(Response httpResponse) throws IOException {
 		if (httpResponse.code() != 200) {
 			String errorMessage = httpResponse.body().string();
 			JSONObject jret = new JSONObject(errorMessage);

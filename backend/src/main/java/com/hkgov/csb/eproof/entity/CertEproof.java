@@ -1,9 +1,6 @@
 package com.hkgov.csb.eproof.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +10,13 @@ import lombok.Setter;
 @Setter
 public class CertEproof {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "cert_info_id")
     private Long certInfoId;
+
     @Column(name = "eproof_id")
     private String eproofId;
     @Column(name = "key_name")
@@ -25,10 +27,16 @@ public class CertEproof {
     private Integer version;
     @Column(name = "token")
     private String token;
-    @Column(name = "e_wallet_json")
+    @Column(name = "e_wallet_json",columnDefinition = "varchar(4000)")
     private String eWalletJson;
     @Column(name = "e_cert_html")
     private String eCertHtml;
     @Column(name = "url")
     private String url;
+
+
+    @OneToOne
+    @JoinColumn(name = "cert_info_id", insertable = false, updatable = false)
+    private CertInfo certInfo;
+
 }

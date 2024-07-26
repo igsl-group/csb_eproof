@@ -8,7 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -103,18 +103,17 @@ springdoc:
     display-request-duration: true
 
 #logging config
-logging:
-  file:
-    path: logs/backend/
-    name: backend.log
-    max-age: 1d
+#logging:
+#  file:
+#    path: logs/backend/
+#    name: backend.log
+#    max-age: 1d
+#
+#    root: INFO
+#  logback:
+#    rollingpolicy:
+#      max-file-size: 10MB
 
-    root: INFO
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-  level:
-    org.hibernate.orm.jdbc.bind: trace
 
 document:
   #   Path for the temporary document to be generated.
@@ -142,6 +141,16 @@ mail:
     enabled: true
     email-list: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
 
+eproof-config:
+  issuer-name-en: Civil Service Bureau
+  issuer-name-tc: 公務員事務局
+  issuer-did: "did:eproof:100cfb00-3029-474a-b794-2f735e1d3c1d"
+  client-id: "CSB001"
+  client-secret: "J+Y2aUo1FT2M&EpY$F@="
+  url: "https://192.168.26.127:9000/api"
+  pdfUrl: "http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/data"
+  otpUrl: "http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/data"
+  dataUrl: "http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/data"
 
 thread-pool:
   scheduled-task:
@@ -157,5 +166,4 @@ thread-pool:
 
 #second minute hour dayOfMonth month dayOfWeek
 cron-expression:
-  # Run every second
   normal-email-sending: "-"

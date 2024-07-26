@@ -1,5 +1,5 @@
 <configuration>
-    <property name="LOG_PATH" value="logs/backend"/>
+    <property name="LOG_PATH" value="logs"/>
     <timestamp key="TIMESTAMP" datePattern="yyyyMMdd"/>
 
     <!--<conversionRule conversionWord="session"
@@ -12,10 +12,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
 
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>ERROR</level>
-            <onMatch>ACCEPT</onMatch>
-        </filter>
+
     </appender>
 
     <appender name="fout"

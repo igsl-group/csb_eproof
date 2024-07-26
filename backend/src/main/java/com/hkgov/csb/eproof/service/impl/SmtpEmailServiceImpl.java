@@ -40,7 +40,6 @@ public class SmtpEmailServiceImpl implements EmailService {
                           String content,
                           String attachmentName,
                           byte[] attachment) throws MessagingException {
-        logger.info("Sending email. To: {},CC: {}, BCC: {}, Subject: {}",to,cc,bcc,subject);
 
         if(whitelistEnabled){
             to.removeIf(email -> !whitelist.contains(email));
@@ -74,6 +73,7 @@ public class SmtpEmailServiceImpl implements EmailService {
             helper.addAttachment(attachmentName,new ByteArrayDataSource(attachment,"application/octet-stream"));
         }
 
+        logger.info("Sending email. To: {},CC: {}, BCC: {}, Subject: {}",to,cc,bcc,subject);
         mailSender.send(mimeMessage);
     }
 
