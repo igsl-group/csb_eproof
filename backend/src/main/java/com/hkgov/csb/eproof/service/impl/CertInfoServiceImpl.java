@@ -85,6 +85,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final EntityManager entityManager;
     private final CertInfoRenewRepository certInfoRenewRepository;
     private final CertEproofRepository certEproofRepository;
+    private final CertRenewPdfRepository certRenewPdfRepository;
 
     private static final Gson GSON = new Gson();
 
@@ -180,7 +181,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
 //        try{
         for (CertInfo cert : inProgressCertList) {
-            this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true);
+            this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
         }
         /*} catch (Exception e){
             inProgressCertList.forEach(cert->{
@@ -233,7 +234,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     public void singleGeneratePdf(CertInfo certInfo,
                                   byte[] atLeastOnePassedTemplate,
                                   byte [] allFailedTemplate,
-                                  boolean isBatchMode) throws Exception {
+                                  boolean isBatchMode,boolean isNewCertInfo) throws Exception {
 
         try{
             logger.info("Start generate.");
@@ -250,13 +251,23 @@ public class CertInfoServiceImpl implements CertInfoService {
             IOUtils.close(appliedTemplate);
 
             File uploadFileRecord = this.uploadCertPdf(certInfo, mergedPdf);
-            this.createCertPdfRecord(certInfo,uploadFileRecord);
-            this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
+            if(isNewCertInfo){
+                this.createCertRenewPdfRecord(certInfo,uploadFileRecord);
+            }else{
+                this.createCertPdfRecord(certInfo,uploadFileRecord);
+                this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
+            }
 
             logger.info("Complete generate");
         } catch(Exception e){
-            certInfo.setCertStatus(CertStatus.FAILED);
-            certInfoRepository.save(certInfo);
+            if(isNewCertInfo){
+                CertInfoRenew certInfoRenew = new CertInfoRenew();
+                certInfoRenew.setStatus(CertStatus.FAILED);
+                certInfoRenew.setId(certInfo.getId());
+            }else{
+                certInfo.setCertStatus(CertStatus.FAILED);
+                certInfoRepository.save(certInfo);
+            }
         }
 
     }
@@ -303,33 +314,19 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
         List<CertInfoRenew> addList = new ArrayList<>();
         certInfos.forEach(x -> {
-            CertInfoRenew certInfoRenew = new CertInfoRenew();
-            certInfoRenew.setCertInfoId(x.getId());
-            certInfoRenew.setNewHkid(personalDto.getNewHkid());
-            certInfoRenew.setOldHkid(x.getHkid());
-            certInfoRenew.setNewPassport(personalDto.getPrinewPassport());
-            certInfoRenew.setOldPassport(x.getPassportNo());
-            certInfoRenew.setNewEmail(x.getEmail());
-            certInfoRenew.setOldEmail(x.getEmail());
-            certInfoRenew.setRemark(personalDto.getRemark());
-            certInfoRenew.setNewCname(x.getCname());
-            certInfoRenew.setOldCname(x.getCname());
-            certInfoRenew.setNewName(x.getName());
-            certInfoRenew.setOldName(x.getName());
-            certInfoRenew.setNewAtGrade(x.getAtGrade());
-            certInfoRenew.setOldAtGrade(x.getAtGrade());
-            certInfoRenew.setNewBlGrade(x.getBlnstGrade());
-            certInfoRenew.setOldBlGrade(x.getBlnstGrade());
-            certInfoRenew.setNewUcGrade(x.getUcGrade());
-            certInfoRenew.setOldUcGrade(x.getUcGrade());
-            certInfoRenew.setNewUeGrade(x.getUeGrade());
-            certInfoRenew.setOldUeGrade(x.getUeGrade());
-            certInfoRenew.setCertStage(x.getCertStage());
-            certInfoRenew.setLetterType(x.getLetterType());
-            certInfoRenew.setType(CertType.INFO_UPDATE);
-            addList.add(certInfoRenew);
+            addList.add(addCertInfoRenew(x,personalDto));
         });
         return certInfoRenewRepository.saveAll(addList).size() == certInfos.size();
+    }
+
+    @Override
+    public void updatePersonalParticularById(Long certInfoId,UpdatePersonalDto personalDto) {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
+        if(Objects.isNull(certInfo)){
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
+        }
+        CertInfoRenew certInfoRenew = addCertInfoRenew(certInfo,personalDto);
+        certInfoRenewRepository.save(certInfoRenew);
     }
 
     @Override
@@ -694,6 +691,13 @@ public class CertInfoServiceImpl implements CertInfoService {
         certPdfRepository.save(certPdf);
     }
 
+    public void createCertRenewPdfRecord(CertInfo certInfo,File uploadedPdf){
+        CertRenewPdf certPdf = new CertRenewPdf();
+        certPdf.setCertInfoRenewId(certInfo.getId());
+        certPdf.setFileId(uploadedPdf.getId());
+        certRenewPdfRepository.save(certPdf);
+    }
+
     @Transactional
     public void updateCertPdfRecord(CertInfo certInfo, File uploadedPdf){
         CertPdf certPdf = certPdfRepository.findByCertInfoId(certInfo.getId());
@@ -818,5 +822,36 @@ public class CertInfoServiceImpl implements CertInfoService {
         zos.close();
         return baos.toByteArray();
 
+    }
+
+    public CertInfoRenew addCertInfoRenew(CertInfo info,UpdatePersonalDto personalDto){
+        CertInfoRenew certInfoRenew = new CertInfoRenew();
+        certInfoRenew.setCertInfoId(info.getId());
+        certInfoRenew.setNewHkid(personalDto.getNewHkid());
+        certInfoRenew.setOldHkid(info.getHkid());
+        certInfoRenew.setNewPassport(personalDto.getPrinewPassport());
+        certInfoRenew.setOldPassport(info.getPassportNo());
+        certInfoRenew.setNewEmail(info.getEmail());
+        certInfoRenew.setOldEmail(info.getEmail());
+        certInfoRenew.setRemark(personalDto.getRemark());
+        certInfoRenew.setNewCname(info.getCname());
+        certInfoRenew.setOldCname(info.getCname());
+        certInfoRenew.setNewName(info.getName());
+        certInfoRenew.setOldName(info.getName());
+        certInfoRenew.setNewAtGrade(info.getAtGrade());
+        certInfoRenew.setOldAtGrade(info.getAtGrade());
+        certInfoRenew.setNewBlGrade(info.getBlnstGrade());
+        certInfoRenew.setOldBlGrade(info.getBlnstGrade());
+        certInfoRenew.setNewUcGrade(info.getUcGrade());
+        certInfoRenew.setOldUcGrade(info.getUcGrade());
+        certInfoRenew.setNewUeGrade(info.getUeGrade());
+        certInfoRenew.setOldUeGrade(info.getUeGrade());
+        certInfoRenew.setCertStage(info.getCertStage());
+        certInfoRenew.setLetterType(info.getLetterType());
+        certInfoRenew.setType(CertType.INFO_UPDATE);
+        certInfoRenew.setCertStage(info.getCertStage());
+        certInfoRenew.setStatus(info.getCertStatus());
+        certInfoRenew.setIsDelete(false);
+        return certInfoRenew;
     }
 }

@@ -1,10 +1,13 @@
 package com.hkgov.csb.eproof.entity;
 
 import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "cert_info_renew")
@@ -83,11 +86,23 @@ public class CertInfoRenew extends BaseEntity {
     private CertStage certStage;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private CertStatus status;
 
     @Column(name = "done")
     private Boolean done;
 
     @Column(name = "letter_type")
     private String letterType;
+
+    @Column(name = "is_delete")
+    private Boolean isDelete;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinTable(
+            name = "cert_renew_pdf",
+            joinColumns = @JoinColumn(name = "cert_info_renew_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id")
+    )
+    private List<File> pdfList;
 }

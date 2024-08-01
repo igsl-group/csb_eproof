@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public interface CertInfoService {
     void singleGeneratePdf(CertInfo certInfo,
                            byte[] atLeastOnePassedTemplate,
                            byte [] allFailedTemplate,
-                           boolean isBatchMode) throws Exception;
+                           boolean isBatchMode,boolean isNewCertInfo) throws Exception;
     byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException;
 
 
@@ -41,6 +40,8 @@ public interface CertInfoService {
     Boolean updateEmail(UpdateEmailDto updateEmailDto);
 
     Boolean updatePersonalParticular(UpdatePersonalDto personalDto);
+
+    void updatePersonalParticularById(Long certInfoId,UpdatePersonalDto personalDto);
 
     Boolean updateResult(Long certInfoId, UpdateResultDto resultDto);
 

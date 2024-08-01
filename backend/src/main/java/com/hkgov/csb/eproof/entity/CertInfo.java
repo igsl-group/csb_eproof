@@ -111,6 +111,11 @@ public class CertInfo extends BaseEntity{
     @JoinColumn(name = "exam_profile_serial", insertable = false, updatable = false)
     private ExamProfile examProfile;
 
+    @OneToOne(mappedBy = "certInfo", cascade = CascadeType.ALL)
+    private CertEproof certEproof;
+
+    /*@OneToMany(mappedBy = "certInfo", cascade = CascadeType.ALL)
+    private List<ActionTarget> actionTargets;*/
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinTable(

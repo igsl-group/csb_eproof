@@ -11,7 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.hkgov.csb.eproof.constants.Constants.*;
+import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN;
+import static com.hkgov.csb.eproof.constants.Constants.DATE_TIME_PATTERN;
 
 /**
  * DTO for {@link com.hkgov.csb.eproof.entity.CertInfo}
@@ -51,5 +52,7 @@ public class CertInfoDto implements Serializable {
     String onHoldRemark;
     String letterType;
     ExamProfileDto examProfile;
+    CertEproofDto certEproof;
     List<FileDto> pdfList;
+    String url;
 }

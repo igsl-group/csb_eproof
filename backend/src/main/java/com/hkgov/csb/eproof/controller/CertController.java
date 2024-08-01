@@ -27,10 +27,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/cert")
@@ -97,7 +101,18 @@ public class CertController {
         Page<CertInfo> searchResult = certInfoService.search(request,certStageList,certStatusList ,pageable);
 
         List<CertInfoDto> resultList = CertInfoMapper.INSTANCE.toDtoList(searchResult.getContent());
+        resultList.forEach(x->{
+            if(Objects.nonNull(x.getCertEproof())){
+                try {
+                    String encodedToken = URLEncoder.encode(x.getCertEproof().getToken(), StandardCharsets.UTF_8.name());
+                    x.setUrl(x.getCertEproof().getUrl()+encodedToken);
+                    x.setCertEproof(null);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
 
+        });
         Page<CertInfoDto> returnResult = new PageImpl<>(resultList, pageable, searchResult.getTotalElements());
 
         return Result.success(returnResult);
@@ -143,6 +158,12 @@ public class CertController {
     @PostMapping("/batch/updatePersonalParticular")
     public Result updatePersonalParticular(@RequestBody UpdatePersonalDto personalDto){
         return Result.success(certInfoService.updatePersonalParticular(personalDto));
+    }
+
+    @PostMapping("/single/updatePersonalParticular/{certInfoId}")
+    public Result updatePersonalParticular(@PathVariable Long certInfoId,@RequestBody UpdatePersonalDto personalDto){
+        certInfoService.updatePersonalParticularById(certInfoId,personalDto);
+        return Result.success();
     }
 
     @PostMapping("/single/updateResult/{certInfoId}")
@@ -234,5 +255,16 @@ public class CertController {
         certInfoService.uploadSignedPdf(certInfoId,file);
         certInfoService.issueCert(certInfoId);
         return Result.success();
+    }
+
+    @PostMapping("/revoke")
+    public Result revoke(@RequestParam List<Long> certInfoIdList,@RequestBody CertRevokeDto params) {
+        certInfoRenewService.revoke(certInfoIdList,params);
+        return Result.success();
+    }
+
+    @GetMapping("/getTodo/revoke")
+    public Result<CertRevokeDto> getTodoRevoke(){
+        return Result.success(certInfoRenewService.getTodoRevoke());
     }
 }
