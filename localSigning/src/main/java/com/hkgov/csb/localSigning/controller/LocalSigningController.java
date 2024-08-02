@@ -40,6 +40,7 @@ public class LocalSigningController {
 
 
 
+    @CrossOrigin
     @PostMapping("/start/{examProfileSerialNo}")
     public ResponseEntity start(
             HttpServletRequest request,
@@ -51,7 +52,7 @@ public class LocalSigningController {
             @PathVariable String examProfileSerialNo) throws IOException, InterruptedException, CertificateEncodingException, SignatureException, NoSuchAlgorithmException, InvalidKeyException {
 
         String jwtTokenFromFrontEnd = request.getHeader("Authorization");
-        jwtTokenFromFrontEnd = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MjE4ODM3Njd9.-GxMZHf-kkK_6JiCgb2A_Vig9wo-C9oE1CcLi-tES-k";
+//        jwtTokenFromFrontEnd = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
 
         localSigningService.init();
         String publicKey = localSigningService.getSigningCert();
@@ -64,7 +65,7 @@ public class LocalSigningController {
 
             String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwtTokenFromFrontEnd);
             String signedValue = (String)localSigningService.signJson(unsignedJson).getBody();
-
+            logger.info(signedValue);
             apiUtil.prepareEproofPdfForSigning(jwtTokenFromFrontEnd,nextCertInfoIdForSigning,unsignedJson,signedValue);
 
             this.processSigning(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,reason,  location, qr, keyword, response,publicKey);
@@ -107,7 +108,7 @@ public class LocalSigningController {
         try {
             List<String> pdfDownloadedLocation =  apiUtil.downloadCertPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd);
             if(pdfDownloadedLocation != null && !pdfDownloadedLocation.isEmpty()){
-                String pdfLocation = pdfDownloadedLocation.getFirst();
+                String pdfLocation = pdfDownloadedLocation.get(0);
                 byte[] signedPdf = localSigningService.getSignedPdf(Files.newInputStream(Path.of(pdfLocation)), publicKey, reason, location, qr, keyword);
                 apiUtil.uploadSignedPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,signedPdf);
             }
