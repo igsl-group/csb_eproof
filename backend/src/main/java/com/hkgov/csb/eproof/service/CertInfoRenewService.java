@@ -1,7 +1,7 @@
 package com.hkgov.csb.eproof.service;
 
+import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.dto.CertRevokeDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfoRenew;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
@@ -28,5 +28,5 @@ public interface CertInfoRenewService {
 
     CertRevokeDto getTodoRevoke();
 
-    Page<CertInfoRenew> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
+    Page<CertInfoRenew> search(CertRenewSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 }
