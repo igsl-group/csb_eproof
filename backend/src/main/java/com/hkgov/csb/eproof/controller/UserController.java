@@ -1,9 +1,12 @@
 package com.hkgov.csb.eproof.controller;
 
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.dto.UserDto;
 import com.hkgov.csb.eproof.mapper.UserMapper;
 import com.hkgov.csb.eproof.service.UserService;
+import com.hkgov.csb.eproof.util.JwtHelper;
 import com.hkgov.csb.eproof.util.Result;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final JwtHelper jwtHelper;
     @PostMapping("/create")
     public Result<Boolean> createUser(@RequestBody UserDto requestDto) {
         return Result.success(userService.createUser(requestDto));
@@ -41,6 +45,13 @@ public class UserController {
     @GetMapping("/{userId}")
     public Result<UserDto> getUserInfo(@PathVariable Long userId){
         return Result.success(UserMapper.INSTANCE.sourceToDestination(userService.getUserInfo(userId)));
+    }
+
+    @GetMapping("/currentUser")
+    public Result<UserDto> getUserInfo(HttpServletRequest request){
+        String jwt = jwtHelper.getJwtFromRequest(request);
+        Integer userId = jwtHelper.extractClaimWithKey(jwt, Constants.JWT_KEY_SESSIONID, Integer.class);
+        return Result.success(UserMapper.INSTANCE.sourceToDestination(userService.getUserInfo(Long.valueOf(userId))));
     }
 
     @DeleteMapping("/delete/{userId}")
