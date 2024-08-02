@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -210,18 +211,18 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     private Map<String,List> getTableLoopMapForCert(CertInfo certInfo){
         List<ExamScoreDto> markDtoList = new ArrayList<>();
-        if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
-            markDtoList.add(new ExamScoreDto("AT",certInfo.getAtGrade()));
-        }
+
         if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
-            markDtoList.add(new ExamScoreDto("UC",certInfo.getUcGrade()));
+            markDtoList.add(new ExamScoreDto("Use of Chinese",certInfo.getUcGrade()));
         }
         if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
-            markDtoList.add(new ExamScoreDto("UE",certInfo.getUeGrade()));
+            markDtoList.add(new ExamScoreDto("Use of English",certInfo.getUeGrade()));
         }
-
+        if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
+            markDtoList.add(new ExamScoreDto("Aptitude Test",certInfo.getAtGrade()));
+        }
         if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
-            markDtoList.add(new ExamScoreDto("BLNST", certInfo.getBlnstGrade()));
+            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", certInfo.getBlnstGrade()));
         }
 
         HashMap<String,List> map = new HashMap<>();
@@ -511,22 +512,46 @@ public class CertInfoServiceImpl implements CertInfoService {
                 tc1, tc2, tc3,
                 sc1, sc2, sc3;
 
-        en1 = en2 = en3 = tc1 = tc2 = tc3 = sc1 = sc2 = sc3 = "";
+
 
         Map<String, String> extraInfo = new HashMap<>();
-        extraInfo.put("certInfoId", certInfo.getId().toString());
-        extraInfo.put("examProfileSerialNo", certInfo.getExamProfileSerialNo());
+        extraInfo.put("cert_info_id", certInfo.getId().toString());
+        extraInfo.put("exam_profile_serial_no", certInfo.getExamProfileSerialNo());
+        extraInfo.put("result_letter_date", certInfo.getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        extraInfo.put("candidate_name", certInfo.getName());
+        extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+        extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese" : "");
+        extraInfo.put("result_1", certInfo.getUcGrade());
+
+        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfo.getUeGrade()) ? "Use of English" : "");
+        extraInfo.put("result_2", certInfo.getUeGrade());
+
+        extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfo.getAtGrade()) ? "Aptitude Test" : "");
+        extraInfo.put("result_3", certInfo.getAtGrade());
+
+        extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfo.getBlnstGrade())? "Basic Law and National Security Law Test" : "");
+        extraInfo.put("result_4", certInfo.getBlnstGrade());
+
+        extraInfo.put("hkid_or_passport", certInfo.getHkidOrPassport());
 
         LocalDateTime expiryDate = LocalDateTime.of(2099,12,31,23,59,59);
         LocalDateTime issueDate = LocalDateTime.now();
 
-
-
         String eproofId = certInfo.getEproofId();
 
         String eproofTemplateCode = "CSBEPROOF";
-        int majorVersion = 1;
 
+        int majorVersion = 1;
+        en1 = certInfo.getName();
+        en2 = certInfo.getHkidOrPassport();
+        en3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        tc1 = certInfo.getName();
+        tc2 = certInfo.getHkidOrPassport();
+        tc3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        sc1 = certInfo.getName();
+        sc2 = certInfo.getHkidOrPassport();
+        sc3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         return EProofUtil.getUnsignedEproofJson(
                 null,

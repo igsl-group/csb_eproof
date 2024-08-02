@@ -115,7 +115,7 @@ public class DocxUtil {
         if (SystemUtils.IS_OS_WINDOWS) {
             // Current OS is Windows
             libreConversionCommand = "\"%s/soffice\" --headless --convert-to pdf \"%s\" --outdir \"%s\""
-                    .formatted(libreOfficeProgramPath,docxFile.getAbsolutePath(),tempDocumentPath);
+                    .formatted(libreOfficeProgramPath, docxFile.getAbsolutePath(),tempDocumentPath);
             process = Runtime.getRuntime().exec(new String[]{libreConversionCommand});
         } else if (SystemUtils.IS_OS_LINUX) {
             // Current OS is Linux
@@ -148,7 +148,7 @@ public class DocxUtil {
         logger.info("Generated TEMP PDF path: {}", pdfLocation);
 
 //        this.deleteFile(docxLocation);
-        this.deleteFile(pdfLocation);
+//        this.deleteFile(pdfLocation);
 
         return pdfBinary;
     }

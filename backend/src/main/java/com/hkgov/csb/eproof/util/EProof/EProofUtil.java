@@ -21,7 +21,7 @@ import java.util.*;
 @Component
 public class EProofUtil {
 	private static final Logger logger = LogManager.getLogger(EProofUtil.class);
-	private static final Gson GSON = new Gson();
+	private static final Gson GSON = CommonUtil.gson;
 
 
 	private static EProofConfigProperties config;
@@ -265,7 +265,7 @@ public class EProofUtil {
 			eProofData.put("expire_date", expiryDate.minusHours(8).format(formatter));
 		else{
 			// Empty string means neven expire
-			eProofData.put("expire_date", "");
+			eProofData.put("expire_date", "9999-12-31T09:46:33.000Z");
 		}
 		eProofData.put("schema", "1.0");
 
@@ -293,6 +293,9 @@ public class EProofUtil {
 		Map systemJsonMap = new TreeMap<>();
 		if (expiryDate != null){
 			systemJsonMap.put("expirationDate", expiryDate.minusHours(8).format(formatter));
+		} else{
+			// Empty string means neven expire
+			systemJsonMap.put("expirationDate", "9999-12-31T09:46:33.000Z");
 		}
 
 		Map credentialSubjectJsonMap = new TreeMap<>();
