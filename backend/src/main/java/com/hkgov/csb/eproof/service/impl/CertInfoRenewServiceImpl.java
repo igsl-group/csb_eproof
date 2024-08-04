@@ -2,8 +2,8 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.CertDetailDto;
+import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.dto.CertRevokeDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
@@ -144,7 +144,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     }
 
     @Override
-    public Page<CertInfoRenew> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
+    public Page<CertInfoRenew> search(CertRenewSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
         return certInfoRenewRepository.certSearch(request,certStageList,certStatusList,pageable);
     }
 }

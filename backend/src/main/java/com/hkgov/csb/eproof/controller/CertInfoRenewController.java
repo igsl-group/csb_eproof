@@ -4,7 +4,7 @@ import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
 import com.hkgov.csb.eproof.dto.CertInfoRenewDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
+import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfoRenew;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
@@ -68,7 +68,7 @@ public class CertInfoRenewController {
 
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
-    public Result searchCert(@RequestBody CertSearchDto request,
+    public Result searchCert(@RequestBody CertRenewSearchDto request,
                              @Schema(type = "string", allowableValues = { "IMPORTED","GENERATED","SIGN_ISSUE","NOTIFY", })   @PathVariable String searchType,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "20") int size,
@@ -97,13 +97,13 @@ public class CertInfoRenewController {
             }
             case "VALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_VALID.name();
-                request.setCertValid(true);
+              //  request.setCertValid(true);
                 /*certStageList = List.of(CertStage.COMPLETED.name(), CertStage.SIGN_ISSUE.name());
                 certStatusList = List.of(CertStatus.SUCCESS.name());*/
             }
             case "INVALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_INVALID.name();
-                request.setCertValid(false);
+             //   request.setCertValid(false);
                 /*certStageList = List.of(CertStage.VOIDED.name());
                 certStatusList = List.of(CertStatus.SUCCESS.name());*/
             }
