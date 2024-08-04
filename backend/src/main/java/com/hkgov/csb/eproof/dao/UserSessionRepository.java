@@ -12,4 +12,6 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
     @Query("select us from UserSession us where us.user.id = :userId")
     UserSession getUserSessionByUserId(@Param("userId") Long userId);
 
+    @Query("select us from UserSession us where us.jwt = :jwt")
+    UserSession getUserSessionByJwt(@Param("jwt") String jwt);
 }

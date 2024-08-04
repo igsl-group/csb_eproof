@@ -34,6 +34,7 @@ public class JwtServiceImpl implements JwtService {
         }
 
         Map<String, Object> claimMap = new HashMap<>();
+        claimMap.put(Constants.JWT_KEY_USERID,user.getId());
         claimMap.put(Constants.JWT_KEY_USERNAME,user.getUsername());
         claimMap.put(Constants.JWT_KEY_DPUSERID,user.getDpUserId());
         claimMap.put(Constants.JWT_KEY_SESSIONID,userSession.getId());
