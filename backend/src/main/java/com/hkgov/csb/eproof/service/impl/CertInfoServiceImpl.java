@@ -265,6 +265,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 CertInfoRenew certInfoRenew = new CertInfoRenew();
                 certInfoRenew.setStatus(CertStatus.FAILED);
                 certInfoRenew.setId(certInfo.getId());
+                certInfoRenewRepository.save(certInfoRenew);
             }else{
                 certInfo.setCertStatus(CertStatus.FAILED);
                 certInfoRepository.save(certInfo);
@@ -363,6 +364,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         infoRenew.setLetterType(certInfo.getLetterType());
         infoRenew.setRemark(resultDto.getRemark());
         infoRenew.setType(CertType.INFO_UPDATE);
+        infoRenew.setCertStage(CertStage.RENEWED);
+        infoRenew.setStatus(CertStatus.SUCCESS);
         certInfoRenewRepository.save(infoRenew);
         return true;
     }
@@ -874,8 +877,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         certInfoRenew.setCertStage(info.getCertStage());
         certInfoRenew.setLetterType(info.getLetterType());
         certInfoRenew.setType(CertType.INFO_UPDATE);
-        certInfoRenew.setCertStage(info.getCertStage());
-        certInfoRenew.setStatus(info.getCertStatus());
+        certInfoRenew.setCertStage(CertStage.RENEWED);
+        certInfoRenew.setStatus(CertStatus.SUCCESS);
         certInfoRenew.setIsDelete(false);
         return certInfoRenew;
     }
