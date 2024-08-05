@@ -55,4 +55,5 @@ public class CertInfoDto implements Serializable {
     CertEproofDto certEproof;
     List<FileDto> pdfList;
     String url;
+    GcisBatchEmailDto gcisBatchEmail;
 }

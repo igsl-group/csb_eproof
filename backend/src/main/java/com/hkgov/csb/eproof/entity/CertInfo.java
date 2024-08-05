@@ -27,6 +27,9 @@ public class CertInfo extends BaseEntity{
     @Column(name = "exam_profile_serial")
     private String examProfileSerialNo;
 
+    @Column(name = "gcis_batch_email_id")
+    private Long gcisBatchEmailId;
+
     @Column(name = "exam_date")
     @JsonFormat(pattern = Constants.DATE_PATTERN)
     private LocalDate examDate;
@@ -111,7 +114,10 @@ public class CertInfo extends BaseEntity{
     @JoinColumn(name = "exam_profile_serial", insertable = false, updatable = false)
     private ExamProfile examProfile;
 
-    @OneToOne(mappedBy = "certInfo", cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "gcis_batch_email_id", insertable = false, updatable = false)
+    private GcisBatchEmail gcisBatchEmail;
+
     @OneToOne(mappedBy = "certInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CertEproof certEproof;
 

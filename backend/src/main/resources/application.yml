@@ -150,9 +150,9 @@ eproof-config:
   client-id: "CSB001"
   client-secret: "J+Y2aUo1FT2M&EpY$F@="
   url: "https://192.168.26.127:9000/api"
-  pdfUrl: "http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/data"
-  otpUrl: "http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/data"
-  dataUrl: "http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/data"
+  pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-pdf"
+  otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/sendOTP"
+  dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-data"
 
 thread-pool:
   scheduled-task:

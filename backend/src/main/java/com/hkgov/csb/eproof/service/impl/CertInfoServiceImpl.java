@@ -2,6 +2,7 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
@@ -31,7 +32,6 @@ import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
@@ -86,6 +86,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final CertInfoRenewRepository certInfoRenewRepository;
     private final CertEproofRepository certEproofRepository;
     private final CertRenewPdfRepository certRenewPdfRepository;
+    private final EmailTemplateRepository emailTemplateRepository;
+    private final GcisBatchEmailRepository gcisBatchEmailRepository;
 
     private static final Gson GSON = new Gson();
 
@@ -95,8 +97,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final CertPdfRepository certPdfRepository;
 
     @Override
+    @Transactional
     public Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
-
         return certInfoRepository.certSearch(request,certStageList,certStatusList,pageable);
     }
 
@@ -151,6 +153,15 @@ public class CertInfoServiceImpl implements CertInfoService {
         List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,List.of(CertStatus.PENDING,CertStatus.FAILED));
         certInfoList.forEach(cert->cert.setCertStatus(CertStatus.IN_PROGRESS));
         certInfoRepository.saveAll(certInfoList);
+    }
+
+    @Override
+    @Transactional
+    public List<CertInfo> changeCertStatusToScheduled(String examProfileSerialNo, CertStage certStage) {
+        List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,List.of(CertStatus.PENDING,CertStatus.FAILED));
+        certInfoList.forEach(cert->cert.setCertStatus(CertStatus.SCHEDULED));
+        certInfoRepository.saveAll(certInfoList);
+        return certInfoList;
     }
 
     @Override
@@ -676,6 +687,43 @@ public class CertInfoServiceImpl implements CertInfoService {
         minioUtil.uploadFile(latestCert.getPath(), baos);
 
         //Completed preparing for Eproof PDF
+    }
+
+    @Override
+    public void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) {
+        List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.NOTIFY,List.of(CertStatus.SCHEDULED));
+        List<List<CertInfo>> choppedCertInfo2dList = splitCertInfoList(certInfoList, 1000);
+
+        EmailTemplate notifyEmailTemplate = emailTemplateRepository.findByName(Constants.EMAIL_TEMPLATE_NOTIFY);
+        for (List<CertInfo> choppedCertInfoList : choppedCertInfo2dList) {
+            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,choppedCertInfoList);
+            choppedCertInfoList.forEach(certInfo -> {
+                certInfo.setGcisBatchEmailId(gcisBatchEmail.getId());
+            });
+            certInfoRepository.saveAll(choppedCertInfoList);
+        }
+    }
+
+    @Transactional
+    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, List<CertInfo> choppedCertInfoList){
+        GcisBatchEmail gcisBatchEmail = new GcisBatchEmail();
+        gcisBatchEmail.setEmailTemplateId(notifyEmailTemplate.getId());
+        gcisBatchEmail.setXml("");
+        gcisBatchEmail.setScheduleDatetime(insertGcisBatchEmailDto.getScheduledTime().atTime(9,0,0));
+        gcisBatchEmail.setStatus("SCHEDULED");
+        gcisBatchEmailRepository.save(gcisBatchEmail);
+        return gcisBatchEmail;
+    }
+
+    private List<List<CertInfo>> splitCertInfoList(List<CertInfo> inputList, Integer splitSize) {
+        List<List<CertInfo>> outputList = new ArrayList<>();
+        int size = inputList.size();
+
+        for (int i = 0; i < size; i += splitSize) {
+            outputList.add(inputList.subList(i, Math.min(size, i + splitSize)));
+        }
+
+        return outputList;
     }
 
     private CertEproof createCertEproofRecord(

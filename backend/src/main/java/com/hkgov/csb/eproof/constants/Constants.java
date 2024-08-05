@@ -16,6 +16,8 @@ public final class Constants {
     public static final String EMAIL_STATUS_IN_PROGRESS = "IN_PROGRESS";
     public static final String EMAIL_STATUS_FAILED = "FAILED";
 
+
+
     public static final String JWT_KEY_USERNAME = "uname";
     public static final String JWT_KEY_USERID = "uid";
     public static final String JWT_KEY_DPUSERID = "dpuserid";
@@ -29,8 +31,7 @@ public final class Constants {
 
 
     public static final String SYS_PARAM_HEALTH_CHECK_MAIL_TEMPLATE = "HEALTH_CHECK_MAIL_TEMPLATE";
-
-
+    public static final String EMAIL_TEMPLATE_NOTIFY = "NOTIFY";
 
 
     private Constants() {

@@ -24,6 +24,7 @@ public interface CertInfoService {
 
 
     void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage);
+    List<CertInfo> changeCertStatusToScheduled(String examProfileSerialNo, CertStage certStage);
 
     List<CertInfo> batchScheduleCertSignAndIssue(String examProfileSerialNo);
 
@@ -62,4 +63,6 @@ public interface CertInfoService {
     String prepareEproofUnsignJson(Long certInfoId);
 
     void prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception;
+
+    void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto);
 }

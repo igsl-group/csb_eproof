@@ -57,7 +57,7 @@ public class CertController {
 
         String requiredPermission = "";
         List<String> certStageList = List.of(CertStage.IMPORTED.name(),CertStage.GENERATED.name(),CertStage.SIGN_ISSUE.name(),CertStage.NOTIFY.name(),CertStage.COMPLETED.name(),CertStage.VOIDED.name());
-        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
+        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name(), CertStatus.SCHEDULED.name());
         switch (searchType) {
             case "ANY" -> {
                 requiredPermission = Permissions.CERT_SEARCH_IMPORT.name();
@@ -106,7 +106,7 @@ public class CertController {
         Page<CertInfo> searchResult = certInfoService.search(request,certStageList,certStatusList ,pageable);
 
         List<CertInfoDto> resultList = CertInfoMapper.INSTANCE.toDtoList(searchResult.getContent());
-        resultList.forEach(x->{
+        /*resultList.forEach(x->{
             if(Objects.nonNull(x.getCertEproof())){
                 try {
                     String encodedToken = URLEncoder.encode(x.getCertEproof().getToken(), StandardCharsets.UTF_8.name());
@@ -117,7 +117,7 @@ public class CertController {
                 }
             }
 
-        });
+        });*/
         Page<CertInfoDto> returnResult = new PageImpl<>(resultList, pageable, searchResult.getTotalElements());
 
         return Result.success(returnResult);
@@ -133,6 +133,17 @@ public class CertController {
     @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> dispatch(@PathVariable String examProfileSerialNo, @RequestParam CertStage currentStage){
         return Result.success(certInfoService.dispatch(examProfileSerialNo,currentStage));
+    }
+
+    @PostMapping("/batch/scheduleMail/{examProfileSerialNo}")
+    @Transactional(rollbackFor = Exception.class)
+    public Result batchScheduleMail(
+            @PathVariable String examProfileSerialNo,
+            @RequestBody InsertGcisBatchEmailDto insertGcisBatchEmailDto
+    ){
+        certInfoService.changeCertStatusToScheduled(examProfileSerialNo,CertStage.NOTIFY);
+        certInfoService.insertGcisBatchEmail(examProfileSerialNo,insertGcisBatchEmailDto);
+        return Result.success();
     }
 
     @PostMapping("/batch/generate/{examProfileSerialNo}")
