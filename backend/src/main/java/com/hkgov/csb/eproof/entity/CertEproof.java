@@ -35,7 +35,7 @@ public class CertEproof {
     private String url;
 
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "cert_info_id", insertable = false, updatable = false)
     private CertInfo certInfo;
 
