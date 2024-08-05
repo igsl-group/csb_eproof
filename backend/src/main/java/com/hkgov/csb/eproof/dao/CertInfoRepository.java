@@ -18,11 +18,15 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
     @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
     CertInfo getInfoByNo(@Param("serialNo") String serialNo);
     List<CertInfo> getInfoByExamProfileSerialNo(@Param("serialNo") String serialNo);
+
     @Query(value = """
 select c from CertInfo c
         left join fetch c.examProfile
         left join fetch c.pdfList
-        where c.examProfileSerialNo = :serialNo AND c.certStage = :stage AND c.certStatus in :statusList
+        where c.examProfileSerialNo = :serialNo 
+        AND c.certStage = :stage 
+        AND c.certStatus in :statusList
+        AND c.onHold = false
 """)
     List<CertInfo> getCertByExamSerialAndStageAndStatus(String serialNo,
                                                         CertStage stage,
