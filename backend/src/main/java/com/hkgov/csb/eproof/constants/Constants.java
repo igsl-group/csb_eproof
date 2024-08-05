@@ -17,6 +17,7 @@ public final class Constants {
     public static final String EMAIL_STATUS_FAILED = "FAILED";
 
     public static final String JWT_KEY_USERNAME = "uname";
+    public static final String JWT_KEY_USERID = "uid";
     public static final String JWT_KEY_DPUSERID = "dpuserid";
     public static final String JWT_KEY_SESSIONID= "sid";
     public static final String COOKIE_KEY_ACCESS_TOKEN = "access_token";

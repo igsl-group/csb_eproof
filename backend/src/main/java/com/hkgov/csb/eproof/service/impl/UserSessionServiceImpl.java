@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.dao.UserSessionRepository;
 import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.UserSession;
 import com.hkgov.csb.eproof.exception.GenericException;
+import com.hkgov.csb.eproof.service.AuditLogService;
 import com.hkgov.csb.eproof.service.UserSessionService;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 
 @Service
 public class UserSessionServiceImpl implements UserSessionService {
-
+    private AuditLogService auditLogService;
     private final UserRepository userRepository;
     private final UserSessionRepository userSessionRepository;
 
@@ -52,5 +53,11 @@ public class UserSessionServiceImpl implements UserSessionService {
         UserSession userSession = userSessionRepository.findById(userSessionId).get();
         userSession.setJwt(jwt);
         userSessionRepository.save(userSession);
+    }
+
+    public void removeSessionJwt(String jwt){
+        UserSession userSession = userSessionRepository.getUserSessionByJwt(jwt);
+//        auditLogService.addLog("Create","Create User" +user.getUsername(), request);
+        userSessionRepository.delete(userSession);
     }
 }

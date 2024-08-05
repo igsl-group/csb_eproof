@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/currentUser")
     public Result<UserDto> getUserInfo(HttpServletRequest request){
         String jwt = jwtHelper.getJwtFromRequest(request);
-        Integer userId = jwtHelper.extractClaimWithKey(jwt, Constants.JWT_KEY_SESSIONID, Integer.class);
+        Integer userId = jwtHelper.extractClaimWithKey(jwt, Constants.JWT_KEY_USERID, Integer.class);
         return Result.success(UserMapper.INSTANCE.sourceToDestination(userService.getUserInfo(Long.valueOf(userId))));
     }
 
