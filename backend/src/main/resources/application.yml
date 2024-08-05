@@ -142,6 +142,8 @@ mail:
     email-list: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
 
 eproof-config:
+  pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
+  fail-template-type-id: 038424a4-be4e-418f-bdb4-dc4181d6ea16
   issuer-name-en: Civil Service Bureau
   issuer-name-tc: 公務員事務局
   issuer-did: "did:eproof:100cfb00-3029-474a-b794-2f735e1d3c1d"

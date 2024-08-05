@@ -18,6 +18,8 @@ public class EProofConfigProperties {
 	String dataUrl;
 	String issuerNameEn;
 	String issuerNameTc;
+	String passTemplateTypeId;
+	String failTemplateTypeId;
 
 	String accessToken;
 }

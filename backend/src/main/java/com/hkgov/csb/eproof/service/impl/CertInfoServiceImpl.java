@@ -83,7 +83,6 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final LetterTemplateService letterTemplateService;
     private final DocxUtil docxUtil;
     private final FileService fileService;
-    private final EntityManager entityManager;
     private final CertInfoRenewRepository certInfoRenewRepository;
     private final CertEproofRepository certEproofRepository;
     private final CertRenewPdfRepository certRenewPdfRepository;
@@ -583,7 +582,13 @@ public class CertInfoServiceImpl implements CertInfoService {
         //Register the json to get the UUID from EProof
         String uuid = null;
         String keyName = "1";
-        String eproofTypeId = "40f848bc-856c-4e6a-a1f1-a6b872efe752";
+        String eproofTypeId = null;
+
+        if("P".equals(certInfo.getLetterType())){
+            eproofTypeId = eProofConfigProperties.getPassTemplateTypeId();
+        } else if ("F".equals(certInfo.getLetterType())){
+            eproofTypeId = eProofConfigProperties.getFailTemplateTypeId();
+        }
         LocalDateTime downloadExpiryDateTime = LocalDateTime.of(2099,12,31,23,59,59);
 
         Map<String, Object> registerResult = EProofUtil.registerOrUpdateEproof(
