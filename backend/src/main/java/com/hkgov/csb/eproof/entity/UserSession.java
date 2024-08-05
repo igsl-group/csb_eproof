@@ -25,7 +25,7 @@ public class UserSession implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id",insertable = false, updatable = false)
     private User user;
 
