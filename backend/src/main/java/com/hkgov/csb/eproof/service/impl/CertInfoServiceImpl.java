@@ -560,6 +560,11 @@ public class CertInfoServiceImpl implements CertInfoService {
         String eproofId = certInfo.getEproofId();
 
         String eproofTemplateCode = "CSBEPROOF";
+        if("P".equals(certInfo.getLetterType())){
+            eproofTemplateCode = "CSBEPROOF";
+        }else{
+            eproofTemplateCode = "CSBEPROOFFAIL";
+        }
 
         int majorVersion = 1;
         en1 = certInfo.getName();
