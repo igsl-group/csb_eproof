@@ -429,9 +429,15 @@ public class CertInfoServiceImpl implements CertInfoService {
         if(Objects.isNull(certInfo)){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
-        if(certInfo.getOnHold()){
+
+        // this api
+        if(!certInfo.getOnHold()){
             throw new GenericException(ExceptionEnums.CERT_INFO_NOT_DELETE);
         }
+        // TODO: 5/8/2024
+        // if stage = issue and status = complete
+        // please revoke the cert as well
+        // This api can be call when email not yet to send
        certInfoRepository.delete(certInfo);
     }
 
