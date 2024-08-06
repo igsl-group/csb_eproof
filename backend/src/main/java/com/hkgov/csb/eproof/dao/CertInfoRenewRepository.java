@@ -22,7 +22,7 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
 
     @Query(nativeQuery = true,value = """
         SELECT * FROM cert_info_renew c WHERE
-        (
+        (   c.is_delete = false AND
             (c.cert_stage IN :certStageList) AND
             (c.status IN :certStatusList)
         )
@@ -46,10 +46,11 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
             ( ?#{#searchDto.oldUeGrade} IS null OR c.old_ue_grade like %?#{#searchDto.oldUeGrade}%  ) AND
             ( ?#{#searchDto.oldUcGrade} IS null OR c.old_uc_grade like %?#{#searchDto.oldUcGrade}%  ) AND
             ( ?#{#searchDto.oldAtGrade} IS null OR c.old_at_grade like %?#{#searchDto.oldAtGrade}%  ) 
+    
         )
 """,countQuery = """
  SELECT count(*) FROM cert_info_renew c WHERE
-        (
+        (   c.is_delete = false AND
             (c.cert_stage IN :certStageList) AND
             (c.status IN :certStatusList)
         )
@@ -73,7 +74,7 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
             ( ?#{#searchDto.oldUeGrade} IS null OR c.old_ue_grade like %?#{#searchDto.oldUeGrade}%  ) AND
             ( ?#{#searchDto.oldUcGrade} IS null OR c.old_uc_grade like %?#{#searchDto.oldUcGrade}%  ) AND
             ( ?#{#searchDto.oldAtGrade} IS null OR c.old_at_grade like %?#{#searchDto.oldAtGrade}%  ) 
-        )
+        ) 
 """)
     Page<CertInfoRenew> certSearch(@Param("searchDto") CertRenewSearchDto searchDto,
                               @Param("certStageList") @NotNull List<String> certStageList,
