@@ -69,19 +69,19 @@ public class CertInfoRenewController {
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
     public Result searchCert(@RequestBody CertRenewSearchDto request,
-                             @Schema(type = "string", allowableValues = { "IMPORTED","GENERATED","SIGN_ISSUE","NOTIFY", })   @PathVariable String searchType,
+                             @Schema(type = "string", allowableValues = { "RENEWED","GENERATED","SIGN_ISSUE","NOTIFY" })   @PathVariable String searchType,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "20") int size,
                              @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
                              @RequestParam(defaultValue = "id") String... sortField) throws AccessDeniedException {
 
         String requiredPermission = "";
-        List<String> certStageList = List.of(CertStage.IMPORTED.name(),CertStage.GENERATED.name(),CertStage.SIGN_ISSUE.name(),CertStage.NOTIFY.name(),CertStage.COMPLETED.name(),CertStage.VOIDED.name());
+        List<String> certStageList = List.of(searchType);
         List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
         switch (searchType) {
-            case "IMPORTED" -> {
+            case "RENEWED" -> {
                 requiredPermission = Permissions.CERT_SEARCH_IMPORT.name();
-                certStageList = List.of(CertStage.IMPORTED.name());
+                certStageList = List.of(CertStage.RENEWED.name());
             }
             case "GENERATED" -> {
                 requiredPermission = Permissions.CERT_SEARCH_GENERATE.name();
@@ -107,14 +107,12 @@ public class CertInfoRenewController {
                 /*certStageList = List.of(CertStage.VOIDED.name());
                 certStatusList = List.of(CertStatus.SUCCESS.name());*/
             }
-
             case "BY_CANDIDATE" -> {
                 requiredPermission = Permissions.CERT_SEARCH_BY_CAN.name();
             }
             default -> throw new GenericException(ExceptionEnums.ILLEGAL_SEARCH_TYPE);
         }
         permissionService.manualValidateCurrentUserPermission(List.of(requiredPermission));
-
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
 
         // set certStatusList to null to show all cert regardless what status
@@ -126,6 +124,12 @@ public class CertInfoRenewController {
         return Result.success(returnResult);
     }
 
+    @PostMapping("/dispatch/{id}")
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Boolean> dispatch(@PathVariable Long id, @RequestParam CertStage currentStage){
+        certInfoRenewService.dispatch(id,currentStage);
+        return Result.success();
+    }
 
     private String getZipFileName(){
         return String.format("%s-cert-pdf.zip",

@@ -9,13 +9,6 @@ import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.*;
-import com.hkgov.csb.eproof.dto.CertImportDto;
-import com.hkgov.csb.eproof.dto.CertSearchDto;
-import com.hkgov.csb.eproof.dto.ExamScoreDto;
-import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.CertPdf;
-import com.hkgov.csb.eproof.entity.ExamProfile;
-import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
@@ -143,7 +136,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             }
             certInfo.setCertStatus(CertStatus.PENDING);
         }
-        certInfoRepository.saveAll(list).size();
+        certInfoRepository.saveAll(list);
         return true;
     }
 

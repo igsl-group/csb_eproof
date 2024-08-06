@@ -1,5 +1,7 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
+import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.CertDetailDto;
 import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
@@ -7,6 +9,8 @@ import com.hkgov.csb.eproof.dto.CertRevokeDto;
 import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
+import com.hkgov.csb.eproof.exception.GenericException;
+import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
 import com.hkgov.csb.eproof.service.CertInfoRenewService;
 import com.hkgov.csb.eproof.service.CertInfoService;
@@ -146,5 +150,42 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     @Override
     public Page<CertInfoRenew> search(CertRenewSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable) {
         return certInfoRenewRepository.certSearch(request,certStageList,certStatusList,pageable);
+    }
+
+    @Override
+    public void dispatch(Long id, CertStage currentStage) {
+        if(!currentStage.equals(CertStage.RENEWED) && !currentStage.equals(CertStage.GENERATED)
+                && !currentStage.equals(CertStage.SIGN_ISSUE) && !currentStage.equals(CertStage.NOTIFY)){
+            throw new ServiceException(ResultCode.STAGE_ERROR);
+        }
+        List<CertInfoRenew> list = certInfoRenewRepository.getinfoByNoAndStatus(id,currentStage);
+        if(list.isEmpty()){
+            throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
+        }
+        for(CertInfoRenew infoRenew : list){
+            switch (infoRenew.getCertStage()) {
+                case RENEWED -> {
+                    infoRenew.setCertStage(CertStage.GENERATED);
+                    break;
+                }
+                case GENERATED -> {
+                    infoRenew.setCertStage(CertStage.SIGN_ISSUE);
+                    break;
+                }
+                case SIGN_ISSUE -> {
+                    infoRenew.setCertStage(CertStage.NOTIFY);
+                    break;
+                }
+                case NOTIFY -> {
+                    infoRenew.setCertStage(CertStage.COMPLETED);
+                    break;
+                }
+                default ->{
+                    break;
+                }
+            }
+            infoRenew.setStatus(CertStatus.PENDING);
+        }
+        certInfoRenewRepository.saveAll(list);
     }
 }
