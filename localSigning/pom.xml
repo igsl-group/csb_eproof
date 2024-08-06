@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.hkgov.csb</groupId>
 	<artifactId>localSigning</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1</version>
 	<name>localSigning</name>
 	<description>CSB Eproof Local signing program</description>
 	<url/>
@@ -108,6 +108,9 @@
 	</dependencies>
 
 	<build>
+
+		<finalName>${project.artifactId}</finalName>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
