@@ -65,4 +65,7 @@ public interface CertInfoService {
     byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception;
 
     void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto);
+
+    void approveRevoke(Long certActionId) throws Exception;
+    void actualRevokeWithEproofModule(Long certInfoId) throws Exception;
 }

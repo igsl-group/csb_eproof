@@ -2,6 +2,7 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
+import com.hkgov.csb.eproof.dao.CertInfoRenewRepository;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
@@ -13,6 +14,7 @@ import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
+import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.ExamProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,8 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     private final ExamProfileRepository examProfileRepository;
 
     private final CertInfoRepository certInfoRepository;
+    private final CertInfoRenewRepository certInfoRenewRepository;
+    private final CertInfoService certInfoService;
 
     @Override
     public Boolean create(ExamProfileCreateDto request) {
@@ -119,12 +123,19 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     @Transactional
-    public void reset(String examProfileSerialNo) {
+    public void reset(String examProfileSerialNo) throws Exception {
 
-        //TODO Add revoke signed certificate
         //TODO Block reset if email already sent
         
         List<CertInfo> certInfoList = certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo);
+
+        //TODO Add revoke signed certificate
+        for (CertInfo certInfo : certInfoList) {
+            if (certInfo.getCertEproof() != null) {
+                // Eproof record found
+                certInfoService.actualRevokeWithEproofModule(certInfo.getId());
+            }
+        }
         if(Objects.nonNull(certInfoList) && !certInfoList.isEmpty()){
             certInfoRepository.deleteAll(certInfoList);
         }

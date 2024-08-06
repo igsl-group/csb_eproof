@@ -81,6 +81,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final CertRenewPdfRepository certRenewPdfRepository;
     private final EmailTemplateRepository emailTemplateRepository;
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
+    private final CertActionRepository certActionRepository;
 
     private static final Gson GSON = new Gson();
 
@@ -712,6 +713,27 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfoRepository.saveAll(choppedCertInfoList);
         }
     }
+
+    @Override
+
+    public void approveRevoke(Long certActionId) throws Exception {
+        CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
+        List<CertInfo> toBeRevokeCertInfoList = certAction.getCertInfos();
+
+        for (CertInfo certInfo : toBeRevokeCertInfoList) {
+            this.actualRevokeWithEproofModule(certInfo.getId());
+        }
+    }
+
+    @Override
+    public void actualRevokeWithEproofModule(Long certInfoId) throws Exception {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).orElseThrow(()->new GenericException("cert.info.not.found","Cert info not found."));
+        CertEproof certEproof = certInfo.getCertEproof();
+        if (certEproof != null) {
+            EProofUtil.revokeEproof(certEproof.getUuid());
+        }
+    }
+
 
     @Transactional
     public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, List<CertInfo> choppedCertInfoList){
