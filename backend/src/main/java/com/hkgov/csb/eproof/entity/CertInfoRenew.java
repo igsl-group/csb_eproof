@@ -54,8 +54,8 @@ public class CertInfoRenew extends BaseEntity {
     @Column(name = "new_name")
     private String newName;
 
-    @Column(name = "new_cname")
-    private String newCname;
+/*    @Column(name = "new_cname")
+    private String newCname;*/
 
     @Column(name = "new_hkid")
     private String newHkid;
@@ -97,6 +97,10 @@ public class CertInfoRenew extends BaseEntity {
 
     @Column(name = "is_delete")
     private Boolean isDelete;
+
+    @ManyToOne
+    @JoinColumn(name = "cert_info_id", insertable = false, updatable = false)
+    private CertInfo certInfo;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinTable(

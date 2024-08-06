@@ -42,7 +42,7 @@ public class CertInfoRenewDto {
 
     private String newName;
 
-    private String newCname;
+//    private String newCname;
 
     private String newHkid;
 
@@ -71,4 +71,7 @@ public class CertInfoRenewDto {
     private Boolean isDelete;
 
     private List<File> pdfList;
+
+    private CertInfoDto certInfo;
+
 }

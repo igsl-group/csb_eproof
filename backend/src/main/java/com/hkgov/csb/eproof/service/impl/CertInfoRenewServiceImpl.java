@@ -62,7 +62,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             certInfo.setId(info.getId());
             certInfo.setLetterType(info.getLetterType());
             certInfo.setName(info.getNewName());
-            certInfo.setCname(info.getNewCname());
+//            certInfo.setCname(info.getNewCname());
             certInfo.setPassportNo(info.getNewPassport());
             certInfo.setAtGrade(info.getNewAtGrade());
             certInfo.setBlnstGrade(info.getNewBlGrade());
