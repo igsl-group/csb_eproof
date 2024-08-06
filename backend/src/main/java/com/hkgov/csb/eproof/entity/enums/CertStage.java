@@ -9,6 +9,7 @@ public enum CertStage {
     SIGN_ISSUE("SIGN_ISSUE", "Sign and issue"),
     NOTIFY("NOTIFY", "Notify"),
     COMPLETED("COMPLETED", "Completed"),
+    RENEWED("RENEWED", "Renewed"),
     VOIDED("VOIDED", "Voided");
     private final String code;
     private final String label;
