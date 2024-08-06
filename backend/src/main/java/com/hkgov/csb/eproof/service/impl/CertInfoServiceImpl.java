@@ -263,24 +263,16 @@ public class CertInfoServiceImpl implements CertInfoService {
             IOUtils.close(appliedTemplate);
 
             File uploadFileRecord = this.uploadCertPdf(certInfo, mergedPdf);
-            if(isNewCertInfo){
-                this.createCertRenewPdfRecord(certInfo,uploadFileRecord);
-            }else{
-                this.createCertPdfRecord(certInfo,uploadFileRecord);
-                this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
-            }
+
+            this.createCertPdfRecord(certInfo,uploadFileRecord);
+            this.updateCertStageAndStatus(certInfo,CertStage.GENERATED,CertStatus.SUCCESS);
 
             logger.info("Complete generate");
         } catch(Exception e){
-            if(isNewCertInfo){
-                CertInfoRenew certInfoRenew = new CertInfoRenew();
-                certInfoRenew.setStatus(CertStatus.FAILED);
-                certInfoRenew.setId(certInfo.getId());
-                certInfoRenewRepository.save(certInfoRenew);
-            }else{
-                certInfo.setCertStatus(CertStatus.FAILED);
-                certInfoRepository.save(certInfo);
-            }
+
+            certInfo.setCertStatus(CertStatus.FAILED);
+            certInfoRepository.save(certInfo);
+
         }
 
     }
@@ -815,12 +807,12 @@ public class CertInfoServiceImpl implements CertInfoService {
         certPdfRepository.save(certPdf);
     }
 
-    public void createCertRenewPdfRecord(CertInfo certInfo,File uploadedPdf){
+  /*  public void createCertRenewPdfRecord(CertInfo certInfo,File uploadedPdf){
         CertRenewPdf certPdf = new CertRenewPdf();
         certPdf.setCertInfoRenewId(certInfo.getId());
         certPdf.setFileId(uploadedPdf.getId());
         certRenewPdfRepository.save(certPdf);
-    }
+    }*/
 
     @Transactional
     public void updateCertPdfRecord(CertInfo certInfo, File uploadedPdf){

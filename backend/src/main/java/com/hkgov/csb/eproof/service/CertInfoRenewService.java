@@ -18,7 +18,7 @@ import java.util.List;
 public interface CertInfoRenewService {
     void changeCertStatusToInProgress(Long certInfoId, CertStage certStage);
 
-    void batchGeneratePdf(Long certInfoId) throws Exception;
+    void singleGeneratePdf(Long certInfoId) throws Exception;
 
     void removeCert(Long certInfoId);
 
@@ -31,5 +31,7 @@ public interface CertInfoRenewService {
     Page<CertInfoRenew> search(CertRenewSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
     void dispatch(Long id, CertStage currentStage);
+
+
 
 }

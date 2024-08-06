@@ -121,6 +121,9 @@ public class CertInfo extends BaseEntity{
     @OneToOne(mappedBy = "certInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CertEproof certEproof;
 
+    @OneToMany(mappedBy = "certInfo", cascade = CascadeType.ALL)
+    private List<CertInfoRenew> certInfoRenewList;
+
     /*@OneToMany(mappedBy = "certInfo", cascade = CascadeType.ALL)
     private List<ActionTarget> actionTargets;*/
 

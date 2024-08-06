@@ -1,36 +1,42 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.CertDetailDto;
 import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.dto.CertRevokeDto;
+import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
-import com.hkgov.csb.eproof.service.CertInfoRenewService;
-import com.hkgov.csb.eproof.service.CertInfoService;
-import com.hkgov.csb.eproof.service.LetterTemplateService;
+import com.hkgov.csb.eproof.service.*;
+import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.HttpUtils;
 import com.hkgov.csb.eproof.util.MinioUtil;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.IOUtils;
+import org.docx4j.model.fields.merge.DataFieldName;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.hkgov.csb.eproof.constants.Constants.LETTER_TEMPLATE_ALL_FAILED_TEMPLATE;
-import static com.hkgov.csb.eproof.constants.Constants.LETTER_TEMPLATE_AT_LEAST_ONE_PASS;
+import static com.hkgov.csb.eproof.constants.Constants.*;
 
 /**
 * @author 20768
@@ -48,18 +54,73 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private final UserRepository userRepository;
     private final CertActionRepository certActionRepository;
     private final ActionTargetRepository actionTargetRepository;
+    private final CertRenewPdfRepository certRenewPdfRepository;
+    private final DocumentGenerateService documentGenerateService;
+    private final DocxUtil docxUtil;
+    private final FileService fileService;
+
+    @Value("${minio.path.cert-renew-record}")
+    private String certRenewRecordPath;
+
     @Override
     public void changeCertStatusToInProgress(Long certInfoId, CertStage certStage) {
 
     }
 
+
+    private Map<DataFieldName, String> getMergeMapForRenewCert(CertInfoRenew certInfoRenew) throws JsonProcessingException {
+        ExamProfile exam = certInfoRenew.getCertInfo().getExamProfile();
+
+        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfoRenew,"renewCert");
+        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
+
+        return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
+    }
+
+    private Map<String,List> getTableLoopMapForCertRenew(CertInfoRenew certInfoRenew){
+        List<ExamScoreDto> markDtoList = new ArrayList<>();
+
+        if(StringUtils.isNotEmpty(certInfoRenew.getNewUcGrade())){
+            markDtoList.add(new ExamScoreDto("Use of Chinese",certInfoRenew.getNewUcGrade()));
+        }
+        if(StringUtils.isNotEmpty(certInfoRenew.getNewUeGrade())){
+            markDtoList.add(new ExamScoreDto("Use of English",certInfoRenew.getNewUeGrade()));
+        }
+        if(StringUtils.isNotEmpty(certInfoRenew.getNewAtGrade())){
+            markDtoList.add(new ExamScoreDto("Aptitude Test",certInfoRenew.getNewAtGrade()));
+        }
+        if(StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade())) {
+            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", certInfoRenew.getNewBlGrade()));
+        }
+
+        HashMap<String,List> map = new HashMap<>();
+        map.put("examResults",markDtoList);
+        return map;
+    }
+
     @Override
-    public void batchGeneratePdf(Long certInfoId) throws Exception {
-        List<CertInfoRenew> inProgressCertList = certInfoRenewRepository.findAllById(List.of(certInfoId))/*.stream().filter(
-                x -> x.getCertStage().equals(CertStage.GENERATED) && CertStatus.IN_PROGRESS.getCode().equals(x.getStatus())).collect(Collectors.toList())*/;
-        byte[] passTemplateInputStream = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
-        byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
-        for (CertInfoRenew info : inProgressCertList) {
+    public void singleGeneratePdf(Long renewCertInfoId) throws Exception {
+        CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(renewCertInfoId).get();
+        try{
+            byte[] atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
+            byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
+            InputStream appliedTemplate = "P".equals(certInfoRenew.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+
+            byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForRenewCert(certInfoRenew),getTableLoopMapForCertRenew(certInfoRenew));
+            appliedTemplate.close();
+            IOUtils.close(appliedTemplate);
+
+            File uploadFileRecord = this.uploadCertPdf(certInfoRenew, mergedPdf);
+            this.createCertRenewPdfRecord(certInfoRenew,uploadFileRecord);
+            this.updateCertStageAndStatus(certInfoRenew,CertStage.GENERATED,CertStatus.SUCCESS);
+
+        } catch (Exception e){
+            certInfoRenew.setStatus(CertStatus.FAILED);
+            e.printStackTrace();
+            certInfoRenewRepository.save(certInfoRenew);
+        }
+
+       /* for (CertInfoRenew info : inProgressCertList) {
             CertInfo certInfo = new CertInfo();
             certInfo.setEmail(info.getNewEmail());
             certInfo.setHkid(info.getNewHkid());
@@ -76,8 +137,41 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             certInfo.setCertStage(info.getCertStage());
             certInfo.setCertStatus(info.getStatus());
             certInfoService.singleGeneratePdf(certInfo,passTemplateInputStream,allFailedTemplate,true,true);
-        }
+        }*/
     }
+
+    private void updateCertStageAndStatus(CertInfoRenew certInfoRenew,CertStage stage, CertStatus status){
+        if(stage != null){
+            certInfoRenew.setCertStage(stage);
+        }
+
+        if(status != null){
+            certInfoRenew.setStatus(status);
+        }
+
+        certInfoRenewRepository.save(certInfoRenew);
+    }
+
+    private File uploadCertPdf(CertInfoRenew certInfoRenew, byte[] mergedPdf) throws IOException {
+
+        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
+        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
+        String savePdfName = String.format("%s_%s_%s.pdf",
+                processedCertOwnerName,
+                currentTimeMillisString,
+                UUID.randomUUID().toString().replace("-","")
+        );
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRenewRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
+    }
+
+
+    public void createCertRenewPdfRecord(CertInfoRenew certInfoRenew,File uploadedPdf){
+        CertRenewPdf certPdf = new CertRenewPdf();
+        certPdf.setCertInfoRenewId(certInfoRenew.getId());
+        certPdf.setFileId(uploadedPdf.getId());
+        certRenewPdfRepository.save(certPdf);
+    }
+
 
     @Override
     public void removeCert(Long certInfoId) {

@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
@@ -100,6 +101,7 @@ public class CertInfoRenew extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "cert_info_id", insertable = false, updatable = false)
+    @JsonBackReference
     private CertInfo certInfo;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
