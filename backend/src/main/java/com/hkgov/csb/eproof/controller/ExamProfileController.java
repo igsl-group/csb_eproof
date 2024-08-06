@@ -74,7 +74,7 @@ public class ExamProfileController {
     }
 
     @GetMapping("/reset/{examProfileSerialNo}")
-    public Result reset(@PathVariable String examProfileSerialNo){
+    public Result reset(@PathVariable String examProfileSerialNo) throws Exception {
         examProfileService.reset(examProfileSerialNo);
         return Result.success();
     }

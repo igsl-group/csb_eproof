@@ -255,6 +255,8 @@ public class CertController {
         }
     }
 
+
+
     @GetMapping("/eproof/getNextScheduledSignAndIssueCert/{examProfileSerialNo}")
     public ResponseEntity getNextScheduledSignAndIssueCert(@PathVariable String examProfileSerialNo){
 
@@ -276,6 +278,12 @@ public class CertController {
     @PostMapping("/revoke")
     public Result revoke(@RequestParam List<Long> certInfoIdList,@RequestBody CertRevokeDto params) {
         certInfoRenewService.revoke(certInfoIdList,params);
+        return Result.success();
+    }
+
+    @GetMapping("/approveRevoke/{certActionId}")
+    public Result approveRevoke(@PathVariable Long certActionId) throws Exception {
+        certInfoService.approveRevoke(certActionId);
         return Result.success();
     }
 

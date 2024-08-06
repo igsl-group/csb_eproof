@@ -30,5 +30,5 @@ public interface ExamProfileService {
 
     ExamProfileSummaryDto getSummary(String examProfileSerialNo);
 
-    void reset(String examProfileSerialNo);
+    void reset(String examProfileSerialNo) throws Exception;
 }
