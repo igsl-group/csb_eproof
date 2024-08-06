@@ -166,18 +166,25 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     @Transactional
-    public List<CertInfo> batchScheduleCertSignAndIssue(String examProfileSerialNo) {
+    public List<CertInfo>  batchScheduleCertSignAndIssue(String examProfileSerialNo) {
 
         List<CertInfo> alreadyScheduledCert = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.SCHEDULED));
         if (!alreadyScheduledCert.isEmpty()){
             return null;
         }
 
+        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS));
         List<CertInfo> pendingSignAndIssueCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.PENDING));
-        pendingSignAndIssueCertList.forEach(cert->{
+
+        List<CertInfo> toBeScheduledCert = new ArrayList<>();
+        toBeScheduledCert.addAll(inProgressCertList);
+        toBeScheduledCert.addAll(pendingSignAndIssueCertList);
+
+        toBeScheduledCert.forEach(cert->{
             cert.setCertStatus(CertStatus.SCHEDULED);
         });
-        certInfoRepository.saveAll(pendingSignAndIssueCertList);
+
+        certInfoRepository.saveAll(toBeScheduledCert);
 
         return pendingSignAndIssueCertList;
     }
@@ -324,6 +331,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         if(certInfos.isEmpty()){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
+
+
         List<CertInfoRenew> addList = new ArrayList<>();
         certInfos.forEach(x -> {
             addList.add(addCertInfoRenew(x,personalDto));
@@ -358,7 +367,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         infoRenew.setOldPassport(certInfo.getPassportNo());
         infoRenew.setNewEmail(certInfo.getEmail());
         infoRenew.setOldEmail(certInfo.getEmail());
-        infoRenew.setNewCname(certInfo.getCname());
+//        infoRenew.setNewCname(certInfo.getCname());
         infoRenew.setOldCname(certInfo.getCname());
         infoRenew.setNewName(certInfo.getName());
         infoRenew.setOldName(certInfo.getName());
@@ -374,8 +383,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         infoRenew.setLetterType(certInfo.getLetterType());
         infoRenew.setRemark(resultDto.getRemark());
         infoRenew.setType(CertType.INFO_UPDATE);
-        infoRenew.setCertStage(CertStage.RENEWED);
-        infoRenew.setStatus(CertStatus.SUCCESS);
+        infoRenew.setCertStage(CertStage.GENERATED);
+        infoRenew.setStatus(CertStatus.PENDING);
         certInfoRenewRepository.save(infoRenew);
         return true;
     }
@@ -559,7 +568,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         String eproofId = certInfo.getEproofId();
 
-        String eproofTemplateCode = "CSBEPROOF";
+        String eproofTemplateCode;
         if("P".equals(certInfo.getLetterType())){
             eproofTemplateCode = "CSBEPROOF";
         }else{
@@ -598,7 +607,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public void prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception {
+    public byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception {
 
         CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
         //Register the json to get the UUID from EProof
@@ -689,8 +698,10 @@ public class CertInfoServiceImpl implements CertInfoService {
         baos.close();
 
         // Upload the updated PDF
-        minioUtil.uploadFile(latestCert.getPath(), baos);
+//        minioUtil.uploadFile(latestCert.getPath(), baos);
 
+        // return the binary array
+        return baos.toByteArray();
         //Completed preparing for Eproof PDF
     }
 
@@ -741,6 +752,12 @@ public class CertInfoServiceImpl implements CertInfoService {
                                         String url,
                                         String keyName,
                                         String eproofId){
+
+        List<CertEproof> certInfo = certEproofRepository.findByCertInfoId(certInfoId);
+        if(certInfo!= null && !certInfo.isEmpty()){
+            throw new GenericException(ExceptionEnums.CERT_EPROOF_EXISTING_RECORD_FOUND);
+        }
+
         CertEproof certEproof = new CertEproof();
         certEproof.setCertInfoId(certInfoId);
         certEproof.setEproofId(eproofId);
@@ -921,14 +938,14 @@ public class CertInfoServiceImpl implements CertInfoService {
         certInfoRenew.setCertInfoId(info.getId());
         certInfoRenew.setNewHkid(personalDto.getNewHkid());
         certInfoRenew.setOldHkid(info.getHkid());
-        certInfoRenew.setNewPassport(personalDto.getPrinewPassport());
+        certInfoRenew.setNewPassport(personalDto.getNewPassport());
         certInfoRenew.setOldPassport(info.getPassportNo());
         certInfoRenew.setNewEmail(info.getEmail());
         certInfoRenew.setOldEmail(info.getEmail());
         certInfoRenew.setRemark(personalDto.getRemark());
-        certInfoRenew.setNewCname(info.getCname());
-        certInfoRenew.setOldCname(info.getCname());
-        certInfoRenew.setNewName(info.getName());
+//        certInfoRenew.setNewCname(personalDto.getNewName());
+//        certInfoRenew.setOldCname(info.getCname());
+        certInfoRenew.setNewName(personalDto.getNewName());
         certInfoRenew.setOldName(info.getName());
         certInfoRenew.setNewAtGrade(info.getAtGrade());
         certInfoRenew.setOldAtGrade(info.getAtGrade());
@@ -941,8 +958,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         certInfoRenew.setCertStage(info.getCertStage());
         certInfoRenew.setLetterType(info.getLetterType());
         certInfoRenew.setType(CertType.INFO_UPDATE);
-        certInfoRenew.setCertStage(CertStage.RENEWED);
-        certInfoRenew.setStatus(CertStatus.SUCCESS);
+        certInfoRenew.setCertStage(CertStage.GENERATED);
+        certInfoRenew.setStatus(CertStatus.PENDING);
         certInfoRenew.setIsDelete(false);
         return certInfoRenew;
     }

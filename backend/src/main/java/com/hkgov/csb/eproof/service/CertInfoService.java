@@ -62,7 +62,7 @@ public interface CertInfoService {
 
     String prepareEproofUnsignJson(Long certInfoId);
 
-    void prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception;
+    byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception;
 
     void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto);
 }

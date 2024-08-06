@@ -21,6 +21,7 @@ public enum ExceptionEnums {
     CERT_INFO_NOT_UPDATE("cert.info.not.update","Current Cert does not allow updates."),
     CERT_INFO_NOT_DELETE("cert.info.not.delete","Current Cert does not allow deletion."),
     CANNOT_UPLOAD_SIGNED_PDF_FOR_CERT("signed.pdf.upload.error","signed.pdf.upload.error"),
+    CERT_EPROOF_EXISTING_RECORD_FOUND("cert.eproof.existing.record.found","Cert Eproof existing record found. Cannot create new cert eproof record."),
 
     // Letter template
     TEMPLATE_NAME_CANNOT_BE_NULL("template.name.cannot.null","Not accept null template name."),

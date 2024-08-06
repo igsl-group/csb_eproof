@@ -36,7 +36,7 @@ public class EProofUtil {
 	}
 
 	public static boolean simulation = false;
-	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'+08:00:00'");
 	// Define a DateTimeFormatter for ISO 8601 format
 //	static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -343,15 +343,15 @@ public class EProofUtil {
 															 int downloadMaxCount, LocalDateTime downloadExpiryDate
 	) throws Exception {
 
-		if (simulation) {
-			logger.debug("This is simulation of registerOrUpdateEproof");
-			Map out = new HashMap();
-			out.put("status", "Successful");
-			out.put("uuid", "00000000-0000-0000-0000-000000000000");
-			out.put("version", Strings.isEmpty(uuid) ? 1 : 2);
-			out.put("token", "ThisIsASimulatedDownloadToken");
-			return out;
-		}
+//		if (simulation) {
+//			logger.debug("This is simulation of registerOrUpdateEproof");
+//			Map out = new HashMap();
+//			out.put("status", "Successful");
+//			out.put("uuid", "00000000-0000-0000-0000-000000000000");
+//			out.put("version", Strings.isEmpty(uuid) ? 1 : 2);
+//			out.put("token", "ThisIsASimulatedDownloadToken");
+//			return out;
+//		}
 
 		Map vcJsonMap = GSON.fromJson(unsignedMap, Map.class);
 		logger.debug("EProffUtil - registerOrUpdateEproof - vcJsonMap: " + vcJsonMap);

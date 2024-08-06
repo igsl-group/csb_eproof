@@ -239,8 +239,8 @@ public class CertController {
             @RequestBody PrepareEproofPdfRequest prepareEproofPdfRequest
     ) throws Exception {
 
-        certInfoService.prepareEproofPdf(certInfoId, prepareEproofPdfRequest);
-        return ResponseEntity.ok().build();
+        byte[] preparedEproofPdf = certInfoService.prepareEproofPdf(certInfoId, prepareEproofPdfRequest);
+        return ResponseEntity.ok().body(preparedEproofPdf);
     }
 
 
