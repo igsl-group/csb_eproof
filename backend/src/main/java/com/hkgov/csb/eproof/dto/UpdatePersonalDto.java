@@ -6,9 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdatePersonalDto {
-    private String currentPassport;
+    private String newName;
     private String currentHkid;
     private String newHkid;
-    private String prinewPassport;
+    private String currentPassport;
+    private String newPassport;
     private String remark;
 }
