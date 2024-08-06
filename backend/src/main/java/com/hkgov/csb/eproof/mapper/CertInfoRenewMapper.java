@@ -2,9 +2,7 @@ package com.hkgov.csb.eproof.mapper;
 
 import com.hkgov.csb.eproof.dto.CertInfoRenewDto;
 import com.hkgov.csb.eproof.entity.CertInfoRenew;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -20,4 +18,7 @@ public interface CertInfoRenewMapper{
     CertInfoRenewMapper INSTANCE = Mappers.getMapper(CertInfoRenewMapper.class);
 
     List<CertInfoRenewDto> toDtoList(List<CertInfoRenew> certInfoList);
+
+    CertInfoRenewDto toDto(CertInfoRenew certInfo);
+
 }
