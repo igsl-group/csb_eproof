@@ -6,8 +6,10 @@ import com.google.common.base.Strings;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.hkgov.csb.localSigning.util.ApiUtil;
 import com.hkgov.csb.localSigning.util.PdfBoxSign;
 import io.micrometer.common.util.StringUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -57,6 +60,9 @@ public class LocalSigningService {
     @Value("${path.config1}")
     private String configSlot1Name;
 
+    private final ApiUtil apiUtil;
+
+
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -68,7 +74,9 @@ public class LocalSigningService {
     private String commonName;
     private String pin ="";
 
-    public LocalSigningService(){}
+    public LocalSigningService(ApiUtil apiUtil){
+        this.apiUtil = apiUtil;
+    }
     public boolean init() {
         try{
 
@@ -220,6 +228,24 @@ public class LocalSigningService {
         logger.debug("comparePublicKeyCert: " + Base64.getEncoder().encodeToString(publicKeyFormatted.getBytes()));
         return cert.equals(Base64.getEncoder().encodeToString(publicKeyFormatted.getBytes()));
     }
+
+    @Async("normalThreadPool")
+    public void processSignAndIssue(String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey, Long nextCertInfoIdForSigning) throws Exception {
+
+        String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwt);
+        String signedValue = (String)this.signJson(unsignedJson).getBody();
+        logger.info(signedValue);
+        byte[] preparedPdf = apiUtil.prepareEproofPdfForSigning(jwt,nextCertInfoIdForSigning,unsignedJson,signedValue);
+
+        this.processSigning(preparedPdf, nextCertInfoIdForSigning,jwt,reason,  location, qr, keyword, response,publicKey);
+
+    }
+
+    private void processSigning(byte[] preparedPdfBinaryArray, Long nextCertInfoIdForSigning, String jwtTokenFromFrontEnd, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) throws Exception {
+        byte[] signedPdf = this.getSignedPdf(new ByteArrayInputStream(preparedPdfBinaryArray), publicKey, reason, location, qr, keyword);
+        apiUtil.uploadSignedPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,signedPdf);
+    }
+
     public byte[] getSignedPdf(
             InputStream is, String publicK, String reason, String location,
             String qr, String keyword

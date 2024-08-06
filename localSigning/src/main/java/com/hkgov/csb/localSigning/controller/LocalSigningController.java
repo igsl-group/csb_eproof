@@ -10,9 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +27,7 @@ import java.util.List;
 @RequestMapping("/localSigning")
 public class LocalSigningController {
 
-
+    static boolean isProcessing = false;
 
     private final LocalSigningService localSigningService;
 
@@ -49,7 +51,7 @@ public class LocalSigningController {
             @RequestPart(name="location", required=false) String location,
             @RequestPart(name="qr", required=false) String qr,
             @RequestPart(name="keyword", required=false) String keyword,
-            @PathVariable String examProfileSerialNo) throws IOException, InterruptedException, CertificateEncodingException, SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+            @PathVariable String examProfileSerialNo) throws Exception {
 
         String jwtTokenFromFrontEnd = request.getHeader("Authorization");
 //        jwtTokenFromFrontEnd = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
@@ -63,14 +65,22 @@ public class LocalSigningController {
 
         while (nextCertInfoIdForSigning != null){
 
+            localSigningService.processSignAndIssue(jwtTokenFromFrontEnd,reason,location,qr,keyword,response,publicKey, nextCertInfoIdForSigning);
+
+/*
             String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwtTokenFromFrontEnd);
             String signedValue = (String)localSigningService.signJson(unsignedJson).getBody();
             logger.info(signedValue);
-            apiUtil.prepareEproofPdfForSigning(jwtTokenFromFrontEnd,nextCertInfoIdForSigning,unsignedJson,signedValue);
+            byte[] preparedPdf = apiUtil.prepareEproofPdfForSigning(jwtTokenFromFrontEnd,nextCertInfoIdForSigning,unsignedJson,signedValue);
 
-            this.processSigning(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,reason,  location, qr, keyword, response,publicKey);
+            this.processSigning(preparedPdf, nextCertInfoIdForSigning,jwtTokenFromFrontEnd,reason,  location, qr, keyword, response,publicKey);
+*/
 
             nextCertInfoIdForSigning = apiUtil.getNextCertIdForSigning(examProfileSerialNo,jwtTokenFromFrontEnd);
+        }
+
+        if(nextCertInfoIdForSigning == null){
+            isProcessing = false;
         }
 
 
@@ -104,7 +114,8 @@ public class LocalSigningController {
         }
     }*/
 
-    private void processSigning(Long nextCertInfoIdForSigning, String jwtTokenFromFrontEnd, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) {
+
+   /* private void processSigning(Long nextCertInfoIdForSigning, String jwtTokenFromFrontEnd, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) {
         try {
             List<String> pdfDownloadedLocation =  apiUtil.downloadCertPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd);
             if(pdfDownloadedLocation != null && !pdfDownloadedLocation.isEmpty()){
@@ -115,7 +126,7 @@ public class LocalSigningController {
         } catch (Exception e) {
             logger.warn("Caught exception", e);
         }
-    }
+    }*/
 
     @RequestMapping(value = "signJson", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity signString(@RequestPart(name="json") String json) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException {

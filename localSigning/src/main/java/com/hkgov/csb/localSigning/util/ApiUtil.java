@@ -7,15 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 @Component
 public class ApiUtil {
@@ -38,8 +31,10 @@ public class ApiUtil {
     @Value("${backend.endpoint.upload.signed.cert}")
     private String uploadSignedCertEndpoint;
 
+/*
     @Value("${cert.download.temp.path}")
     private String certDownloadTempPath;
+*/
 
     private static final OkHttpClient CLIENT = new OkHttpClient();
 
@@ -133,7 +128,7 @@ public class ApiUtil {
         }
     }
 
-    public List<String> downloadCertPdf(Long certId,String jwtTokenFromFrontEnd) {
+   /* public List<String> downloadCertPdf(Long certId,String jwtTokenFromFrontEnd) {
 
         String fileDownloadUrl = downloadCertEndpoint.replace("{certInfoId}", certId.toString());
 
@@ -171,7 +166,8 @@ public class ApiUtil {
 
         return null;
     }
-
+*/
+/*
     private List<String> unzip(InputStream zipInputStream, String destDir) throws IOException {
         List<String> savedLocation = new ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(zipInputStream)) {
@@ -204,6 +200,7 @@ public class ApiUtil {
         }
         return savedLocation;
     }
+*/
 
     private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
         File destFile = new File(destinationDir, zipEntry.getName());
@@ -218,7 +215,7 @@ public class ApiUtil {
         return destFile;
     }
 
-    public void prepareEproofPdfForSigning(String jwtTokenFromFrontEnd,Long certId, String unsignedJson, String signedValue) {
+    public byte[] prepareEproofPdfForSigning(String jwtTokenFromFrontEnd,Long certId, String unsignedJson, String signedValue) {
         // Define the endpoint for uploading signed PDF
         String prepareEproofPdfUrl2 = prepareEproofPdfUrl.replace("{certInfoId}", certId.toString());
 
@@ -239,12 +236,15 @@ public class ApiUtil {
 
         try (Response response = CLIENT.newCall(request).execute()) {
             if (response.isSuccessful()) {
-                System.out.println("Response: " + response.body().string());
+                System.out.println("Prepare and download PDF successful." );
+                return response.body().bytes();
             } else {
                 System.err.println("Request failed with status code: " + response.code());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 }
