@@ -96,11 +96,11 @@ select c from CertInfo c
 """)
     Integer countByStageAndStatus(String examProfileSerialNo, CertStage certStage, CertStatus certStatus);
 
-    @Query("select c from CertInfo c where c.hkid = :hkid")
+    @Query("select c from CertInfo c where c.hkid = :hkid and c.valid = true")
     List<CertInfo> findAllByHkid(@Param("hkid") String hkid);
 
 
-    @Query("select c from CertInfo c where c.passportNo = :passportNo")
+    @Query("select c from CertInfo c where c.passportNo = :passportNo and c.valid = true")
     List<CertInfo> findAllByPassport(@Param("passportNo") String passportNo);
 
     @Query("select c from CertInfo c left join CertEproof d on c.id = d.certInfoId where d.uuid = :uuid and d.version = :version")
