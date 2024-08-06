@@ -53,14 +53,14 @@ public class CertInfoRenewController {
 
     @PostMapping("/downloadCert")
     @Operation(summary = "Download cert with provided cert ID list.")
-    public ResponseEntity downloadPdf(@RequestParam List<Long> certInfoIdList) throws IOException {
+    public ResponseEntity downloadPdf(@RequestParam List<Long> certRenewInfoIdList) throws IOException {
         HttpHeaders header = new HttpHeaders();
         header.setContentDisposition(ContentDisposition
                 .attachment()
                 .filename(this.getZipFileName())
                 .build()
         );
-        byte [] zippedPdfListByteArray = certInfoRenewService.getZippedPdfBinary(certInfoIdList);
+        byte [] zippedPdfListByteArray = certInfoRenewService.getZippedPdfBinary(certRenewInfoIdList);
         return ResponseEntity.ok()
                 .headers(header)
                 .body(zippedPdfListByteArray);
