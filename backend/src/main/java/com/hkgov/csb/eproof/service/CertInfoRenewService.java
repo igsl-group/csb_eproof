@@ -31,4 +31,5 @@ public interface CertInfoRenewService {
     Page<CertInfoRenew> search(CertRenewSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
     void dispatch(Long id, CertStage currentStage);
+
 }
