@@ -23,6 +23,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
 select c from CertInfo c
         left join fetch c.examProfile
         left join fetch c.pdfList
+        left join fetch c.certInfoRenewList
+        left join fetch c.certEproof
         where c.examProfileSerialNo = :serialNo 
         AND c.certStage = :stage 
         AND c.certStatus in :statusList
@@ -42,7 +44,6 @@ select c from CertInfo c
             ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
             ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
             ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
-            ( ?#{#searchDto.canCName} IS null OR c.cname like %?#{#searchDto.canCName}% ) AND
             ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
             ( ?#{#searchDto.examProfileSerialNo} IS null OR c.exam_profile_serial = ?#{#searchDto.examProfileSerialNo} ) AND
             ( ?#{#searchDto.blnstGrade} IS null OR c.blnst_grade like %?#{#searchDto.blnstGrade}% ) AND
@@ -63,7 +64,6 @@ select c from CertInfo c
             ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
             ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
             ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
-            ( ?#{#searchDto.canCName} IS null OR c.cname like %?#{#searchDto.canCName}% ) AND
             ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
             ( ?#{#searchDto.examProfileSerialNo} IS null OR c.exam_profile_serial = ?#{#searchDto.examProfileSerialNo} ) AND
             ( ?#{#searchDto.blnstGrade} IS null OR c.blnst_grade like %?#{#searchDto.blnstGrade}% ) AND
