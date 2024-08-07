@@ -39,7 +39,7 @@ public class CertInfoRenewController {
 
     @PostMapping("/generate/{renewCertId}")
     @Operation(summary = "Generate cert pdf in batch mode.",description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
-    public Result batchGeneratePdfById(@PathVariable Long renewCertId) throws Exception {
+    public Result singleGeneratePdf(@PathVariable Long renewCertId) throws Exception {
 //        certInfoRenewService.changeCertStatusToInProgress(renewCertId, CertStage.GENERATED);
         certInfoRenewService.singleGeneratePdf(renewCertId);
 
