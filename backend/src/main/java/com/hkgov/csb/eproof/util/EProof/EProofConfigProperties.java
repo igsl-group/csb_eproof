@@ -20,6 +20,7 @@ public class EProofConfigProperties {
 	String issuerNameTc;
 	String passTemplateTypeId;
 	String failTemplateTypeId;
+	String downloadUrlPrefix;
 
 	String accessToken;
 }

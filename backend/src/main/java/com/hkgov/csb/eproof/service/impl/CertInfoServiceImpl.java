@@ -45,6 +45,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,6 +69,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final MinioUtil minioUtil;
     private final ExamProfileRepository examProfileRepository;
     private final EmailEventRepository emailEventRepository;
+    private final EProofConfigProperties eProofConfigProperties;
     private final EProofConfigProperties eProofConfigProperties;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
@@ -269,7 +272,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
             logger.info("Complete generate");
         } catch(Exception e){
-
+            e.printStackTrace();
             certInfo.setCertStatus(CertStatus.FAILED);
             certInfoRepository.save(certInfo);
 
@@ -354,23 +357,26 @@ public class CertInfoServiceImpl implements CertInfoService {
         infoRenew.setNewEmail(certInfo.getEmail());
         infoRenew.setOldEmail(certInfo.getEmail());
 //        infoRenew.setNewCname(certInfo.getCname());
-        infoRenew.setOldCname(certInfo.getCname());
+//        infoRenew.setOldCname(certInfo.getCname());
         infoRenew.setNewName(certInfo.getName());
         infoRenew.setOldName(certInfo.getName());
         infoRenew.setCertInfoId(certInfo.getId());
-        infoRenew.setOldBlGrade(infoRenew.getNewBlGrade());
-        infoRenew.setOldUcGrade(infoRenew.getNewUcGrade());
-        infoRenew.setOldUeGrade(infoRenew.getNewUeGrade());
-        infoRenew.setOldAtGrade(infoRenew.getNewAtGrade());
+        infoRenew.setOldLetterType(certInfo.getLetterType());
+        infoRenew.setNewLetterType(resultDto.getNewLetterType());
+        infoRenew.setOldBlGrade(certInfo.getBlnstGrade());
+        infoRenew.setOldUcGrade(certInfo.getUcGrade());
+        infoRenew.setOldUeGrade(certInfo.getUeGrade());
+        infoRenew.setOldAtGrade(certInfo.getAtGrade());
         infoRenew.setNewBlGrade(resultDto.getNewBlnstGrade());
         infoRenew.setNewUcGrade(resultDto.getNewUcGrade());
         infoRenew.setNewUeGrade(resultDto.getNewUeGrade());
         infoRenew.setNewAtGrade(resultDto.getNewAtGrade());
-        infoRenew.setLetterType(certInfo.getLetterType());
+
         infoRenew.setRemark(resultDto.getRemark());
         infoRenew.setType(CertType.INFO_UPDATE);
         infoRenew.setCertStage(CertStage.GENERATED);
-        infoRenew.setStatus(CertStatus.PENDING);
+        infoRenew.setCertStatus(CertStatus.PENDING);
+        infoRenew.setIsDelete(false);
         certInfoRenewRepository.save(infoRenew);
         return true;
     }
@@ -518,8 +524,8 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
         String issueToEn = certInfo.getName();
-        String issueToTc = certInfo.getCname();
-        String issueToSc = certInfo.getCname();
+        String issueToTc = certInfo.getName();
+        String issueToSc = certInfo.getName();
         String eproofType = "personal";
 
         String  en1, en2, en3,
@@ -629,16 +635,15 @@ public class CertInfoServiceImpl implements CertInfoService {
         logger.debug("[KeyName]" + keyName);
         logger.debug("[uuid]" + uuid);
         logger.debug("[returnVersion]" + returnVersion);
-
         //Create CertEproof record with response from eProof
         createCertEproofRecord(
                 certInfoId,
                 uuid,
                 returnVersion,
                 token,
-                prepareEproofPdfRequest.getEproofDataJson(),
+                (String)registerResult.get("eProofJson"),
                 "",
-                "",
+                eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
                 "1",
                 certInfo.getEproofId()
         );
@@ -963,10 +968,11 @@ public class CertInfoServiceImpl implements CertInfoService {
         certInfoRenew.setNewUeGrade(info.getUeGrade());
         certInfoRenew.setOldUeGrade(info.getUeGrade());
         certInfoRenew.setCertStage(info.getCertStage());
-        certInfoRenew.setLetterType(info.getLetterType());
+        certInfoRenew.setOldLetterType(info.getLetterType());
+        certInfoRenew.setNewLetterType(info.getLetterType());
         certInfoRenew.setType(CertType.INFO_UPDATE);
         certInfoRenew.setCertStage(CertStage.GENERATED);
-        certInfoRenew.setStatus(CertStatus.PENDING);
+        certInfoRenew.setCertStatus(CertStatus.PENDING);
         certInfoRenew.setIsDelete(false);
         return certInfoRenew;
     }
