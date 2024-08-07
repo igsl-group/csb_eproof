@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,7 +89,7 @@ public class CertInfoRenew extends BaseEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private CertStatus status;
+    private CertStatus certStatus;
 
     @Column(name = "done")
     private Boolean done;
@@ -114,4 +115,38 @@ public class CertInfoRenew extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<File> pdfList;
+
+    //Getter for JSON for docx merging
+
+    public String getName() {
+        return newName;
+    }
+
+    public String getBlnstGrade() {
+        return newBlGrade;
+    }
+
+    public String getUeGrade() {
+        return newUeGrade;
+    }
+
+    public String getUcGrade() {
+        return newUcGrade;
+    }
+
+    public String getAtGrade() {
+        return newAtGrade;
+    }
+
+    public String getEmail() {
+        return newEmail;
+    }
+
+    public String getHkidOrPassport(){
+        if (StringUtils.isNotEmpty(newHkid)){
+            return newHkid;
+        } else{
+            return newPassport;
+        }
+    }
 }

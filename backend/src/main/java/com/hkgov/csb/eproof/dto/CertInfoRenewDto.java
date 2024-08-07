@@ -62,7 +62,7 @@ public class CertInfoRenewDto {
 
     private CertStage certStage;
 
-    private CertStatus status;
+    private CertStatus certStatus;
 
     private Boolean done;
 

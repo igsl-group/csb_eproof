@@ -71,11 +71,14 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private Map<DataFieldName, String> getMergeMapForRenewCert(CertInfoRenew certInfoRenew) throws JsonProcessingException {
         ExamProfile exam = certInfoRenew.getCertInfo().getExamProfile();
 
-        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfoRenew,"renewCert");
+        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfoRenew,"cert");
+
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
         return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
     }
+
+
 
     private Map<String,List> getTableLoopMapForCertRenew(CertInfoRenew certInfoRenew){
         List<ExamScoreDto> markDtoList = new ArrayList<>();
@@ -104,7 +107,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         try{
             byte[] atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
             byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
-            InputStream appliedTemplate = "P".equals(certInfoRenew.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            InputStream appliedTemplate = "P".equals(certInfoRenew.getNewLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
 
             byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForRenewCert(certInfoRenew),getTableLoopMapForCertRenew(certInfoRenew));
             appliedTemplate.close();
@@ -115,7 +118,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             this.updateCertStageAndStatus(certInfoRenew,CertStage.GENERATED,CertStatus.SUCCESS);
 
         } catch (Exception e){
-            certInfoRenew.setStatus(CertStatus.FAILED);
+            certInfoRenew.setCertStatus(CertStatus.FAILED);
             e.printStackTrace();
             certInfoRenewRepository.save(certInfoRenew);
         }
@@ -146,7 +149,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         }
 
         if(status != null){
-            certInfoRenew.setStatus(status);
+            certInfoRenew.setCertStatus(status);
         }
 
         certInfoRenewRepository.save(certInfoRenew);
@@ -278,7 +281,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                     break;
                 }
             }
-            infoRenew.setStatus(CertStatus.PENDING);
+            infoRenew.setCertStatus(CertStatus.PENDING);
         }
         certInfoRenewRepository.saveAll(list);
     }
