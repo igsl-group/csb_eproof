@@ -10,5 +10,6 @@ public class UpdateResultDto {
     private String newUcGrade;
     private String newAtGrade;
     private String newBlnstGrade;
+    private String newLetterType;
     private String remark;
 }

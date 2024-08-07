@@ -93,8 +93,11 @@ public class CertInfoRenew extends BaseEntity {
     @Column(name = "done")
     private Boolean done;
 
-    @Column(name = "letter_type")
-    private String letterType;
+    @Column(name = "old_letter_type")
+    private String oldLetterType;
+
+    @Column(name = "new_letter_type")
+    private String newLetterType;
 
     @Column(name = "is_delete")
     private Boolean isDelete;

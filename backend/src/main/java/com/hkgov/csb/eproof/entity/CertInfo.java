@@ -12,6 +12,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "cert_info")
@@ -118,8 +119,8 @@ public class CertInfo extends BaseEntity{
     @OneToOne(mappedBy = "certInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CertEproof certEproof;
 
-    @OneToMany(mappedBy = "certInfo", cascade = CascadeType.ALL)
-    private List<CertInfoRenew> certInfoRenewList;
+    @OneToMany(mappedBy = "certInfo", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private Set<CertInfoRenew> certInfoRenewList;
 
     /*@OneToMany(mappedBy = "certInfo", cascade = CascadeType.ALL)
     private List<ActionTarget> actionTargets;*/
@@ -131,4 +132,6 @@ public class CertInfo extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<File> pdfList;
+
+
 }

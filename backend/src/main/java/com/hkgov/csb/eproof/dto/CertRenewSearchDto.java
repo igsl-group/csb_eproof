@@ -11,6 +11,7 @@ public class CertRenewSearchDto {
     private String oldHkid;
     private String oldPassport;
     private String oldEmail;
+    private String oldLetterType;
     private String oldBlGrade;
     private String oldUeGrade;
     private String oldUcGrade;
@@ -20,6 +21,7 @@ public class CertRenewSearchDto {
     private String newHkid;
     private String newPassport;
     private String newEmail;
+    private String newLetterType;
     private String newBlGrade;
     private String newUeGrade;
     private String newUcGrade;
