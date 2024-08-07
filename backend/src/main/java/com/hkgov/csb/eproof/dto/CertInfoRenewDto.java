@@ -23,7 +23,7 @@ public class CertInfoRenewDto {
     private String oldName;
 
 
-    private String oldCname;
+//    private String oldCname;
 
 
     private String oldHkid;

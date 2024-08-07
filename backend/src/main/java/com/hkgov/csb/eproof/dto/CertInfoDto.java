@@ -31,7 +31,7 @@ public class CertInfoDto implements Serializable {
     @JsonFormat(pattern = DATE_PATTERN)
     LocalDate examDate;
     String name;
-    String cname;
+//    String cname;
     String hkid;
     String passportNo;
     String email;

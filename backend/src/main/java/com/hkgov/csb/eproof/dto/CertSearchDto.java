@@ -10,7 +10,7 @@ import lombok.Setter;
 public class CertSearchDto {
     private String examProfileSerialNo;
     private String canName;
-    private String canCName;
+//    private String canCName;
     private String canEmail;
     private String hkid;
     private String passportNo;

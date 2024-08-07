@@ -29,8 +29,8 @@ public class CertInfoRenew extends BaseEntity {
     @Column(name = "old_name")
     private String oldName;
 
-    @Column(name = "old_cname")
-    private String oldCname;
+//    @Column(name = "old_cname")
+//    private String oldCname;
 
     @Column(name = "old_hkid")
     private String oldHkid;

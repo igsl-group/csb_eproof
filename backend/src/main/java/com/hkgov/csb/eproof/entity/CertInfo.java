@@ -37,9 +37,6 @@ public class CertInfo extends BaseEntity{
     @Column(name = "name")
     private String name;
 
-    @Column(name = "cname")
-    private String cname;
-
     @Column(name = "hkid")
     private String hkid;
 

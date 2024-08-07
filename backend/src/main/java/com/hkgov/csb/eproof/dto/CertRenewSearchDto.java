@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class CertRenewSearchDto {
     private String oldName;
-    private String oldCname;
+//    private String oldCname;
     private String oldHkid;
     private String oldPassport;
     private String oldEmail;
@@ -16,7 +16,7 @@ public class CertRenewSearchDto {
     private String oldUcGrade;
     private String oldAtGrade;
     private String newName;
-    private String newCname;
+//    private String newCname;
     private String newHkid;
     private String newPassport;
     private String newEmail;
