@@ -35,8 +35,9 @@ public enum ExceptionEnums {
 
 
     EMAIL_CONTENT_ERROR("email.content.error","Email content conversion failed."),
-    //system
-    SYSTEM_PARAMETER_NOT_EXIST("system.parameter.not.exist","System parameter does not exist.")
+    SYSTEM_PARAMETER_NOT_EXIST("system.parameter.not.exist","System parameter does not exist."),
+    E_PROOF_NOT_FOUND("404","e-Proof document(JSON) not found"),
+    E_PROOF_SYSTEM_ERROR("500","Internal Server Error"),
     ;
 
 
