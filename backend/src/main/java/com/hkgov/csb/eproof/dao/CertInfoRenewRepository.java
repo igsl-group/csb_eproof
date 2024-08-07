@@ -22,7 +22,7 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
 
     @Query(nativeQuery = true,value = """
         SELECT * FROM cert_info_renew c WHERE
-        (   c.is_delete = false AND
+        (   (c.is_delete = false OR c.is_delete is null) AND
             (c.cert_stage IN :certStageList) AND
             (c.status IN :certStatusList)
         )
@@ -30,12 +30,10 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
         (
            ( ?#{#searchDto.newName} IS null OR c.new_name like %?#{#searchDto.newName}% ) AND
             ( ?#{#searchDto.newHkid} IS null OR c.new_hkid like %?#{#searchDto.newHkid}% ) AND
-            ( ?#{#searchDto.newCname} IS null OR c.new_cname like %?#{#searchDto.newCname}% ) AND
             ( ?#{#searchDto.newPassport} IS null OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
             ( ?#{#searchDto.newEmail} IS null OR c.new_email like %?#{#searchDto.newEmail}% ) AND
             ( ?#{#searchDto.oldName} IS null OR c.old_name like %?#{#searchDto.oldName}% ) AND
             ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid like %?#{#searchDto.oldHkid}% ) AND
-            ( ?#{#searchDto.oldCname} IS null OR c.old_cname like %?#{#searchDto.oldCname}% ) AND
             ( ?#{#searchDto.oldPassport} IS null OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND
             ( ?#{#searchDto.oldEmail} IS null OR c.old_email like %?#{#searchDto.oldEmail}% ) AND
             ( ?#{#searchDto.newBlGrade} IS null OR c.new_bl_grade like %?#{#searchDto.newBlGrade}%  ) AND
@@ -58,12 +56,10 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
         (
            ( ?#{#searchDto.newName} IS null OR c.new_name like %?#{#searchDto.newName}% ) AND
             ( ?#{#searchDto.newHkid} IS null OR c.new_hkid like %?#{#searchDto.newHkid}% ) AND
-            ( ?#{#searchDto.newCname} IS null OR c.new_cname like %?#{#searchDto.newCname}% ) AND
             ( ?#{#searchDto.newPassport} IS null OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
             ( ?#{#searchDto.newEmail} IS null OR c.new_email like %?#{#searchDto.newEmail}% ) AND
             ( ?#{#searchDto.oldName} IS null OR c.old_name like %?#{#searchDto.oldName}% ) AND
             ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid like %?#{#searchDto.oldHkid}% ) AND
-            ( ?#{#searchDto.oldCname} IS null OR c.old_cname like %?#{#searchDto.oldCname}% ) AND
             ( ?#{#searchDto.oldPassport} IS null OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND
             ( ?#{#searchDto.oldEmail} IS null OR c.old_email like %?#{#searchDto.oldEmail}% ) AND
             ( ?#{#searchDto.newBlGrade} IS null OR c.new_bl_grade like %?#{#searchDto.newBlGrade}%  ) AND
@@ -81,7 +77,7 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
                               @Param("certStatusList") @NotNull List<String> certStatusList,
                               Pageable pageable);
 
-    @Query("select c from CertInfoRenew c where c.id = :id and c.certStage = :stage and c.status = 'SUCCESS' ")
+    @Query("select c from CertInfoRenew c where c.id = :id and c.certStage = :stage and c.certStatus = 'SUCCESS' ")
     List<CertInfoRenew> getinfoByNoAndStatus(@Param("id") Long id, @Param("stage") CertStage stage);
 }
 
