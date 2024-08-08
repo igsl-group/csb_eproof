@@ -3,7 +3,7 @@ import {useAuth} from "../../context/auth-provider";
 import Button from "../Button";
 
 
-const PermissionControl = (props) => {
+const Index = (props) => {
   const {
     permissionRequired = '',
     forceHidden = false,
@@ -38,5 +38,5 @@ const PermissionControl = (props) => {
   return (hasPermission && !forceHidden ? props.children : null);
 }
 
-export default PermissionControl;
+export default Index;
 
