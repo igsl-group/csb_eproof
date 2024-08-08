@@ -12,7 +12,7 @@ import {
   FolderOpenOutlined,
   FileDoneOutlined,
   ScheduleOutlined,
-  AreaChartOutlined, SearchOutlined, CloseOutlined,
+  AreaChartOutlined, SearchOutlined, CloseOutlined, MinusCircleOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -29,6 +29,7 @@ import { examProfileAPI } from '@/api/request';
 import {
   toQueryString
 } from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
 
 const Import = () =>  {
 
@@ -57,7 +58,7 @@ const Import = () =>  {
     setOpen(false);
     setImportModal(false);
     getImportListAndSummary();
-  }, []);
+  }, [serialNoValue]);
 
   const columns = useMemo(() => [
     {
@@ -67,7 +68,7 @@ const Import = () =>  {
       render: (row) => {
         return (
           <div>
-            { row.onHold ? <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button> : null}
+            { row.onHold ? <Tag color="default">On-hold</Tag> : null}
             { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
@@ -129,8 +130,8 @@ const Import = () =>  {
       title: 'Status',
       key: 'certStatus',
       dataIndex: 'certStatus',
-      width: 100,
-      render: (row) => <Tag>{row.code}</Tag>,
+      width: 120,
+      render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
   ], []);
@@ -313,14 +314,10 @@ const Import = () =>  {
     return runExamProfileAPI('certList', 'IMPORTED', {
       ...filterCondition,
       examProfileSerialNo: serialNoValue,
-      onHold: false,
     }, toQueryString(pagination));
   }, []);
-console.log('serialNoValue', serialNoValue)
   const getImportListAndSummary = useCallback(async() => {
-    console.log("1", serialNoValue)
     if (serialNoValue) {
-      console.log("2", serialNoValue)
       await getExamProfileSummary(serialNoValue);
       await getCertList(serialNoValue, pagination, filterCondition);
     }
@@ -349,7 +346,6 @@ console.log('serialNoValue', serialNoValue)
         }
 
         const resetPage = resetPagination();
-        console.log(finalPayload)
         if (isEmpty) {
           setFilterCondition(null);
           await getCertList(serialNoValue, resetPage);
@@ -378,7 +374,7 @@ console.log('serialNoValue', serialNoValue)
 
 
   return (
-    <div className={styles['exam-profile']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_IMPORT']}>
       <Typography.Title level={3}>Import Result (CSV)</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -473,7 +469,7 @@ console.log('serialNoValue', serialNoValue)
                   <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
+                  <Text name={'canEmail'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
@@ -583,7 +579,7 @@ console.log('serialNoValue', serialNoValue)
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

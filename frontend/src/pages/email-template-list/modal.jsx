@@ -40,14 +40,14 @@ const EmailModal = (props) =>  {
     const values = await form.validateFields()
       .then((values) => ({
         ...values,
-        includeEmails: values.includeEmails.join(','),
+        includeEmails: values && values.includeEmails.join(','),
         // roles: values.roles.flatMap((value) => ({ id: value })),
       }))
       .catch((e) => {
         console.error(e);
         return false;
       })
-
+    delete values.mailMergeKey;
     if (values) {
       switch (type) {
         case TYPE.EDIT:
@@ -100,6 +100,12 @@ const EmailModal = (props) =>  {
       }
     })()
   }, [open, type, recordId]);
+
+  const onMailMergeButtonClicked = useCallback(() => {
+    const body = form.getFieldValue('body');
+    const updateBody = body.replace(/<\/p>$/gm, `${form.getFieldValue('mailMergeKey')}</p>`)
+    form.setFieldValue('body', updateBody)
+  }, [])
 
   return (
     <Modal
@@ -164,6 +170,30 @@ const EmailModal = (props) =>  {
           </Col>
           <Col span={24}>
             <Richtext name={'body'} label={'Body'} size={100} row={10} required/>
+          </Col>
+          <Col span={24}>
+            <Row gutter={[8, 8]}>
+              <Col>
+                <Dropdown
+                  size={50}
+                  placeholder={'Place choose mail merge key ...'}
+                  name={'mailMergeKey'}
+                  options={[
+                    {
+                      label: 'Application Name',
+                      value: '{{application_name}}',
+                    },
+                    {
+                      label: 'Examination Date',
+                      value: '{{examination_date}}',
+                    }
+                  ]}
+                />
+              </Col>
+              <Col>
+                <Button onClick={onMailMergeButtonClicked}>Add</Button>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Form>

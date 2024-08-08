@@ -29,12 +29,19 @@ import {
   ScheduleOutlined,
   AreaChartOutlined, SearchOutlined,
 } from '@ant-design/icons';
+import {
+  toQueryString
+} from "@/utils/util";
 import Text from "@/components/Text";
+import Dropdown from "@/components/Dropdown";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useAuth} from "../../context/auth-provider";
+import {
+  userRoleAPI
+} from "@/api/request";
 
 const Login = () =>  {
   const auth = useAuth();
@@ -42,6 +49,7 @@ const Login = () =>  {
   const modalApi = useModal();
   const [open, setOpen] = useState(false);
   const [freezeExamProfile, setFreezeExamProfile] = useState(false);
+  const [options, setOptions] = useState([]);
   const [form] = Form.useForm();
   const {
     serialNo,
@@ -50,11 +58,38 @@ const Login = () =>  {
   const onFinish = async (values) => {
     console.log('Success:', values);
     await auth.loginAction(values);
+    await auth.getProfile();
     navigate('/ExamProfile');
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
+
+  useEffect(() => {
+    const defaultPaginationInfo = {
+      sizeOptions: [10, 20, 40],
+      pageSize: 999,
+      page: 1,
+      sortBy: 'id',
+      orderBy: 'descend',
+    };
+
+    const pagination = {
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    };
+
+    userRoleAPI('userList', toQueryString(pagination, {}))
+      .then((response) => response.data)
+      .then((data) => data.content.flatMap((row) => ({
+        label: row.post,
+        value: row.dpUserId,
+      })))
+      .then((list) => setOptions(list))
+  }, []);
 
   return (
     <div className={styles['login']}>
@@ -69,12 +104,12 @@ const Login = () =>  {
               onFinishFailed={onFinishFailed}
               autoComplete="off"
               initialValues={{
-                uid:'admin_test',
+                uid:'system.administrator',
                 dpDeptId:'csb',
               }}
             >
-              <Text name={'uid'} label={'DP User Id'} size={50}/>
-              <Text name={'dpDeptId'} label={'DP Dept Id'} size={50}/>
+              <Dropdown name={'uid'} label={'DP User Id (User)'} options={options}  size={50}/>
+              <Text name={'dpDeptId'} label={'DP Dept Id'} disabled={true} size={50}/>
               <Button type={'primary'} htmlType={'submit'}>Login</Button>
             </Form>
           </Card>

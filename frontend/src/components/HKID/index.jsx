@@ -66,6 +66,7 @@ function HKID (props) {
   const disabled = props.disabled || false;;
   const label = props.label || 'Hong Kong Identity Card (HKIC) No.';
   const name = props.name || 'hkid';
+  const hidden = props.hidden;
   const [validateStatus, setValidateStatus] = useState('success');
   const [help, setHelp] = useState('');
 
@@ -74,6 +75,7 @@ function HKID (props) {
       <Form.Item
         label={label}
         required={required}
+        hidden={hidden}
         style={{ marginBottom: 0, marginRight: 0 }}
       >
         <Row>
@@ -82,6 +84,7 @@ function HKID (props) {
               name={[name, 'id']}
               validateStatus={validateStatus}
               help={help}
+
               rules={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {
@@ -110,11 +113,12 @@ function HKID (props) {
                   width: 130,
                   textTransform: 'uppercase'
                 }}
+
               />
             </Form.Item>
           </Col>
           <Col>
-            <span style={{ lineHeight: '32px'}}>&nbsp;&nbsp;(&nbsp;&nbsp;</span>
+            <span style={{ lineHeight: '32px'}} >&nbsp;&nbsp;(&nbsp;&nbsp;</span>
           </Col>
           <Col>
             <Form.Item

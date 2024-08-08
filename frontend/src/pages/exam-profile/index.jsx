@@ -10,6 +10,7 @@ import {
   Breadcrumb,
   Grid,
   Space,
+  Button,
   Tabs,
   Col,
   Row,
@@ -30,7 +31,7 @@ import {
   AreaChartOutlined, SearchOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
-import Button from "@/components/Button";
+// import Button from "@/components/Button";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
 import Import from "./import";
@@ -49,6 +50,8 @@ import {
   toQueryString
 } from "@/utils/util";
 import OnHoldModal from "./onhold-modal";
+import PermissionControl from "../../components/PermissionControl";
+import {useAuth} from "../../context/auth-provider";
 
 const ExamProfile = () =>  {
 
@@ -62,6 +65,7 @@ const ExamProfile = () =>  {
   const [onHoldData, setOnHoldData] = useState([]);
   const [record, setRecord] = useState({});
   const [openOnHoldModal, setOpenOnHoldModal] = useState(false);
+  const auth = useAuth();
 
   const [filterCondition, setFilterCondition] = useState(null);
   const {
@@ -101,92 +105,99 @@ const ExamProfile = () =>  {
     }
   ]);
 
-  const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 140,
-      render: (row) => (
-        <Row gutter={[8, 8]}>
-          <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button>
-          <Button size={'small'} type={'primary'} onClick={() => onRemoveClickCallback(row)}>Remove</Button>
-        </Row>
+  const columns = useMemo(() => {
+
+    const tmpColumns = [];
+
+    if (auth.permissions.includes('Case_Maintenance') && !freezeExamProfile) {
+      tmpColumns.push(
+        {
+          title: 'Action',
+          key: 'action',
+          width: 100,
+          render: (row) => (
+            <Row gutter={[8, 8]}>
+              <Button size={'small'} type={'primary'} onClick={() => onResumeClickCallback(row)}>Resume</Button>
+              <Button size={'small'} type={'primary'} danger onClick={() => onRemoveClickCallback(row)}>Remove</Button>
+            </Row>
+          )
+        },
       )
-    },
-    {
-      title: 'Current Stage',
-      key: 'certStage',
-      dataIndex: 'certStage',
-      width: 130,
-      render: (row) => row.label,
-      sorter: true,
-    },
-    {
-      title: 'Reason',
-      key: 'onHoldRemark',
-      dataIndex: 'onHoldRemark',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'HKID',
-      key: 'hkid',
-      dataIndex: 'hkid',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Passport',
-      key: 'passportNo',
-      dataIndex: 'passportNo',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Name',
-      key: 'name',
-      dataIndex: 'name',
-      width: 160,
-      sorter: true,
-    },
-    {
-      title: 'Email',
-      key: 'email',
-      dataIndex: 'email',
-      width: 180,
-      sorter: true,
-    },
-    {
-      title: 'UE',
-      key: 'ueGrade',
-      dataIndex: 'ueGrade',
-      width: 80,
-    },
-    {
-      title: 'UC',
-      key: 'ucGrade',
-      dataIndex: 'ucGrade',
-      width: 80,
-    },
-    {
-      title: 'AT',
-      key: 'atGrade',
-      dataIndex: 'atGrade',
-      width: 80,
-    },
-    {
-      title: 'BLNST',
-      key: 'blnstGrade',
-      dataIndex: 'blnstGrade',
-      width: 80,
-    },
-    // {
-    //   title: 'Remark',
-    //   key: 'remark',
-    //   dataIndex: 'remark',
-    //   width: 80,
-    // },
-  ], []);
+    }
+
+    tmpColumns.push(
+
+      {
+        title: 'Current Stage',
+        key: 'certStage',
+        dataIndex: 'certStage',
+        width: 130,
+        render: (row) => row.label,
+        sorter: true,
+      },
+      {
+        title: 'Reason',
+        key: 'onHoldRemark',
+        dataIndex: 'onHoldRemark',
+        width: 140,
+        sorter: true,
+      },
+      {
+        title: 'HKID',
+        key: 'hkid',
+        dataIndex: 'hkid',
+        width: 100,
+        sorter: true,
+      },
+      {
+        title: 'Passport',
+        key: 'passportNo',
+        dataIndex: 'passportNo',
+        width: 150,
+        sorter: true,
+      },
+      {
+        title: 'Name',
+        key: 'name',
+        dataIndex: 'name',
+        width: 160,
+        sorter: true,
+      },
+      {
+        title: 'Email',
+        key: 'email',
+        dataIndex: 'email',
+        width: 180,
+        sorter: true,
+      },
+      {
+        title: 'UE',
+        key: 'ueGrade',
+        dataIndex: 'ueGrade',
+        width: 80,
+      },
+      {
+        title: 'UC',
+        key: 'ucGrade',
+        dataIndex: 'ucGrade',
+        width: 80,
+      },
+      {
+        title: 'AT',
+        key: 'atGrade',
+        dataIndex: 'atGrade',
+        width: 80,
+      },
+      {
+        title: 'BLNST',
+        key: 'blnstGrade',
+        dataIndex: 'blnstGrade',
+        width: 80,
+      },
+    )
+
+    return tmpColumns;
+  }, [auth.permissions, freezeExamProfile]);
 
   const onRemoveClickCallback = useCallback((row) => {
     setRecord(row);
@@ -261,6 +272,10 @@ const ExamProfile = () =>  {
           setOnHoldData(content);
           break;
         }
+        case 'certIssuanceDelete':
+          getOnHoldListAndSummary();
+          messageApi.success('Case removed successfully.');
+          break;
         default:
           break;
       }
@@ -285,7 +300,7 @@ const ExamProfile = () =>  {
     setOpen(false);
     setOpenOnHoldModal(false);
     getOnHoldListAndSummary();
-  }, []);
+  }, [serialNoValue]);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -380,7 +395,7 @@ const ExamProfile = () =>  {
   }, []);
 
   const getCertList = useCallback(async (serialNoValue, pagination = {}, filter = {}) => {
-    return runExamProfileAPI('certList', 'IMPORTED', {
+    return runExamProfileAPI('certList', 'ANY', {
       examProfileSerialNo: serialNoValue,
       onHold: true,
     }, toQueryString(pagination, filter));
@@ -408,7 +423,7 @@ const ExamProfile = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['exam-profile']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['Examination_Profile_Maintenance']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -459,49 +474,53 @@ const ExamProfile = () =>  {
           </Col>
           <Col span={4}>
             <Row gutter={[8, 8]} justify={'end'}>
-              <Col span={24}>
-                <Row justify={'end'}>
-                  <Col>
-                    <Button
-                      style={{ width: 115}}
-                      type={'primary'}
-                      hidden={freezeExamProfile}
-                      onClick={() => setOpen(true)}
-                    >
-                      Edit
-                    </Button>
-                  </Col>
-                </Row>
-              </Col>
-              <Col span={24}>
-                <Row justify={'end'}>
-                  <Col>
-                    <Button
-                      style={{ width: 115}}
-                      type={'primary'}
-                      onClick={onClickReset}
-                      hidden={freezeExamProfile}
-                    >
-                      Reset
-                    </Button>
-                  </Col>
-                </Row>
-              </Col>
-              <Col span={24}>
-                <Row justify={'end'}>
-                  <Col>
-                    <Button
-                      style={{ width: 115}}
-                      type={'primary'}
-                      danger={freezeExamProfile}
-                      // onClick={() => runExamProfileAPI('examProfileFreeze', serialNo)}
-                      onClick={freezeExamProfileCallback}
-                    >
-                      {!freezeExamProfile ? 'Freeze' : 'Un-freeze'}
-                    </Button>
-                  </Col>
-                </Row>
-              </Col>
+              <PermissionControl forceHidden={freezeExamProfile}>
+                <Col span={24}>
+                  <Row justify={'end'}>
+                    <Col>
+                      <Button
+                        style={{ width: 115}}
+                        type={'primary'}
+                        onClick={() => setOpen(true)}
+                      >
+                        Edit
+                      </Button>
+                    </Col>
+                  </Row>
+                </Col>
+              </PermissionControl>
+              <PermissionControl permissionRequired={['Examination_Profile_Reset']} forceHidden={freezeExamProfile}>
+                <Col span={24}>
+                  <Row justify={'end'}>
+                    <Col>
+                      <Button
+                        style={{ width: 115}}
+                        type={'primary'}
+                        onClick={onClickReset}
+                      >
+                        Reset
+                      </Button>
+                    </Col>
+                  </Row>
+                </Col>
+              </PermissionControl>
+              <PermissionControl permissionRequired={['Examination_Profile_Freeze']}>
+                <Col span={24}>
+                  <Row justify={'end'}>
+                    <Col>
+                      <Button
+                        style={{ width: 115}}
+                        type={'primary'}
+                        danger={freezeExamProfile}
+                        onClick={freezeExamProfileCallback}
+                      >
+                        {!freezeExamProfile ? 'Freeze' : 'Un-freeze'}
+                      </Button>
+                    </Col>
+                  </Row>
+                </Col>
+              </PermissionControl>
+
             </Row>
           </Col>
         </Row>
@@ -594,7 +613,7 @@ const ExamProfile = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

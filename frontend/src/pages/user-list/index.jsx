@@ -3,12 +3,28 @@ import {createSearchParams, useNavigate, Link} from "react-router-dom";
 
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Table, Card, Typography, Breadcrumb, Tag, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
+import {
+  Divider,
+  Table,
+  Card,
+  Typography,
+  Breadcrumb,
+  Tag,
+  Space,
+  Col,
+  Row,
+  Flex,
+  Modal,
+  Pagination,
+  Dropdown
+} from 'antd';
+import Button from '../../components/Button';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
   DeleteOutlined,
   EditOutlined,
+  DownOutlined,
 } from '@ant-design/icons';
 import UserModal from "./modal";
 import { userRoleAPI } from '@/api/request';
@@ -18,6 +34,8 @@ import {useModal} from "../../context/modal-provider";
 import {
   toQueryString
 } from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
+import {useAuth} from "../../context/auth-provider";
 
 const UserList = () =>  {
 
@@ -29,6 +47,7 @@ const UserList = () =>  {
   const [recordId, setRecordId] = useState('');
   const [type, setType] = useState('');
   const [filterCondition, setFilterCondition] = useState(null);
+  const auth = useAuth();
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -47,8 +66,13 @@ const UserList = () =>  {
   });
 
   const onDeleteClickCallback = useCallback((id) => {
-    runUserRoleAPI('userRemove', id);
-    // runUserRoleAPI('userGet', recordId)
+
+    modalApi.confirm({
+      title:'Are you sure to remove user?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () =>     runUserRoleAPI('userRemove', id)
+    });
 
   }, []);
 
@@ -86,67 +110,78 @@ const UserList = () =>  {
     },
   ], []);
 
-  const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 100,
-      render: (row) => (
-        <Space>
-          <Button size={'small'} title={'Edit'} icon={<EditOutlined />} onClick={() => onEditClickCallback(row.id)} />
-          <Button size={'small'} title={'Remove'} icon={<DeleteOutlined />} onClick={() => onDeleteClickCallback(row.id)}/>
-        </Space>
-      )
-    },
-    {
-      title: `DP User Id`,
-      key: "dpUserId",
-      dataIndex: "dpUserId",
-      width: 150,
-      sorter: true,
-    },
-    {
-      title: `Name`,
-      key: "name",
-      dataIndex: "name",
-      width: 200,
-      sorter: true,
-    },
-    {
-      title: `Post`,
-      key: "post",
-      dataIndex: "post",
-      width: 150,
-      sorter: true,
-    },
-    {
-      title: `Email`,
-      key: "email",
-      dataIndex: "email",
-      width: 200,
-      sorter: true,
-    },
-    {
-      title: `Role`,
-      key: "roles",
-      dataIndex: "roles",
-      // width: 350,
-      render: (roles) => (
-        <div>
-          {
-            roles.map((row) => <Tag>{row.name}</Tag>)
-          }
-        </div>
-      )
-    },
-    {
-      title: `Status`,
-      key: "status",
-      dataIndex: "status",
-      width: 150,
-      sorter: true,
-    },
-  ], []);
+
+  const columns = useMemo(() => {
+
+    const tmpColumns = [];
+
+    if (auth.permissions.includes('User_Maintenance')) {
+      tmpColumns.push({
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (row) => (
+          <Space>
+            <Button size={'small'} title={'Edit'} icon={<EditOutlined />} onClick={() => onEditClickCallback(row.id)} />
+            <Button size={'small'} title={'Remove'} icon={<DeleteOutlined />} onClick={() => onDeleteClickCallback(row.id)}/>
+          </Space>
+        )
+      })
+    }
+
+    tmpColumns.push(
+      {
+        title: `DP User Id`,
+        key: "dpUserId",
+        dataIndex: "dpUserId",
+        width: 150,
+        sorter: true,
+      },
+      {
+        title: `Name`,
+        key: "name",
+        dataIndex: "name",
+        width: 200,
+        sorter: true,
+      },
+      {
+        title: `Post`,
+        key: "post",
+        dataIndex: "post",
+        width: 150,
+        sorter: true,
+      },
+      {
+        title: `Email`,
+        key: "email",
+        dataIndex: "email",
+        width: 200,
+        sorter: true,
+      },
+      {
+        title: `Role`,
+        key: "roles",
+        dataIndex: "roles",
+        // width: 350,
+        render: (roles) => (
+          <div>
+            {
+              roles.map((row) => <Tag>{row.name}</Tag>)
+            }
+          </div>
+        )
+      },
+      {
+        title: `Status`,
+        key: "status",
+        dataIndex: "status",
+        width: 150,
+        sorter: true,
+      },
+    )
+
+    return tmpColumns;
+  }, [auth.permissions]);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -226,13 +261,15 @@ const UserList = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['user-list']}>
-      <Typography.Title level={3}>User</Typography.Title>
+    <PermissionControl className={styles['user-list']} permissionRequired={['User_Maintenance']}>
+       <Typography.Title level={3}>User</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={() => onCreateClickCallback()}>Create</Button>
+          <PermissionControl permissionRequired={'User_Maintenance'}>
+            <Button type="primary" onClick={() => onCreateClickCallback()} >Create</Button>
+          </PermissionControl>
         </Col>
         <Col>
           <Pagination
@@ -282,7 +319,7 @@ const UserList = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

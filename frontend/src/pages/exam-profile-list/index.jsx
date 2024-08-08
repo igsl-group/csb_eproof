@@ -24,6 +24,7 @@ import axios from "axios";
 import {
   toQueryString
 } from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
 
 const ExamProfileList = () =>  {
 
@@ -178,7 +179,7 @@ const ExamProfileList = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['exam-profile-list']}>
+    <PermissionControl className={styles['exam-profile-list']} permissionRequired={['Examination_Profile_Maintenance']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
@@ -233,7 +234,7 @@ const ExamProfileList = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

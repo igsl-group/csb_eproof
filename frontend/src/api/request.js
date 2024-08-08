@@ -2,8 +2,11 @@ import request from '@/api/index';
 export function loginAPI(params, ...rest) {
     switch (params) {
         case 'authenticate':
-            console.log(rest)
             return request(`/sso`, 'authenticate', rest[0]);
+        case 'profile':
+            return request(`/user/currentUser`, 'get');
+        case 'logout':
+            return request(`/signOut`, 'get');
         default:
             return;
     }
@@ -189,7 +192,7 @@ export function examProfileAPI(params, ...rest) {
         case 'certIssuanceGenerate':
             return request(`/cert/batch/generate/${rest[0]}`, "post");
         case 'certIssuanceSign':
-            return request(`/cert/batch/signAndIssue/${rest[0]}`, "post");
+            return request(`/localSigning/start/${rest[0]}`, "signing-cert", rest[1]);
         case 'certIssuanceBulkDownload':
             return request(`/cert/downloadCert?certInfoIdList=${rest[0]}`, "download");
         case 'certIssuanceHold':
@@ -200,6 +203,29 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/delete/${rest[0]}`, "delete");
         case 'certBatchUpdateEmail':
             return request(`/cert/batch/updateEmail`, "post", rest[0]);
+        case 'certScheduleSendEmail':
+            return request(`/cert/batch/scheduleMail/${rest[0]}`, "post", rest[1]);
+        case 'certBatchUpdatePersonalParticular':
+            return request(`/cert/batch/updatePersonalParticular`, "post", rest[0]);
+        case 'certSingleUpdateResult':
+            return request(`/cert/single/updateResult/${rest[0]}`, "post", rest[1]);
+        case 'certRenewList':
+            return request(`/reissueCert/search/${rest[0]}?${rest[2]}`, "post", rest[1]);
+        case 'certRenewBulkDownload':
+            return request(`/reissueCert/downloadCert?certRenewInfoIdList=${rest[0]}`, "download");
+        case 'certRenewDelete':
+            return request(`/reissueCert/remove/${rest[0]}`, "delete");
+        case 'certRenewGenerate':
+            return request(`/reissueCert/generate/${rest[0]}`, "post");
+        case 'certRenewDispatch':
+            return request(`/reissueCert/dispatch/${rest[0]}?currentStage=${rest[1]}`, "post");
+    }
+}
+
+export function systemAPI(params, ...rest) {
+    switch (params) {
+        case 'auditLogList':
+            return request(`/auditLog/list?${rest[0]}`, "get");
     }
 }
 

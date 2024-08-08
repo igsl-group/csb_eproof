@@ -39,6 +39,8 @@ import {useModal} from "../../context/modal-provider";
 import {
   toQueryString
 } from "@/utils/util";
+import {useAuth} from "../../context/auth-provider";
+import PermissionControl from "../../components/PermissionControl";
 
 const RoleList = () =>  {
 
@@ -50,6 +52,7 @@ const RoleList = () =>  {
   const [recordId, setRecordId] = useState('');
   const [type, setType] = useState('');
   const [filterCondition, setFilterCondition] = useState(null);
+  const auth = useAuth();
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -68,7 +71,12 @@ const RoleList = () =>  {
   });
 
   const onDeleteClickCallback = useCallback((id) => {
-    runUserRoleAPI('roleRemove', id);
+    modalApi.confirm({
+      title:'Are you sure to remove role?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runUserRoleAPI('roleRemove', id)
+    });
     // runUserRoleAPI('userGet', recordId)
 
   }, []);
@@ -107,45 +115,54 @@ const RoleList = () =>  {
     },
   ], []);
 
-  const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 100,
-      render: (row) => (
-        <Space>
-          <Button size={'small'} title={'Edit'} icon={<EditOutlined />} onClick={() => onEditClickCallback(row.id)} />
-          <Button size={'small'} title={'Remove'} icon={<DeleteOutlined />} onClick={() => onDeleteClickCallback(row.id)}/>
-        </Space>
-      )
-    },
-    {
-      title: `Name`,
-      key: "name",
-      dataIndex: "name",
-      width: 250,
-      sorter: true,
-    },
-    {
-      title: `Description`,
-      key: "description",
-      dataIndex: "description",
-      width: 250,
-      sorter: true,
-    },
-    {
-      title: `Permission`,
-      key: "permission",
-      sorter: false,
-      render: (row) => (
-        <Space size={[0, 8]} wrap>
-          {
-            row.permissions?.map((values) => <Tag>{values.description}</Tag>)
-          }
-        </Space>
-      )
-    },
-  ], []);
+  const columns = useMemo(() => {
+    const tmpColumns = [];
+    if (auth.permissions.includes('Role_Maintenance')) {
+      tmpColumns.push({
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (row) => (
+          <Space>
+            <Button size={'small'} title={'Edit'} icon={<EditOutlined />} onClick={() => onEditClickCallback(row.id)} />
+            <Button size={'small'} title={'Remove'} icon={<DeleteOutlined />} onClick={() => onDeleteClickCallback(row.id)}/>
+          </Space>
+        )
+      });
+    }
+
+    tmpColumns.push(
+
+      {
+        title: `Name`,
+        key: "name",
+        dataIndex: "name",
+        width: 250,
+        sorter: true,
+      },
+      {
+        title: `Description`,
+        key: "description",
+        dataIndex: "description",
+        width: 250,
+        sorter: true,
+      },
+      {
+        title: `Permission`,
+        key: "permission",
+        sorter: false,
+        render: (row) => (
+          <Space size={[0, 8]} wrap>
+            {
+              row.permissions?.map((values) => <Tag>{values.description}</Tag>)
+            }
+          </Space>
+        )
+      }
+    )
+
+    return tmpColumns;
+  }, [auth.permissions]);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -225,13 +242,15 @@ const RoleList = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['role-list']}>
+    <PermissionControl className={styles['role-list']} permissionRequired={'Role_Maintenance'}>
       <Typography.Title level={3}>Role</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <Button type="primary" onClick={() => onCreateClickCallback()}>Create</Button>
+          <PermissionControl permissionRequired={'User_Maintenance'}>
+            <Button type="primary" onClick={() => onCreateClickCallback()}>Create</Button>
+          </PermissionControl>
         </Col>
         <Col>
           <Pagination
@@ -281,7 +300,7 @@ const RoleList = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

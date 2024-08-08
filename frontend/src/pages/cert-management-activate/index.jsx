@@ -279,7 +279,7 @@ const CertificateManagementValid = () =>  {
 
     },
     onError: (error) => {
-      console.log(error.data)
+      //console.log(error.data)
       const message = error.data?.properties?.message || error.data?.detail || '';
       messageApi.error(message);
     },
@@ -324,11 +324,16 @@ const CertificateManagementValid = () =>  {
   );
 
   const getCertList = useCallback(async (pagination = {}, filterCondition) => {
+    console.log('@@@', pagination)
     return runExamProfileAPI('certList', 'VALID', filterCondition, toQueryString(pagination));
   }, []);
 
+  const getAllCert = useCallback(async() => {
+    await getCertList(pagination, filterCondition)
+  }, [pagination, filterCondition])
+
   useEffect(() => {
-    getCertList();
+    getAllCert();
   }, []);
 
   const resetPagination = useCallback(() => {

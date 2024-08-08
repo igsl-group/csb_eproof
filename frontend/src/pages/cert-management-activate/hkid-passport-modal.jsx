@@ -16,7 +16,7 @@ import {
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 
-const PersonalParticularsModal = (props) =>  {
+const HkidPassportModal = (props) =>  {
 
   const modalApi = useModal();
   const messageApi = useMessage();
@@ -24,9 +24,12 @@ const PersonalParticularsModal = (props) =>  {
   const [form] = Form.useForm();
   const hkid = searchParams.get("hkid") || '';
   const passport = searchParams.get("passport") || '';
+  const record = props.record;
   const open = props.open;
   const onCloseCallback = props.onCloseCallback;
   const onFinishCallback = props.onFinishCallback;
+
+  console.log(record);
 
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
@@ -54,6 +57,7 @@ const PersonalParticularsModal = (props) =>  {
 
     if (values) {
       delete values.currentName;
+      delete values.examDate;
       runExamProfileAPI('certBatchUpdatePersonalParticular', values)
         .then(() => onFinish());
 
@@ -65,19 +69,6 @@ const PersonalParticularsModal = (props) =>  {
     manual: true,
     onSuccess: async (response, params) => {
       switch (params[0]) {
-        case 'certLatestCandidateInfo':
-          const data = response.data || {};
-          const content = data.content || [];
-          if (content.length > 0) {
-            form.setFieldsValue({
-              currentName: content[0].name,
-              currentHkid: content[0].hkid,
-              newHkid: content[0].hkid,
-              currentPassport: content[0].passportNo,
-              newPassport: content[0].passportNo,
-            })
-          }
-          break;
         default:
           break;
       }
@@ -92,17 +83,14 @@ const PersonalParticularsModal = (props) =>  {
 
   useEffect(() => {
     if (open) {
-      runExamProfileAPI('certLatestCandidateInfo', {
-        hkid: hkid,
-        passportNo: hkid ? '': passport,
-      }, toQueryString({
-        page: 1,
-        pageSize: 1,
-        sortBy: 'id',
-        orderBy: 'descend',
-      }, {}));
+      form.setFieldsValue({
+        currentName: record.name,
+        examDate: record.examDate,
+        currentHkid: record.hkid,
+        currentPassport: record.passportNo,
+      })
     }
-  }, [open, hkid, passport]);
+  }, [open, record]);
 
   return (
     <Modal
@@ -128,22 +116,26 @@ const PersonalParticularsModal = (props) =>  {
       >
         <Row gutter={24} justify={'center'}>
           <Col span={24} md={12}>
+            <Text name={'examDate'} label={'Exam Date'} size={100} disabled/>
+          </Col>
+          <Col span={24} md={12}>
             <Text name={'currentName'} label={'Last Candidate Name'} size={100} disabled/>
+            <Text name={'newName'} label={'New Candidate Name'} size={100} disabled hidden/>
+          </Col>
+          {/*<Col span={24} md={12}>*/}
+
+          {/*</Col>*/}
+          <Col span={24} md={12}>
+            <Text name={'currentHkid'} label={'Current HKID'} size={100} disabled />
           </Col>
           <Col span={24} md={12}>
-            <Text name={'newName'} label={'New Candidate Name'} size={100}/>
+            <Text name={'newHkid'} label={'New HKID'} size={100}/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'currentHkid'} label={'Current HKID'} size={100} disabled hidden/>
+            <Text name={'currentPassport'} label={'Current Passport'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'newHkid'} label={'New HKID'} size={100} disabled hidden/>
-          </Col>
-          <Col span={24} md={12}>
-            <Text name={'currentPassport'} label={'Current Passport'} size={100} disabled hidden/>
-          </Col>
-          <Col span={24} md={12}>
-            <Text name={'newPassport'} label={'New Passport'} size={100} disabled hidden/>
+            <Text name={'newPassport'} label={'New Passport'} size={100}/>
           </Col>
           <Col span={24}>
             <Textarea name={'remark'} label={'Remark'} size={100}/>
@@ -154,4 +146,4 @@ const PersonalParticularsModal = (props) =>  {
   )
 }
 
-export default PersonalParticularsModal;
+export default HkidPassportModal;

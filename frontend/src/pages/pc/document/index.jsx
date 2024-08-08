@@ -733,8 +733,6 @@ export default function Document(props) {
     }
   ], [type]);
 
-  console.log('@@@@@@@@@documentsId', documentsId)
-
   return (
     <div className={styles['document']}>
       {contextHolder}

@@ -1,4 +1,4 @@
-import {useRoutes, Navigate, useNavigate} from 'react-router-dom';
+import {useRoutes, Navigate, useNavigate, useLocation} from 'react-router-dom';
 import ExampleProfileList from '@/pages/exam-profile-list';
 import ExampleProfile from '@/pages/exam-profile';
 import CertificateManagementValid from '@/pages/cert-management-activate';
@@ -29,6 +29,7 @@ import Profile from '@/pages/pc/profile';
 // import Document from '@/pages/pc/document';
 // import LicenceTypes from '@/pages/pc/licence-types';
 import Unauthorized from '@/pages/pc/unauthorized';
+import Logout from '@/pages/pc/logout';
 import PublicLayout from '@/pages/pc/layout';
 // import Login from '@/pages/pc/login';
 import {
@@ -79,7 +80,9 @@ const routeList = [
         element: <ExampleProfileList />,
         ignore: false,
         show: true,
-        role: [],
+        permission: [
+          'Examination_Profile_Maintenance',
+        ],
       },
       {
         id: 2,
@@ -90,7 +93,9 @@ const routeList = [
         element: <ExampleProfile />,
         ignore: true,
         show: true,
-        role: [],
+        permission: [
+          'Examination_Profile_Maintenance',
+        ],
       },
       {
         id: 3,
@@ -112,7 +117,7 @@ const routeList = [
         element: <HistoricalResultList />,
         ignore: false,
         show: true,
-        role: [],
+        permission: ['Historical_Result_Maintenance'],
       },
       {
         id: 5,
@@ -123,7 +128,7 @@ const routeList = [
         element: <StatisticalReport />,
         ignore: false,
         show: true,
-        role: [],
+        permission: ['Statistical_Reports_Maintenance'],
       },
       {
         id: 6,
@@ -131,6 +136,7 @@ const routeList = [
         name: (<span style={{color: 'rgb(104, 111, 125)'}}>Certificate Management</span>),
         path: '/CertificateManagement',
         icon: <FileSearchOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        permission: ['Certificate_Maintenance'],
         children: [
           {
             id: 61,
@@ -140,7 +146,7 @@ const routeList = [
             icon: <FileProtectOutlined />,
             element: <CertificateManagementValid />,
             show: true,
-            role: [],
+            permission: ['Certificate_Maintenance'],
           },
           {
             id: 62,
@@ -150,7 +156,7 @@ const routeList = [
             element: <CertificateManagementInvalid />,
             icon: <FileExclamationOutlined />,
             show: true,
-            role: [],
+            permission: ['Certificate_Maintenance'],
           },
         ],
         ignore: false,
@@ -163,6 +169,15 @@ const routeList = [
         name: (<span style={{color: 'rgb(104, 111, 125)'}}>Certificate Issuance</span>),
         path: '/Workflow',
         icon: <FileDoneOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        permission: [
+          'CERT_SEARCH_BY_CAND',
+          'CERT_SEARCH_GENERATE',
+          'CERT_SEARCH_IMPORT',
+          'CERT_SEARCH_INVALID',
+          'CERT_SEARCH_NOTIFY',
+          'CERT_SEARCH_SIGNANDISSUE',
+          'CERT_SEARCH_VALID',
+        ],
         children: [
           {
             id: 71,
@@ -172,7 +187,9 @@ const routeList = [
             icon: <ImportOutlined />,
             element: <ImportWorkflow />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_IMPORT',
+            ],
           },
           {
             id: 72,
@@ -182,7 +199,9 @@ const routeList = [
             icon: <InteractionOutlined />,
             element: <GenerateWorkflow />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_GENERATE',
+            ],
           },
           {
             id: 73,
@@ -193,7 +212,9 @@ const routeList = [
             icon: <SignatureOutlined />,
             element: <SignAndIssueWorkflow />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_SIGNANDISSUE',
+            ],
           },
           {
             id: 74,
@@ -203,7 +224,9 @@ const routeList = [
             icon: <SendOutlined />,
             element: <NotifyWorkflow />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_NOTIFY',
+            ],
           },
         ],
         ignore: false,
@@ -217,6 +240,15 @@ const routeList = [
         name: (<span style={{color: 'rgb(104, 111, 125)'}}>Certificate Reissuance</span>),
         path: '/WorkflowRenew',
         icon: <FileSyncOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        permission: [
+          'CERT_SEARCH_BY_CAND',
+          'CERT_SEARCH_GENERATE',
+          'CERT_SEARCH_IMPORT',
+          'CERT_SEARCH_INVALID',
+          'CERT_SEARCH_NOTIFY',
+          'CERT_SEARCH_SIGNANDISSUE',
+          'CERT_SEARCH_VALID',
+        ],
         children: [
           {
             id: 81,
@@ -226,7 +258,9 @@ const routeList = [
             icon: <InteractionOutlined />,
             element: <GenerateWorkflowRenew />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_GENERATE',
+            ],
           },
           {
             id: 82,
@@ -236,7 +270,9 @@ const routeList = [
             icon: <SignatureOutlined />,
             element: <SignAndIssueWorkflowRenew />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_SIGNANDISSUE',
+            ],
           },
           {
             id: 83,
@@ -246,7 +282,9 @@ const routeList = [
             icon: <SendOutlined />,
             element: <NotifyWorkflowRenew />,
             show: true,
-            role: [],
+            permission: [
+              'CERT_SEARCH_NOTIFY',
+            ],
           },
         ],
         ignore: false,
@@ -326,6 +364,7 @@ const routeList = [
         name: (<span style={{color: 'rgb(104, 111, 125)'}}>Template Management</span>),
         path: '/Template',
         icon: <GroupOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        permission: ['Template_Maintenance'],
         children: [
           {
             id: 111,
@@ -336,7 +375,7 @@ const routeList = [
             element: <EmailTemplateList />,
             ignore: false,
             show: true,
-            role: [],
+            permission: ['Template_Maintenance'],
           },
           {
             id: 112,
@@ -347,7 +386,7 @@ const routeList = [
             element: <CertTemplateList />,
             ignore: false,
             show: true,
-            role: [],
+            permission: ['Template_Maintenance'],
           },
         ],
         ignore: false,
@@ -360,6 +399,7 @@ const routeList = [
         name: (<span style={{color: 'rgb(104, 111, 125)'}}>User Management</span>),
         path: '/UserManagement',
         icon: <TeamOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        permission: ['User_Maintenance', 'Role_Maintenance'],
         children: [
           {
             id: 121,
@@ -370,7 +410,7 @@ const routeList = [
             element: <UserList />,
             ignore: false,
             show: true,
-            role: [],
+            permission: ['User_Maintenance'],
           },
           {
             id: 122,
@@ -381,7 +421,7 @@ const routeList = [
             element: <RoleList />,
             ignore: false,
             show: true,
-            role: [],
+            permission: ['Role_Maintenance'],
           },
         ],
         ignore: false,
@@ -396,6 +436,10 @@ const routeList = [
   //   path: '/',
   //   element: <Login />,
   // },
+  {
+    path: '/Logout',
+    element: <Logout />,
+  },
   {
     path: '/Unauthorized',
     element: <Unauthorized />,
@@ -415,15 +459,19 @@ export const RenderRouter = () => {
   const auth = useAuth();
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
-  // useEffect(() => {
-  //   auth.getProfile()
-  //     .catch((response) => {
-  //       if (process.env.NODE_ENV !== 'development') {
-  //         navigate(`/`);
-  //       }
-  //     })
-  // }, []);
+  useEffect(() => {
+    if (pathname !== "/") {
+      auth.getProfile()
+        .catch((response) => {
+          if (process.env.NODE_ENV !== 'development') {
+            navigate(`/`);
+          }
+        })
+    }
+
+  }, []);
 
   const element = useRoutes(routeList);
   return element;

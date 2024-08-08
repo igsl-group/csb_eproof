@@ -28,6 +28,12 @@ import {
   toQueryString
 } from "@/utils/util";
 import {download} from "../../utils/util";
+import { downloadUrl } from "../../config/config";
+import { MentionsInput, Mention } from 'react-mentions'
+import mentionsInputStyle from './mentionsInputStyle';
+import mentionStyle from './mentionStyle';
+import Richtext from "../../components/Richtext";
+import HkidPassportModal from "./hkid-passport-modal";
 
 const Candidate = () =>  {
 
@@ -38,12 +44,36 @@ const Candidate = () =>  {
   const [open, setOpen] = useState(false);
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [openAppealModal, setOpenAppealModal] = useState(false);
+  const [openHkidPassportModal, setOpenHkidPassportModal] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const hkid = searchParams.get("hkid");
   const passport = searchParams.get("passport");
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
   const [filterCondition, setFilterCondition] = useState(null);
   const [validCertCandidateData, setValidCandidateCertData] = useState([]);
+  const [record, setRecord] = useState([]);
+  const [textAreaVal, setTextAreaVal] = React.useState("");
+  const [formState, setFormState] = useState({
+    username: '',
+    comment: '',
+  });
+  const [comments, setComments] = useState([]);
+
+  const users = [
+    {
+      id: 'isaac',
+      display: 'Isaac Newton',
+    },
+    {
+      id: 'sam',
+      display: 'Sam Victor',
+    },
+    {
+      id: 'emma',
+      display: 'emmanuel@nobody.com',
+    },
+  ];
+
 
   const email = Form.useWatch('email', form);
   const emailError = useMemo(() => !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email), [email]);
@@ -122,6 +152,26 @@ const Candidate = () =>  {
     });
   },[]);
 
+  const onCopyUrlClicked = useCallback((row) => {
+    if (row.certEproof?.token) {
+      const encodeurl = encodeURI(row.certEproof?.token);
+      navigator.clipboard.writeText(`${downloadUrl}${encodeurl}`);
+      messageApi.success('URL is copied');
+    } else {
+      messageApi.error('Fail to copy URL');
+    }
+  }, []);
+
+  const onAppealClicked = useCallback((row) => {
+    setOpenAppealModal(true);
+    setRecord(row);
+  }, []);
+
+  const onHkidPassportClicked = useCallback((row) => {
+    setOpenHkidPassportModal(true);
+    setRecord(row);
+  }, []);
+
   const columns = useMemo(() => [
     {
       title: 'Action',
@@ -129,9 +179,10 @@ const Candidate = () =>  {
       width: 160,
       render: (row) => (
         <Row gutter={[8, 8]}>
-          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => setOpenAppealModal(true)}>Update Result</Button></Col>
-          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => messageApi.success('URL is copied')}>Copy URL</Button></Col>
-          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => {}}>Resend Email</Button></Col>
+          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col>
+          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col>
+          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col>
+          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => {}}>Resend Email</Button></Col>
         </Row>
       )
     },
@@ -306,11 +357,13 @@ const Candidate = () =>  {
   const onFinishCallback = useCallback(() => {
     setOpen(false);
     setOpenAppealModal(false);
+    setOpenHkidPassportModal(false);
   },[]);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
     setOpenAppealModal(false);
+    setOpenHkidPassportModal(false);
   },[]);
 
   const getCertList = useCallback(async (pagination = {}, filter = {}) => {
@@ -398,7 +451,7 @@ const Candidate = () =>  {
           <Col span={8}>
             <Row gutter={[8, 8]} justify={'end'}>
               <Col>
-                <Button type={'primary'} onClick={onClickUpdatePersonalParticulars}>Update Personal Particulars</Button>
+                <Button type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update Candidate Name</Button>
               </Col>
             </Row>
           </Col>
@@ -464,13 +517,21 @@ const Candidate = () =>  {
         open={open}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
-        title={'Update Personal Particulars'}
+        title={'Bulk Update Candidate Name'}
       />
       <AppealModal
         open={openAppealModal}
+        record={record}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
         title={'Update Result'}
+      />
+      <HkidPassportModal
+        open={openHkidPassportModal}
+        record={record}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+        title={'Update HKID/Passport'}
       />
       <RevokeCertModal
           open={revokeOpen}

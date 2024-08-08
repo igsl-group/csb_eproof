@@ -19,7 +19,9 @@ const ImportModal = (props) =>  {
   const recordId = props.recordId;
   const onCloseCallback = props.onCloseCallback;
   const onFinishCallback = props.onFinishCallback;
+  const record = props.record;
   const [dataMsg, setDataMsg] = useState([]);
+  const [result, setResult] = useState([]);
 
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
@@ -28,10 +30,10 @@ const ImportModal = (props) =>  {
     }
   }, [onCloseCallback]);
 
-  const onFinish = useCallback(() => {
+  const onFinish = useCallback((result) => {
     if (typeof onFinishCallback === "function") {
       form.resetFields();
-      onFinishCallback();
+      onFinishCallback(result);
     }
   }, [onFinishCallback]);
 
@@ -43,19 +45,27 @@ const ImportModal = (props) =>  {
             name: 'Exam Date',
             inputName: 'Exam Date',
             required: true,
-            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "hkid" is not allowed to be empty`,
+            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "examDate" is not allowed to be empty`,
+            validate: (value) => value === record?.examProfile?.examDate,
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "examDate" is not correct compared with original record`,
+
           },
           {
             name: 'Name in English ',
             inputName: 'Name in English ',
             required: true,
             requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "name" is not allowed to be empty`,
+            validate: (value) => value === record?.name,
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "name" is not correct compared with original record`,
+
           },
           {
             name: 'HKID',
             inputName: 'HKID',
             unique: false,
             optional: true,
+            validate: (value) => value === record?.hkid,
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "hkid" is not correct compared with original record`,
           },
           {
             name: 'Passport No.',
@@ -105,65 +115,39 @@ const ImportModal = (props) =>  {
         ]
       })
         .then(csvData => {
-          setDataMsg(csvData.inValidData)
+          setDataMsg(csvData.inValidData);
+          setResult(csvData.data[0])
+          if (csvData.inValidData.length === 0 && csvData.data.length > 1) {
+            setDataMsg([
+              {
+                message: 'More than 1 appeal record is not allow'
+              }
+            ]);
+          }
+
         })
         .catch(err => console.error(err))
     }
-  }, [file, open]);
+  }, [file, open, record]);
 
-  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
-    manual: true,
-    onSuccess: (response, params) => {
-      switch (params[0]) {
-        case 'certIssuanceImport':
-        {
-          messageApi.success('Import successfully.');
-          break;
-        }
-        default:
-          break;
-      }
-
-    },
-    onError: (error) => {
-      const message = error.data?.properties?.message || '';
-      dataMsg.push({
-        message
-      })
-
-    },
-    onFinally: (params, result, error) => {
-    },
-  });
   //console.log(dataMsg)
   const onSave = useCallback(async () => {
-    // const values = await form.validateFields()
-    //   .then((values) => ({
-    //     ...values,
-    //   }))
-    //   .catch((e) => {
-    //     console.error(e);
-    //     return false;
-    //   })
-    const values = {
-      file,
-    }
-
-    if (values) {
-      runExamProfileAPI('certIssuanceImport', recordId, values)
-        .then(() => onFinish());
-    }
-  }, [recordId, file]);
+    onFinish(result);
+    console.log(result)
+  }, [result]);
 
   return (
     <Modal
       width={800}
-      title={'Import CSV'}
+      title={'Import Appeal CSV'}
       okText={'Import'}
       style={{ top: 20 }}
       closable={false}
       maskClosable={false}
       onCancel={onClose}
+      okButtonProps={{
+        disabled: dataMsg.length > 0,
+      }}
       onOk={onSave}
       {...props}
     >
@@ -175,6 +159,7 @@ const ImportModal = (props) =>  {
       {
         file && dataMsg.length === 0 && <Alert message={'No error find in CSV'} type="success" showIcon />
       }
+
     </Modal>
   )
 }

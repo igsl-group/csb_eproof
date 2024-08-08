@@ -5,30 +5,45 @@ import { API_ERROR_MESSAGE, LOGIN_ERROR_MESSAGE } from "../utils/util";
 import { showLoading, hideLoading } from "@/components/Loading";
 
 let baseURL = `/api/v1`;
-let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
+// let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MjIyMjcyMzF9.se9fvaAORkYtJQceKx0EzNcnhw31oXHKsZb3XaCnLW0";
+// let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjQsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MjI1OTI4MjN9.YsSD5V9IC137AWTbTG_QiiqorR21aWbDp9uSH3FnT3w";
 const headers = {};
-window.token = token;
+
 if (process.env.NODE_ENV === 'development') {
+  // baseURL = 'http://192.168.26.130:8080/api/v1';
+  // baseURL = 'http://192.168.1.170:8080/api/v1';
   // baseURL = 'http://192.168.2.227:8081/api/v1';
-  // baseURL = 'http://192.168.26.130:8080/api/v1';
   baseURL = 'http://localhost:8080/api/v1';
-  // baseURL = 'http://192.168.26.130:8080/api/v1';
-  // baseURL = 'http://192.168.26.153:8080/api/v1';
-  headers.Authorization = `Bearer ${token}`;
+  // headers.Authorization = `Bearer ${token}`;
 }
 
 const signRequest = axios.create({
-  baseURL: 'http://192.168.2.177:8081',
+  baseURL: 'http://localhost:9999',
   timeout: 1000 * 60 * 5,
   headers: {
-    "Content-Type": "multipart/form-data",
+    Accept: 'application/json, text/plain, */*',
+    "Content-Type": "application/json;charset=UTF-8",
     ...headers,
   }
 });
 
+signRequest.interceptors.request.use(
+  config => {
+    // do something before request is sent
+    // if (process.env.NODE_ENV === 'development') {
+    config.headers['Authorization'] = `Bearer ${localStorage.getItem('eproof-token')}`;
+    // }
+    return config;
+  },
+  error => {
+    // do something with request error
+    return Promise.reject(error.response);
+  }
+);
+
 const normalRequest = axios.create({
   baseURL,
-  timeout: 5000000,
+  timeout: 1000 * 60 * 5,
   withCredentials: true,
   headers: {
     Accept: 'application/json, text/plain, */*',
@@ -40,9 +55,8 @@ const normalRequest = axios.create({
 normalRequest.interceptors.request.use(
   config => {
     // do something before request is sent
-    if (process.env.NODE_ENV === 'development') {
-      headers.Authorization = `Bearer ${localStorage.getItem('eproof-token')}`;
-    }
+    config.headers['Authorization'] = `Bearer ${localStorage.getItem('eproof-token')}`;
+
     return config;
   },
   error => {
@@ -83,9 +97,9 @@ const fileRequest = axios.create({
 fileRequest.interceptors.request.use(
   config => {
     // do something before request is sent
-    // if (getToken() != null) {
-    //   config.headers['Authorization'] = getToken()
-    // }
+    //if (process.env.NODE_ENV === 'development') {
+      config.headers['Authorization'] = `Bearer ${localStorage.getItem('eproof-token')}`;
+    //}
     return config;
   },
   error => {
@@ -118,9 +132,9 @@ const downloadRequest = axios.create({
 downloadRequest.interceptors.request.use(
   config => {
     // do something before request is sent
-    // if (getToken() != null) {
-    //   config.headers['Authorization'] = getToken()
-    // }
+    //if (process.env.NODE_ENV === 'development') {
+      config.headers['Authorization'] = `Bearer ${localStorage.getItem('eproof-token')}`;
+    //}
     return config;
   },
   error => {
@@ -144,7 +158,7 @@ downloadRequest.interceptors.response.use(
   }
 );
 
-export default function sendRes (url, method, data) {
+export default function sendRes (url, method, data, loading = true) {
   switch (method) {
     case 'authenticate':
       showLoading();
@@ -209,49 +223,12 @@ export default function sendRes (url, method, data) {
           .catch(err => reject(err))
           .finally(() => hideLoading());
       });
-    case 'sign':
-      showLoading();
-      return new Promise((resolve, reject) => {
-        signRequest.request({
-          url,
-          method: "post",
-          responseType: "blob",
-          data: data || {},
-        })
-          .then(res => resolve(res))
-          .catch(err => reject(err))
-          .finally(() => hideLoading());
-      });
-    case 'sign-string':
-      showLoading();
-      return new Promise((resolve, reject) => {
-        signRequest.request({
-          url,
-          method: "post",
-          data: data || {},
-        })
-          .then(res => resolve(res.data))
-          .catch(err => reject(err))
-          .finally(() => hideLoading());
-      });
-    case 'get-signing-cert':
-      showLoading();
-      return new Promise((resolve, reject) => {
-        signRequest.request({
-          url,
-          method: "get",
-          data: data || {},
-        })
-          .then(res => resolve(res.data))
-          .catch(err => reject(err))
-          .finally(() => hideLoading());
-      });
     case 'signing-cert':
       showLoading();
       return new Promise((resolve, reject) => {
         signRequest.request({
           url,
-          method: "get",
+          method: "post",
           data: data || {},
         })
           .then(res => resolve(res.data))

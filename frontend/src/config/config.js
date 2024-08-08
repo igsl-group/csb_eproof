@@ -17,6 +17,8 @@ const sectionOptions = [
   }
 ];
 
+const downloadUrl = "https://eproof.gov.hk/web/ec/d?t=";
 export {
-  sectionOptions
+  sectionOptions,
+  downloadUrl
 }

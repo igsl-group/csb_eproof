@@ -29,7 +29,7 @@ import {
   FileDoneOutlined,
   ScheduleOutlined,
   AreaChartOutlined,
-  DownloadOutlined, SearchOutlined, CloseOutlined,
+  DownloadOutlined, SearchOutlined, CloseOutlined, MinusCircleOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -45,6 +45,7 @@ import {download} from "../../utils/util";
 import {
   toQueryString
 } from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
 
 const Issue = () =>  {
 
@@ -74,7 +75,7 @@ const Issue = () =>  {
     setOpen(false);
     setImportModal(false);
     getImportListAndSummary();
-  }, []);
+  }, [serialNoValue]);
 
   const columns = useMemo(() => [
     {
@@ -84,7 +85,7 @@ const Issue = () =>  {
       render: (row) => {
         return (
           <div>
-            { row.onHold ? <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button> : null}
+            { row.onHold ? <Tag color="default">On-hold</Tag> : null}
             { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
@@ -146,8 +147,8 @@ const Issue = () =>  {
       title: 'Status',
       key: 'certStatus',
       dataIndex: 'certStatus',
-      width: 100,
-      render: (row) => <Tag>{row.code}</Tag>,
+      width: 120,
+      render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
   ], []);
@@ -221,7 +222,12 @@ const Issue = () =>  {
       title:'Are you sure to sign and issue certificate(s)?',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceSign', serialNoValue),
+      onOk: () => runExamProfileAPI('certIssuanceSign', serialNoValue, {
+        reason: "string",
+        location: "string",
+        qr: "string",
+        keyword: "string"
+      }),
     });
 
   },[serialNoValue]);
@@ -318,9 +324,23 @@ const Issue = () =>  {
       }
 
     },
-    onError: (error) => {
+    onError: (error, params) => {
       const message = error.data?.properties?.message || '';
-      messageApi.error(message);
+
+      switch (params[0]) {
+        case 'certIssuanceSign':
+        {
+          if (message) {
+            messageApi.error(message);
+          } else {
+            messageApi.error('Cannot detect E-Proof Local Service, please ensure it is running or contact system administrator for assistance.');
+          }
+          break;
+        }
+        default:
+          messageApi.error(message);
+          break;
+      }
     },
     onFinally: (params, result, error) => {
     },
@@ -342,7 +362,6 @@ const Issue = () =>  {
     return runExamProfileAPI('certList', 'SIGN_ISSUE', {
       ...filterCondition,
       examProfileSerialNo: serialNoValue,
-
     }, toQueryString(pagination));
   }, []);
 
@@ -404,7 +423,7 @@ const Issue = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['exam-profile']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_SIGNANDISSUE']}>
       <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -471,7 +490,7 @@ const Issue = () =>  {
                   <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
+                  <Text name={'canEmail'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
@@ -585,11 +604,12 @@ const Issue = () =>  {
       </Card>
       <OnHoldModal
         open={open}
-        recordId={serialNoValue}
+        record={record}
+        isOnHold={isOnHold}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

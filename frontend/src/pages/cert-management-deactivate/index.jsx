@@ -10,7 +10,8 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   CopyOutlined,
-  SendOutlined, CloseOutlined
+  SendOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -20,11 +21,13 @@ import Email from "@/components/Email";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
-import EmailModal from "./modal";
+import ResendEmailModal from "./modal";
+import RevokeEmailModal from "./modal";
 import { examProfileAPI } from '@/api/request';
 import {
   toQueryString
 } from "@/utils/util";
+import {dataMapper} from "../pc/document-list/data-mapper";
 
 const CertificateManagementInvalid = () =>  {
 
@@ -32,8 +35,9 @@ const CertificateManagementInvalid = () =>  {
   const messageApi = useMessage();
   const navigate = useNavigate();
   const [searchForm] = Form.useForm();
-  const [open, setOpen] = useState(false);
-  const [invalidCertData, setInvalidCertData] = useState([]);
+  const [resendopen, setResendOpen] = useState(false);
+  const [revokeOpen, setRevokeOpen] = useState(false);
+  const [validCertData, setValidCertData] = useState([]);
   const [filterCondition, setFilterCondition] = useState(null);
   const {
     serialNo,
@@ -43,7 +47,6 @@ const CertificateManagementInvalid = () =>  {
   const [data, setData] = useState([
     {
       serialNo: 'N000000001',
-      revokeDate: '2024-01-01',
       candidateNo: 'C000001',
       hkid: 'T7700002',
       name: 'Chan Tai Man',
@@ -56,7 +59,6 @@ const CertificateManagementInvalid = () =>  {
       at: 'Pass',
       blnst: 'Pass',
       status: 'Success',
-      remark: 'DQ',
     }
   ]);
 
@@ -75,20 +77,6 @@ const CertificateManagementInvalid = () =>  {
     sortBy: defaultPaginationInfo.sortBy,
     orderBy: defaultPaginationInfo.orderBy,
   });
-
-  const rowSelection = useCallback({
-    onChange: (selectedRowKeys, selectedRows) => {
-      setSelectedRowKeys(selectedRowKeys);
-    },
-  }, []);
-
-  const onClickDownloadSelected = useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to download selected PDF?',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -114,15 +102,14 @@ const CertificateManagementInvalid = () =>  {
     getCertList(tempPagination, filterCondition);
   }, [pagination, filterCondition]);
 
-  //
-  // useEffect(() => {
-  //   form.setFieldsValue({
-  //     serialNo: 'N000000001',
-  //     examDate: dayjs('2024-01-11'),
-  //     plannedAnnouncedDate: dayjs('2024-01-11'),
-  //     location: 'Hong Kong',
-  //   })
-  // }, []);
+  useEffect(() => {
+    // searchForm.setFieldsValue({
+    //   serialNo: 'N000000001',
+    //   examDate: dayjs('2024-01-11'),
+    //   plannedAnnouncedDate: dayjs('2024-01-11'),
+    //   location: 'Hong Kong',
+    // })
+  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -138,31 +125,63 @@ const CertificateManagementInvalid = () =>  {
 
   const onClickDownload = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to download PDF?',
+      title:'Are you sure to download certificate?',
       width: 500,
       okText: 'Confirm',
+
     });
   },[]);
 
   const onClickRevoke= useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to revoke PDF?',
+      title:'Are you sure to revoke certificate?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => {
+        setRevokeOpen(true);
+      }
+    });
+  },[]);
+
+  const onClickRevokeSelected= useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to revoke certificate?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => {
+        setRevokeOpen(true);
+      }
+    });
+  },[]);
+
+  const rowSelection = useCallback({
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  }, []);
+
+  const onClickDownloadSelected = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to download selected PDF?',
       width: 500,
       okText: 'Confirm',
     });
   },[]);
 
   const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 120,
-      render: (row) => (
-        <Space>
-          <Button size={'small'} title={'Download'} icon={<DownloadOutlined />} onClick={onClickDownload}/>
-        </Space>
-      )
-    },
+    // {
+    //   title: 'Action',
+    //   key: 'action',
+    //   width: 160,
+    //   render: (row) => (
+    //     <Space>
+    //       <Button size={'small'} title={'Download'} icon={<DownloadOutlined />} onClick={onClickDownload}/>
+    //       <Button size={'small'} title={'Revoke Cert.'} icon={<DeleteOutlined />} onClick={onClickRevoke}/>
+    //       <Button size={'small'} title={'Copy URL'} icon={<CopyOutlined />} onClick={() => messageApi.success('URL is copied')}/>
+    //       <Button size={'small'} title={'Resend Email'} icon={<SendOutlined />} onClick={() => setResendOpen(true)}/>
+    //     </Space>
+    //   )
+    // },
     {
       title: 'Revoke Date',
       key: 'revokeDate',
@@ -171,17 +190,33 @@ const CertificateManagementInvalid = () =>  {
       sorter: true,
     },
     {
+      title: 'Remark',
+      key: 'remark',
+      dataIndex: 'remark',
+      width: 200,
+      sorter: true,
+    },
+    {
+      title: 'Exam Date',
+      key: 'examDate',
+      dataIndex: 'examDate',
+      width: 140,
+      sorter: true,
+    },
+    {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
       width: 100,
+      // render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?hkid=${row.hkid}`}>{row.hkid}</Link>,
       sorter: true,
     },
     {
       title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
+      // render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?passport=${row.passportNo}`}>{row.passportNo}</Link>,
       sorter: true,
     },
     {
@@ -199,13 +234,45 @@ const CertificateManagementInvalid = () =>  {
       sorter: true,
     },
     {
-      title: 'Remark',
-      key: 'remark',
-      dataIndex: 'remark',
-      width: 200,
+      title: 'Result Letter Date',
+      key: 'actualSignTime',
+      dataIndex: 'actualSignTime',
+      width: 180,
       sorter: true,
     },
+    {
+      title: 'Email Issuance Date',
+      key: 'actualEmailSendTime',
+      dataIndex: 'actualEmailSendTime',
+      width: 180,
+      sorter: true,
+    },
+    {
+      title: 'UE',
+      key: 'ueGrade',
+      dataIndex: 'ueGrade',
+      width: 80,
+    },
+    {
+      title: 'UC',
+      key: 'ucGrade',
+      dataIndex: 'ucGrade',
+      width: 80,
+    },
+    {
+      title: 'AT',
+      key: 'atGrade',
+      dataIndex: 'atGrade',
+      width: 80,
+    },
+    {
+      title: 'BLNST',
+      key: 'blnstGrade',
+      dataIndex: 'blnstGrade',
+      width: 80,
+    },
   ], []);
+
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
@@ -219,7 +286,7 @@ const CertificateManagementInvalid = () =>  {
             ...pagination,
             total: data.totalElements,
           });
-          setInvalidCertData(content);
+          setValidCertData(content);
           break;
         }
         default:
@@ -228,7 +295,7 @@ const CertificateManagementInvalid = () =>  {
 
     },
     onError: (error) => {
-      console.log(error.data)
+      //console.log(error.data)
       const message = error.data?.properties?.message || error.data?.detail || '';
       messageApi.error(message);
     },
@@ -276,8 +343,12 @@ const CertificateManagementInvalid = () =>  {
     return runExamProfileAPI('certList', 'INVALID', filterCondition, toQueryString(pagination));
   }, []);
 
+  const getAllCert = useCallback(async() => {
+    await getCertList(pagination, filterCondition)
+  }, [pagination, filterCondition])
+
   useEffect(() => {
-    getCertList();
+    getAllCert();
   }, []);
 
   const resetPagination = useCallback(() => {
@@ -292,6 +363,7 @@ const CertificateManagementInvalid = () =>  {
     setPagination(tempPagination);
     return tempPagination;
   }, [pagination]);
+
 
   return (
     <div className={styles['exam-profile']}>
@@ -318,29 +390,28 @@ const CertificateManagementInvalid = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <HKID name={'hkid'} label={'HKID'} size={50}/>
+                  <HKID name={'hkid'} label={'HKID'} size={50} />
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'passportNo'} label={'Passport'} size={50}/>
+                  <Text name={'passportNo'} label={'Passport'} size={50} />
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50} />
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
+                  <Email name={'email'} label={'Candidate’s Email'} size={50} />
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
               <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
-                          onClick={() => searchForm.resetFields()}/>
+                  <Button shape="circle" icon={<CloseOutlined />} title={'Clean'} onClick={() => searchForm.resetFields()}/>
                 </Col>
                 <Col>
                   <Button
                     shape="circle"
-                    type={filterCondition ? 'primary' : 'default'}
+                    type={filterCondition ? 'primary': 'default'}
                     icon={<SearchOutlined/>}
                     onClick={onClickSearchButton}
                   />
@@ -352,10 +423,6 @@ const CertificateManagementInvalid = () =>  {
       </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
-        <Col>
-          <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
-            Selected ({selectedRowKeys.length})</Button>
-        </Col>
         <Col>
           <Pagination
             showSizeChanger
@@ -375,18 +442,13 @@ const CertificateManagementInvalid = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          rowKey={'candidateNo'}
-          rowSelection={{
-            type: 'checkbox',
-            ...rowSelection,
-          }}
           onChange={tableOnChange}
           pagination={false}
           scroll={{
             x: '100%',
           }}
           columns={columns}
-          dataSource={invalidCertData}
+          dataSource={validCertData}
         />
         <br/>
         <Row justify={'end'}>
@@ -402,11 +464,19 @@ const CertificateManagementInvalid = () =>  {
         </Row>
         <br/>
       </Card>
-      <EmailModal
-        open={open}
-        onCloseCallback={() => setOpen(false)}
-        onFinishCallback={() => setOpen(false)}
+      <ResendEmailModal
+        open={resendopen}
+        title={'Resend Email'}
+        onCloseCallback={() => setResendOpen(false)}
+        onFinishCallback={() => setResendOpen(false)}
       />
+      <RevokeEmailModal
+        open={revokeOpen}
+        title={'Revoke Email'}
+        onCloseCallback={() => setRevokeOpen(false)}
+        onFinishCallback={() => setRevokeOpen(false)}
+      />
+
     </div>
 
   )

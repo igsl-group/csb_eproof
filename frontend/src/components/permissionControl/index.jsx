@@ -1,11 +1,16 @@
 import React, { useMemo } from 'react';
+import {useAuth} from "../../context/auth-provider";
+import Button from "../Button";
 
-export const PermissionControl = (props) => {
+
+const PermissionControl = (props) => {
   const {
     permissionRequired = '',
     forceHidden = false,
     log,
   } = props;
+
+  const auth = useAuth();
 
   const permissionArr = useMemo(() => {
     if (typeof permissionRequired === 'string' && permissionRequired !== '') {
@@ -16,14 +21,7 @@ export const PermissionControl = (props) => {
     return [];
   }, [permissionRequired]);
 
-  const userHasPermissions = useMemo(() => {
-    try {
-      return JSON.parse(sessionStorage.getItem('permissions'))
-        .flatMap((permission) => permission.code)
-    } catch(e) {
-      return [];
-    }
-  }, []);
+  const userHasPermissions = useMemo(() => auth.permissions, []);
 
   const hasPermission = useMemo(() => {
     let flag = true;
@@ -37,10 +35,8 @@ export const PermissionControl = (props) => {
     return flag;
   }, [permissionArr, userHasPermissions]);
 
-  return (
-    <div>
-      { hasPermission && !forceHidden ? props.children : (<div />)}
-    </div>
-  );
+  return (hasPermission && !forceHidden ? props.children : null);
 }
+
+export default PermissionControl;
 

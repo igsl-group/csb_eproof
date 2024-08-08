@@ -22,7 +22,7 @@ import {
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
-  ProfileOutlined,
+  MinusCircleOutlined,
   SettingOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
@@ -45,6 +45,7 @@ import {download} from "../../utils/util";
 import {
   toQueryString
 } from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
 
 const Generate = () =>  {
 
@@ -73,7 +74,7 @@ const Generate = () =>  {
     setOpen(false);
     setImportModal(false);
     getImportListAndSummary();
-  }, []);
+  }, [serialNoValue]);
 
   const columns = useMemo(() => [
     {
@@ -83,7 +84,7 @@ const Generate = () =>  {
       render: (row) => {
         return (
           <div>
-            { row.onHold ? <Button size={'small'} type={'primary'} danger onClick={() => onResumeClickCallback(row)}>Resume</Button> : null}
+            { row.onHold ? <Tag color="default">On-hold</Tag> : null}
             { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
@@ -145,8 +146,8 @@ const Generate = () =>  {
       title: 'Status',
       key: 'certStatus',
       dataIndex: 'certStatus',
-      width: 100,
-      render: (row) => <Tag>{row.code}</Tag>,
+      width: 120,
+      render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
   ], []);
@@ -336,7 +337,6 @@ const Generate = () =>  {
     return runExamProfileAPI('certList', 'GENERATED', {
       ...filterCondition,
       examProfileSerialNo: serialNoValue,
-      onHold: false
     }, toQueryString(pagination));
   }, []);
 
@@ -397,7 +397,7 @@ const Generate = () =>  {
   }, [pagination]);
 
   return (
-    <div className={styles['exam-profile']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_GENERATE']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -464,7 +464,7 @@ const Generate = () =>  {
                   <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
+                  <Text name={'canEmail'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
@@ -583,7 +583,7 @@ const Generate = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </div>
+    </PermissionControl>
 
   )
 }

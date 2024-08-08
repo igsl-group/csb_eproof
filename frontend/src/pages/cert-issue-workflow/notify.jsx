@@ -45,6 +45,8 @@ import {download} from "../../utils/util";
 import {
   toQueryString
 } from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
+import ScheduleSendEmailModal from "./schedule-send-email-modal";
 
 const Notify = () =>  {
 
@@ -58,12 +60,23 @@ const Notify = () =>  {
   const [serialNoOptions, setSerialNoOptions] = useState([]);
   const [openImportModal, setImportModal] = useState(false);
   const [open, setOpen] = useState(false)
-  const [issueCertData, setIssueCertData] = useState([])
+  const [notifyData, setNotifyData] = useState([])
   const [isOnHold, setIsOnHold] = useState(false)
   const [summary, setSummary] = useState({});
-  const [notifyData, setNotifyData] = useState([]);
+  const [generatedData, setGeneratedData] = useState([]);
   const [record, setRecord] = useState({});
   const [filterCondition, setFilterCondition] = useState(null);
+
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+    setImportModal(false)
+  });
+
+  const onFinishCallback = useCallback(async () => {
+    setOpen(false);
+    setImportModal(false);
+    getImportListAndSummary();
+  }, [serialNoValue]);
 
   const columns = useMemo(() => [
     // {
@@ -134,9 +147,10 @@ const Notify = () =>  {
     {
       title: 'Status',
       key: 'certStatus',
-      dataIndex: 'certStatus',
-      width: 100,
-      render: (row) => <Tag>{row.code}</Tag>,
+      width: 150,
+      render: (row) => {
+        return <Tag>{row?.certStatus?.label}{row?.certStatus?.label === 'Scheduled' ? (<span> on <br/>{row?.gcisBatchEmail?.scheduleDatetime}</span>) : ''}</Tag>
+      },
       sorter: true,
     },
   ], []);
@@ -181,7 +195,6 @@ const Notify = () =>  {
     getCertList(serialNoValue, tempPagination, filterCondition);
   }, [serialNoValue, pagination]);
 
-
   const breadcrumbItems = useMemo(() => [
     {
       title: <HomeOutlined />,
@@ -199,7 +212,7 @@ const Notify = () =>  {
       title:'Are you sure to dispatch to complete stage?',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceDispatch', serialNoValue, 'SIGN_ISSUE')
+      onOk: () => runExamProfileAPI('certIssuanceDispatch', serialNoValue, 'NOTIFY')
     });
   },[]);
 
@@ -217,9 +230,8 @@ const Notify = () =>  {
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certIssuanceBulkDownload', selectedRowKeys.join(','))
-
     });
-  },[]);
+  },[selectedRowKeys]);
 
   const rowSelection = useCallback({
     onChange: (selectedRowKeys, selectedRows) => {
@@ -311,7 +323,6 @@ const Notify = () =>  {
     return runExamProfileAPI('certList', 'NOTIFY', {
       ...filterCondition,
       examProfileSerialNo: serialNoValue,
-      onHold: false
     }, toQueryString(pagination));
   }, []);
 
@@ -371,8 +382,10 @@ const Notify = () =>  {
     return tempPagination;
   }, [pagination]);
 
+  console.log(serialNoValue)
+
   return (
-    <div className={styles['exam-profile']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_NOTIFY']}>
       <Typography.Title level={3}>Notify Candidate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -405,8 +418,7 @@ const Notify = () =>  {
                 <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
-                <Button type="primary" onClick={() => {
-                }}>Email Release</Button>
+                <Button type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>
               </Col>
             </Row>
           </Col>
@@ -440,7 +452,7 @@ const Notify = () =>  {
                   <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={50}/>
+                  <Text name={'canEmail'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
@@ -552,7 +564,14 @@ const Notify = () =>  {
         </Row>
         <br/>
       </Card>
-    </div>
+      <ScheduleSendEmailModal
+        open={open}
+        serialNoValue={serialNoValue}
+        record={record}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+      />
+    </PermissionControl>
 
   )
 }

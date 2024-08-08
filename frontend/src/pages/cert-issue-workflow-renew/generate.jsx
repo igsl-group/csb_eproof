@@ -2,7 +2,23 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Button, Form, Card, Typography, Breadcrumb, Grid, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {
+  Divider,
+  Button,
+  Form,
+  Card,
+  Typography,
+  Breadcrumb,
+  Grid,
+  Space,
+  Tabs,
+  Col,
+  Row,
+  Descriptions,
+  Modal,
+  Pagination,
+  Tag
+} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -13,7 +29,7 @@ import {
   FileDoneOutlined,
   ScheduleOutlined,
   AreaChartOutlined,
-  DownloadOutlined, SearchOutlined,
+  DownloadOutlined, SearchOutlined, CloseOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
@@ -22,70 +38,55 @@ import Email from "@/components/Email";
 import Dropdown from "@/components/Dropdown";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
+import {useMessage} from "../../context/message-provider";
+import {download} from "../../utils/util";
+import { examProfileAPI } from '@/api/request';
+import {
+  toQueryString
+} from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
 
 const Generate = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
-  const [form] = Form.useForm();
-  const {
-    serialNo,
-  } = useParams();
-
+  const messageApi = useMessage();
+  const [searchForm] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
-  const [data, setData] = useState([
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      examDate: '2024-01-01',
-      type: 'Update Info',
-      hkid: 'T7700002',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Pass',
-      blnst: 'Pass',
-      oldHkid: 'T7700002',
-      oldName: 'Wong Tai Man',
-      oldUe: 'L2',
-      oldUc: 'L1',
-      oldAt: 'Pass',
-      oldBlnst: 'Pass',
-      status: 'Success',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      type: 'Update Result',
-      examDate: '2024-01-01',
-      hkid: 'T7700002',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L1',
-      uc: 'L1',
-      at: 'Pass',
-      blnst: 'Pass',
-      oldHkid: 'T7700002',
-      oldName: 'Chan Tai Man',
-      oldUe: 'L2',
-      oldUc: 'L1',
-      oldAt: 'Pass',
-      oldBlnst: 'Fail',
-      status: 'Success',
-    }
-  ]);
+  const [serialNoOptions, setSerialNoOptions] = useState([]);
+  const [openImportModal, setImportModal] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [isOnHold, setIsOnHold] = useState(false)
+  const [summary, setSummary] = useState({});
+  const [generatedData, setGeneratedData] = useState([]);
+  const [record, setRecord] = useState({});
+  const [filterCondition, setFilterCondition] = useState(null);
 
   const columns = useMemo(() => [
     {
       title: 'Action',
       key: 'action',
-      width: 210,
+      width: 150,
       render: (row) => (
-          <Space>
-            <Button size={'small'} type={'primary'} onClick={() => {}}>Remove</Button>
-            <Button size={'small'} type={'primary'} onClick={() => {}}>Generate PDF</Button>
-          </Space>
+          <Row gutter={[8, 8]}>
+            {
+              ['SUCCESS'].includes(row.certStatus.code) ? (
+                <Col span={24}>
+                  <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
+                </Col>
+              ) : null
+            }
+            {
+              ['PENDING', 'FAIL'].includes(row.certStatus.code) ? (
+                <Col span={24}>
+                  <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickGeneratePdfCallback(row)}>Generate PDF</Button>
+                </Col>
+              ) : null
+            }
+            <Col span={24}>
+              <Button size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
+            </Col>
+          </Row>
       )
     },
     {
@@ -96,23 +97,61 @@ const Generate = () =>  {
       sorter: true,
     },
     {
+      title: 'Reason',
+      key: 'remark',
+      dataIndex: 'remark',
+      width: 140,
+      sorter: true,
+    },
+    {
       title: 'Exam Date',
       key: 'examDate',
-      dataIndex: 'examDate',
+      dataIndex: 'certInfo',
+      render: (row) => row.examDate,
       width: 140,
       sorter: true,
     },
     {
       title: 'HKID',
       key: 'hkid',
-      dataIndex: 'hkid',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldHkid === row.newHkid ? (
+                <span>{row.newHkid}</span>
+              ) : (
+                <div>
+                  <div>{row.oldHkid}</div>
+                  <div style={{ color: 'red'}}>{row.newHkid}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 100,
       sorter: true,
     },
     {
       title: 'Passport',
       key: 'passport',
-      dataIndex: 'passport',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldPassport === row.newPassport ? (
+                <span>{row.newPassport}</span>
+              ) : (
+                <div>
+                  <div>{row.newPassport}</div>
+                  <div style={{ color: 'red'}}>{row.newPassport}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
       width: 100,
       sorter: true,
     },
@@ -123,12 +162,12 @@ const Generate = () =>  {
         return (
           <div>
             {
-              row.oldName === row.name ? (
-                <span>{row.name}</span>
+              row.oldName === row.newName ? (
+                <span>{row.newName}</span>
               ) : (
                 <div>
                   <div>{row.oldName}</div>
-                  <div style={{ color: 'red'}}>{row.name}</div>
+                  <div style={{ color: 'red'}}>{row.newName}</div>
                 </div>
               )
             }
@@ -140,8 +179,8 @@ const Generate = () =>  {
     },
     {
       title: 'Email',
-      key: 'email',
-      dataIndex: 'email',
+      key: 'newEmail',
+      dataIndex: 'newEmail',
       width: 180,
       sorter: true,
     },
@@ -152,12 +191,12 @@ const Generate = () =>  {
         return (
           <div>
             {
-              row.oldUe === row.ue ? (
-                <span>{row.ue}</span>
+              row.oldUeGrade === row.newUeGrade ? (
+                <span>{row.newUeGrade}</span>
               ) : (
                 <div>
-                  <div>{row.oldUe}</div>
-                  <div style={{ color: 'red'}}>{row.ue}</div>
+                  <div>{row.oldUeGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newUeGrade}</div>
                 </div>
               )
             }
@@ -174,12 +213,12 @@ const Generate = () =>  {
         return (
           <div>
             {
-              row.oldUc === row.uc ? (
-                <span>{row.uc}</span>
+              row.oldUcGrade === row.newUcGrade ? (
+                <span>{row.newUcGrade}</span>
               ) : (
                 <div>
-                  <div>{row.oldUc}</div>
-                  <div style={{ color: 'red'}}>{row.uc}</div>
+                  <div>{row.oldUcGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newUcGrade}</div>
                 </div>
               )
             }
@@ -196,12 +235,12 @@ const Generate = () =>  {
         return (
           <div>
             {
-              row.oldAt === row.at ? (
-                <span>{row.at}</span>
+              row.oldAtGrade === row.newAtGrade ? (
+                <span>{row.newAtGrade}</span>
               ) : (
                 <div>
-                  <div>{row.oldAt}</div>
-                  <div style={{ color: 'red'}}>{row.at}</div>
+                  <div>{row.oldAtGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newAtGrade}</div>
                 </div>
               )
             }
@@ -218,12 +257,12 @@ const Generate = () =>  {
         return (
           <div>
             {
-              row.oldBlnst === row.blnst ? (
-                <span>{row.blnst}</span>
+              row.oldBlGrade === row.newBlGrade ? (
+                <span>{row.newBlGrade}</span>
               ) : (
                 <div>
-                  <div>{row.oldBlnst}</div>
-                  <div style={{ color: 'red'}}>{row.blnst}</div>
+                  <div>{row.oldBlGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newBlGrade}</div>
                 </div>
               )
             }
@@ -235,9 +274,10 @@ const Generate = () =>  {
     },
     {
       title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
-      width: 100,
+      key: 'certStatus',
+      dataIndex: 'certStatus',
+      width: 120,
+      render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
   ], []);
@@ -269,6 +309,7 @@ const Generate = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
+    getCertList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -278,17 +319,8 @@ const Generate = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getCertList(tempPagination, filterCondition);
   }, [pagination]);
-
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
-  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
@@ -302,11 +334,31 @@ const Generate = () =>  {
     },
   ], []);
 
-  const onClickDispatch = useCallback(() => {
+  const onClickRemoveCallback = useCallback((row) => {
+    modalApi.confirm({
+      title:'Are you sure to remove case?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certRenewDelete', row.id)
+    });
+  }, []);
+
+  const onClickGeneratePdfCallback = useCallback((row) => {
+    modalApi.confirm({
+      title:'Are you sure to generate PDF?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certRenewGenerate', row.id),
+    });
+
+  },[]);
+
+  const onClickDispatch = useCallback((row) => {
     modalApi.confirm({
       title:'Are you sure to dispatch to sign and issue Cert. stage?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certRenewDispatch', row.id, 'GENERATED')
     });
   },[]);
 
@@ -323,8 +375,9 @@ const Generate = () =>  {
       title:'Are you sure to download selected PDF?',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certRenewBulkDownload', selectedRowKeys.join(','))
     });
-  },[]);
+  },[selectedRowKeys]);
 
   const rowSelection = useCallback({
     onChange: (selectedRowKeys, selectedRows) => {
@@ -332,34 +385,135 @@ const Generate = () =>  {
     },
   }, []);
 
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: async (response, params) => {
+      switch (params[0]) {
+        case 'certRenewList':
+        {
+          // const data = response.data || {};
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+          setGeneratedData(content);
+          break;
+        }
+        case 'certRenewDispatch':
+          messageApi.success('Dispatch successfully.');
+          getImportList();
+          break;
+        case 'certRenewBulkDownload':
+          download(response);
+          messageApi.success('Download successfully.');
+          break;
+        case 'certRenewGenerate':
+          messageApi.success('Generate certificates as PDF are in-progress, please wait a moment.');
+          getImportList();
+          break;
+        case 'certRenewDelete':
+          getImportList();
+          messageApi.success('Case removed successfully.');
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getImportList();
+  }, []);
+
+  const getCertList = useCallback(async (pagination = {}, filterCondition = {}) => {
+    return runExamProfileAPI('certRenewList', 'GENERATED', {
+      ...filterCondition,
+    }, toQueryString(pagination));
+  }, []);
+
+  const getImportList = useCallback(async() => {
+    await getCertList(pagination, filterCondition);
+  }, [pagination, filterCondition]);
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+          newHkid: values.newHkid?.id && values.newHkid?.checkDigit  ? `${values.newHkid?.id}${values.newHkid.checkDigit}` : '',
+        }))
+        .catch(() => false);
+
+      if (values) {
+        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if (payload[key]) {
+            isEmpty = false;
+            finalPayload[key] = payload[key];
+          }
+        }
+
+        const resetPage = resetPagination();
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getCertList(resetPage);
+        } else {
+          await getCertList(resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [pagination, filterCondition]
+  );
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
   return (
     <div className={styles['exam-profile']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <Row justify={'end'}>
-        {/*<Col>*/}
-        {/*  <Dropdown name={"serialNo"} label={'Serial No.'} size={12}/>*/}
-        {/*</Col>*/}
-        <Col>
-          <Row gutter={[16, 16]} justify={'end'}>
-            <Col>
-              <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
-            </Col>
-            {/*<Col>*/}
-            {/*  <Button type="primary" onClick={() => {*/}
-            {/*  }}>Generate PDF</Button>*/}
-            {/*</Col>*/}
-          </Row>
-        </Col>
-      </Row>
-      <br/>
+      {/*<Row justify={'end'}>*/}
+      {/*  <Col>*/}
+      {/*    <Row gutter={[16, 16]} justify={'end'}>*/}
+      {/*      <Col>*/}
+      {/*        <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>*/}
+      {/*      </Col>*/}
+      {/*    </Row>*/}
+      {/*  </Col>*/}
+      {/*</Row>*/}
+      {/*<br/>*/}
       <fieldset style={{padding: '0 30px'}}>
         <legend><Typography.Title level={5}>Search</Typography.Title></legend>
         <Form
           layout="vertical"
           autoComplete="off"
-          form={form}
+          form={searchForm}
           colon={false}
           scrollToFirstError={{
             behavior: 'smooth',
@@ -368,28 +522,36 @@ const Generate = () =>  {
           }}
           name="form"
         >
-          <Row justify={'start'}>
+          <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <HKID name={'newHkid'} label={'New HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'newPassport'} label={'New Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate’s Name'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'newName'} label={'New Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={12}/>
+                <Col span={24} md={12} xl={8} xxl={6}>
+                  <Text name={'newEmail'} label={'Candidate’s Email'} size={50}/>
                 </Col>
               </Row>
             </Col>
             <Col span={4}>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[8, 8]}>
                 <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
+                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
+                          onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary' : 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
                 </Col>
               </Row>
             </Col>
@@ -403,9 +565,6 @@ const Generate = () =>  {
             <Col>
               <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
                 Selected ({selectedRowKeys.length})</Button>
-            </Col>
-            <Col>
-              <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>
             </Col>
           </Row>
         </Col>
@@ -428,7 +587,7 @@ const Generate = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          rowKey={'candidateNo'}
+          rowKey={'id'}
           rowSelection={{
             type: 'checkbox',
             ...rowSelection,
@@ -439,7 +598,7 @@ const Generate = () =>  {
             x: '100%',
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={generatedData}
         />
         <br/>
         <Row justify={'end'}>
@@ -448,8 +607,8 @@ const Generate = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
             />
           </Col>
         </Row>

@@ -95,7 +95,6 @@ function Richtext (props) {
         // }}
         value={value}
         onChange={(val) => setValue(val)}/>
-
     </Form.Item>
 
   );

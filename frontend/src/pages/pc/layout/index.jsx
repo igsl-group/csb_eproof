@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, Outlet, useNavigate, createSearchParams } from "react-router-dom";
+import { NavLink, useLocation, Outlet, useNavigate, createSearchParams, Link } from "react-router-dom";
 import {MainContext} from "../../../context/mainContext";
 import { localRouters } from '@/routes';
 import IsMobile from '@/hook/isMobile';
@@ -22,6 +22,7 @@ import {
 } from "@/assets";
 import Logo from "@/assets/logo.png"
 import {useAuth} from "../../../context/auth-provider";
+import PermissionControl from "../../../components/PermissionControl";
 const MenuItem = Menu.Item;
 const SubMenu = Menu.SubMenu;
 const Sider = Layout.Sider;
@@ -86,27 +87,62 @@ function Layouts () {
     // }
   }, []);
 
+  const includesAll = (arr1, arr2) => {
+    return arr1 && arr2.every(item => arr1.includes(item))
+  };
+  window.inn = includesAll;
   useEffect(() => {
     const items = [];
-    const mainItems = localRouters
-      .filter((row) => row.name === 'Main')
-      .flatMap((row) => row.children)
-      .filter((child) => !child.ignore)
+    window.routers = routers;
+    const mainItems = routers
+      .filter((child) => {
+        let flag = false;
+        if (child.permission && child.permission.length > 0) {
+          child.permission.forEach((permission) => {
+            if (auth.permissions.includes(permission)) {
+              flag = true;
+            }
+          })
+        }
+        return flag;
+      })
       .flatMap((row) => ({
-        key: row.path,
-        label: row.name,
-        icon: row.icon,
-        children: row.children?.filter((child) => !child.ignore).flatMap((child) => ({
-          key: child.path,
-          label: child.name,
-          icon: child.icon,
-          children: null
-        })) || null
+        ...row,
+        children: row.children?.filter((child) => {
+          let flag = false;
+          if (child.permission && child.permission.length > 0) {
+            child.permission.forEach((permission) => {
+              if (auth.permissions.includes(permission)) {
+                flag = true;
+              }
+            })
+          }
+          return flag;
+        })
       }))
 
     setMenuItems(mainItems)
 
-  }, []);
+    // {
+    //   routers?.map((item) => {
+    //     return (item.element ? item.ignore !== true ? <MenuItem key={item.path} icon={item.icon} title={item.name}><NavLink to={item.path}>{item.name}</NavLink></MenuItem> : null :
+    //         <SubMenu key={item.path} title={item.name} icon={item.icon}>
+    //           {
+    //             item.children?.map((pop) => {
+    //               console.log(pop.permission)
+    //               return (
+    //                 <PermissionControl permissionRequired={pop.permission}>
+    //                   <MenuItem key={pop.path} icon={pop.icon} ><NavLink to={pop.path}>{pop.name}</NavLink></MenuItem>
+    //                 </PermissionControl>
+    //               )
+    //             })
+    //           }
+    //         </SubMenu>
+    //     )
+    //   })
+    // }
+
+  }, [auth.permissions, routers]);
 
   useEffect(() => {
     setUName(getUsername())
@@ -286,6 +322,8 @@ function Layouts () {
     getItem('Team', 'sub2', null, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
     getItem('Files', '9', null),
   ];
+
+
   return (
     <div className={styles['layout']}>
       <Layout style={{ height: '100%', overflowY: 'hidden' }}>
@@ -298,35 +336,44 @@ function Layouts () {
               </Row>
             </Col>
             <Col>
+              {/*<Dropdown*/}
+              {/*  menu={{ item: []}}*/}
+              {/*  placement="bottomLeft"*/}
+              {/*  arrow*/}
+              {/*>*/}
+
+              {/*</Dropdown>*/}
               <Row gutter={8} align={'middle'} justify={'end'}>
                 <Col><Avatar size={44} icon={<UserOutlined />} /></Col>
                 <Col style={{ fontSize: '11px', color: 'rgb(81, 90, 106)'}}>
                   <div style={{ fontSize: '11px', color: '#152B47', paddingBottom: 5}}><b>{auth?.user}</b></div>
                   <Space>
-                    {auth?.section ? <div>{auth?.section}</div> : null}
-                    <div>{auth?.role}</div>
-                    <Dropdown
-                      menu={{}}
-                      // menu={{
-                      //   items: auth.availablePosts
-                      //     .flatMap((row) => ({
-                      //       label: row.name,
-                      //       key: row.id
-                      //     })),
-                      //   onClick: async (row) => {
-                      //     if (row.key !== auth.post) {
-                      //       await auth.changePostAction(row.key);
-                      //       auth.getProfile();
-                      //     }
-                      //   },
-                      // }}
-                    >
-                      <a onClick={(e) => e.preventDefault()}>
-                        <Space>
-                          {auth?.post}<DownOutlined />
-                        </Space>
-                      </a>
-                    </Dropdown>
+                    {/*{auth?.section ? <div>{auth?.section}</div> : null}*/}
+                    {/*<div>{auth?.role}</div>*/}
+                    <div>{auth?.post}</div>
+                    <Link onClick={() => auth.logOut()}>Logout</Link>
+                    {/*<Dropdown*/}
+                    {/*  menu={{}}*/}
+                    {/*  // menu={{*/}
+                    {/*  //   items: auth.availablePosts*/}
+                    {/*  //     .flatMap((row) => ({*/}
+                    {/*  //       label: row.name,*/}
+                    {/*  //       key: row.id*/}
+                    {/*  //     })),*/}
+                    {/*  //   onClick: async (row) => {*/}
+                    {/*  //     if (row.key !== auth.post) {*/}
+                    {/*  //       await auth.changePostAction(row.key);*/}
+                    {/*  //       auth.getProfile();*/}
+                    {/*  //     }*/}
+                    {/*  //   },*/}
+                    {/*  // }}*/}
+                    {/*>*/}
+                    {/*  <a onClick={(e) => e.preventDefault()}>*/}
+                    {/*    <Space>*/}
+                    {/*      {auth?.post}<DownOutlined />*/}
+                    {/*    </Space>*/}
+                    {/*  </a>*/}
+                    {/*</Dropdown>*/}
                   </Space>
                 </Col>
               </Row>
@@ -365,33 +412,22 @@ function Layouts () {
               mode={'inline'}
             >
               {
-                routers?.map((item) => {
+                menuItems?.map((item) => {
                   return (item.element ? item.ignore !== true ? <MenuItem key={item.path} icon={item.icon} title={item.name}><NavLink to={item.path}>{item.name}</NavLink></MenuItem> : null :
-                    <SubMenu key={item.path} title={item.name} icon={item.icon}>
-                      {
-                        item.children?.map((pop) => {
-                          return <MenuItem key={pop.path} icon={pop.icon} ><NavLink to={pop.path}>{pop.name}</NavLink></MenuItem>
-                        })
-                      }
-                    </SubMenu>)
+                      <SubMenu key={item.path} title={item.name} icon={item.icon}>
+                        {
+                          item.children?.map((pop) => {
+                            return (
+                              <MenuItem key={pop.path} icon={pop.icon} ><NavLink to={pop.path}>{pop.name}</NavLink></MenuItem>
+
+                            )
+                          })
+                        }
+                      </SubMenu>
+                  )
                 })
               }
             </Menu>
-            {/*<Row className={styles['layout-menu-footer']} aligutter={[4, 4]} justify={'end'}>*/}
-            {/*  /!*<Col span={20} className={'layout-menu-footer-text'}>*!/*/}
-            {/*  /!*  <div style={{fontSize: 12}}><b>2024 ©</b></div>*!/*/}
-            {/*  /!*  <div style={{fontSize: 12}}><b>Fire Services Department</b></div>*!/*/}
-            {/*  /!*</Col>*!/*/}
-            {/*  <Col>*/}
-            {/*    <Button*/}
-            {/*      className={styles['layout-menu-collapse-button']}*/}
-            {/*      type="dashed"*/}
-            {/*      onClick={toggleCollapsed}*/}
-            {/*    >*/}
-            {/*      {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}*/}
-            {/*    </Button>*/}
-            {/*  </Col>*/}
-            {/*</Row>*/}
           </Sider>
           <Layout
             id={'layout-content'}
