@@ -1,10 +1,9 @@
 #Database config
 spring:
   datasource:
-    #    url: jdbc:mariadb://192.168.2.227:3306/eproof
-    url: jdbc:mariadb://localhost:3306/eproof
-    username: root
-    password: CSB@ss2023
+    url: jdbc:mariadb:loadbalance://t1vdbs-csbeprof-epdbu1-ha1.dbaas.gcisdctr.hksarg:19307,t1vdbs-csbeprof-epdbu1-ha2.dbaas.gcisdctr.hksarg:19307,t2vdbs-csbeprof-epdbu1-ha1.dbaas.gcisdctr.hksarg:19307,t2vdbs-csbeprof-epdbu1-ha2.dbaas.gcisdctr.hksarg:19307/eproof_db?useSSL=true&trustServerCertificate=true
+    username: eproof_root
+    password: P@ssw0rd1234$
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
@@ -26,15 +25,15 @@ spring:
     host: mail.igsl-group.com
     port: 465
     username: hong.cheung@igsl-group.com
-    password: HongIgs@P@ssw0rd
-    from: cepf@test.com
-    protocol: smtp
+    password: HongIgs_P@ssw0rd
+    from: csbeproof@test.com
+    protocol: smtps
     properties:
       mail:
         smtp:
           auth: true
           starttls:
-            enable: false
+            enable: true
             required: false
           connectiontimeout: 5000
           timeout: 5000
@@ -76,24 +75,21 @@ server:
     context-path: /api/v1
 security:
   #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso,/test/**
+  whitelist: /api-docs/**,/sso,/test/**,/user/list
 
 filter:
   config:
     urlPatterns: /api/*, /actuator/*
-
 
 audit:
   trail:
     manager:
       include: DBAuditTrailManager, Slf4jLoggingAuditTrailManager
 
-
 login:
   allowMultipleLogin: true
   max:
     attempts: 3
-
 
 #swagger config
 springdoc:
@@ -104,29 +100,23 @@ springdoc:
     display-request-duration: true
 
 #logging config
-logging:
-  file:
-    path: logs/backend/
-    name: backend.log
-    max-age: 1d
-  level:
-    org:
-      hibernate:
-        orm:
-          jdbc:
-            bind: TRACE
-    root: INFO
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-
+#logging:
+#  file:
+#    path: logs/backend/
+#    name: backend.log
+#    max-age: 1d
+#
+#    root: INFO
+#  logback:
+#    rollingpolicy:
+#      max-file-size: 10MB
 
 document:
   #   Path for the temporary document to be generated.
   #   The generated document will be deleted immediately after generation
   #   Used for libre office conversion
-  generate-temp-path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
-  libreoffice-program-path: C:\Program Files\LibreOffice\program
+  generate-temp-path: /vdisk/e-proof/tmp
+  libreoffice-program-path: /opt/libreoffice24.2/program
 
 minio:
   endpoint: https://csbeprof.t1cosg-obj001.gcisdctr.hksarg
@@ -135,6 +125,47 @@ minio:
   bucket: eproof
   path:
     cert-record: /cert_record
+
+mail:
+  mode: SMTP
+  health-check:
+    enabled: true
+    to: hong.cheung@igsl-group.com
+    subject: EProof Mail Health Check
+  whitelist:
+    enabled: true
+    email-list: hong.cheung@igsl-group.com
+
+eproof-config:
+  pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
+  fail-template-type-id: 038424a4-be4e-418f-bdb4-dc4181d6ea16
+  issuer-name-en: Civil Service Bureau
+  issuer-name-tc: 公務員事務局
+  issuer-did: "did:eproof:100cfb00-3029-474a-b794-2f735e1d3c1d"
+  client-id: "CSB001"
+  client-secret: "J+Y2aUo1FT2M&EpY$F@="
+  url: "http://192.168.4.6:8080/api"
+  pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-pdf"
+  otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/sendOTP"
+  dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-data"
+  downloadUrlPrefix: https://uat.eproof.gov.hk/ec/d?t=
+
+thread-pool:
+  scheduled-task:
+    core-pool-size: 10
+    max-pool-size: 20
+    queue-capacity: 100
+    thread-name-prefix: scheduled-task-thread-pool-
+  normal:
+    core-pool-size: 10
+    max-pool-size: 20
+    queue-capacity: 100
+    thread-name-prefix: normal-thread-pool-
+
+#second minute hour dayOfMonth month dayOfWeek
+cron-expression:
+  normal-email-sending: "-"
+
 
 
 

@@ -150,7 +150,7 @@ eproof-config:
   issuer-did: "did:eproof:100cfb00-3029-474a-b794-2f735e1d3c1d"
   client-id: "CSB001"
   client-secret: "J+Y2aUo1FT2M&EpY$F@="
-  url: "https://192.168.26.127:9000/api"
+  url: "http://192.168.26.127:9000/api"
   pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-pdf"
   otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/sendOTP"
   dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-data"
