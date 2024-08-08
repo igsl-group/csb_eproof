@@ -52,6 +52,7 @@ public class UserSessionServiceImpl implements UserSessionService {
     public void updateSessionJwt(Long userSessionId,String jwt){
         UserSession userSession = userSessionRepository.findById(userSessionId).get();
         userSession.setJwt(jwt);
+        userSession.setLastActiveTime(LocalDateTime.now());
         userSessionRepository.save(userSession);
     }
 
