@@ -70,7 +70,6 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final ExamProfileRepository examProfileRepository;
     private final EmailEventRepository emailEventRepository;
     private final EProofConfigProperties eProofConfigProperties;
-    private final EProofConfigProperties eProofConfigProperties;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
 

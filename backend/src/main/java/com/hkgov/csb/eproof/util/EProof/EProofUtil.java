@@ -36,7 +36,7 @@ public class EProofUtil {
 	}
 
 	public static boolean simulation = false;
-	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'+08:00:00'");
+	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 	// Define a DateTimeFormatter for ISO 8601 format
 //	static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
