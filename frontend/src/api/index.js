@@ -236,7 +236,7 @@ export default function sendRes (url, method, data, loading = true) {
           .finally(() => hideLoading());
       });
     default:
-      showLoading();
+      if (loading) showLoading();
       // console.log('常规', url, method, data)
       return new Promise((resolve, reject) => {
         normalRequest.request({
@@ -246,7 +246,9 @@ export default function sendRes (url, method, data, loading = true) {
         })
           .then(res => resolve(res.data))
           .catch(err => reject(err))
-          .finally(() => hideLoading());
+          .finally(() => {
+            if (loading) hideLoading()
+          });
       });
   }
 };
