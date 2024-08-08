@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyManagementException;
 import java.util.zip.ZipEntry;
+import com.hkgov.csb.localSigning.util.SslUtil;
 
 @Component
 public class ApiUtil {
@@ -36,7 +38,16 @@ public class ApiUtil {
     private String certDownloadTempPath;
 */
 
-    private static final OkHttpClient CLIENT = new OkHttpClient();
+    private static final OkHttpClient CLIENT;
+
+    static {
+        try {
+            CLIENT = SslUtil.getUnsafeOkHttpClient();
+        } catch (KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public String getUnsignedJsonForCert(Long certId,String jwtTokenFromFrontEnd){
         String getUnsignedJsonEndpoint = this.getUnsignedJsonEndpoint.replace("{certInfoId}",certId.toString());
