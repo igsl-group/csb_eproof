@@ -68,6 +68,11 @@ public class LocalSigningService {
 
     private Provider providerPKCS11;
     private PrivateKey pk;
+
+    public Certificate getOutputPublicKey() {
+        return outputPublicKey;
+    }
+
     private Certificate outputPublicKey;
     private KeyStore ks;
     private HttpStatus initResponseCode;
@@ -77,6 +82,11 @@ public class LocalSigningService {
     public LocalSigningService(ApiUtil apiUtil){
         this.apiUtil = apiUtil;
     }
+
+    public String getCommonName() {
+        return commonName;
+    }
+
     public boolean init() {
         try{
 

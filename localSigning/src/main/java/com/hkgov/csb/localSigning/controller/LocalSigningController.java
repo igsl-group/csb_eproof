@@ -1,12 +1,14 @@
 package com.hkgov.csb.localSigning.controller;
 
 
+import com.google.common.base.Splitter;
 import com.hkgov.csb.localSigning.service.LocalSigningService;
 import com.hkgov.csb.localSigning.util.ApiUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -40,6 +44,35 @@ public class LocalSigningController {
         this.apiUtil = apiUtil;
     }
 
+
+    @CrossOrigin(origins = "*")
+    @RequestMapping(value = "signingCert", method = RequestMethod.GET)
+    public ResponseEntity signingCert(@RequestParam(name="debug", required=false) boolean debug) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
+
+        if(!localSigningService.init()){
+            return ResponseEntity.status(500).body("Init failed");
+//            if (initResponseCode == HttpStatus.BAD_REQUEST)
+//                return ResponseEntity.status(initResponseCode).body(new ByteArrayResource(errorMessageTooMany.getBytes()));
+//            if (initResponseCode == HttpStatus.INTERNAL_SERVER_ERROR)
+//                return ResponseEntity.status(initResponseCode).body(new ByteArrayResource(errorMessageDefault.getBytes()));
+//            if (initResponseCode == HttpStatus.NOT_FOUND)
+//                return ResponseEntity.status(initResponseCode).body(new ByteArrayResource(errorMessageNotFound.getBytes()));
+        }
+
+        String publicKeyCert = Base64.getEncoder().encodeToString(localSigningService.getOutputPublicKey().getEncoded());
+        String publicKeyFormatted = "-----BEGIN PUBLIC KEY-----" + "\r\n";
+        for (final String row: Splitter.fixedLength(64).split(publicKeyCert))
+        {
+            publicKeyFormatted += row + "\r\n";
+        }
+        publicKeyFormatted += "-----END PUBLIC KEY-----";
+
+        String out = Base64.getEncoder().encodeToString(publicKeyFormatted.getBytes());
+        if(debug)
+            out += "\nCN: " + localSigningService.getCommonName();
+
+        return ResponseEntity.ok(out);
+    }
 
 
     @CrossOrigin
