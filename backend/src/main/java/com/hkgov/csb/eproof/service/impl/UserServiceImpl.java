@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean createUser(UserDto request) {
         User user = UserMapper.INSTANCE.destinationToSource(request);
-        user.setDpUserId("csb");
+        user.setDpDeptId("csb");
         user.setStatus(request.getStatus());
         user =  userRepository.save(user);
 //        Long id = user.getId();
