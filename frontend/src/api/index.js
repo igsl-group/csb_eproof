@@ -12,7 +12,8 @@ const headers = {};
 if (process.env.NODE_ENV === 'development') {
   // baseURL = 'http://192.168.26.130:8080/api/v1';
   // baseURL = 'http://192.168.1.170:8080/api/v1';
-  baseURL = 'http://192.168.2.227:8081/api/v1';
+  // baseURL = 'http://192.168.2.227:8081/api/v1';
+  baseURL = 'http://192.168.1.171:8080/api/v1';
   // baseURL = 'https://localhost:9001/api/v1';
   // headers.Authorization = `Bearer ${token}`;
 }

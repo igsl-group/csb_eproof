@@ -30,7 +30,7 @@ function Date (props) {
   const mode = props.mode || 'date';
   const showTime = props.showTime || false;
   const needConfirm = props.needConfirm || false;
-
+  const dependencies = props.dependencies || [];
   const normalize = useCallback((value, prevValue, prevValues) => {
     return value ? value.format(format) : '';
   }, []);
@@ -39,6 +39,7 @@ function Date (props) {
     <Form.Item
       noStyle={noStyle}
       style={{width: '100%'}}
+      dependencies={dependencies}
       name={props.name}
       label={props.label}
       rules={[

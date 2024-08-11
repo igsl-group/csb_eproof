@@ -123,7 +123,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.oldHkid}</div>
-                  <div style={{ color: 'red'}}>{row.newHkid}</div>
+                  <div style={{ color: 'red'}}>{row.newHkid || '-'}</div>
                 </div>
               )
             }
@@ -145,7 +145,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.newPassport}</div>
-                  <div style={{ color: 'red'}}>{row.newPassport}</div>
+                  <div style={{ color: 'red'}}>{row.newPassport || '-'}</div>
                 </div>
               )
             }
@@ -167,7 +167,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.oldName}</div>
-                  <div style={{ color: 'red'}}>{row.newName}</div>
+                  <div style={{ color: 'red'}}>{row.newName || '-'}</div>
                 </div>
               )
             }
@@ -196,7 +196,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.oldUeGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newUeGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newUeGrade || '-'}</div>
                 </div>
               )
             }
@@ -218,7 +218,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.oldUcGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newUcGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newUcGrade || '-'}</div>
                 </div>
               )
             }
@@ -240,7 +240,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.oldAtGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newAtGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newAtGrade || '-'}</div>
                 </div>
               )
             }
@@ -262,7 +262,7 @@ const Generate = () =>  {
               ) : (
                 <div>
                   <div>{row.oldBlGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newBlGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newBlGrade || '-'}</div>
                 </div>
               )
             }

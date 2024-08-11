@@ -112,13 +112,69 @@ const ExamProfileFormModal = (props) =>  {
             <Date name={'examDate'} label={'Exam Date'} required placeholder={'YYYY-MM-DD'} required size={50}/>
           </Col>
           <Col span={24} md={12}>
-            <Date name={'plannedEmailIssuanceDate'} required label={'Planned Email Issuance Date'} placeholder={'YYYY-MM-DD'} size={50}/>
+            <Date
+              name={'plannedEmailIssuanceDate'}
+              required
+              label={'Planned Email Issuance Date'}
+              placeholder={'YYYY-MM-DD'}
+              size={50}
+              dependencies={['examDate']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const examDate = getFieldValue('examDate');
+                    const isAfter = value.isAfter(examDate);
+                    if (!value || isAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Exam Date"'));
+                  },
+                }),
+              ]}
+            />
           </Col>
           <Col span={24} md={12}>
-            <Date name={'effectiveDate'} label={'Effective Date'} required placeholder={'YYYY-MM-DD'} size={50}/>
+            <Date
+              name={'effectiveDate'}
+              label={'Effective Date'}
+              required
+              placeholder={'YYYY-MM-DD'}
+              size={50}
+              dependencies={['examDate']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const examDate = getFieldValue('examDate');
+                    const isAfter = value.isAfter(examDate);
+                    if (!value || isAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "Effective Date" should be after the "Exam Date"'));
+                  },
+                }),
+              ]}
+            />
           </Col>
           <Col span={24} md={12}>
-            <Date name={'resultLetterDate'} required label={'Result Letter Date'} placeholder={'YYYY-MM-DD'} size={50}/>
+            <Date
+              name={'resultLetterDate'}
+              required label={'Result Letter Date'}
+              placeholder={'YYYY-MM-DD'}
+              size={50}
+              dependencies={['examDate']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const examDate = getFieldValue('examDate');
+                    const isAfter = value.isAfter(examDate);
+                    if (!value || isAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "Result Letter Date" should be after the "Exam Date"'));
+                  },
+                }),
+              ]}
+            />
           </Col>
           <Col span={24}>
             <Text name={'location'} label={'Location'} size={50}/>

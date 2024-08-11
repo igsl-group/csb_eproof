@@ -423,7 +423,7 @@ const Issue = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Cert_Sign_And_Issue']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Sign_And_Issue']}>
       <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -481,7 +481,8 @@ const Issue = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <HKID name={'hkid'} label={'HKID'} size={50}/>
+                  {/*<HKID name={'hkid'} label={'HKID'} size={50}/>*/}
+                  <Text name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
                   <Text name={'passportNo'} label={'Passport'} size={50}/>
