@@ -1,7 +1,7 @@
 package com.hkgov.csb.eproof.entity.enums;
 
 public enum CertType {
-    APPEAL("APPEAL", "Appeal"),
+    RESULT_UPDATE("RESULT_UPDATE", "Result Update"),
     INFO_UPDATE("INFO_UPDATE", "Info Update"),
     REISSUE_HISTORICAL_CERT("REISSUE_HISTORICAL_CERT", "Reissue Historical Cert");
 

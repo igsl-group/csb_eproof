@@ -259,7 +259,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 allFailedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE));
             }
 
-            InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            InputStream appliedTemplate = "Pass".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
             byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
             appliedTemplate.close();
             IOUtils.close(appliedTemplate);
@@ -372,7 +372,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         infoRenew.setNewAtGrade(resultDto.getNewAtGrade());
 
         infoRenew.setRemark(resultDto.getRemark());
-        infoRenew.setType(CertType.INFO_UPDATE);
+        infoRenew.setType(CertType.RESULT_UPDATE);
         infoRenew.setCertStage(CertStage.GENERATED);
         infoRenew.setCertStatus(CertStatus.PENDING);
         infoRenew.setIsDelete(false);
@@ -560,7 +560,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         String eproofId = certInfo.getEproofId();
 
         String eproofTemplateCode;
-        if("P".equals(certInfo.getLetterType())){
+        if("Pass".equals(certInfo.getLetterType())){
             eproofTemplateCode = "CSBEPROOF";
         }else{
             eproofTemplateCode = "CSBEPROOFFAIL";
@@ -606,9 +606,9 @@ public class CertInfoServiceImpl implements CertInfoService {
         String keyName = "1";
         String eproofTypeId = null;
 
-        if("P".equals(certInfo.getLetterType())){
+        if("Pass".equals(certInfo.getLetterType())){
             eproofTypeId = eProofConfigProperties.getPassTemplateTypeId();
-        } else if ("F".equals(certInfo.getLetterType())){
+        } else {
             eproofTypeId = eProofConfigProperties.getFailTemplateTypeId();
         }
         LocalDateTime downloadExpiryDateTime = LocalDateTime.of(2099,12,31,23,59,59);
@@ -894,7 +894,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 if(!csv.getPassportNo().isEmpty() && !passports.add(csv.getPassportNo())){
                     throw new ServiceException(ResultCode.PASSPORT_EXITS,row);
                 }
-                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("F") && !csv.getLetterType().equals("P"))){
+                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("Fail") && !csv.getLetterType().equals("Pass"))){
                     throw new ServiceException(ResultCode.CSV_LETTER_TYPE,row);
                 }
                 if(!codeUtil.validEmai(csv.getEmail())){

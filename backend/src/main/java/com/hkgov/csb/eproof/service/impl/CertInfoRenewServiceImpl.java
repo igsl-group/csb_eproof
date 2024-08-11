@@ -107,7 +107,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         try{
             byte[] atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
             byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
-            InputStream appliedTemplate = "P".equals(certInfoRenew.getNewLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            InputStream appliedTemplate = "Pass".equals(certInfoRenew.getNewLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
 
             byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForRenewCert(certInfoRenew),getTableLoopMapForCertRenew(certInfoRenew));
             appliedTemplate.close();

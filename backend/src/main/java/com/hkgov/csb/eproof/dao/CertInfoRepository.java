@@ -82,7 +82,7 @@ select c from CertInfo c
     @Query("SELECT c FROM CertInfo c WHERE c.id in :certInfoIdList")
     List<CertInfo> getByIdIn(List<Long> certInfoIdList);
 
-    @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo and (c.certStage = 'NOTIFY' and c.certStatus = 'SUCCESS' or c.certStatus = 'FAIL') or (c.certStage = 'COMPLETED')")
+    @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo and ((c.certStage = 'NOTIFY' and c.certStatus = 'SUCCESS' or c.certStatus = 'FAIL') or (c.certStage = 'COMPLETED'))")
     List<CertInfo> getInfoWithNotifyAndCompletedStageList(@Param("serialNo") String serialNo);
 
     @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo")
