@@ -534,22 +534,22 @@ const ExamProfile = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: summary.imported,
+              children: summary.imported || 0,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: `${summary.generatePdfTotal} out of ${summary.generatePdfFailed} failed`,
+              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: `${summary.issuedPdfTotal} out of ${summary.issuedPdfFailed} failed`,
+              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: `${summary.sendEmailTotal} out of ${summary.sendEmailFailed} failed`,
+              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
 
             }
           ]}

@@ -182,7 +182,7 @@ const Candidate = () =>  {
           <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col>
           <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col>
           <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col>
-          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => {}}>Resend Email</Button></Col>
+          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} disabled={true} onClick={() => {}}>Resend Email</Button></Col>
         </Row>
       )
     },
@@ -191,7 +191,7 @@ const Candidate = () =>  {
       key: 'examDate',
       dataIndex: 'examDate',
       width: 140,
-      sorter: true,
+      // sorter: true,
     },
     {
       title: 'HKID',
@@ -224,16 +224,16 @@ const Candidate = () =>  {
     {
       title: 'Result Letter Date',
       key: 'resultLetterDate',
-      dataIndex: 'resultLetterDate',
+      render: (row) => row.examProfile?.resultLetterDate,
       width: 180,
-      sorter: true,
+      // sorter: true,
     },
     {
       title: 'Email Issuance Date',
       key: 'emailIssuanceDate',
-      dataIndex: 'emailIssuanceDate',
+      dataIndex: 'actualEmailSendTime',
       width: 180,
-      sorter: true,
+      // sorter: true,
     },
     {
       title: 'UE',
@@ -464,8 +464,14 @@ const Candidate = () =>  {
             Selected ({selectedRowKeys.length})</Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={onClickRevokeSelected} disabled={selectedRowKeys.length === 0}>Revoke
-            Selected ({selectedRowKeys.length})</Button>
+          <Button
+            type="primary"
+            onClick={onClickRevokeSelected}
+            // disabled={selectedRowKeys.length === 0}
+            disabled={true}
+          >
+            Revoke Selected ({selectedRowKeys.length})
+          </Button>
         </Col>
         <Col>
           <Pagination

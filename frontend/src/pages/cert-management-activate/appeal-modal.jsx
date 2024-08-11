@@ -67,6 +67,7 @@ const PersonalParticularsModal = (props) =>  {
       newUcGrade: result?.['UC Grade'],
       newAtGrade: result?.['AT Grade'],
       newBlnstGrade: result?.['BL Grade'],
+      newLetterType: result?.['Letter Type (Pass/Fail)'],
     })
     setOpenImportModal(false);
   }, []);
@@ -75,6 +76,9 @@ const PersonalParticularsModal = (props) =>  {
     manual: true,
     onSuccess: async (response, params) => {
       switch (params[0]) {
+        case 'certSingleUpdateResult':
+          messageApi.success('Request successfully.');
+          break;
         case 'certLatestCandidateInfo':
           const data = response.data || {};
           const content = data.content || [];
@@ -111,6 +115,7 @@ const PersonalParticularsModal = (props) =>  {
       delete values.name;
       delete values.examDate;
       delete values.passportNo;
+      delete values.letterType;
       runExamProfileAPI('certSingleUpdateResult', record.id, values)
         .then(() => onFinish());
 
@@ -128,11 +133,12 @@ const PersonalParticularsModal = (props) =>  {
         ucGrade: record?.ucGrade,
         atGrade: record?.atGrade,
         blnstGrade: record?.blnstGrade,
+        letterType: record?.letterType,
       })
     }
   }, [open]);
 
-  console.log(record)
+  console.log(record.letterType)
 
   return (
     <Modal
@@ -233,7 +239,7 @@ const PersonalParticularsModal = (props) =>  {
             <Text name={'letterType'} label={'Old Letter Template'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'newLetterType'} label={'New BLNST'} size={100} disabled/>
+            <Text name={'newLetterType'} label={'New Letter Template'} size={100} disabled/>
           </Col>
           <Col span={24}>
             <Textarea name={'remark'} label={'Remark'} size={100}/>

@@ -40,7 +40,7 @@ const EmailModal = (props) =>  {
     const values = await form.validateFields()
       .then((values) => ({
         ...values,
-        includeEmails: values && values.includeEmails.join(','),
+        includeEmails: values.includeEmails && values.includeEmails.join(','),
         // roles: values.roles.flatMap((value) => ({ id: value })),
       }))
       .catch((e) => {
@@ -102,9 +102,12 @@ const EmailModal = (props) =>  {
   }, [open, type, recordId]);
 
   const onMailMergeButtonClicked = useCallback(() => {
-    const body = form.getFieldValue('body');
-    const updateBody = body.replace(/<\/p>$/gm, `${form.getFieldValue('mailMergeKey')}</p>`)
-    form.setFieldValue('body', updateBody)
+    if (form.getFieldValue('mailMergeKey')) {
+      const body = form.getFieldValue('body');
+      const updateBody = body.replace(/<\/p>$/gm, `${form.getFieldValue('mailMergeKey')}</p>`)
+      form.setFieldValue('body', updateBody)
+    }
+
   }, [])
 
   return (
@@ -163,6 +166,7 @@ const EmailModal = (props) =>  {
               mode="tags"
               tokenSeparators={[',']}
               validation={[validators.emailValidator()]}
+              hidden={form.getFieldValue('type') === 'External'}
             />
           </Col>
           <Col span={24}>
@@ -173,7 +177,7 @@ const EmailModal = (props) =>  {
           </Col>
           <Col span={24}>
             <Row gutter={[8, 8]}>
-              <Col>
+              <Col span={8} xs={12}>
                 <Dropdown
                   size={50}
                   placeholder={'Place choose mail merge key ...'}
@@ -186,11 +190,19 @@ const EmailModal = (props) =>  {
                     {
                       label: 'Examination Date',
                       value: '{{examination_date}}',
+                    },
+                    {
+                      label: 'eProof Document Url',
+                      value: '{{eproof_document_url}}',
+                    },
+                    {
+                      label: 'One Time Password',
+                      value: '{{one_time_password}}',
                     }
                   ]}
                 />
               </Col>
-              <Col>
+              <Col span={8}>
                 <Button onClick={onMailMergeButtonClicked}>Add</Button>
               </Col>
             </Row>

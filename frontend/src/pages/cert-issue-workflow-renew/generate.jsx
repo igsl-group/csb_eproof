@@ -410,7 +410,7 @@ const Generate = () =>  {
           messageApi.success('Download successfully.');
           break;
         case 'certRenewGenerate':
-          messageApi.success('Generate certificates as PDF are in-progress, please wait a moment.');
+          messageApi.success('Generate certificates as PDF successfully.');
           getImportList();
           break;
         case 'certRenewDelete':

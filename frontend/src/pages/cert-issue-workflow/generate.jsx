@@ -282,6 +282,7 @@ const Generate = () =>  {
           }
           break;
         }
+        case 'certListBackground':
         case 'certList':
         {
           // const data = response.data || {};
@@ -397,7 +398,7 @@ const Generate = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_GENERATE']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Generate']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -414,7 +415,7 @@ const Generate = () =>  {
         name="serialNoForm"
       >
         <Row justify={'space-between'}>
-          <Col>
+          <Col span={8} >
             <Dropdown
               name={"serialNo"}
               label={'Serial No.'}
@@ -424,7 +425,7 @@ const Generate = () =>  {
               onChange={(values) => console.log(values)}
             />
           </Col>
-          <Col>
+          <Col span={16}>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
                 <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
@@ -496,22 +497,22 @@ const Generate = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: summary.imported,
+              children: summary.imported || 0,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: `${summary.generatePdfFailed} out of ${summary.generatePdfTotal} failed`,
+              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: `${summary.issuedPdfFailed} out of ${summary.issuedPdfTotal} failed`,
+              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: `${summary.sendEmailFailed} out of ${summary.sendEmailTotal} failed`,
+              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
 
             }
           ]}

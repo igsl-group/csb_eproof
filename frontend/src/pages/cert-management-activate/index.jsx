@@ -219,17 +219,17 @@ const CertificateManagementValid = () =>  {
     },
     {
       title: 'Result Letter Date',
-      key: 'actualSignTime',
-      dataIndex: 'actualSignTime',
+      key: 'resultLetterDate',
+      render: (row) => row.examProfile?.resultLetterDate,
       width: 180,
-      sorter: true,
+      // sorter: true,
     },
     {
       title: 'Email Issuance Date',
-      key: 'actualEmailSendTime',
+      key: 'emailIssuanceDate',
       dataIndex: 'actualEmailSendTime',
       width: 180,
-      sorter: true,
+      // sorter: true,
     },
     {
       title: 'UE',

@@ -183,6 +183,8 @@ export function examProfileAPI(params, ...rest) {
             return request(`/examProfile/dropDown`, "get");
         case 'certList':
             return request(`/cert/search/${rest[0]}?${rest[2]}`, "post", rest[1]);
+        case 'certListBackground':
+            return request(`/cert/search/${rest[0]}?${rest[2]}`, "post", rest[1], false);
         case 'certLatestCandidateInfo':
             return request(`/cert/search/VALID?${rest[1]}`, "post", rest[0]);
         case 'certIssuanceImport':
@@ -226,6 +228,10 @@ export function systemAPI(params, ...rest) {
     switch (params) {
         case 'auditLogList':
             return request(`/auditLog/list?${rest[0]}`, "get");
+        case 'systemConfigList':
+            return request(`/systemParameter/list?${rest[0]}`, "get");
+        case 'permissionList':
+            return request('/permission/list', "get");
     }
 }
 

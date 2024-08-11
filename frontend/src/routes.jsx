@@ -19,6 +19,7 @@ import SignAndIssueWorkflowRenew from '@/pages/cert-issue-workflow-renew/issue';
 import NotifyWorkflowRenew from '@/pages/cert-issue-workflow-renew/notify';
 import Login from '@/pages/login';
 import StatisticalReport from '@/pages/statistical-report';
+import SystemConfiguration from '@/pages/system/system-configuration';
 
 
 import RoleList from '@/pages/role-list';
@@ -49,11 +50,11 @@ import {
   UserOutlined,
   MailOutlined,
   AuditOutlined,
+  DesktopOutlined,
   FundViewOutlined,
   HistoryOutlined,
   FileProtectOutlined,
   FileExclamationOutlined,
-  BarsOutlined,
   ImportOutlined,
   InteractionOutlined,
   SignatureOutlined,
@@ -61,7 +62,9 @@ import {
   UsergroupAddOutlined,
   GroupOutlined,
   FileSyncOutlined,
-  FileSearchOutlined
+  FileSearchOutlined,
+  ToolOutlined,
+  BarsOutlined,
 } from '@ant-design/icons';
 import {useAuth} from "./context/auth-provider";
 import {useEffect} from "react";
@@ -170,13 +173,10 @@ const routeList = [
         path: '/Workflow',
         icon: <FileDoneOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         permission: [
-          'CERT_SEARCH_BY_CAND',
-          'CERT_SEARCH_GENERATE',
-          'CERT_SEARCH_IMPORT',
-          'CERT_SEARCH_INVALID',
-          'CERT_SEARCH_NOTIFY',
-          'CERT_SEARCH_SIGNANDISSUE',
-          'CERT_SEARCH_VALID',
+          'Certificate_Import',
+          'Certificate_Generate',
+          'Cert_Sign_And_Issue',
+          'Cert_Notify',
         ],
         children: [
           {
@@ -188,7 +188,7 @@ const routeList = [
             element: <ImportWorkflow />,
             show: true,
             permission: [
-              'CERT_SEARCH_IMPORT',
+              'Certificate_Import',
             ],
           },
           {
@@ -200,7 +200,7 @@ const routeList = [
             element: <GenerateWorkflow />,
             show: true,
             permission: [
-              'CERT_SEARCH_GENERATE',
+              'Certificate_Generate',
             ],
           },
           {
@@ -213,7 +213,7 @@ const routeList = [
             element: <SignAndIssueWorkflow />,
             show: true,
             permission: [
-              'CERT_SEARCH_SIGNANDISSUE',
+              'Cert_Sign_And_Issue',
             ],
           },
           {
@@ -225,7 +225,7 @@ const routeList = [
             element: <NotifyWorkflow />,
             show: true,
             permission: [
-              'CERT_SEARCH_NOTIFY',
+              'Cert_Notify',
             ],
           },
         ],
@@ -241,13 +241,10 @@ const routeList = [
         path: '/WorkflowRenew',
         icon: <FileSyncOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         permission: [
-          'CERT_SEARCH_BY_CAND',
-          'CERT_SEARCH_GENERATE',
-          'CERT_SEARCH_IMPORT',
-          'CERT_SEARCH_INVALID',
-          'CERT_SEARCH_NOTIFY',
-          'CERT_SEARCH_SIGNANDISSUE',
-          'CERT_SEARCH_VALID',
+          'Certificate_Import',
+          'Certificate_Generate',
+          'Cert_Sign_And_Issue',
+          'Cert_Notify',
         ],
         children: [
           {
@@ -259,7 +256,7 @@ const routeList = [
             element: <GenerateWorkflowRenew />,
             show: true,
             permission: [
-              'CERT_SEARCH_GENERATE',
+              'Certificate_Generate',
             ],
           },
           {
@@ -271,7 +268,7 @@ const routeList = [
             element: <SignAndIssueWorkflowRenew />,
             show: true,
             permission: [
-              'CERT_SEARCH_SIGNANDISSUE',
+              'Cert_Sign_And_Issue',
             ],
           },
           {
@@ -283,7 +280,7 @@ const routeList = [
             element: <NotifyWorkflowRenew />,
             show: true,
             permission: [
-              'CERT_SEARCH_NOTIFY',
+              'Cert_Notify',
             ],
           },
         ],
@@ -297,16 +294,27 @@ const routeList = [
         name: (<span style={{color: 'rgb(104, 111, 125)'}}>System</span>),
         path: '/System',
         icon: <SettingOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        permission: ['System_Control'],
         children: [
           {
             id: 91,
             pid: 9,
             name: 'Audit Log',
             path: '/System/AuditLog',
-            icon: <ProfileOutlined />,
+            icon: <DesktopOutlined />,
             element: <AuditLog />,
             show: true,
-            role: [],
+            permission: ['System_Control'],
+          },
+          {
+            id: 92,
+            pid: 9,
+            name: 'System Configuration',
+            path: '/System/SystemConfiguration',
+            icon: <ToolOutlined />,
+            element: <SystemConfiguration />,
+            show: true,
+            permission: ['System_Control'],
           },
         ],
         ignore: false,

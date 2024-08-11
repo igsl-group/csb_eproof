@@ -374,7 +374,7 @@ const Import = () =>  {
 
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_IMPORT']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Import']}>
       <Typography.Title level={3}>Import Result (CSV)</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -501,22 +501,22 @@ const Import = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: summary.imported,
+              children: summary.imported || 0,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: `${summary.generatePdfFailed} out of ${summary.generatePdfTotal} failed`,
+              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: `${summary.issuedPdfFailed} out of ${summary.issuedPdfTotal} failed`,
+              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: `${summary.sendEmailFailed} out of ${summary.sendEmailTotal} failed`,
+              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
 
             }
           ]}

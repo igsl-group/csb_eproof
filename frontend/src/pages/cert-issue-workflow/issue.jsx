@@ -423,7 +423,7 @@ const Issue = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['CERT_SEARCH_SIGNANDISSUE']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['Cert_Sign_And_Issue']}>
       <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -522,22 +522,22 @@ const Issue = () =>  {
             {
               key: 1,
               label: 'Imported',
-              children: summary.imported,
+              children: summary.imported || 0,
             },
             {
               key: 2,
               label: 'Generated PDF',
-              children: `${summary.generatePdfFailed} out of ${summary.generatePdfTotal} failed`,
+              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
             },
             {
               key: 3,
               label: 'Issued Cert.',
-              children: `${summary.issuedPdfFailed} out of ${summary.issuedPdfTotal} failed`,
+              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
             },
             {
               key: 4,
               label: 'Sent Email',
-              children: `${summary.sendEmailFailed} out of ${summary.sendEmailTotal} failed`,
+              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
 
             }
           ]}

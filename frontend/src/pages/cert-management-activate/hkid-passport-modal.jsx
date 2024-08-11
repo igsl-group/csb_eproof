@@ -29,8 +29,6 @@ const HkidPassportModal = (props) =>  {
   const onCloseCallback = props.onCloseCallback;
   const onFinishCallback = props.onFinishCallback;
 
-  console.log(record);
-
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
       form.resetFields();
@@ -69,6 +67,9 @@ const HkidPassportModal = (props) =>  {
     manual: true,
     onSuccess: async (response, params) => {
       switch (params[0]) {
+        case 'certBatchUpdatePersonalParticular':
+          messageApi.success('Request successfully.');
+          break;
         default:
           break;
       }

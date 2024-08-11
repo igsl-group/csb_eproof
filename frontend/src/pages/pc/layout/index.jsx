@@ -103,6 +103,8 @@ function Layouts () {
               flag = true;
             }
           })
+        } else if (child.permission && child.permission.length === 0) {
+          flag = true;
         }
         return flag;
       })
@@ -116,6 +118,8 @@ function Layouts () {
                 flag = true;
               }
             })
+          } else if (child.permission && child.permission.length === 0) {
+            flag = true;
           }
           return flag;
         })

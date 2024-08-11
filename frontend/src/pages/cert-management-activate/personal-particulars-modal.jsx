@@ -65,6 +65,9 @@ const PersonalParticularsModal = (props) =>  {
     manual: true,
     onSuccess: async (response, params) => {
       switch (params[0]) {
+        case 'certBatchUpdatePersonalParticular':
+          messageApi.success('Request successfully.');
+          break;
         case 'certLatestCandidateInfo':
           const data = response.data || {};
           const content = data.content || [];
