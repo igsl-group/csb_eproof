@@ -51,6 +51,7 @@ const ScheduleSendEmailModal = (props) =>  {
       delete values.plannedEmailIssuanceDate;
       delete values.subject;
       delete values.body;
+      delete values.examDate;
 
       runExamProfileAPI('certScheduleSendEmail', serialNoValue, values)
         .then(() => onFinish());
@@ -139,15 +140,45 @@ const ScheduleSendEmailModal = (props) =>  {
         <Row gutter={24}>
           <Col span={12}>
             <Text name={"plannedEmailIssuanceDate"} label={'Planned Email Issuance Date'} size={50} disabled/>
+            <Text name={"examDate"} label={'Exam Date'} size={50} disabled hidden/>
           </Col>
           <Col span={12}>
-            <Date name={"scheduledTime"} label={'Scheduled Date'}/>
+            <Date
+              required
+              name={"scheduledTime"}
+              label={'Scheduled Date'}
+              dependencies={['examDate']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const examDate = getFieldValue('examDate');
+                    const isAfter = value.isAfter(examDate);
+                    if (!value || isAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "Scheduled Date" should be after the "Exam Date"'));
+                  },
+                }),
+              ]}
+            />
           </Col>
           <Col span={24}>
-            <Text name={"subject"} label={"Email's Subject"} disabled size={50}/>
+            <Text
+              name={"subject"}
+              required
+              label={"Email's Subject"}
+              disabled
+              size={50}
+            />
           </Col>
           <Col span={24}>
-            <Richtext name={"body"} label={"Email's Body"} size={50} disabled={true}/>
+            <Richtext
+              name={"body"}
+              required
+              label={"Email's Body"}
+              size={50}
+              disabled={true}
+            />
           </Col>
         </Row>
       </Form>

@@ -66,8 +66,8 @@ const PersonalParticularsModal = (props) =>  {
       newUeGrade: result?.['UE Grade'],
       newUcGrade: result?.['UC Grade'],
       newAtGrade: result?.['AT Grade'],
-      newBlnstGrade: result?.['BL Grade'],
-      newLetterType: result?.['Letter Type (Pass/Fail)'],
+      newBlnstGrade: result?.['BLNST Grade'],
+      newLetterType: result?.['Letter Type'],
     })
     setOpenImportModal(false);
   }, []);

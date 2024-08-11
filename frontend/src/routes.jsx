@@ -175,8 +175,8 @@ const routeList = [
         permission: [
           'Certificate_Import',
           'Certificate_Generate',
-          'Cert_Sign_And_Issue',
-          'Cert_Notify',
+          'Certificate_Sign_And_Issue',
+          'Certificate_Notify',
         ],
         children: [
           {
@@ -213,7 +213,7 @@ const routeList = [
             element: <SignAndIssueWorkflow />,
             show: true,
             permission: [
-              'Cert_Sign_And_Issue',
+              'Certificate_Sign_And_Issue',
             ],
           },
           {
@@ -225,7 +225,7 @@ const routeList = [
             element: <NotifyWorkflow />,
             show: true,
             permission: [
-              'Cert_Notify',
+              'Certificate_Notify',
             ],
           },
         ],
@@ -243,8 +243,8 @@ const routeList = [
         permission: [
           'Certificate_Import',
           'Certificate_Generate',
-          'Cert_Sign_And_Issue',
-          'Cert_Notify',
+          'Certificate_Sign_And_Issue',
+          'Certificate_Notify',
         ],
         children: [
           {
@@ -268,7 +268,7 @@ const routeList = [
             element: <SignAndIssueWorkflowRenew />,
             show: true,
             permission: [
-              'Cert_Sign_And_Issue',
+              'Certificate_Sign_And_Issue',
             ],
           },
           {
@@ -280,7 +280,7 @@ const routeList = [
             element: <NotifyWorkflowRenew />,
             show: true,
             permission: [
-              'Cert_Notify',
+              'Certificate_Notify',
             ],
           },
         ],

@@ -460,7 +460,8 @@ const Import = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <HKID name={'hkid'} label={'HKID'} size={50}/>
+                  {/*<HKID name={'hkid'} label={'HKID'} size={50}/>*/}
+                  <Text name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
                   <Text name={'passportNo'} label={'Passport'} size={50}/>
