@@ -9,7 +9,7 @@ import lombok.Setter;
 public class CertImportDto {
     @CsvBindByName(column = "Exam Date")
     private String examDate = "";
-    @CsvBindByName(column = "Name in English ")
+    @CsvBindByName(column = "Name in English")
     private String name= "";
     @CsvBindByName(column = "HKID")
     private String hkid= "";
@@ -17,7 +17,7 @@ public class CertImportDto {
     private String passportNo= "";
     @CsvBindByName(column = "Email")
     private String email= "";
-    @CsvBindByName(column = "BL Grade")
+    @CsvBindByName(column = "BLNST Grade")
     private String blnstGrade= "";
     @CsvBindByName(column = "UE Grade")
     private String ueGrade= "";
@@ -25,6 +25,6 @@ public class CertImportDto {
     private String ucGrade= "";
     @CsvBindByName(column = "AT Grade")
     private String atGrade= "";
-    @CsvBindByName(column = "Letter Type (Pass/Fail)")
+    @CsvBindByName(column = "Letter Type")
     private String letterType= "";
 }

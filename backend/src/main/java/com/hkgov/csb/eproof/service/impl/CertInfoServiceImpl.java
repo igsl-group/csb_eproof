@@ -867,10 +867,11 @@ public class CertInfoServiceImpl implements CertInfoService {
                 hkids.add(csv.getHkid());
                 passports.add(csv.getPassportNo());
             }else{
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate examDate;
                 int row = i+1-count;
                 try{
-                    examDate = LocalDate.parse(csv.getExamDate());
+                    examDate = LocalDate.parse(csv.getExamDate(), formatter);
                 }catch (Exception e){
                     throw new ServiceException(ResultCode.CSV_EXAM_DATE,row);
                 }
