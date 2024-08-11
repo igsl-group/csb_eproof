@@ -112,7 +112,7 @@ public class CertInfoRenewController {
             }
             default -> throw new GenericException(ExceptionEnums.ILLEGAL_SEARCH_TYPE);
         }
-        permissionService.manualValidateCurrentUserPermission(List.of(requiredPermission));
+//        permissionService.manualValidateCurrentUserPermission(List.of(requiredPermission));
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
 
         // set certStatusList to null to show all cert regardless what status
