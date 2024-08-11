@@ -99,6 +99,7 @@ public class ExceptionConstants {
     public static final String NO_PERMISSION_TO_DOWNLOAD_EXCEPTION_MESSAGE = "No permission to download";
 
     public static final String SERIAL_HAS_EXITED = "examProfile.serial.exits";
+        public static final String NOT_ALLOW_TO_RESET_EXAM_PROFILE = "Not allow to reset exam profile.";
 
     public static final String SERIAL_NOT_EXITED = "serial.not.exits";
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.SERIAL_HAS_EXITED;
+import static com.hkgov.csb.eproof.exception.ExceptionConstants.NOT_ALLOW_TO_RESET_EXAM_PROFILE;
 
 @RequiredArgsConstructor
 @Service
@@ -125,8 +126,12 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     @Transactional
     public void reset(String examProfileSerialNo) throws Exception {
 
-        //TODO Block reset if email already sent
-        
+        //TODO Block reset if email already sent or complete stage
+        List<CertInfo> certWithNotifyAndCompletedStageList = certInfoRepository.getInfoWithNotifyAndCompletedStageList(examProfileSerialNo);
+        if (certWithNotifyAndCompletedStageList.size() > 0) {
+            throw new GenericException("400",NOT_ALLOW_TO_RESET_EXAM_PROFILE);
+        }
+
         List<CertInfo> certInfoList = certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo);
 
         //TODO Add revoke signed certificate
