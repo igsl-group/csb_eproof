@@ -50,7 +50,8 @@ public class ApiUtil {
 
 			Response response = httpUtil.post(url, headers, jsonRequestBody);
 
-			logger.debug("getToken-response.statusCode: " + response.code());
+			logger.info("getToken-response.statusCode: " + response.code());
+			logger.info("getToken-response.body: " + response.body());
 
 			if (response.code() == 200) {
 				JsonElement jelement = new JsonParser().parse(response.body().string());

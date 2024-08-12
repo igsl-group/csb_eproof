@@ -15,10 +15,7 @@ import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
-import com.hkgov.csb.eproof.service.CertInfoService;
-import com.hkgov.csb.eproof.service.DocumentGenerateService;
-import com.hkgov.csb.eproof.service.FileService;
-import com.hkgov.csb.eproof.service.LetterTemplateService;
+import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -181,6 +178,9 @@ public class CertInfoServiceImpl implements CertInfoService {
         });
 
         certInfoRepository.saveAll(toBeScheduledCert);
+
+        // Set access token to null to force the following action to get a new access token
+        eProofConfigProperties.setAccessToken(null);
 
         return pendingSignAndIssueCertList;
     }
@@ -491,12 +491,12 @@ public class CertInfoServiceImpl implements CertInfoService {
     public void issueCert(Long certInfoId) throws Exception {
 
 
-        List<CertEproof> certEproofList = certEproofRepository.findByCertInfoId(certInfoId);
+        CertEproof certEproof = certEproofRepository.findByCertInfoId(certInfoId);
 
-        CertEproof certEproof = null;
+      /*  CertEproof certEproof = null;
         if(certEproofList!=null && !certEproofList.isEmpty()){
             certEproof = certEproofList.get(0);
-        }
+        }*/
        /* if(!CertStage.SIGN_ISSUE.equals(certInfo.getCertStage()) && !CertStatus.SUCCESS.equals(certInfo.getCertStatus())){
             throw new GenericException(ExceptionEnums.CERT_INFO_NOT_UPDATE);
         }*/
@@ -634,18 +634,6 @@ public class CertInfoServiceImpl implements CertInfoService {
         logger.debug("[KeyName]" + keyName);
         logger.debug("[uuid]" + uuid);
         logger.debug("[returnVersion]" + returnVersion);
-        //Create CertEproof record with response from eProof
-        createCertEproofRecord(
-                certInfoId,
-                uuid,
-                returnVersion,
-                token,
-                (String)registerResult.get("eProofJson"),
-                "",
-                eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
-                "1",
-                certInfo.getEproofId()
-        );
 
 
         // Get QR code string from eProof
@@ -656,7 +644,46 @@ public class CertInfoServiceImpl implements CertInfoService {
                 null,
                 -1
         );
+
         logger.debug("[qrCodeString]" + qrCodeString);
+
+        CertEproof certEproof = certEproofRepository.findByCertInfoId(certInfoId);
+
+        if(certEproof != null){
+            //TODO Signed cert and sign again
+            logger.error("Found existing cert_eproof record. Update cert_eproof record. Cert name: "+certInfo.getName());
+
+            updateCertEproofRecord(
+                    certEproof,
+                    uuid,
+                    returnVersion,
+                    token,
+                    (String)registerResult.get("eProofJson"),
+                    "",
+                    eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
+                    "1",
+                    certInfo.getEproofId(),
+                    qrCodeString
+            );
+            //            throw new GenericException(ExceptionEnums.CERT_EPROOF_EXISTING_RECORD_FOUND);
+        } else{
+            //Create CertEproof record with response from eProof
+            createCertEproofRecord(
+                    certInfoId,
+                    uuid,
+                    returnVersion,
+                    token,
+                    (String)registerResult.get("eProofJson"),
+                    "",
+                    eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
+                    "1",
+                    certInfo.getEproofId(),
+                    qrCodeString
+            );
+        }
+
+
+
 
         // Update the PDF
         File latestCert = fileRepository.getLatestPdfForCert(certInfoId);
@@ -693,6 +720,30 @@ public class CertInfoServiceImpl implements CertInfoService {
         // return the binary array
         return baos.toByteArray();
         //Completed preparing for Eproof PDF
+    }
+
+    private CertEproof updateCertEproofRecord(CertEproof certEproof,
+                                        String uuid,
+                                        Integer version,
+                                        String token,
+                                        String eWalletJson,
+                                        String eCertHtml,
+                                        String url,
+                                        String keyName,
+                                        String eproofId,
+                                        String qrCodeString) {
+        certEproof.setEproofId(eproofId);
+        certEproof.setKeyName(keyName);
+        certEproof.setUuid(uuid);
+        certEproof.setVersion(version);
+        certEproof.setToken(token);
+        certEproof.setEWalletJson(eWalletJson);
+        certEproof.setECertHtml(eCertHtml);
+        certEproof.setUrl(url);
+        certEproof.setQrCodeString(qrCodeString);
+        certEproofRepository.save(certEproof);
+
+        return certEproof;
     }
 
     @Override
@@ -754,20 +805,18 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     private CertEproof createCertEproofRecord(
-                                        Long certInfoId,
-                                        String uuid,
-                                        Integer version,
-                                        String token,
-                                        String eWalletJson,
-                                        String eCertHtml,
-                                        String url,
-                                        String keyName,
-                                        String eproofId){
+            Long certInfoId,
+            String uuid,
+            Integer version,
+            String token,
+            String eWalletJson,
+            String eCertHtml,
+            String url,
+            String keyName,
+            String eproofId,
+            String qrCodeString){
 
-        List<CertEproof> certInfo = certEproofRepository.findByCertInfoId(certInfoId);
-        if(certInfo!= null && !certInfo.isEmpty()){
-            throw new GenericException(ExceptionEnums.CERT_EPROOF_EXISTING_RECORD_FOUND);
-        }
+
 
         CertEproof certEproof = new CertEproof();
         certEproof.setCertInfoId(certInfoId);
@@ -779,6 +828,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         certEproof.setEWalletJson(eWalletJson);
         certEproof.setECertHtml(eCertHtml);
         certEproof.setUrl(url);
+        certEproof.setQrCodeString(qrCodeString);
         certEproofRepository.save(certEproof);
 
         return certEproof;

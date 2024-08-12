@@ -27,12 +27,14 @@ public class CertEproof {
     private Integer version;
     @Column(name = "token")
     private String token;
-    @Column(name = "e_wallet_json",columnDefinition = "varchar(4000)")
+    @Column(name = "e_wallet_json",columnDefinition = "text")
     private String eWalletJson;
     @Column(name = "e_cert_html")
     private String eCertHtml;
     @Column(name = "url")
     private String url;
+    @Column(name = "qr_code_string",columnDefinition = "text")
+    private String qrCodeString;
 
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
