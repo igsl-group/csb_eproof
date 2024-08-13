@@ -121,6 +121,11 @@ document:
   #   Used for libre office conversion
   generate-temp-path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
   libreoffice-program-path: C:\Program Files\LibreOffice\program
+  qr-code:
+    x: 525
+    y: 772
+    height: 50
+    width: 50
 
 minio:
   endpoint: https://csbeprof.t1cosg-obj001.gcisdctr.hksarg

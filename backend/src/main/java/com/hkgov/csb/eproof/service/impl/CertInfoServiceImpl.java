@@ -2,6 +2,11 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.encoder.ByteMatrix;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
@@ -21,12 +26,15 @@ import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
+import com.itextpdf.text.pdf.qrcode.WriterException;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +46,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,6 +94,17 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     private static final Gson GSON = new Gson();
 
+    @Value("${document.qr-code.height}")
+    private Integer qrCodeHeight;
+
+    @Value("${document.qr-code.width}")
+    private Integer qrCodeWidth;
+
+    @Value("${document.qr-code.x}")
+    private Integer qrCodeX;
+
+    @Value("${document.qr-code.y}")
+    private Integer qrCodeY;
 
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -682,9 +703,6 @@ public class CertInfoServiceImpl implements CertInfoService {
             );
         }
 
-
-
-
         // Update the PDF
         File latestCert = fileRepository.getLatestPdfForCert(certInfoId);
         InputStream is = minioUtil.getFileAsStream(latestCert.getPath());
@@ -704,6 +722,14 @@ public class CertInfoServiceImpl implements CertInfoService {
             info.setTitle(pdfTitle);
             info.setAuthor(eProofConfigProperties.getIssuerNameEn());
 
+            // Generate the QR code image
+            byte [] qrCodeImageBinary = generateQrCodeBinary(qrCodeString);
+
+            PDImageXObject qrCodeImage = PDImageXObject.createFromByteArray(pdDocument, qrCodeImageBinary, "QR Code");
+            try (PDPageContentStream contentStream = new PDPageContentStream(pdDocument, pdDocument.getPage(0), PDPageContentStream.AppendMode.APPEND, true)) {
+                contentStream.drawImage(qrCodeImage, qrCodeX, qrCodeY, qrCodeWidth, qrCodeHeight);
+            }
+
             String pdfKeyword = "";
 
             pdfKeyword = EProofUtil.getPdfKeyword(uuid, returnVersion, keyName, qrCodeString);
@@ -720,6 +746,16 @@ public class CertInfoServiceImpl implements CertInfoService {
         // return the binary array
         return baos.toByteArray();
         //Completed preparing for Eproof PDF
+    }
+
+    private byte[] generateQrCodeBinary(String qrCodeString) throws WriterException, com.google.zxing.WriterException, IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeString, BarcodeFormat.QR_CODE,qrCodeWidth,qrCodeHeight);
+        BufferedImage bi = MatrixToImageWriter.toBufferedImage(bitMatrix);
+        ImageIO.write(bi,"png",baos);
+        baos.close();
+        return baos.toByteArray();
     }
 
     private CertEproof updateCertEproofRecord(CertEproof certEproof,
