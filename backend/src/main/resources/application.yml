@@ -122,10 +122,10 @@ document:
   generate-temp-path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
   libreoffice-program-path: C:\Program Files\LibreOffice\program
   qr-code:
-    x: 0
-    y: 772
-    height: 100
-    width: 100
+    x: 15
+    y: 760
+    height: 75
+    width: 75
 
 minio:
   endpoint: http://192.168.2.175:9000
