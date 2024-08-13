@@ -7,7 +7,7 @@ import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import { TYPE } from '@/config/enum';
 import { examProfileAPI } from '@/api/request';
-
+import dayjs from "dayjs";
 
 const ImportModal = (props) =>  {
 
@@ -46,7 +46,7 @@ const ImportModal = (props) =>  {
             inputName: 'Exam Date',
             required: true,
             requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Exam Date" is not allowed to be empty.`,
-            validate: (value) => value === record?.examProfile?.examDate,
+            validate: (value) => dayjs(value, 'D/M/YYYY').isSame(dayjs(record?.examProfile?.examDate, 'YYYY-MM-DD'), 'day'),
             validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Exam Date" is not correct compared with original record.`,
 
           },

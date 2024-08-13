@@ -59,7 +59,7 @@ const Login = () =>  {
     console.log('Success:', values);
     await auth.loginAction(values);
     await auth.getProfile();
-    navigate('/ExamProfile');
+    navigate('/Restricted');
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
