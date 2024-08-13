@@ -251,21 +251,36 @@ public class CertInfoServiceImpl implements CertInfoService {
         List<ExamScoreDto> markDtoList = new ArrayList<>();
 
         if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese",certInfo.getUcGrade()));
+            markDtoList.add(new ExamScoreDto("Use of Chinese",convertGradeToReadableGrade(certInfo.getUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
-            markDtoList.add(new ExamScoreDto("Use of English",certInfo.getUeGrade()));
+            markDtoList.add(new ExamScoreDto("Use of English",convertGradeToReadableGrade(certInfo.getUeGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
-            markDtoList.add(new ExamScoreDto("Aptitude Test",certInfo.getAtGrade()));
+            markDtoList.add(new ExamScoreDto("Aptitude Test",convertGradeToReadableGrade(certInfo.getAtGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
-            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", certInfo.getBlnstGrade()));
+            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
         }
 
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
         return map;
+    }
+
+    private String convertGradeToReadableGrade(String originalGrade){
+        if (originalGrade == null){
+            return "";
+        }
+        String returnString = "";
+        switch(originalGrade){
+            case "P": returnString = "Pass"; break;
+            case "F": returnString = "Fail"; break;
+            case "L1": returnString = "Level 1"; break;
+            case "L2": returnString = "Level 2"; break;
+        }
+
+        return returnString;
     }
 
     @Transactional(noRollbackFor = Exception.class)
@@ -285,7 +300,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 allFailedTemplate = IOUtils.toByteArray(letterTemplateService.getTemplateByNameAsInputStream(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE));
             }
 
-            InputStream appliedTemplate = "Pass".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
             byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
             appliedTemplate.close();
             IOUtils.close(appliedTemplate);
@@ -586,7 +601,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         String eproofId = certInfo.getEproofId();
 
         String eproofTemplateCode;
-        if("Pass".equals(certInfo.getLetterType())){
+        if("P".equals(certInfo.getLetterType())){
             eproofTemplateCode = "CSBEPROOF";
         }else{
             eproofTemplateCode = "CSBEPROOFFAIL";
@@ -632,7 +647,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         String keyName = "1";
         String eproofTypeId = null;
 
-        if("Pass".equals(certInfo.getLetterType())){
+        if("P".equals(certInfo.getLetterType())){
             eproofTypeId = eProofConfigProperties.getPassTemplateTypeId();
         } else {
             eproofTypeId = eProofConfigProperties.getFailTemplateTypeId();
@@ -985,9 +1000,9 @@ public class CertInfoServiceImpl implements CertInfoService {
                 if(!csv.getPassportNo().isEmpty() && !passports.add(csv.getPassportNo())){
                     throw new ServiceException(ResultCode.PASSPORT_EXITS,row);
                 }
-                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("Fail") && !csv.getLetterType().equals("Pass"))){
-                    throw new ServiceException(ResultCode.CSV_LETTER_TYPE,row);
-                }
+//                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("Fail") && !csv.getLetterType().equals("Pass"))){
+//                    throw new ServiceException(ResultCode.CSV_LETTER_TYPE,row);
+//                }
                 if(!codeUtil.validEmai(csv.getEmail())){
                     throw new ServiceException(ResultCode.CSV_EMAIL_ERROR,row);
                 }

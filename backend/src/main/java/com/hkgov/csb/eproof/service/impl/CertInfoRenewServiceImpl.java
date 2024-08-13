@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -75,6 +76,10 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
+        // Change the format of date for examMap
+        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+
         return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
     }
 
@@ -84,21 +89,36 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         List<ExamScoreDto> markDtoList = new ArrayList<>();
 
         if(StringUtils.isNotEmpty(certInfoRenew.getNewUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese",certInfoRenew.getNewUcGrade()));
+            markDtoList.add(new ExamScoreDto("Use of Chinese",convertGradeToReadableGrade(certInfoRenew.getNewUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfoRenew.getNewUeGrade())){
-            markDtoList.add(new ExamScoreDto("Use of English",certInfoRenew.getNewUeGrade()));
+            markDtoList.add(new ExamScoreDto("Use of English",convertGradeToReadableGrade(certInfoRenew.getNewUeGrade())));
         }
         if(StringUtils.isNotEmpty(certInfoRenew.getNewAtGrade())){
-            markDtoList.add(new ExamScoreDto("Aptitude Test",certInfoRenew.getNewAtGrade()));
+            markDtoList.add(new ExamScoreDto("Aptitude Test",convertGradeToReadableGrade(certInfoRenew.getNewAtGrade())));
         }
         if(StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade())) {
-            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", certInfoRenew.getNewBlGrade()));
+            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", convertGradeToReadableGrade(certInfoRenew.getNewBlGrade())));
         }
 
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
         return map;
+    }
+
+    private String convertGradeToReadableGrade(String originalGrade){
+        if (originalGrade == null){
+            return "";
+        }
+        String returnString = "";
+        switch(originalGrade){
+            case "P": returnString = "Pass"; break;
+            case "F": returnString = "Fail"; break;
+            case "L1": returnString = "Level 1"; break;
+            case "L2": returnString = "Level 2"; break;
+        }
+
+        return returnString;
     }
 
     @Override
@@ -107,7 +127,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         try{
             byte[] atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
             byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
-            InputStream appliedTemplate = "Pass".equals(certInfoRenew.getNewLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            InputStream appliedTemplate = "P".equals(certInfoRenew.getNewLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
 
             byte [] mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForRenewCert(certInfoRenew),getTableLoopMapForCertRenew(certInfoRenew));
             appliedTemplate.close();

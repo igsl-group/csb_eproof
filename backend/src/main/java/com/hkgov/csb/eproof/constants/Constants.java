@@ -2,7 +2,7 @@ package com.hkgov.csb.eproof.constants;
 
 public final class Constants {
     public static final String DATE_PATTERN = "yyyy-MM-dd";
-    public static final String DATE_PATTERN_2 = "dd MMM yyyy";
+    public static final String DATE_PATTERN_2 = "dd MMMM yyyy";
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_TIME_PATTERN_2 = "yyyy-MM-dd-HH-mm-ss";
     public static final String COOKIE_KEY_LOGIN_UID = "uid";
