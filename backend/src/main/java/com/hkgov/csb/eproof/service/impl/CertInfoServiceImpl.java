@@ -208,7 +208,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
 //    @Transactional(noRollbackFor = Exception.class)
-    @Async
+
     public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
         List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
@@ -266,7 +266,8 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Transactional(noRollbackFor = Exception.class)
     @Override
-    public void singleGeneratePdf(CertInfo certInfo,
+    @Async("generatePdfThreadPool")
+    public void     singleGeneratePdf(CertInfo certInfo,
                                   byte[] atLeastOnePassedTemplate,
                                   byte [] allFailedTemplate,
                                   boolean isBatchMode,boolean isNewCertInfo) throws Exception {
