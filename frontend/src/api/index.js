@@ -5,8 +5,6 @@ import { API_ERROR_MESSAGE, LOGIN_ERROR_MESSAGE } from "../utils/util";
 import { showLoading, hideLoading } from "@/components/Loading";
 
 let baseURL = `/api/v1`;
-// let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MjIyMjcyMzF9.se9fvaAORkYtJQceKx0EzNcnhw31oXHKsZb3XaCnLW0";
-// let token = "eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjQsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MjI1OTI4MjN9.YsSD5V9IC137AWTbTG_QiiqorR21aWbDp9uSH3FnT3w";
 const headers = {};
 
 if (process.env.NODE_ENV === 'development') {
@@ -14,7 +12,7 @@ if (process.env.NODE_ENV === 'development') {
   // baseURL = 'http://192.168.1.170:8080/api/v1';
   // baseURL = 'http://192.168.2.227:8081/api/v1';
   // baseURL = 'http://192.168.1.171:8080/api/v1';
-  baseURL = 'https://localhost:9001/api/v1';
+  baseURL = 'http://localhost:8080/api/v1';
   // headers.Authorization = `Bearer ${token}`;
 }
 
