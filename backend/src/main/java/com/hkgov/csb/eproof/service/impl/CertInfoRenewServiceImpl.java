@@ -1,11 +1,12 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
-import com.hkgov.csb.eproof.dto.CertDetailDto;
+import com.hkgov.csb.eproof.dto.CertInfoDto;
 import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.dto.CertRevokeDto;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
@@ -250,17 +251,19 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         User user = userRepository.getUserByDpUserId(userName);
         List<CertAction> certActions = certActionRepository.findByUser(user.getId());
         CertRevokeDto certRevokeDto = new CertRevokeDto();
-        List<CertDetailDto> certInfos = new ArrayList<>();
+        List<CertInfoDto> certInfos = new ArrayList<>();
         for(int i = 0; i < certActions.size(); i++){
             CertAction certAction = certActions.get(i);
-            if(i == 0){
-                certRevokeDto.setName(certAction.getCertInfos().get(0).getName());
-                certRevokeDto.setHkid(certAction.getCertInfos().get(0).getHkid());
-            }
             CertRevokeDto revokeDto = CertActionMapper.INSTANCE.sourceToDestination(certAction);
             certInfos.addAll(revokeDto.getCertInfos());
         }
         certRevokeDto.setCertInfos(certInfos);
+        if(CollUtil.isNotEmpty(certInfos)){
+            for(CertInfoDto infoDto : certInfos){
+                certRevokeDto.setName(StringUtils.isBlank(certRevokeDto.getName()) ? infoDto.getName() : certRevokeDto.getName());
+                certRevokeDto.setHkid(StringUtils.isBlank(certRevokeDto.getHkid()) ? infoDto.getHkid() : certRevokeDto.getHkid());
+            }
+        }
         return certRevokeDto;
     }
 

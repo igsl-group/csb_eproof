@@ -15,5 +15,5 @@ public class CertRevokeDto {
     String type;
     String hkid;
     String name;
-    List<CertDetailDto> certInfos;
+    List<CertInfoDto> certInfos;
 }
