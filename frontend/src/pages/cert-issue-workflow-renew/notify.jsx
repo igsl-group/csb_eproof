@@ -516,7 +516,7 @@ const Notify = () =>  {
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
                 <Col span={24} md={12} xl={8} xxl={6}>
-                  <HKID name={'newHkid'} label={'New HKID'} size={50}/>
+                  <Text name={'newHkid'} label={'New HKID'} size={50}/>
                 </Col>
                 <Col span={24} md={12} xl={8} xxl={6}>
                   <Text name={'newPassport'} label={'New Passport'} size={50}/>

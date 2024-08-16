@@ -202,8 +202,8 @@ const Candidate = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
       sorter: true,
     },

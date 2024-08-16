@@ -1,11 +1,21 @@
-﻿Exam Date,Name in English,HKID,Passport No.,Email,UE Grade,UC Grade,AT Grade,BLNST Grade,Letter Type
-01/01/2024,CHAN TAI MAN,T7700002,,taiman.chan@hotmail.com,L1,L2,Pass,,Pass
-01/01/2024,WONG TAI MAN,,K12345678,taiman.wong@hotmail.com,L2,Fail,,Pass,Pass
-01/01/2024,MAK TAI MAN,Y4781013,,taiman.mak@hotmail.com,Fail,L2,,,Pass
-01/01/2024,LUK TAI MAN,,B12345678,taiman.luk@hotmail.com,Fail,L2,Fail,Fail,Pass
-01/01/2024,TANG TAI MAN,P3566564,,taiman.tang@hotmail.com,Fail,L2,Pass,Pass,Pass
-01/01/2024,LEE TAI MAN,E8118241,,taiman.lee@hotmail.com,Fail,,Fail,Fail,Fail
-01/01/2024,LAM TAI MAN,M2737952,,taiman.lam@hotmail.com,,Fail,Fail,,Fail
-01/01/2024,YEUNG TAI MAN,K5337526,,taiman.yeung@hotmail.com,Fail,,,,Fail
-01/01/2024,MA TAI MAN,V0710458,,taiman.ma@hotmail.com,Fail,Fail,Fail,Fail,Fail
-01/01/2024,IP TAI MAN,,D12345678,taiman.ip@hotmail.com,Fail,,,Fail,Fail
+doe,name,hkid,passport,email,ue_grade,uc_grade,at_grade,bl_grade,lett_type
+"01/07/2024","Test1","","Test1234567890123456","test1@csb.gov.hk","F","","","","F"
+"01/07/2024","Test2","","01234567890","test2@csb.gov.hk","","F","F","","F"
+"01/07/2024","Test3","T 000906(1)","C123456","test3@csb.gov.hk","","F","","","F"
+"01/07/2024","Test4","T 000907(A)","","test4@csb.gov.hk","F","","F","","F"
+"01/07/2024","Test5","T 023049(3)","","test1@csb.gov.hk","F","","","","F"
+"01/07/2024","Test6","T 023192(9)","","test1@csb.gov.hk","","","","F","F"
+"01/07/2024","Test7","T 023335(2)","","test1@csb.gov.hk","","F","","","F"
+"01/07/2024","Test8","T 023763(3)","","test1@csb.gov.hk","","","F","","F"
+"01/07/2024","Test9","T 023764(1)","","test1@csb.gov.hk","F","F","F","F","F"
+"01/07/2024","Test10","T 023906(7)","","test1@csb.gov.hk","","F","","","F"
+"01/07/2024","Test11","T 023907(5)","","test1@csb.gov.hk","","","P","P","P"
+"01/07/2024","Test12","T 000201(6)","","test1@csb.gov.hk","L2","L2","P","P","P"
+"01/07/2024","Test13","T 000202(4)","","test1@csb.gov.hk","F","F","F","P","P"
+"01/07/2024","Test14","T 000203(2)","","test1@csb.gov.hk","","","","P","P"
+"01/07/2024","Test15","T 000204(0)","","test1@csb.gov.hk","","L1","","P","P"
+"01/07/2024","Test16","T 000205(9)","","test1@csb.gov.hk","L1","L2","P","F","P"
+"01/07/2024","Test17","T 000206(7)","","test1@csb.gov.hk","","L2","P","P","P"
+"01/07/2024","Test18","T 000207(5)","","test1@csb.gov.hk","","","","P","P"
+"01/07/2024","Test19","T 000622(4)","","test1@csb.gov.hk","","F","","P","P"
+"01/07/2024","Test20","T 000765(4)","","test1@csb.gov.hk","","","","P","P"

@@ -7,7 +7,7 @@ import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import { TYPE } from '@/config/enum';
 import { examProfileAPI } from '@/api/request';
-
+import dayjs from "dayjs";
 
 const ImportModal = (props) =>  {
 
@@ -42,76 +42,76 @@ const ImportModal = (props) =>  {
       CSVFileValidator(file, {
         headers: [
           {
-            name: 'Exam Date',
+            name: 'doe',
             inputName: 'Exam Date',
             required: true,
-            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Exam Date" is not allowed to be empty.`,
-            validate: (value) => value === record?.examProfile?.examDate,
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Exam Date" is not correct compared with original record.`,
+            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "doe" is not allowed to be empty.`,
+            validate: (value) => dayjs(value, 'DD/MM/YYYY').isSame(dayjs(record?.examProfile?.examDate, 'YYYY-MM-DD'), 'day'),
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "doe" is not correct compared with original record.`,
 
           },
           {
-            name: 'Name in English',
+            name: 'name',
             inputName: 'Name in English',
             required: true,
-            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Name in English" is not allowed to be empty.`,
+            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "name" is not allowed to be empty.`,
             validate: (value) => value === record?.name,
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Name in English" is not correct compared with original record.`,
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "name" is not correct compared with original record.`,
 
           },
           {
-            name: 'HKID',
+            name: 'hkid',
             inputName: 'HKID',
             unique: false,
             optional: true,
             validate: (value) => value === record?.hkid,
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "HKID" is not correct compared with original record.`,
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "hkid" is not correct compared with original record.`,
           },
           {
-            name: 'Passport No.',
+            name: 'passport',
             inputName: 'Passport No.',
             optional: true,
             validate: (value) => value === record?.passportNo,
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Passport No." is not correct compared with original record.`,
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "passport" is not correct compared with original record.`,
           },
           {
-            name: 'Email',
+            name: 'email',
             inputName: 'Email',
             required: true,
-            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "Email" is not allowed to be empty`,
+            requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "email" is not allowed to be empty`,
             validate: (value) => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value),
             validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "Email" format.`,
           },
 
           {
-            name: 'UE Grade',
+            name: 'ue_grade',
             inputName: 'UE Grade',
-            validate: (value) => ['L1', 'L2', 'Pass', 'Fail', ''].includes(value),
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "UE Grade", only allow "L1", "L2", "Pass", "Fail" and "".`,
+            validate: (value) => ['L1', 'L2', 'P', 'F', ''].includes(value),
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "ue_grade", only allow "L1", "L2", "P", "F" and "".`,
           },
           {
-            name: 'UC Grade',
+            name: 'uc_grade',
             inputName: 'UC Grade',
-            validate: (value) => ['L1', 'L2', 'Pass', 'Fail', ''].includes(value),
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "UC Grade", only allow "L1", "L2", "Pass", "Fail" and "".`,
+            validate: (value) => ['L1', 'L2', 'P', 'F', ''].includes(value),
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "uc_grade", only allow "L1", "L2", "P", "F" and "".`,
           },
           {
-            name: 'AT Grade',
+            name: 'at_grade',
             inputName: 'AT Grade',
-            validate: (value) => ['L1', 'L2', 'Pass', 'Fail', ''].includes(value),
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "AT grade", only allow "L1", "L2", "Pass", "Fail" and "".`,
+            validate: (value) => ['L1', 'L2', 'P', 'F', ''].includes(value),
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "at_grade", only allow "L1", "L2", "P", "F" and "".`,
           },
           {
-            name: 'BLNST Grade',
+            name: 'bl_grade',
             inputName: 'BLNST Grade',
-            validate: (value) => ['L1', 'L2', 'Pass', 'Fail', ''].includes(value),
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "BLNST Grade", only allow "L1", "L2", "Pass", "Fail" and "".`,
+            validate: (value) => ['L1', 'L2', 'P', 'F', ''].includes(value),
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "bl_grade", only allow "L1", "L2", "P", "F" and "".`,
           },
           {
-            name: 'Letter Type',
+            name: 'lett_type',
             inputName: 'Letter Type',
-            validate: (value) => ['Pass', 'Fail'].includes(value),
-            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "Letter Type", only allow "Pass" and "Fail".`,
+            validate: (value) => ['P', 'F'].includes(value),
+            validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "lett_type", only allow "P" and "F".`,
             required: true,
           }
         ]

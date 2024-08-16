@@ -5,7 +5,7 @@
 ```csv
 HKID/Passport
 A123456
-A123456(3)    <---- HKID
+A 123456(3)    <---- HKID, 把Space 和 ( ) 拿掉
 H1234567890
 ```
 
@@ -21,17 +21,17 @@ Assume return data:
 
 | id | exam_date  | name         | hkid   | passport | ue_grade | uc_grade | at_grade | blnst_grade |
 |----|------------|--------------|--------|----------|----------|----------|----------|-------------|
-| 1  | 2022-01-21 | Chan Tai Man | A12345 |          | Pass     | Fail     | Pass     | Fail        |
-| 2  | 2024-01-21 | Chan Tai Man | A12345 |          | Pass     | Fail     | Pass     | Fail        |
-| 3  | 2024-02-21 | Wong Tai Man |        | H12356   |          | Fail     | Pass     |             |
+| 1  | 2022-01-21 | Chan Tai Man | A12345 |          | P        | F        | P        | F           |
+| 2  | 2024-01-21 | Chan Tai Man | A12345 |          | P        | F        | P        | F           |
+| 3  | 2024-02-21 | Wong Tai Man |        | H12356   |          | F        | P        |             |
 
 Return CSV:
 > Remark Return Exam Date: 21/1/2024
 ```csv
 Exam Date,Name in English,HKID,Passport No.,UE Grade,UC Grade,AT Grade,BLNST Grade
-21/1/2024,Chan Tai Man,A12345,,Pass,Fail,Pass,Fail  <---- Case 1 - id = 1
-21/1/2022,Chan Tai Man,A12345,,,Pass,,Pass  <---- Case 1 - id = 2
-21/1/2024,Wong Tai Man,,H12356,,Fail,Pass,,  <---- Case 1 - id 3
+21/1/2024,Chan Tai Man,A12345,,P,F,P,F  <---- Case 1 - id = 1
+21/1/2022,Chan Tai Man,A12345,,,P,,P    <---- Case 1 - id = 2
+21/1/2024,Wong Tai Man,,H12356,,F,P,,   <---- Case 1 - id 3
 ```
 
 ### Case: 2

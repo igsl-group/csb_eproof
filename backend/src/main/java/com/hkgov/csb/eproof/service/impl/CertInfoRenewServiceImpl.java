@@ -5,7 +5,6 @@ import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
-import com.hkgov.csb.eproof.dto.CertDetailDto;
 import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.dto.CertRevokeDto;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
@@ -245,23 +244,19 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     }
 
     @Override
-    public CertRevokeDto getTodoRevoke() {
-        String userName = HttpUtils.getUser();
-        User user = userRepository.getUserByDpUserId(userName);
-        List<CertAction> certActions = certActionRepository.findByUser(user.getId());
-        CertRevokeDto certRevokeDto = new CertRevokeDto();
-        List<CertDetailDto> certInfos = new ArrayList<>();
-        for(int i = 0; i < certActions.size(); i++){
+    public List<CertRevokeDto> getTodoRevoke() {
+        List<CertAction> certActions = certActionRepository.findAll();
+        List<CertRevokeDto> certRevokeDtos = CertActionMapper.INSTANCE.sourceToDestination(certActions);
+        for(int i = 0; i < certRevokeDtos.size(); i++){
             CertAction certAction = certActions.get(i);
-            if(i == 0){
-                certRevokeDto.setName(certAction.getCertInfos().get(0).getName());
-                certRevokeDto.setHkid(certAction.getCertInfos().get(0).getHkid());
+            CertRevokeDto revokeDto = certRevokeDtos.get(i);
+            revokeDto.setEmailTarget(certAction.getCanEmailAddress());
+            revokeDto.setEmailContent(certAction.getCanEmailContent());
+            if(Objects.nonNull(certAction.getUser())){
+                revokeDto.setApprover(certAction.getUser().getName());
             }
-            CertRevokeDto revokeDto = CertActionMapper.INSTANCE.sourceToDestination(certAction);
-            certInfos.addAll(revokeDto.getCertInfos());
         }
-        certRevokeDto.setCertInfos(certInfos);
-        return certRevokeDto;
+        return certRevokeDtos;
     }
 
     @Override

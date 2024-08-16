@@ -27,14 +27,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/cert")
@@ -288,7 +284,13 @@ public class CertController {
     }
 
     @GetMapping("/getTodo/revoke")
-    public Result<CertRevokeDto> getTodoRevoke(){
+    public Result<List<CertRevokeDto>> getTodoRevoke(){
         return Result.success(certInfoRenewService.getTodoRevoke());
+    }
+
+
+    @PostMapping("/enquiryResult/csv")
+    public ResponseEntity<byte[]> enquiryResult(@RequestBody ExportCertInfoDto requestDto) {
+        return certInfoService.enquiryResult(requestDto);
     }
 }

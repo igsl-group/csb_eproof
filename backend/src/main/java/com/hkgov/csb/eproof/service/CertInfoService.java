@@ -5,6 +5,7 @@ import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -68,4 +69,6 @@ public interface CertInfoService {
 
     void approveRevoke(Long certActionId) throws Exception;
     void actualRevokeWithEproofModule(Long certInfoId) throws Exception;
+
+    ResponseEntity<byte[]> enquiryResult(ExportCertInfoDto requestDto);
 }

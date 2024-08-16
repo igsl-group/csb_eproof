@@ -13,6 +13,7 @@ import SignAndIssueWorkflow from '@/pages/cert-issue-workflow/issue';
 import NotifyWorkflow from '@/pages/cert-issue-workflow/notify';
 import HistoricalResultList from '@/pages/historical-result';
 import AuditLog from '@/pages/system/audit-log';
+import Restricted from '@/pages/restricted';
 
 import GenerateWorkflowRenew from '@/pages/cert-issue-workflow-renew/generate';
 import SignAndIssueWorkflowRenew from '@/pages/cert-issue-workflow-renew/issue';
@@ -320,6 +321,10 @@ const routeList = [
         ignore: false,
         show: true,
         role: [],
+      },
+      {
+        path: '/Restricted',
+        element: <Restricted />,
       },
       // {
       //   id: 50,

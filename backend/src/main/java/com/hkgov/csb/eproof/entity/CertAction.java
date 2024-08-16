@@ -44,4 +44,7 @@ public class CertAction extends BaseEntity{
     )
     private List<CertInfo> certInfos;
 
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "approver", insertable = false, updatable = false)
+    private User user;
 }
