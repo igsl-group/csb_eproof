@@ -87,8 +87,10 @@ public class LocalSigningController {
             @PathVariable String examProfileSerialNo) throws Exception {
 
         String jwtTokenFromFrontEnd = request.getHeader("Authorization");
-//        jwtTokenFromFrontEnd = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
 
+        if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
+        }
 
         localSigningService.init();
         String publicKey = localSigningService.getSigningCert();
