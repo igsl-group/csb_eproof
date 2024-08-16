@@ -6,7 +6,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.encoder.ByteMatrix;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
@@ -14,19 +13,24 @@ import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.*;
+import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
-import com.hkgov.csb.eproof.service.*;
+import com.hkgov.csb.eproof.service.CertInfoService;
+import com.hkgov.csb.eproof.service.DocumentGenerateService;
+import com.hkgov.csb.eproof.service.FileService;
+import com.hkgov.csb.eproof.service.LetterTemplateService;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.itextpdf.text.pdf.qrcode.WriterException;
+import com.opencsv.CSVWriter;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -41,17 +45,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -834,6 +839,42 @@ public class CertInfoServiceImpl implements CertInfoService {
         CertEproof certEproof = certInfo.getCertEproof();
         if (certEproof != null) {
             EProofUtil.revokeEproof(certEproof.getUuid());
+        }
+    }
+
+    @Override
+    public ResponseEntity<byte[]> enquiryResult(ExportCertInfoDto requestDto) {
+        try {
+            List<CertInfo> infoList = new ArrayList<>();
+            if(StringUtils.isNotBlank(requestDto.getHkid())){
+                infoList = certInfoRepository.findAllByHkid(requestDto.getHkid());
+            }
+            if(StringUtils.isNotBlank(requestDto.getPassport()) && StringUtils.isBlank(requestDto.getHkid())){
+                infoList = certInfoRepository.findAllByPassport(requestDto.getPassport());
+            }
+            if(infoList.isEmpty()){
+                throw new GenericException(ExceptionEnums.EXAM_INFO_NOT_EXIST);
+            }
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
+            csvWriter.writeNext(new String[]{"Exam Date","Name","HKID", "Passport","Email","Bl Grade","Ue Grade", "Uc Grade","At Grade","Remark"});
+
+            for (CertInfo info : infoList) {
+                csvWriter.writeNext(new String[]{info.getExamProfile().getExamDate().toString(),info.getName(), info.getHkid(),
+                        info.getPassportNo(),info.getEmail(), info.getBlnstGrade(), info.getUeGrade(), info.getUcGrade(), info.getAtGrade(), info.getRemark()});
+            }
+            csvWriter.close();
+            byte[] csvBytes = outputStream.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            String flieName = "attachment; filename=" + infoList.get(0).getName() + " Exam results"+"_" + System.currentTimeMillis() + ".csv";
+            headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, flieName);
+            return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            if(e instanceof GenericException){
+                throw (GenericException) e;
+            }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV", e);
         }
     }
 

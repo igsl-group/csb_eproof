@@ -7,6 +7,8 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 /**
 * @author 20768
 * @description 针对表【cert_action】的数据库操作Mapper
@@ -17,6 +19,6 @@ import org.mapstruct.factory.Mappers;
 public interface CertActionMapper {
     CertActionMapper INSTANCE = Mappers.getMapper(CertActionMapper.class);
 
-    CertRevokeDto sourceToDestination(CertAction source);
+    List<CertRevokeDto> sourceToDestination(List<CertAction> source);
 
 }

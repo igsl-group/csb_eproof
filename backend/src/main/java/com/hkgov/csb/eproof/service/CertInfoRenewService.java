@@ -26,7 +26,7 @@ public interface CertInfoRenewService {
 
     void revoke(List<Long> certInfoIdList, CertRevokeDto params);
 
-    CertRevokeDto getTodoRevoke();
+    List<CertRevokeDto> getTodoRevoke();
 
     Page<CertInfoRenew> search(CertRenewSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
