@@ -23,6 +23,7 @@ public enum ExceptionEnums {
     CANNOT_UPLOAD_SIGNED_PDF_FOR_CERT("signed.pdf.upload.error","signed.pdf.upload.error"),
     CERT_EPROOF_EXISTING_RECORD_FOUND("cert.eproof.existing.record.found","Cert Eproof existing record found. Cannot create new cert eproof record."),
     EXAM_INFO_NOT_EXIST("exam.info.not.exist","Exam info does not exist."),
+    UPLOAD_FLIE_IS_EMPTY("upload.file.is.empty","Upload file is empty."),
 
     // Letter template
     TEMPLATE_NAME_CANNOT_BE_NULL("template.name.cannot.null","Not accept null template name."),

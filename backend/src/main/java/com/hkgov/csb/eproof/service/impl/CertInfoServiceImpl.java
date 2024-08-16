@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
@@ -13,7 +14,6 @@ import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.*;
-import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
@@ -28,9 +28,9 @@ import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
+import com.hkgov.csb.eproof.util.EProof.FileUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.itextpdf.text.pdf.qrcode.WriterException;
-import com.opencsv.CSVWriter;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -56,13 +56,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -96,6 +100,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final EmailTemplateRepository emailTemplateRepository;
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
     private final CertActionRepository certActionRepository;
+    private final CombinedHistoricalResultBeforeRepository  beforeRepository;
 
     private static final Gson GSON = new Gson();
 
@@ -843,39 +848,42 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public ResponseEntity<byte[]> enquiryResult(ExportCertInfoDto requestDto) {
-        try {
-            List<CertInfo> infoList = new ArrayList<>();
-            if(StringUtils.isNotBlank(requestDto.getHkid())){
-                infoList = certInfoRepository.findAllByHkid(requestDto.getHkid());
+    public ResponseEntity<byte[]> enquiryResult(List<String> params) {
+        List<String> hkids = params.stream()
+                .map(s -> s.replaceAll("\\)","").replaceAll("\\(",""))
+                .map(s -> s.replaceAll("\\s",""))
+                .collect(Collectors.toList());
+        List<CertInfo> certInfos = certInfoRepository.findByHkidIn(hkids,params);
+        List<CombinedHistoricalResultBefore> befores = beforeRepository.findByHkidIn(hkids,params);
+        if(CollUtil.isEmpty(certInfos) && CollUtil.isEmpty(befores)){
+            throw new GenericException(ExceptionEnums.EXAM_INFO_NOT_EXIST);
+        }
+        for(CombinedHistoricalResultBefore before : befores){
+            if(Objects.nonNull(before.getUcVoid()) && before.getUcVoid()){
+                before.setUcGrade(null);
             }
-            if(StringUtils.isNotBlank(requestDto.getPassport()) && StringUtils.isBlank(requestDto.getHkid())){
-                infoList = certInfoRepository.findAllByPassport(requestDto.getPassport());
+            if(Objects.nonNull(before.getUeVoid()) && before.getUeVoid()){
+                before.setUeGrade(null);
             }
-            if(infoList.isEmpty()){
-                throw new GenericException(ExceptionEnums.EXAM_INFO_NOT_EXIST);
+            if(Objects.nonNull(before.getBlVoid()) && before.getBlVoid()){
+                before.setBlGrade(null);
             }
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
-            csvWriter.writeNext(new String[]{"Exam Date","Name","HKID", "Passport","Email","Bl Grade","Ue Grade", "Uc Grade","At Grade","Remark"});
+            if(Objects.nonNull(before.getAtVoid()) && before.getAtVoid()){
+                before.setAtGrade(null);
+            }
+        }
 
-            for (CertInfo info : infoList) {
-                csvWriter.writeNext(new String[]{info.getExamProfile().getExamDate().toString(),info.getName(), info.getHkid(),
-                        info.getPassportNo(),info.getEmail(), info.getBlnstGrade(), info.getUeGrade(), info.getUcGrade(), info.getAtGrade(), info.getRemark()});
-            }
-            csvWriter.close();
-            byte[] csvBytes = outputStream.toByteArray();
-            HttpHeaders headers = new HttpHeaders();
-            String flieName = "attachment; filename=" + infoList.get(0).getName() + " Exam results"+"_" + System.currentTimeMillis() + ".csv";
-            headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, flieName);
-            return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            if(e instanceof GenericException){
-                throw (GenericException) e;
-            }
+        HttpHeaders headers = new HttpHeaders();
+        String zipFileName = "Enquiry Result_" + System.currentTimeMillis() + ".zip";
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/zip");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + zipFileName);
+        byte[] zipBytes = new byte[0];
+        try {
+            zipBytes = FileUtil.createCsvZip(certInfos, befores);
+        } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV", e);
         }
+        return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
     }
 
 

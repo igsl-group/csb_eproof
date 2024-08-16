@@ -70,5 +70,5 @@ public interface CertInfoService {
     void approveRevoke(Long certActionId) throws Exception;
     void actualRevokeWithEproofModule(Long certInfoId) throws Exception;
 
-    ResponseEntity<byte[]> enquiryResult(ExportCertInfoDto requestDto);
+    ResponseEntity<byte[]> enquiryResult(List<String> params);
 }

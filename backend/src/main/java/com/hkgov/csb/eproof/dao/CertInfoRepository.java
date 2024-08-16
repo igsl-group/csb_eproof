@@ -111,4 +111,7 @@ select c from CertInfo c
 
     @Query(nativeQuery = true,value="select * from cert_info c where c.exam_profile_serial = :examProfileSerialNo and c.cert_stage = 'SIGN_ISSUE' and c.status = 'SCHEDULED' order by c.id LIMIT 1")
     CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo);
+
+    @Query("select c from CertInfo c where c.passed = true and c.valid = true and  (c.hkid in :hkids or c.passportNo in :passports)")
+    List<CertInfo> findByHkidIn(List<String> hkids,List<String> passports);
 }

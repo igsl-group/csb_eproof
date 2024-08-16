@@ -26,7 +26,7 @@ public class CsvUtil {
      * @param <T> 泛型
      * @return 泛型bean集合
      */
-    public <T> List<T> getCsvData(MultipartFile file, Class<T> clazz)  {
+    public static <T> List<T>  getCsvData(MultipartFile file, Class<T> clazz)  {
         HeaderColumnNameMappingStrategy<T> strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(clazz);
         try (Reader reader = new InputStreamReader(new BOMInputStream(file.getInputStream()))) {

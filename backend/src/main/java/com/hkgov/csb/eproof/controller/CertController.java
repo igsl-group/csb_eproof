@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
@@ -31,6 +32,7 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cert")
@@ -121,8 +123,7 @@ public class CertController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/batch/import/{examProfileSerialNo}")
     @Transactional(rollbackFor = Exception.class)
     public Result batchImport(@PathVariable String examProfileSerialNo, @RequestPart("file") MultipartFile file){
-        CsvUtil csvUtil = new CsvUtil();
-        List<CertImportDto> csvData = csvUtil.getCsvData(file, CertImportDto.class);
+        List<CertImportDto> csvData = CsvUtil.getCsvData(file, CertImportDto.class);
         return Result.success(certInfoService.batchImport(examProfileSerialNo,csvData));
     }
     @PostMapping("/batch/dispatch/{examProfileSerialNo}")
@@ -289,8 +290,14 @@ public class CertController {
     }
 
 
-    @PostMapping("/enquiryResult/csv")
-    public ResponseEntity<byte[]> enquiryResult(@RequestBody ExportCertInfoDto requestDto) {
-        return certInfoService.enquiryResult(requestDto);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value ="/enquiryResult/csv")
+    public ResponseEntity<byte[]> enquiryResult(@RequestPart("file") MultipartFile file) {
+        List<EnquiryResultDto> csvData = CsvUtil.getCsvData(file, EnquiryResultDto.class);
+        if(CollUtil.isEmpty(csvData)){
+            throw new GenericException(ExceptionEnums.UPLOAD_FLIE_IS_EMPTY);
+        }
+        List<String> params = csvData.stream().map(EnquiryResultDto::getNumber).collect(Collectors.toList());
+        return certInfoService.enquiryResult(params);
     }
+
 }
