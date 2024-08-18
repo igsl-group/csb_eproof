@@ -74,6 +74,31 @@ public class LocalSigningController {
         return ResponseEntity.ok(out);
     }
 
+    @CrossOrigin
+    @PostMapping("/reissueStart/{certInfoRenewId}")
+    public ResponseEntity reissueStart(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestPart(name="reason", required=false) String reason,
+            @RequestPart(name="location", required=false) String location,
+            @RequestPart(name="qr", required=false) String qr,
+            @RequestPart(name="keyword", required=false) String keyword,
+            @PathVariable Long certInfoRenewId
+    ) throws Exception {
+        String jwtTokenFromFrontEnd = request.getHeader("Authorization");
+
+        if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
+        }
+
+        localSigningService.init();
+        String publicKey = localSigningService.getSigningCert();
+
+        localSigningService.processReissue(jwtTokenFromFrontEnd,reason,location,qr,keyword,response,publicKey, certInfoRenewId);
+
+    }
+
+
 
     @CrossOrigin
     @PostMapping("/start/{examProfileSerialNo}")

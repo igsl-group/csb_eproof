@@ -8,7 +8,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.hkgov.csb.localSigning.util.ApiUtil;
 import com.hkgov.csb.localSigning.util.PdfBoxSign;
-import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
@@ -38,8 +37,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -47,7 +44,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Scanner;
 
 @Service
 public class LocalSigningService {
@@ -240,7 +236,13 @@ public class LocalSigningService {
     }
 
     @Async("normalThreadPool")
-    public void processSignAndIssue(String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey, Long nextCertInfoIdForSigning) throws Exception {
+    public void processSignAndIssue(String jwt,
+                                    String reason,
+                                    String location,
+                                    String qr,
+                                    String keyword,
+                                    HttpServletResponse response,
+                                    String publicKey, Long nextCertInfoIdForSigning) throws Exception {
 
         String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwt);
         String signedValue = (String)this.signJson(unsignedJson).getBody();
@@ -248,13 +250,14 @@ public class LocalSigningService {
         byte[] preparedPdf = apiUtil.prepareEproofPdfForSigning(jwt,nextCertInfoIdForSigning,unsignedJson,signedValue);
 
         this.processSigning(preparedPdf, nextCertInfoIdForSigning,jwt,reason,  location, qr, keyword, response,publicKey);
-
     }
 
     private void processSigning(byte[] preparedPdfBinaryArray, Long nextCertInfoIdForSigning, String jwtTokenFromFrontEnd, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) throws Exception {
         byte[] signedPdf = this.getSignedPdf(new ByteArrayInputStream(preparedPdfBinaryArray), publicKey, reason, location, qr, keyword);
         apiUtil.uploadSignedPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,signedPdf);
     }
+
+    private void process
 
     public byte[] getSignedPdf(
             InputStream is, String publicK, String reason, String location,
@@ -423,5 +426,21 @@ public class LocalSigningService {
         signForVerify.update(json.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok(sigValueBase64);
+    }
+
+    public void processReissue(String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey, Long certInfoRenewId) throws CertificateEncodingException, SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+        String unsignedJson = apiUtil.getUnsignedJsonForReissueCert(certInfoRenewId,jwt);
+        String signedValue = (String)this.signJson(unsignedJson).getBody();
+        logger.info(signedValue);
+        byte[] preparedPdf = apiUtil.prepareEproofPdfForSigningForReissueCert(jwt,certInfoRenewId,unsignedJson,signedValue);
+
+        this.processSigningForReissueCert(preparedPdf, certInfoRenewId,jwt,reason,  location, qr, keyword, response,publicKey);
+
+    }
+
+    private void processSigningForReissueCert(byte[] preparedPdf, Long certInfoRenewId, String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) throws Exception {
+        byte[] signedPdf = this.getSignedPdf(new ByteArrayInputStream(preparedPdf), publicKey, reason, location, qr, keyword);
+        apiUtil.uploadSignedPdfForReissueCert(certInfoRenewId,jwt,signedPdf);
+
     }
 }

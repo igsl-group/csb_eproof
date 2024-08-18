@@ -20,10 +20,7 @@ import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
-import com.hkgov.csb.eproof.service.CertInfoService;
-import com.hkgov.csb.eproof.service.DocumentGenerateService;
-import com.hkgov.csb.eproof.service.FileService;
-import com.hkgov.csb.eproof.service.LetterTemplateService;
+import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -96,6 +93,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final EmailTemplateRepository emailTemplateRepository;
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
     private final CertActionRepository certActionRepository;
+    private final PdfGenerateService pdfGenerateService;
 
     private static final Gson GSON = new Gson();
 
@@ -221,7 +219,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
 //        try{
         for (CertInfo cert : inProgressCertList) {
-            this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
+            pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
         }
         /*} catch (Exception e){
             inProgressCertList.forEach(cert->{
@@ -235,8 +233,6 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
     }
-
-
 
     private Map<DataFieldName, String> getMergeMapForCert(CertInfo certInfo) throws JsonProcessingException {
         ExamProfile exam = certInfo.getExamProfile();
@@ -291,7 +287,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Transactional(noRollbackFor = Exception.class)
     @Override
     @Async("generatePdfThreadPool")
-    public void     singleGeneratePdf(CertInfo certInfo,
+    public void  singleGeneratePdf(CertInfo certInfo,
                                   byte[] atLeastOnePassedTemplate,
                                   byte [] allFailedTemplate,
                                   boolean isBatchMode,boolean isNewCertInfo) throws Exception {

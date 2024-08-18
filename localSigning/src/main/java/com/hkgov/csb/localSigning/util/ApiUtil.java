@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.util.zip.ZipEntry;
-import com.hkgov.csb.localSigning.util.SslUtil;
 
 @Component
 public class ApiUtil {
@@ -21,8 +20,14 @@ public class ApiUtil {
     @Value("${backend.endpoint.get.unsigned.json}")
     private String getUnsignedJsonEndpoint;
 
+    @Value("${backend.endpoint.get.unsigned.json.reissue.cert}")
+    private String getReissueCertUnsignedJsonEndpoint;
+
     @Value("${backend.endpoint.prepare.eproof.pdf}")
     private String prepareEproofPdfUrl;
+
+    @Value("${backend.endpoint.prepare.eproof.pdf.reissue.cert}")
+    private String prepareReissueCertEproofPdfUrl;
 
     @Value("${backend.endpoint.get.next.job}")
     private String getNextJobEndpoint;
@@ -32,6 +37,9 @@ public class ApiUtil {
 
     @Value("${backend.endpoint.upload.signed.cert}")
     private String uploadSignedCertEndpoint;
+
+    @Value("${backend.endpoint.upload.signed.cert.reissue.cert}")
+    private String uploadSignedReissueCertEndpoint;
 
 /*
     @Value("${cert.download.temp.path}")
@@ -46,6 +54,28 @@ public class ApiUtil {
         } catch (KeyManagementException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getUnsignedJsonForReissueCert(Long certInfoRenewId, String jwtTokenFromFrontEnd){
+        String getUnsignedJsonEndpoint = this.getReissueCertUnsignedJsonEndpoint.replace("{certInfoRenewId}",certInfoRenewId.toString());
+
+        Request request = new Request.Builder()
+                .url(getUnsignedJsonEndpoint)
+                .get()
+                .addHeader("Authorization", jwtTokenFromFrontEnd)
+                .build();
+
+        try (Response response = CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                System.err.println("Request failed with status code: " + response.code());
+                return null;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 
@@ -257,5 +287,68 @@ public class ApiUtil {
         }
 
         return null;
+    }
+
+    public byte[] prepareEproofPdfForSigningForReissueCert(String jwt, Long certInfoRenewId, String unsignedJson, String signedValue) {
+        // Define the endpoint for uploading signed PDF
+        String prepareEproofPdfUrl2 = prepareReissueCertEproofPdfUrl.replace("{certInfoRenewId}", certInfoRenewId.toString());
+
+        System.out.println("Preparing EProof PDF: " + prepareEproofPdfUrl2);
+
+        JsonObject jsonData = new JsonObject();
+        jsonData.addProperty("eproofDataJson", unsignedJson);
+        jsonData.addProperty("signedProofValue", signedValue);
+
+        // Create a RequestBody with the JSON data
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonData.toString());
+
+        Request request = new Request.Builder()
+                .url(prepareEproofPdfUrl2)
+                .post(requestBody)
+                .addHeader("Authorization", jwt)
+                .build();
+
+        try (Response response = CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                System.out.println("Prepare and download PDF successful." );
+                return response.body().bytes();
+            } else {
+                System.err.println("Request failed with status code: " + response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    public void uploadSignedPdfForReissueCert(Long certInfoRenewId, String jwt, byte[] signedPdf) {
+        // Define the endpoint for uploading signed PDF
+        String uploadSignedPdfEndpoint = uploadSignedReissueCertEndpoint.replace("{certInfoRenewId}", certInfoRenewId.toString());
+
+        System.out.println("Uploading signed PDF to: " + uploadSignedPdfEndpoint);
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", "",
+                        RequestBody.create(signedPdf,MediaType.parse("application/pdf")))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(uploadSignedPdfEndpoint)
+                .post(requestBody)
+                .addHeader("Authorization", jwt)
+                .build();
+
+        try (Response response = CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                System.out.println("Response: " + response.body().string());
+            } else {
+                System.err.println("Request failed with status code: " + response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

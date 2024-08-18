@@ -11,10 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.exception.GenericException;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.docx4j.model.fields.merge.MailMerger;
@@ -104,6 +107,18 @@ public class DocxUtil {
         baos.close();
         return baos.toByteArray();
     }
+
+    public byte [] convertDocxToPdf_POI(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        XWPFDocument document = new XWPFDocument(is);
+        PdfOptions options = PdfOptions.create();
+        PdfConverter.getInstance().convert(document, baos, options);
+        baos.close();
+        
+        return baos.toByteArray();
+    }
+
     public byte [] convertDocxToPdf(File docxFile) throws IOException, InterruptedException {
 
         String pdfLocation = String.format("%s/%s.pdf",docxFile.getParent(), FilenameUtils.getBaseName(docxFile.getAbsolutePath()));
