@@ -24,11 +24,11 @@ const Index = (props) => {
   const userHasPermissions = useMemo(() => auth.permissions, []);
 
   const hasPermission = useMemo(() => {
-    let flag = true;
+    let flag = false;
     if (permissionArr.length > 0) {
       permissionArr.forEach((permission) => {
-        if (!userHasPermissions.includes(permission)) {
-          flag = false;
+        if (userHasPermissions.includes(permission)) {
+          flag = true;
         }
       })
     }

@@ -247,7 +247,7 @@ public class LocalSigningService {
         String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwt);
         String signedValue = (String)this.signJson(unsignedJson).getBody();
         logger.info(signedValue);
-        byte[] preparedPdf = apiUtil.prepareEproofPdfForSigning(jwt,nextCertInfoIdForSigning,unsignedJson,signedValue);
+        byte[] preparedPdf = apiUtil.prepareEproofPdfForSigning(jwt,nextCertInfoIdForSigning,unsignedJson,signedValue, publicKey);
 
         this.processSigning(preparedPdf, nextCertInfoIdForSigning,jwt,reason,  location, qr, keyword, response,publicKey);
     }

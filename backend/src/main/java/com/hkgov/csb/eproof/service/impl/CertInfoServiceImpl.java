@@ -83,6 +83,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     private String certRecordPath;
 
     private final CertInfoRepository certInfoRepository;
+
+    private final SystemParameterRepository systemParameterRepository;
     private final DocumentGenerateService documentGenerateService;
     private final LetterTemplateService letterTemplateService;
     private final DocxUtil docxUtil;
@@ -643,9 +645,11 @@ public class CertInfoServiceImpl implements CertInfoService {
     public byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception {
 
         CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
-        //Register the json to get the UUID from EProof
+         //Register the json to get the UUID from EProof
         String uuid = null;
-        String keyName = "1";
+        String publicKey = prepareEproofPdfRequest.getPublicKey();
+        logger.info(publicKey);
+        String keyName = systemParameterRepository.findByName(publicKey).orElseThrow(() -> new GenericException("public.key.not.found","Public key not found.")).getValue();
         String eproofTypeId = null;
 
         if("P".equals(certInfo.getLetterType())){
@@ -703,7 +707,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                     (String)registerResult.get("eProofJson"),
                     "",
                     eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
-                    "1",
+                    keyName,
                     certInfo.getEproofId(),
                     qrCodeString
             );
@@ -718,7 +722,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                     (String)registerResult.get("eProofJson"),
                     "",
                     eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
-                    "1",
+                    keyName,
                     certInfo.getEproofId(),
                     qrCodeString
             );

@@ -49,6 +49,8 @@ const Candidate = () =>  {
   const hkid = searchParams.get("hkid");
   const passport = searchParams.get("passport");
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [lastCandidateInfo, setLastCandidateInfo] = useState({});
   const [filterCondition, setFilterCondition] = useState(null);
   const [validCertCandidateData, setValidCandidateCertData] = useState([]);
   const [record, setRecord] = useState([]);
@@ -76,7 +78,7 @@ const Candidate = () =>  {
 
 
   const email = Form.useWatch('email', form);
-  const emailError = useMemo(() => !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email), [email]);
+  const emailError = useMemo(() => !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,10}$/.test(email), [email]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -280,10 +282,12 @@ const Candidate = () =>  {
           const data = response.data || {};
           const content = data.content || [];
           if (content.length > 0) {
-            form.setFieldsValue({
+            const lastInfo = {
               ...content[0],
-              hkid: stringToHKID(content[0].hkid),
-            })
+              // hkid: stringToHKID(content[0].hkid),
+            }
+            form.setFieldsValue(lastInfo);
+            setLastCandidateInfo(lastInfo)
           }
           break;
         case 'certBatchUpdateEmail':
@@ -312,6 +316,7 @@ const Candidate = () =>  {
   const rowSelection = useCallback({
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
+      setSelectedRows(selectedRows);
     },
   }, []);
 
@@ -352,7 +357,8 @@ const Candidate = () =>  {
 
   const onClickRevokeSelected = useCallback(() => {
     setRevokeOpen(true);
-  },[]);
+    console.log(selectedRows)
+  },[selectedRows]);
 
   const onFinishCallback = useCallback(() => {
     setOpen(false);
@@ -432,7 +438,7 @@ const Candidate = () =>  {
           <Col span={16}>
             <Row gutter={24} justify={'start'}>
               <Col span={24} md={12}>
-                <HKID name={'hkid'} label={'HKID'} disabled/>
+                <Text name={'hkid'} label={'HKID'} disabled  size={12} disabled/>
               </Col>
               <Col span={24} md={12}>
                 <Text name={'passportNo'} label={'Passport No.'} size={12} disabled/>
@@ -492,7 +498,7 @@ const Candidate = () =>  {
       >
         <ResizeableTable
           size={'big'}
-          rowKey={'candidateNo'}
+          rowKey={'id'}
           rowSelection={{
             type: 'checkbox',
             ...rowSelection,
@@ -542,6 +548,8 @@ const Candidate = () =>  {
       <RevokeCertModal
           open={revokeOpen}
           title={'Revoke Certificate'}
+          selectedRecords={selectedRows}
+          lastCandidateInfo={lastCandidateInfo}
           onCloseCallback={() => setRevokeOpen(false)}
           onFinishCallback={() => setRevokeOpen(false)}
       />

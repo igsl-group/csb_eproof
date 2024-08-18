@@ -256,7 +256,7 @@ public class ApiUtil {
         return destFile;
     }
 
-    public byte[] prepareEproofPdfForSigning(String jwtTokenFromFrontEnd,Long certId, String unsignedJson, String signedValue) {
+    public byte[] prepareEproofPdfForSigning(String jwtTokenFromFrontEnd,Long certId, String unsignedJson, String signedValue, String publicKey) {
         // Define the endpoint for uploading signed PDF
         String prepareEproofPdfUrl2 = prepareEproofPdfUrl.replace("{certInfoId}", certId.toString());
 
@@ -265,6 +265,7 @@ public class ApiUtil {
         JsonObject jsonData = new JsonObject();
         jsonData.addProperty("eproofDataJson", unsignedJson);
         jsonData.addProperty("signedProofValue", signedValue);
+        jsonData.addProperty("publicKey", publicKey);
 
         // Create a RequestBody with the JSON data
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonData.toString());
