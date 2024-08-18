@@ -913,7 +913,7 @@ export default function Document(props) {
                           const maxLength = 50;
                           for (const row of val) {
                             if (row) {
-                              if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(row)) {
+                              if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,10}$/.test(row)) {
                                 return Promise.reject(new Error(FIELD_INVALID_EMAIL_MESSAGE));
                               } else if (row.length > maxLength) {
                                 return Promise.reject(new Error(format(FIELD_MAX_LENGTH_MESSAGE, maxLength)));

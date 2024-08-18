@@ -69,6 +69,7 @@ import {
 } from '@ant-design/icons';
 import {useAuth} from "./context/auth-provider";
 import {useEffect} from "react";
+import useSessionAlive from "./hook/useSessionAlive";
 
 const routeList = [
   {
@@ -86,6 +87,7 @@ const routeList = [
         show: true,
         permission: [
           'Examination_Profile_Maintenance',
+          'Examination_Profile_View'
         ],
       },
       {
@@ -110,7 +112,9 @@ const routeList = [
         element: <ApprovalWorkflow />,
         ignore: false,
         show: true,
-        role: [],
+        permission: [
+          'Examination_Profile_Maintenance',
+        ],
       },
       {
         id: 4,
@@ -470,7 +474,7 @@ const routeList = [
 export const localRouters = routeList;
 export const RenderRouter = () => {
   const auth = useAuth();
-
+  useSessionAlive();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 

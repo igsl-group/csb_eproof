@@ -238,7 +238,7 @@ const Candidate = () =>  {
           <Col span={20}>
             <Row gutter={24} justify={'start'}>
               <Col span={24} md={12}>
-                <HKID name={'hkid'} label={'HKID'} disabled/>
+                <Text name={'hkid'} label={'HKID'} disabled/>
               </Col>
               <Col span={24} md={12}>
                 <Text name={'passportNo'} label={'Passport No.'} size={12} disabled/>

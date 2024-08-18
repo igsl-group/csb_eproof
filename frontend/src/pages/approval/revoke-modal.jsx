@@ -24,34 +24,7 @@ const RevokeModal = (props) =>  {
       .catch((e) => console.error(e))
   }, []);
 
-    const [data, setData] = useState([
-      {
-        serialNo: 'N000000001',
-        candidateNo: 'C000001',
-        examDate: '2024-01-01',
-        hkid: 'T7700002',
-        name: 'Chan Tai Man',
-        email: 'taiman.chan@hotmail.com',
-        ue: 'L2',
-        uc: 'L1',
-        at: 'Pass',
-        blnst: 'Pass',
-        status: 'Success',
-      },
-      {
-        serialNo: 'N000000001',
-        candidateNo: 'C000001',
-        examDate: '2024-02-01',
-        hkid: 'T7700002',
-        name: 'Chan Tai Man',
-        email: 'taiman.chan@hotmail.com',
-        ue: 'L2',
-        uc: 'L1',
-        at: 'Pass',
-        blnst: 'Pass',
-        status: 'Success',
-      }
-    ]);
+    const [data, setData] = useState([]);
 
   useEffect(() => {
     form.setFieldsValue({

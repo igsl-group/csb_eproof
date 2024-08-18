@@ -236,7 +236,7 @@ const Notify = () =>  {
                   <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
                 </Col>
                 <Col span={24} md={12}>
-                  <HKID name={'hkid'} label={'HKID'}/>
+                  <Text name={'hkid'} label={'HKID'}/>
                 </Col>
                 <Col span={24} md={12}>
                   <Text name={'passportNo'} label={'Passport No.'} size={12}/>

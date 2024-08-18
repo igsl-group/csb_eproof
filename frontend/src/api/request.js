@@ -221,6 +221,10 @@ export function examProfileAPI(params, ...rest) {
             return request(`/reissueCert/generate/${rest[0]}`, "post");
         case 'certRenewDispatch':
             return request(`/reissueCert/dispatch/${rest[0]}?currentStage=${rest[1]}`, "post");
+        case 'getRevokeList':
+            return request(`/cert/getTodo/revoke`, "get");
+        case 'requestCertRevoke':
+            return request(`/cert/revoke?certInfoIdList=${rest[0]}`, "post", rest[1]);
     }
 }
 

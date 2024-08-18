@@ -42,6 +42,18 @@ const PersonalParticularsModal = (props) =>  {
     }
   }, [onFinishCallback]);
 
+  const onConfirm = useCallback(async () => {
+    form.validateFields()
+      .then((values) => {
+        modalApi.confirm({
+          title:'Are you sure to bulk update candidate name?',
+          width: 500,
+          okText: 'Confirm',
+          onOk: () => onSave()
+        });
+      })
+  }, [])
+
   const onSave = useCallback(async () => {
     const values = await form.validateFields()
       .then((values) => ({
@@ -112,7 +124,7 @@ const PersonalParticularsModal = (props) =>  {
       width={1000}
       okText={'Submit for renew (All)'}
       closable={false}
-      onOk={onSave}
+      onOk={onConfirm}
       onCancel={onClose}
       style={{ top: 20 }}
       {...props}
@@ -134,7 +146,7 @@ const PersonalParticularsModal = (props) =>  {
             <Text name={'currentName'} label={'Last Candidate Name'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'newName'} label={'New Candidate Name'} size={100}/>
+            <Text name={'newName'} label={'New Candidate Name'} required size={100}/>
           </Col>
           <Col span={24} md={12}>
             <Text name={'currentHkid'} label={'Current HKID'} size={100} disabled hidden/>

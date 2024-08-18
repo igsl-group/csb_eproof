@@ -69,7 +69,7 @@ const ImportModal = (props) =>  {
             inputName: 'Email',
             required: true,
             requiredError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: "email" is not allowed to be empty`,
-            validate: (value) => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value),
+            validate: (value) => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,10}$/.test(value),
             validateError: (headerName, rowNumber, columnNumber) => `Row: ${rowNumber}: Incorrect "email" format.`,
           },
 
@@ -107,7 +107,8 @@ const ImportModal = (props) =>  {
         ]
       })
         .then(csvData => {
-          setDataMsg(csvData.inValidData)
+          console.log(csvData);
+          setDataMsg(csvData.inValidData.slice(0, 20))
         })
         .catch(err => console.error(err))
     }

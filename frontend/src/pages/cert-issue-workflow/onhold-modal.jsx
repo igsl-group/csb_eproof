@@ -132,7 +132,7 @@ const OnHoldModal = (props) =>  {
             <Email name={"email"} label={'Email'} disabled/>
           </Col>
           <Col span={12}>
-            <HKID name={"hkid"} disabled/>
+            <Text name={"hkid"} disabled/>
           </Col>
           <Col span={12}>
             <Text name={"passportNo"} label={'Passport'} disabled/>
