@@ -9,4 +9,5 @@ import lombok.Setter;
 public class PrepareEproofPdfRequest {
     private String eproofDataJson;
     private String signedProofValue;
+    private String publicKey;
 }
