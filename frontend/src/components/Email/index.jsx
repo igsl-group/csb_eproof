@@ -59,7 +59,7 @@ function Email (props) {
         },
         {
           validator: async (_, value) => {
-            if (value && !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+            if (value && !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,10}$/.test(value)) {
               return Promise.reject(new Error('Incorrect email format'));
             }  else if (value && value.toString().length > max) {
               return Promise.reject(new Error(format('Should not be more than {0} characters', max)));

@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.service;
 import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
 import com.hkgov.csb.eproof.dto.CertRevokeDto;
 import com.hkgov.csb.eproof.entity.CertInfoRenew;
+import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

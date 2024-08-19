@@ -74,6 +74,31 @@ public class LocalSigningController {
         return ResponseEntity.ok(out);
     }
 
+    @CrossOrigin
+    @PostMapping("/reissueStart/{certInfoRenewId}")
+    public ResponseEntity reissueStart(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestPart(name="reason", required=false) String reason,
+            @RequestPart(name="location", required=false) String location,
+            @RequestPart(name="qr", required=false) String qr,
+            @RequestPart(name="keyword", required=false) String keyword,
+            @PathVariable Long certInfoRenewId
+    ) throws Exception {
+        String jwtTokenFromFrontEnd = request.getHeader("Authorization");
+
+        if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
+        }
+
+        localSigningService.init();
+        String publicKey = localSigningService.getSigningCert();
+
+        localSigningService.processReissue(jwtTokenFromFrontEnd,reason,location,qr,keyword,response,publicKey, certInfoRenewId);
+
+    }
+
+
 
     @CrossOrigin
     @PostMapping("/start/{examProfileSerialNo}")
@@ -87,8 +112,10 @@ public class LocalSigningController {
             @PathVariable String examProfileSerialNo) throws Exception {
 
         String jwtTokenFromFrontEnd = request.getHeader("Authorization");
-//        jwtTokenFromFrontEnd = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1bmFtZSI6ImFkbWluX3Rlc3QiLCJkcHVzZXJpZCI6ImFkbWluX3Rlc3QiLCJzaWQiOjEsInN1YiI6ImFkbWluX3Rlc3QiLCJpYXQiOjE3MTgxNjA4NTB9.RYt95Y3feJC61CGnIMYW6JLAhOl9chkY0qpc6YiyaSs";
 
+        if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
+        }
 
         localSigningService.init();
         String publicKey = localSigningService.getSigningCert();

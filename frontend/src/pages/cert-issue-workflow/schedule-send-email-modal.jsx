@@ -141,6 +141,7 @@ const ScheduleSendEmailModal = (props) =>  {
           <Col span={12}>
             <Text name={"plannedEmailIssuanceDate"} label={'Planned Email Issuance Date'} size={50} disabled/>
             <Text name={"examDate"} label={'Exam Date'} size={50} disabled hidden/>
+            <Text name={"resultLetterDate"} label={'Result Letter Date'} size={50} disabled/>
           </Col>
           <Col span={12}>
             <Date
@@ -152,12 +153,16 @@ const ScheduleSendEmailModal = (props) =>  {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     const examDate = getFieldValue('examDate');
-                    const isAfter = value.isAfter(examDate);
-                    if (!value || isAfter) {
-                      return Promise.resolve();
+                    const resultLetterDate = getFieldValue('resultLetterDate');
+                    const isAfterExamDate = value.isAfter(examDate);
+                    const isAfterResultLetterDate = value.isAfter(resultLetterDate);
+                    if (value && !isAfterExamDate) {
+                      return Promise.reject(new Error('The "Scheduled Date" should be after the "Exam Date"'));
+                    } else if (value && !isAfterResultLetterDate) {
+                      return Promise.reject(new Error('The "Scheduled Date" should be after the "Result Letter Date"'));
                     }
-                    return Promise.reject(new Error('The "Scheduled Date" should be after the "Exam Date"'));
-                  },
+                    return Promise.resolve();
+                    },
                 }),
               ]}
             />

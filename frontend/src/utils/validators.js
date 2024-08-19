@@ -72,7 +72,7 @@ export const validators = {
         const emails = typeof val === "string" ? [val] : val;
         for (const email of emails) {
           if (email) {
-            if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,10}$/.test(email)) {
               return Promise.reject(new Error(FIELD_INVALID_EMAIL_MESSAGE));
             } else if (email.length > maxLength) {
               return Promise.reject(new Error(format(FIELD_MAX_LENGTH_MESSAGE, maxLength)));

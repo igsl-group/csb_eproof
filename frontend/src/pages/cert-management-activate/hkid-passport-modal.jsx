@@ -43,6 +43,17 @@ const HkidPassportModal = (props) =>  {
     }
   }, [onFinishCallback]);
 
+  const onConfirm = useCallback(() => {
+    form.validateFields().then((values) => {
+      modalApi.confirm({
+        title:`Are you sure to update candidate's HKID/Passport?`,
+        width: 500,
+        okText: 'Confirm',
+        onOk: () => onSave()
+      });
+    })
+  }, [])
+
   const onSave = useCallback(async () => {
     const values = await form.validateFields()
       .then((values) => ({
@@ -98,7 +109,7 @@ const HkidPassportModal = (props) =>  {
       width={1000}
       okText={'Submit for renew (All)'}
       closable={false}
-      onOk={onSave}
+      onOk={onConfirm}
       onCancel={onClose}
       style={{ top: 20 }}
       {...props}

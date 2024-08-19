@@ -20,15 +20,23 @@ import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
 import dayjs from "dayjs";
 import RevokeCertModal from "./revoke-modal";
+import { examProfileAPI } from '@/api/request';
+import {useMessage} from "../../context/message-provider";
+import {useModal} from "../../context/modal-provider";
+import {
+  toQueryString
+} from "@/utils/util";
 
 const ApprovalWorkflow = () =>  {
 
+  const modalApi = useModal();
+  const messageApi = useMessage();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
+  const [filterCondition, setFilterCondition] = useState(null);
   const [form] = Form.useForm();
-  const {
-    serialNo,
-  } = useParams();
-  const [openUpdatePersonalParticularsModal, setOpenUpdatePersonalParticularsModal] = useState(false);
+
   const [revokeOpen, setRevokeOpen] = useState(false);
 
   const defaultPaginationInfo = useMemo(() => ({
@@ -47,71 +55,71 @@ const ApprovalWorkflow = () =>  {
     orderBy: defaultPaginationInfo.orderBy,
   });
 
-  const [data, setData] = useState([
-    {
-      id: 1,
-      type: 'Revoke',
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700001',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      certificates: [
-        {
-          id: 1,
-          issueDate: '2024-05-01',
-          examDate: '2023-04-01',
-          candidateNo: 'C000001',
-          hkid: 'T7700002',
-          name: 'Chan Tai Man',
-          email: 'taiman.chan@hotmail.com',
-          ue: 'L2',
-          uc: 'L1',
-          at: 'Pass',
-          blnst: 'Pass',
-          status: 'Success',
-        },
-        {
-          id: 2,
-          issueDate: '2023-04-01',
-          examDate: '2023-04-01',
-          candidateNo: 'C000001',
-          hkid: 'T7700002',
-          name: 'Chan Tai Man',
-          email: 'taiman.chan@hotmail.com',
-          ue: 'L2',
-          uc: 'L1',
-          at: 'Pass',
-          blnst: 'Pass',
-          status: 'Success',
-        }
-      ],
-    },
-    {
-      id: 2,
-      type: 'Revoke',
-      serialNo: 'N000000002',
-      candidateNo: 'C000002',
-      hkid: 'T7700002',
-      name: 'Wong Tai Man',
-      certificates: [
-        {
-          id: 1,
-          issueDate: '2024-05-01',
-          examDate: '2023-04-01',
-          candidateNo: 'C000001',
-          hkid: 'T7700002',
-          name: 'Chan Tai Man',
-          email: 'taiman.chan@hotmail.com',
-          ue: 'L2',
-          uc: 'L1',
-          at: 'Pass',
-          blnst: 'Pass',
-          status: 'Success',
-        },
-      ],
-    },
-  ]);
+  // const [data, setData] = useState([
+  //   {
+  //     id: 1,
+  //     type: 'Revoke',
+  //     serialNo: 'N000000001',
+  //     candidateNo: 'C000001',
+  //     hkid: 'T7700001',
+  //     name: 'Chan Tai Man',
+  //     email: 'taiman.chan@hotmail.com',
+  //     certificates: [
+  //       {
+  //         id: 1,
+  //         issueDate: '2024-05-01',
+  //         examDate: '2023-04-01',
+  //         candidateNo: 'C000001',
+  //         hkid: 'T7700002',
+  //         name: 'Chan Tai Man',
+  //         email: 'taiman.chan@hotmail.com',
+  //         ue: 'L2',
+  //         uc: 'L1',
+  //         at: 'Pass',
+  //         blnst: 'Pass',
+  //         status: 'Success',
+  //       },
+  //       {
+  //         id: 2,
+  //         issueDate: '2023-04-01',
+  //         examDate: '2023-04-01',
+  //         candidateNo: 'C000001',
+  //         hkid: 'T7700002',
+  //         name: 'Chan Tai Man',
+  //         email: 'taiman.chan@hotmail.com',
+  //         ue: 'L2',
+  //         uc: 'L1',
+  //         at: 'Pass',
+  //         blnst: 'Pass',
+  //         status: 'Success',
+  //       }
+  //     ],
+  //   },
+  //   {
+  //     id: 2,
+  //     type: 'Revoke',
+  //     serialNo: 'N000000002',
+  //     candidateNo: 'C000002',
+  //     hkid: 'T7700002',
+  //     name: 'Wong Tai Man',
+  //     certificates: [
+  //       {
+  //         id: 1,
+  //         issueDate: '2024-05-01',
+  //         examDate: '2023-04-01',
+  //         candidateNo: 'C000001',
+  //         hkid: 'T7700002',
+  //         name: 'Chan Tai Man',
+  //         email: 'taiman.chan@hotmail.com',
+  //         ue: 'L2',
+  //         uc: 'L1',
+  //         at: 'Pass',
+  //         blnst: 'Pass',
+  //         status: 'Success',
+  //       },
+  //     ],
+  //   },
+  // ]);
 
   const columns = useMemo(() => [
     // {
@@ -154,6 +162,15 @@ const ApprovalWorkflow = () =>  {
     },
   ], []);
 
+  const breadcrumbItems = useMemo(() => [
+    {
+      title: <HomeOutlined />,
+    },
+    {
+      title: 'Outstanding Tasks',
+    },
+  ], []);
+
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
       order,
@@ -164,7 +181,7 @@ const ApprovalWorkflow = () =>  {
       orderBy: order || defaultPaginationInfo.orderBy,
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
-    setPagination(tempPagination);
+    getRevokeList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -174,25 +191,56 @@ const ApprovalWorkflow = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getRevokeList(tempPagination, filterCondition);
   }, [pagination]);
 
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'examProfileList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+          setData(content);
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
   useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: dayjs('2024-01-11'),
-      plannedAnnouncedDate: dayjs('2024-01-11'),
-      location: 'Hong Kong',
-    })
+    getRevokeList(pagination);
   }, []);
 
-  const breadcrumbItems = useMemo(() => [
-    {
-      title: <HomeOutlined />,
-    },
-    {
-      title: 'Outstanding Tasks',
-    },
-  ], []);
+  const getRevokeList = useCallback((pagination = {}, filter = {}) => {
+    runExamProfileAPI('getRevokeList', toQueryString(pagination, filter));
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
+  }, [pagination]);
+
 
   return (
     <div className={styles['approval']}>

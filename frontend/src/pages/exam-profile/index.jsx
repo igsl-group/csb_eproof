@@ -423,7 +423,7 @@ const ExamProfile = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Examination_Profile_Maintenance']}>
+    <PermissionControl className={styles['exam-profile']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -457,7 +457,7 @@ const ExamProfile = () =>  {
                       placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
               <Col span={24} md={12} xl={8} xxl={6}>
-                <Text name={'examDate'} label={'Effective Date'} disabled placeholder={'YYYY-MM-DD'} size={50} />
+                <Text name={'effectiveDate'} label={'Effective Date'} disabled placeholder={'YYYY-MM-DD'} size={50} />
               </Col>
               <Col span={24} md={12} xl={8} xxl={6}>
                 <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (From)'} disabled={true}

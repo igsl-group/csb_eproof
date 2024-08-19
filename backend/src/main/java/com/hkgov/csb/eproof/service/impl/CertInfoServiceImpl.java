@@ -20,10 +20,7 @@ import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
-import com.hkgov.csb.eproof.service.CertInfoService;
-import com.hkgov.csb.eproof.service.DocumentGenerateService;
-import com.hkgov.csb.eproof.service.FileService;
-import com.hkgov.csb.eproof.service.LetterTemplateService;
+import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -90,6 +87,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     private String certRecordPath;
 
     private final CertInfoRepository certInfoRepository;
+
+    private final SystemParameterRepository systemParameterRepository;
     private final DocumentGenerateService documentGenerateService;
     private final LetterTemplateService letterTemplateService;
     private final DocxUtil docxUtil;
@@ -100,6 +99,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final EmailTemplateRepository emailTemplateRepository;
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
     private final CertActionRepository certActionRepository;
+    private final PdfGenerateService pdfGenerateService;
     private final CombinedHistoricalResultBeforeRepository  beforeRepository;
 
     private static final Gson GSON = new Gson();
@@ -226,7 +226,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
 //        try{
         for (CertInfo cert : inProgressCertList) {
-            this.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
+            pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
         }
         /*} catch (Exception e){
             inProgressCertList.forEach(cert->{
@@ -240,8 +240,6 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
     }
-
-
 
     private Map<DataFieldName, String> getMergeMapForCert(CertInfo certInfo) throws JsonProcessingException {
         ExamProfile exam = certInfo.getExamProfile();
@@ -296,7 +294,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Transactional(noRollbackFor = Exception.class)
     @Override
     @Async("generatePdfThreadPool")
-    public void     singleGeneratePdf(CertInfo certInfo,
+    public void  singleGeneratePdf(CertInfo certInfo,
                                   byte[] atLeastOnePassedTemplate,
                                   byte [] allFailedTemplate,
                                   boolean isBatchMode,boolean isNewCertInfo) throws Exception {
@@ -652,9 +650,11 @@ public class CertInfoServiceImpl implements CertInfoService {
     public byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception {
 
         CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
-        //Register the json to get the UUID from EProof
+         //Register the json to get the UUID from EProof
         String uuid = null;
-        String keyName = "1";
+        String publicKey = prepareEproofPdfRequest.getPublicKey();
+        logger.info(publicKey);
+        String keyName = systemParameterRepository.findByName(publicKey).orElseThrow(() -> new GenericException("public.key.not.found","Public key not found.")).getValue();
         String eproofTypeId = null;
 
         if("P".equals(certInfo.getLetterType())){
@@ -712,7 +712,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                     (String)registerResult.get("eProofJson"),
                     "",
                     eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
-                    "1",
+                    keyName,
                     certInfo.getEproofId(),
                     qrCodeString
             );
@@ -727,7 +727,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                     (String)registerResult.get("eProofJson"),
                     "",
                     eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
-                    "1",
+                    keyName,
                     certInfo.getEproofId(),
                     qrCodeString
             );

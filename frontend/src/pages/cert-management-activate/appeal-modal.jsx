@@ -96,6 +96,18 @@ const PersonalParticularsModal = (props) =>  {
     },
   });
 
+  const onConfirm = useCallback(() => {
+    form.validateFields().then(() => {
+      modalApi.confirm({
+        title:`Are you sure to update the result?`,
+        width: 500,
+        okText: 'Confirm',
+        onOk: () => onSave()
+      });
+    });
+  }, [])
+
+
   const onSave = useCallback(async () => {
     const values = await form.validateFields()
       .then((values) => ({
@@ -145,7 +157,7 @@ const PersonalParticularsModal = (props) =>  {
       width={1000}
       okText={'Submit for renew'}
       closable={false}
-      onOk={onSave}
+      onOk={onConfirm}
       onCancel={onClose}
       style={{ top: 20 }}
       {...props}
@@ -239,7 +251,7 @@ const PersonalParticularsModal = (props) =>  {
             <Text name={'letterType'} label={'Old Letter Template'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'newLetterType'} label={'New Letter Template'} size={100} disabled/>
+            <Text name={'newLetterType'} label={'New Letter Template'} required size={100} disabled/>
           </Col>
           <Col span={24}>
             <Textarea name={'remark'} label={'Remark'} size={100}/>
