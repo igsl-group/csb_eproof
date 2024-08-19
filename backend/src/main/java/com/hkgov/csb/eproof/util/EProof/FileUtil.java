@@ -57,7 +57,7 @@ public class FileUtil {
 
     public static File createCsvFile(String dataName,List<CertInfo> certInfos, List<CombinedHistoricalResultBefore> befores) throws IOException {
         String fileName ="";
-        if(dataName.equals("before")){
+        if("before".equals(dataName)){
             fileName = "2024_Before_Exam_results_";
         }else{
             fileName = "2024_After_Exam_results_";
@@ -65,7 +65,7 @@ public class FileUtil {
         File csvFile = File.createTempFile(fileName, ".csv");
         try (FileWriter writer = new FileWriter(csvFile);
              CSVWriter csvWriter = new CSVWriter(writer)){
-            if(dataName.equals("after")){
+            if("after".equals(dataName)){
                 csvWriter.writeNext(new String[]{"id","Exam Date","Name","Hkid","Passport", "UE Grade","UC Grade", "AT Grade","BLNST Grade"});
                 for (int i = 0; i < certInfos.size(); ++i) {
                     CertInfo info = certInfos.get(i);
