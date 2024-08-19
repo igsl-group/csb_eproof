@@ -15,17 +15,13 @@ import java.util.Objects;
 
 public class FileUtil {
     public static File compressFilesToZip(List<File> csvFiles) throws IOException {
-        // Create a temporary ZIP file
         File zipFile = File.createTempFile("data", ".zip");
-
         try (FileOutputStream fos = new FileOutputStream(zipFile);
              ZipArchiveOutputStream zos = new ZipArchiveOutputStream(fos)) {
             for (File csvFile : csvFiles) {
-                // Add each CSV file to the ZIP
                 try (FileInputStream fis = new FileInputStream(csvFile)) {
                     ZipArchiveEntry zipEntry = new ZipArchiveEntry(csvFile.getName());
                     zos.putArchiveEntry(zipEntry);
-
                     byte[] buffer = new byte[1024];
                     int len;
                     while ((len = fis.read(buffer)) > 0) {
@@ -35,7 +31,6 @@ public class FileUtil {
                 }
             }
         }
-
         return zipFile;
     }
 
@@ -63,9 +58,9 @@ public class FileUtil {
     public static File createCsvFile(String dataName,List<CertInfo> certInfos, List<CombinedHistoricalResultBefore> befores) throws IOException {
         String fileName ="";
         if(dataName.equals("before")){
-            fileName = "2024_Before_Exam_results"+"_" + System.currentTimeMillis();
+            fileName = "2024_Before_Exam_results_";
         }else{
-            fileName = "2024_After_Exam_results"+"_" + System.currentTimeMillis();
+            fileName = "2024_After_Exam_results_";
         }
         File csvFile = File.createTempFile(fileName, ".csv");
         try (FileWriter writer = new FileWriter(csvFile);
@@ -84,14 +79,16 @@ public class FileUtil {
                 for (int i = 0; i < befores.size(); ++i) {
                     CombinedHistoricalResultBefore info = befores.get(i);
                     csvWriter.writeNext(new String[]{
-                            String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),info.getPassport(),info.getUeGrade(),
-                            info.getUeDate().toString(),info.getUcGrade(),info.getUcDate().toString(),info.getAtGrade(),
-                            info.getAtDate().toString(),info.getBlGrade(),info.getBlDate().toString()
+                            String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),info.getPassport(),
+                            info.getUeGrade(), info.getUeDate()==null?null:info.getUeDate().toString(),
+                            info.getUcGrade(), info.getUcDate()==null?null:info.getUcDate().toString(),
+                            info.getAtGrade(), info.getAtDate()==null?null:info.getAtDate().toString(),
+                            info.getBlGrade(), info.getBlDate()==null?null:info.getBlDate().toString()
                     });
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return csvFile;
     }

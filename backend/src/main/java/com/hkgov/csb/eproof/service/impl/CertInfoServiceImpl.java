@@ -861,18 +861,21 @@ public class CertInfoServiceImpl implements CertInfoService {
         for(CombinedHistoricalResultBefore before : befores){
             if(Objects.nonNull(before.getUcVoid()) && before.getUcVoid()){
                 before.setUcGrade(null);
+                before.setUcDate(null);
             }
             if(Objects.nonNull(before.getUeVoid()) && before.getUeVoid()){
                 before.setUeGrade(null);
+                before.setUeDate(null);
             }
             if(Objects.nonNull(before.getBlVoid()) && before.getBlVoid()){
                 before.setBlGrade(null);
+                before.setBlDate(null);
             }
             if(Objects.nonNull(before.getAtVoid()) && before.getAtVoid()){
                 before.setAtGrade(null);
+                before.setAtDate(null);
             }
         }
-
         HttpHeaders headers = new HttpHeaders();
         String zipFileName = "Enquiry Result_" + System.currentTimeMillis() + ".zip";
         headers.add(HttpHeaders.CONTENT_TYPE, "application/zip");
@@ -880,8 +883,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         byte[] zipBytes = new byte[0];
         try {
             zipBytes = FileUtil.createCsvZip(certInfos, befores);
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV", e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV");
         }
         return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
     }
