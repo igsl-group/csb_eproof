@@ -63,7 +63,7 @@ public class FileUtil {
                 if(CollUtil.isNotEmpty(afters)){
                     for (int i = 0; i < afters.size(); ++i) {
                         CertInfo info = afters.get(i);
-                        csvWriter.writeNext(new String[]{String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),
+                        csvWriter.writeNext(new String[]{String.valueOf(i+1),info.getExamDate()==null?null:info.getExamDate().toString(),info.getName(),info.getHkid(),
                                 info.getPassportNo(),info.getUeGrade(),info.getUcGrade(),info.getAtGrade(),info.getBlnstGrade()
                         });
                     }
@@ -76,7 +76,8 @@ public class FileUtil {
                     for (int i = 0; i < befores.size(); ++i) {
                         CombinedHistoricalResultBefore info = befores.get(i);
                         csvWriter.writeNext(new String[]{
-                                String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),info.getPassport(),
+                                String.valueOf(i+1),info.getExamDate()==null?null:info.getExamDate().toString(),
+                                info.getName(), info.getHkid(),info.getPassport(),
                                 info.getUeGrade(), info.getUeDate()==null?null:info.getUeDate().toString(),
                                 info.getUcGrade(), info.getUcDate()==null?null:info.getUcDate().toString(),
                                 info.getAtGrade(), info.getAtDate()==null?null:info.getAtDate().toString(),

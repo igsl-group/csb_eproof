@@ -880,6 +880,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         try {
             zipBytes = FileUtil.createCsvZip(certInfos, befores);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV");
         }
         return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
