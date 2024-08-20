@@ -1,6 +1,5 @@
 package com.hkgov.csb.eproof.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
@@ -855,9 +854,6 @@ public class CertInfoServiceImpl implements CertInfoService {
                 .collect(Collectors.toList());
         List<CertInfo> certInfos = certInfoRepository.findByHkidIn(hkids,params);
         List<CombinedHistoricalResultBefore> befores = beforeRepository.findByHkidIn(hkids,params);
-        if(CollUtil.isEmpty(certInfos) && CollUtil.isEmpty(befores)){
-            throw new GenericException(ExceptionEnums.EXAM_INFO_NOT_EXIST);
-        }
         for(CombinedHistoricalResultBefore before : befores){
             if(Objects.nonNull(before.getUcVoid()) && before.getUcVoid()){
                 before.setUcGrade(null);

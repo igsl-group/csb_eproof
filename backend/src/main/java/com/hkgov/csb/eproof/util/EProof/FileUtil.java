@@ -11,7 +11,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class FileUtil {
     public static File compressFilesToZip(List<File> csvFiles) throws IOException {
@@ -36,17 +35,10 @@ public class FileUtil {
 
     public static byte[] createCsvZip(List<CertInfo> certInfos, List<CombinedHistoricalResultBefore> befores) throws IOException {
         List<File> createCsvFiles = new ArrayList<>();
-        File cetInfoCsvFile = CollUtil.isNotEmpty(certInfos) ? createCsvFile("after",certInfos,befores) : null;
-        File beforeCsvFile = CollUtil.isNotEmpty(befores) ? createCsvFile("before",certInfos,befores) : null;
-        if(Objects.nonNull(cetInfoCsvFile)){
-            createCsvFiles.add(cetInfoCsvFile);
-        }
-        if(Objects.nonNull(beforeCsvFile)){
-            createCsvFiles.add(beforeCsvFile);
-        }
-        if(CollUtil.isEmpty(createCsvFiles)){
-            return null;
-        }
+        File cetInfoCsvFile = createCsvFile("after",certInfos,befores);
+        File beforeCsvFile = createCsvFile("before",certInfos,befores);
+        createCsvFiles.add(cetInfoCsvFile);
+        createCsvFiles.add(beforeCsvFile);
         File zipFile = compressFilesToZip(createCsvFiles);
         byte[] zipBytes = Files.readAllBytes(zipFile.toPath());
         zipFile.delete();
@@ -55,7 +47,7 @@ public class FileUtil {
         return zipBytes;
     }
 
-    public static File createCsvFile(String dataName,List<CertInfo> certInfos, List<CombinedHistoricalResultBefore> befores) throws IOException {
+    public static File createCsvFile(String dataName,List<CertInfo> afters, List<CombinedHistoricalResultBefore> befores) throws IOException {
         String fileName ="";
         if("before".equals(dataName)){
             fileName = "2024_Before_Exam_results_";
@@ -63,28 +55,34 @@ public class FileUtil {
             fileName = "2024_After_Exam_results_";
         }
         File csvFile = File.createTempFile(fileName, ".csv");
+
         try (FileWriter writer = new FileWriter(csvFile);
              CSVWriter csvWriter = new CSVWriter(writer)){
             if("after".equals(dataName)){
                 csvWriter.writeNext(new String[]{"id","Exam Date","Name","Hkid","Passport", "UE Grade","UC Grade", "AT Grade","BLNST Grade"});
-                for (int i = 0; i < certInfos.size(); ++i) {
-                    CertInfo info = certInfos.get(i);
-                    csvWriter.writeNext(new String[]{String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),
-                            info.getPassportNo(),info.getUeGrade(),info.getUcGrade(),info.getAtGrade(),info.getBlnstGrade()
-                    });
+                if(CollUtil.isNotEmpty(afters)){
+                    for (int i = 0; i < afters.size(); ++i) {
+                        CertInfo info = afters.get(i);
+                        csvWriter.writeNext(new String[]{String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),
+                                info.getPassportNo(),info.getUeGrade(),info.getUcGrade(),info.getAtGrade(),info.getBlnstGrade()
+                        });
+                    }
                 }
-            }else{
+            }
+            if("before".equals(dataName)){
                 csvWriter.writeNext(new String[]{"id","Exam Date","Name","Hkid","Passport","UE Grade","UE Date","UC Grade",
                         "UC Date", "AT Grade","AT Date","BLNST Grade","BLNST Date"});
-                for (int i = 0; i < befores.size(); ++i) {
-                    CombinedHistoricalResultBefore info = befores.get(i);
-                    csvWriter.writeNext(new String[]{
-                            String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),info.getPassport(),
-                            info.getUeGrade(), info.getUeDate()==null?null:info.getUeDate().toString(),
-                            info.getUcGrade(), info.getUcDate()==null?null:info.getUcDate().toString(),
-                            info.getAtGrade(), info.getAtDate()==null?null:info.getAtDate().toString(),
-                            info.getBlGrade(), info.getBlDate()==null?null:info.getBlDate().toString()
-                    });
+                if(CollUtil.isNotEmpty(befores)) {
+                    for (int i = 0; i < befores.size(); ++i) {
+                        CombinedHistoricalResultBefore info = befores.get(i);
+                        csvWriter.writeNext(new String[]{
+                                String.valueOf(i+1),info.getExamDate().toString(),info.getName(),info.getHkid(),info.getPassport(),
+                                info.getUeGrade(), info.getUeDate()==null?null:info.getUeDate().toString(),
+                                info.getUcGrade(), info.getUcDate()==null?null:info.getUcDate().toString(),
+                                info.getAtGrade(), info.getAtDate()==null?null:info.getAtDate().toString(),
+                                info.getBlGrade(), info.getBlDate()==null?null:info.getBlDate().toString()
+                        });
+                    }
                 }
             }
         } catch (Exception e) {
