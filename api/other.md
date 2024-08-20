@@ -81,3 +81,134 @@ type response = {
     message: string,
 }
 ```
+
+## [get] /historicalResult
+### Get all historical result
+
+1. look up "Combined_Historical_Result_Before_2024" table
+2. 有分頁
+
+```typescript
+//DEFAULT VALUE
+const sort_field = 'id';    // table field name
+const sort_direction= 'asc';  // asc|desc
+const limit = 20;
+const offset = 0;
+const keyword = '';
+
+type query_param = {
+    sort_field: string,
+    sort_direction: string,
+    limit: number,
+    offset: number,
+    keyword: string
+}
+
+// response 200
+type response = {
+  success: true,
+  message: 'Success',
+  code: 200,
+  result: {
+      name: string,
+      hkid: string,
+      passport: string,
+      email: string,
+      blnst_grade: string,
+      blnst_date: Date,
+      blnst_void: boolean,
+      ue_grade: string,
+      ue_date: Date,
+      ue_void: boolean,
+      uc_grade: string,
+      uc_grade: Date,
+      uc_void: boolean,
+      at_grade: string,
+      at_date: Date,
+      at_void: boolean,
+      remark: string
+      valid: boolean,
+      created_by: string,
+      modified_by: string,
+      created_date: string,
+      modified_date: string,
+  }[]
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
+
+
+## [post] /historicalResult/{id}/valid
+### set valid
+```sql
+update Combined_Historical_Result_Before_2024
+set valid = true,
+remark = :remark
+where id = :id 
+```
+```typescript
+type request = {
+    remark: string,
+}
+
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
+
+## [post] /historicalResult/{id}/invalid
+### set valid
+```sql
+update Combined_Historical_Result_Before_2024
+set valid = false,
+remark = :remark
+where id = :id 
+```
+```typescript
+type request = {
+    remark: string,
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
+
+## [post] /historicalResult/{id}/void
+### void result by request
+```sql
+update from Combined_Historical_Result_Before_2024
+set
+ue_date = today('YYYY-MM-DD'),
+ue_void = :isVoid
+where id = :id 
+```
+
+```typescript
+type request = {
+    subject: string,    <------ allow 'ue_grade', 'uc_grade', 'at_grade', 'blnst_grade'
+    isVoid: boolean,
+    remark: string
+}
+
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```

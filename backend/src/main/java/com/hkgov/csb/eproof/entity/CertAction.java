@@ -27,6 +27,15 @@ public class CertAction extends BaseEntity{
     @Column(name = "approver")
     private Long approver;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "hkid")
+    private String hkid;
+
+    @Column(name = "passport_no")
+    private String passportNo;
+
     @Column(name = "remark",columnDefinition = "varchar(1000)")
     private String remark;
 
