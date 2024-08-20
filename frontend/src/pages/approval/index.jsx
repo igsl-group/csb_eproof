@@ -36,6 +36,7 @@ const ApprovalWorkflow = () =>  {
   const [data, setData] = useState([]);
   const [filterCondition, setFilterCondition] = useState(null);
   const [form] = Form.useForm();
+  const [record, setRecord] = useState({});
 
   const [revokeOpen, setRevokeOpen] = useState(false);
 
@@ -55,87 +56,14 @@ const ApprovalWorkflow = () =>  {
     orderBy: defaultPaginationInfo.orderBy,
   });
 
-  // const [data, setData] = useState([
-  //   {
-  //     id: 1,
-  //     type: 'Revoke',
-  //     serialNo: 'N000000001',
-  //     candidateNo: 'C000001',
-  //     hkid: 'T7700001',
-  //     name: 'Chan Tai Man',
-  //     email: 'taiman.chan@hotmail.com',
-  //     certificates: [
-  //       {
-  //         id: 1,
-  //         issueDate: '2024-05-01',
-  //         examDate: '2023-04-01',
-  //         candidateNo: 'C000001',
-  //         hkid: 'T7700002',
-  //         name: 'Chan Tai Man',
-  //         email: 'taiman.chan@hotmail.com',
-  //         ue: 'L2',
-  //         uc: 'L1',
-  //         at: 'Pass',
-  //         blnst: 'Pass',
-  //         status: 'Success',
-  //       },
-  //       {
-  //         id: 2,
-  //         issueDate: '2023-04-01',
-  //         examDate: '2023-04-01',
-  //         candidateNo: 'C000001',
-  //         hkid: 'T7700002',
-  //         name: 'Chan Tai Man',
-  //         email: 'taiman.chan@hotmail.com',
-  //         ue: 'L2',
-  //         uc: 'L1',
-  //         at: 'Pass',
-  //         blnst: 'Pass',
-  //         status: 'Success',
-  //       }
-  //     ],
-  //   },
-  //   {
-  //     id: 2,
-  //     type: 'Revoke',
-  //     serialNo: 'N000000002',
-  //     candidateNo: 'C000002',
-  //     hkid: 'T7700002',
-  //     name: 'Wong Tai Man',
-  //     certificates: [
-  //       {
-  //         id: 1,
-  //         issueDate: '2024-05-01',
-  //         examDate: '2023-04-01',
-  //         candidateNo: 'C000001',
-  //         hkid: 'T7700002',
-  //         name: 'Chan Tai Man',
-  //         email: 'taiman.chan@hotmail.com',
-  //         ue: 'L2',
-  //         uc: 'L1',
-  //         at: 'Pass',
-  //         blnst: 'Pass',
-  //         status: 'Success',
-  //       },
-  //     ],
-  //   },
-  // ]);
-
   const columns = useMemo(() => [
-    // {
-    //   title: 'Id',
-    //   key: 'id',
-    //   render: (row) => <Button size={'small'} type={'link'} onClick={() => setOpenUpdatePersonalParticularsModal(true)}>{row.id}</Button>,
-    //   width: 140,
-    //   sorter: true,
-    // },
     {
       title: 'Action',
       key: 'action',
       width: 160,
       render: (row) => (
         <Space>
-          <Button size={'small'} title={'Download'} onClick={() => setRevokeOpen(true)}>View Case</Button>
+          <Button size={'small'} title={'View'} onClick={() => onClickRevoke(row)}>View Case</Button>
         </Space>
       )
     },
@@ -150,6 +78,13 @@ const ApprovalWorkflow = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      width: 100,
+      sorter: true,
+    },
+    {
+      title: 'HKID',
+      key: 'passportNo',
+      dataIndex: 'passportNo',
       width: 100,
       sorter: true,
     },
@@ -194,18 +129,23 @@ const ApprovalWorkflow = () =>  {
     getRevokeList(tempPagination, filterCondition);
   }, [pagination]);
 
+  const onClickRevoke = useCallback((row) => {
+    setRevokeOpen(true);
+    setRecord(row);
+  },[]);
+
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
     onSuccess: (response, params) => {
       switch (params[0]) {
-        case 'examProfileList':
+        case 'getRevokeList':
           const data = response.data || {};
-          const content = data.content || [];
-          setPagination({
-            ...pagination,
-            total: data.totalElements,
-          });
-          setData(content);
+          // const content = data.content || [];
+          // setPagination({
+          //   ...pagination,
+          //   total: data.totalElements,
+          // });
+          setData(data);
           break;
         default:
           break;
@@ -279,13 +219,13 @@ const ApprovalWorkflow = () =>  {
           }}
           expandable={{
             expandedRowRender: (row) => {
-              const child = row.certificates;
+              const child = row.certInfos;
               return child ? <Table
                 columns={[
                   {
                     title: 'Issue Date',
-                    key: 'issueDate',
-                    dataIndex: 'issueDate',
+                    key: 'actualSignTime',
+                    render: (row) => dayjs(row.actualSignTime).format('YYYY-MM-DD'),
                     width: 100,
                     sorter: true,
                   },
@@ -298,29 +238,29 @@ const ApprovalWorkflow = () =>  {
                   },
                   {
                     title: 'UE',
-                    key: 'ue',
-                    dataIndex: 'ue',
+                    key: 'ueGrade',
+                    dataIndex: 'ueGrade',
                     width: 100,
                     sorter: true,
                   },
                   {
                     title: 'UC',
-                    key: 'uc',
-                    dataIndex: 'uc',
+                    key: 'ucGrade',
+                    dataIndex: 'ucGrade',
                     width: 100,
                     sorter: true,
                   },
                   {
                     title: 'AT',
-                    key: 'at',
-                    dataIndex: 'at',
+                    key: 'atGrade',
+                    dataIndex: 'atGrade',
                     width: 100,
                     sorter: true,
                   },
                   {
                     title: 'BLNST',
-                    key: 'blnst',
-                    dataIndex: 'blnst',
+                    key: 'blnstGrade',
+                    dataIndex: 'blnstGrade',
                     width: 100,
                     sorter: true,
                   },
@@ -352,6 +292,7 @@ const ApprovalWorkflow = () =>  {
       <RevokeCertModal
         open={revokeOpen}
         title={'Revoke Certificate'}
+        record={record}
         onCloseCallback={() => setRevokeOpen(false)}
         onFinishCallback={() => setRevokeOpen(false)}
       />
