@@ -228,6 +228,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         CertAction certAction = new CertAction();
         certAction.setApprover(user.getId());
         certAction.setRemark(params.getRemark());
+        certAction.setHkid(params.getHkid());
+        certAction.setPassportNo(params.getPassportNo());
+        certAction.setName(params.getName());
         certAction.setCanEmailAddress(params.getEmailTarget());
         certAction.setCanEmailContent(params.getEmailContent());
         certAction.setType("REVOKE");
