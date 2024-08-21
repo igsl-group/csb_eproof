@@ -90,22 +90,22 @@ public class TestController {
     }
 
     @GetMapping("/fillDocument2")
-    public ResponseEntity fillDocument2() throws Exception {
+    public ResponseEntity<byte[]> fillDocument2() throws Exception {
         HttpHeaders header = new HttpHeaders();
         header.setContentDisposition(ContentDisposition
                 .attachment()
                 .filename("test.pdf")
                 .build()
         );
-        CertInfo certInfo = certInfoRepository.findById(442L).get();
-        ExamProfile exam = certInfo.getExamProfile();
+//        CertInfo certInfo = certInfoRepository.findById(442L).get();
+//        ExamProfile exam = certInfo.getExamProfile();
+//
+//        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
+//        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
-        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
-        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
-
-        FileInputStream inputStream = new FileInputStream("/var/csb_eproof/test_template.docx");
-
-        return ResponseEntity.ok().headers(header).body(documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),null));
+        FileInputStream inputStream = new FileInputStream("C:\\Users\\IGS\\Desktop\\projects\\csb-eproof\\backend\\src\\main\\resources\\eproofCertTemplate\\fail\\fail_template.docx");
+        byte[] pdfBytes = docxUtil.convertDocxToPdf_POI(inputStream);
+        return ResponseEntity.ok().headers(header).body(pdfBytes);
     }
 
 
