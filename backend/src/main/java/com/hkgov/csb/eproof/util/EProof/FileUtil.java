@@ -70,14 +70,13 @@ public class FileUtil {
                 }
             }
             if("before".equals(dataName)){
-                csvWriter.writeNext(new String[]{"id","Exam Date","Name","Hkid","Passport","UE Grade","UE Date","UC Grade",
+                csvWriter.writeNext(new String[]{"id","Name","Hkid","Passport","UE Grade","UE Date","UC Grade",
                         "UC Date", "AT Grade","AT Date","BLNST Grade","BLNST Date"});
                 if(CollUtil.isNotEmpty(befores)) {
                     for (int i = 0; i < befores.size(); ++i) {
                         CombinedHistoricalResultBefore info = befores.get(i);
                         csvWriter.writeNext(new String[]{
-                                String.valueOf(i+1),info.getExamDate()==null?null:info.getExamDate().toString(),
-                                info.getName(), info.getHkid(),info.getPassport(),
+                                String.valueOf(i+1),info.getName(), info.getHkid(),info.getPassport(),
                                 info.getUeGrade(), info.getUeDate()==null?null:info.getUeDate().toString(),
                                 info.getUcGrade(), info.getUcDate()==null?null:info.getUcDate().toString(),
                                 info.getAtGrade(), info.getAtDate()==null?null:info.getAtDate().toString(),
