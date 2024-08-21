@@ -12,10 +12,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.Enumeration;
 
 @RestController(value = "/auth")
@@ -27,7 +31,8 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
     private final UserSessionService userSessionService;
-
+    @Value("${server.url}")
+    private String serverUrl;
     public AuthenticationController(JwtHelper jwtHelper, AuthenticationService authenticationService, JwtService jwtService, UserSessionService userSessionService) {
         this.jwtHelper = jwtHelper;
         this.authenticationService = authenticationService;
@@ -44,14 +49,14 @@ public class AuthenticationController {
         return Result.success();
     }
 
-    @GetMapping("/sso")
-    public Result sso(
+    @GetMapping("/tempSso")
+    public Result tempSso(
             @RequestHeader(value = "uid", required = false) String uid,
             @RequestHeader(value = "dpdeptid", required = false) String dpDeptId,
             @RequestHeader(value = "host", required = false) String host,
             HttpServletRequest req , HttpServletResponse resp){
         logger.info("uid: {} DeDeptId: {} host: {}", uid, dpDeptId, host);
-        logAllRequestHeaders(req);
+        // logAllRequestHeaders(req);
         authenticationService.authenticate(uid,dpDeptId);
         UserSession us = userSessionService.persistUserSession(uid,dpDeptId);
         String token = jwtService.generateToken(uid,dpDeptId,us);
@@ -60,6 +65,32 @@ public class AuthenticationController {
 
         return Result.success(token);
     }
+
+    @GetMapping("/sso")
+    public void sso(
+            @RequestHeader(value = "uid", required = false) String uid,
+            @RequestHeader(value = "dpdeptid", required = false) String dpDeptId,
+            @RequestHeader(value = "host", required = false) String host,
+            HttpServletRequest req , HttpServletResponse resp) throws IOException {
+
+        logger.info("uid: {} DeDeptId: {} host: {}", uid, dpDeptId, host);
+//        logAllRequestHeaders(req);
+        authenticationService.authenticate(uid,dpDeptId);
+        UserSession us = userSessionService.persistUserSession(uid,dpDeptId);
+        String token = jwtService.generateToken(uid,dpDeptId,us);
+        resp.addCookie(new Cookie(Constants.COOKIE_KEY_ACCESS_TOKEN, token));
+        userSessionService.updateSessionJwt(us.getId(),token);
+
+        URI redirectUri = UriComponentsBuilder
+                .fromHttpUrl(serverUrl)
+                .queryParam("token", token)
+                .path("/")
+                .build()
+                .toUri();
+
+        resp.sendRedirect(redirectUri.toString());
+    }
+
     private void logAllRequestHeaders(HttpServletRequest request) {
         Enumeration<String> headerNames = request.getHeaderNames();
         if (headerNames != null) {

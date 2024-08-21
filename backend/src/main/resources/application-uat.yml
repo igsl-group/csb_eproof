@@ -70,7 +70,7 @@ password:
   tokenExpirationAfterDays: 1
 
 server:
-  url: http://localhost:8080
+  url: https://eproofuat.csb.ccgo.hksarg
   servlet:
     context-path: /api/v1
 security:
@@ -125,6 +125,7 @@ minio:
   bucket: eproof
   path:
     cert-record: /cert_record
+    cert-renew-record: /cert_renew_record
 
 mail:
   mode: SMTP
