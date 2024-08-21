@@ -76,14 +76,14 @@ const SystemConfiguration = () =>  {
       key: 'code',
       dataIndex: 'code',
       width: 130,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'Description',
       key: 'description',
       dataIndex: 'description',
       width: 100,
-      sorter: true,
+      sorter: false,
     },
   ], []);
 
@@ -174,19 +174,6 @@ const SystemConfiguration = () =>  {
       <Typography.Title level={3}>System Configuration</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
-      {/*<Row gutter={[16, 16]} justify={'end'}>*/}
-      {/*  <Col>*/}
-      {/*    <Pagination*/}
-      {/*      showSizeChanger*/}
-      {/*      total={pagination.total}*/}
-      {/*      pageSizeOptions={defaultPaginationInfo.sizeOptions}*/}
-      {/*      onChange={paginationOnChange}*/}
-      {/*      current={pagination.page}*/}
-      {/*      pageSize={pagination.pageSize}*/}
-      {/*    />*/}
-      {/*  </Col>*/}
-      {/*</Row>*/}
-      {/*<br/>*/}
       <Card
         bordered={false}
         className={'card-body-nopadding'}
@@ -203,20 +190,8 @@ const SystemConfiguration = () =>  {
           columns={columns}
           dataSource={data}
         />
-        {/*<br/>*/}
-        {/*<Row justify={'end'}>*/}
-        {/*  <Col>*/}
-        {/*    <Pagination*/}
-        {/*      total={pagination.total}*/}
-        {/*      pageSizeOptions={defaultPaginationInfo.sizeOptions}*/}
-        {/*      onChange={paginationOnChange}*/}
-        {/*      pageSize={defaultPaginationInfo.pageSize}*/}
-        {/*      current={pagination.page}*/}
-        {/*    />*/}
-        {/*  </Col>*/}
-        {/*</Row>*/}
-        {/*<br/>*/}
       </Card>
+      <br/>
     </div>
 
   )

@@ -45,7 +45,7 @@ const EmailTemplateList = () =>  {
     sizeOptions: [10, 20, 40],
     pageSize: 10,
     page: 1,
-    sortBy: 'id',
+    sortBy: 'type',
     orderBy: 'descend',
   }), []);
 
@@ -275,6 +275,7 @@ const EmailTemplateList = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
       <EmailModal
         type={type}
         recordId={recordId}

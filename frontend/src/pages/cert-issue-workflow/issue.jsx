@@ -423,7 +423,7 @@ const Issue = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Sign_And_Issue']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Sign_And_Issue']}>
       <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -610,7 +610,7 @@ const Issue = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

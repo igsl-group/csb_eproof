@@ -58,7 +58,7 @@ const RoleList = () =>  {
     sizeOptions: [10, 20, 40],
     pageSize: 10,
     page: 1,
-    sortBy: 'id',
+    sortBy: 'name',
     orderBy: 'descend',
   }), []);
 
@@ -242,15 +242,13 @@ const RoleList = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['role-list']} permissionRequired={'Role_Maintenance'}>
+    <div className={styles['role-list']} permissionRequired={'Role_Maintenance'}>
       <Typography.Title level={3}>Role</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <PermissionControl permissionRequired={'User_Maintenance'}>
-            <Button type="primary" onClick={() => onCreateClickCallback()}>Create</Button>
-          </PermissionControl>
+          <Button type="primary" onClick={() => onCreateClickCallback()}>Create</Button>
         </Col>
         <Col>
           <Pagination
@@ -293,6 +291,7 @@ const RoleList = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
       <RoleModal
         type={type}
         recordId={recordId}
@@ -300,7 +299,7 @@ const RoleList = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

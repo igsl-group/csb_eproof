@@ -423,7 +423,7 @@ const ExamProfile = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
+    <div className={styles['exam-profile']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -474,7 +474,7 @@ const ExamProfile = () =>  {
           </Col>
           <Col span={4}>
             <Row gutter={[8, 8]} justify={'end'}>
-              <PermissionControl forceHidden={freezeExamProfile}>
+              <PermissionControl forceHidden={freezeExamProfile} permissionRequired={['Examination_Profile_Maintenance']}>
                 <Col span={24}>
                   <Row justify={'end'}>
                     <Col>
@@ -613,7 +613,7 @@ const ExamProfile = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

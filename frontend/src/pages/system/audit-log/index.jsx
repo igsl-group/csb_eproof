@@ -58,8 +58,8 @@ const AuditLog = () =>  {
   const [filterCondition, setFilterCondition] = useState(null);
 
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [10, 20, 40],
-    pageSize: 10,
+    sizeOptions: [100, 200, 500],
+    pageSize: 100,
     page: 1,
     sortBy: 'id',
     orderBy: 'descend',
@@ -74,6 +74,11 @@ const AuditLog = () =>  {
   });
 
   const columns = useMemo(() => [
+    {
+      title: "Time",
+      dataIndex: "createdDate",
+      width: 200,
+    },
     {
       title: "DP User ID",
       dataIndex: "createdBy",
@@ -94,11 +99,7 @@ const AuditLog = () =>  {
       dataIndex: "logDetails",
       width: 300,
     },
-    {
-      title: "Time",
-      dataIndex: "createdDate",
-      width: 200,
-    }
+
 
   ], []);
 
@@ -224,6 +225,7 @@ const AuditLog = () =>  {
         <Row justify={'end'}>
           <Col>
             <Pagination
+              showSizeChanger={false}
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
@@ -234,7 +236,7 @@ const AuditLog = () =>  {
         </Row>
         <br/>
       </Card>
-
+      <br/>
     </div>
 
   )

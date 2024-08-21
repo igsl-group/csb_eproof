@@ -385,7 +385,7 @@ const Notify = () =>  {
   console.log(serialNoValue)
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Notify']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Notify']}>
       <Typography.Title level={3}>Notify Candidate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -572,7 +572,7 @@ const Notify = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

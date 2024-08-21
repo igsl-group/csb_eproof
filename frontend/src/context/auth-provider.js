@@ -82,6 +82,10 @@ const AuthProvider = ({ children }) => {
     },
   });
 
+  const setToken = (token) => {
+    localStorage.setItem('eproof-token', token);
+  };
+
   const getProfile = async () => {
     return runLoginAPI('profile');
   };
@@ -115,7 +119,8 @@ const AuthProvider = ({ children }) => {
       section,
       loginAction,
       logOut,
-      getProfile
+      getProfile,
+      setToken
     }}>
       {children}
     </AuthContext.Provider>

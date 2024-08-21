@@ -179,7 +179,7 @@ const ExamProfileList = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile-list']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
+    <div className={styles['exam-profile-list']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
@@ -234,7 +234,7 @@ const ExamProfileList = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }
