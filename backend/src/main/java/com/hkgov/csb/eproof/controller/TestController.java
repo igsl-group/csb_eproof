@@ -27,6 +27,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,8 @@ public class TestController {
 
     @Autowired
     private DocumentGenerateService documentGenerateService;
-
+    @Value("${document.generate-temp-source}")
+    private String tmpSource;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("/fillDocument")
@@ -103,7 +105,7 @@ public class TestController {
 //        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
 //        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
-        FileInputStream inputStream = new FileInputStream("C:\\Users\\IGS\\Desktop\\projects\\csb-eproof\\backend\\src\\main\\resources\\eproofCertTemplate\\fail\\fail_template.docx");
+        FileInputStream inputStream = new FileInputStream(tmpSource);
         byte[] pdfBytes = docxUtil.convertDocxToPdf_POI(inputStream);
         return ResponseEntity.ok().headers(header).body(pdfBytes);
     }

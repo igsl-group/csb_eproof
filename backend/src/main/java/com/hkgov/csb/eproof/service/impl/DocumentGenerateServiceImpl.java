@@ -43,7 +43,7 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
     public byte[] getMergedDocument(InputStream docxTemplate,
                                     @NotNull(message = "Document output type must not be null!") DocumentOutputType outputType,
                                     Map<DataFieldName, String> mergeMaps,
-                                    Map<String, List> tableLoopMap) throws IOException, Docx4JException, InterruptedException {
+                                    Map<String, List> tableLoopMap) throws Exception {
 
         logger.info("Start mail merge.");
         byte[] mergedDocxBinaryArray = docxUtil.getMergedDocumentBinary(docxTemplate,mergeMaps);
@@ -72,8 +72,8 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
             case PDF ->{
                 logger.info("Start convert pdf.");
 //                returnBinary = docxUtil.convertDocxToPdf(tempDocxFile);
-                returnBinary = docxUtil.convertDocxToPdf_POI(new ByteArrayInputStream(mergedDocxBinaryArray));
-//                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
+//                returnBinary = docxUtil.convertDocxToPdf_POI(new ByteArrayInputStream(mergedDocxBinaryArray));
+                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
 //                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
                 logger.info("Finish convert pdf.");
             }

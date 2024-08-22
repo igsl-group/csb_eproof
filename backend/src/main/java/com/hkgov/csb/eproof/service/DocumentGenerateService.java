@@ -20,5 +20,5 @@ public interface DocumentGenerateService {
     byte[] getMergedDocument(InputStream docxTemplate,
                              @NotNull(message = "Document output type must not be null!") DocumentOutputType outputType,
                              Map<DataFieldName, String> mergeMaps,
-                             Map<String, List> tableLoopMap) throws IOException, Docx4JException, InterruptedException;
+                             Map<String, List> tableLoopMap) throws Exception;
 }
