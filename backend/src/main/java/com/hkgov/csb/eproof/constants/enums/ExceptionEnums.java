@@ -25,6 +25,7 @@ public enum ExceptionEnums {
     EXAM_INFO_NOT_EXIST("exam.info.not.exist","Exam info does not exist."),
     UPLOAD_FLIE_IS_EMPTY("upload.file.is.empty","Upload file is empty."),
     SUBJECT_IS_NULL("subject.is.null","Subject is null."),
+    SUBJECT_NOT_EXIST("subject.not.exist","Subject does not exist."),
 
 
     // Letter template

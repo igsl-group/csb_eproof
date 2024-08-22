@@ -18,6 +18,10 @@ public class CombinedHistoricalResultBefore extends BaseEntity{
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "exam_date")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
+    private LocalDate examDate;
+
     @Column(name = "name")
     private String name;
 

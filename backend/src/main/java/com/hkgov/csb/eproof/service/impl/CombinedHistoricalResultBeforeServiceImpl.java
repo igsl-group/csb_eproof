@@ -4,6 +4,7 @@ import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.CombinedHistoricalResultBeforeRepository;
 import com.hkgov.csb.eproof.dto.UpdateHistoricalDto;
 import com.hkgov.csb.eproof.entity.CombinedHistoricalResultBefore;
+import com.hkgov.csb.eproof.entity.enums.GradeEnums;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.service.CombinedHistoricalResultBeforeService;
 import io.micrometer.common.util.StringUtils;
@@ -61,24 +62,26 @@ public class CombinedHistoricalResultBeforeServiceImpl implements CombinedHistor
             throw new GenericException(ExceptionEnums.SUBJECT_IS_NULL);
         }
         before.setRemark(dto.getRemark());
-        switch (dto.getSubject()){
-            case "ue_grade" :
-                before.setBlDate(LocalDate.now());
-                before.setBlVoid(dto.getValid());
+        GradeEnums gradeEnums = GradeEnums.getGradeType(dto.getSubject());
+        switch (gradeEnums){
+            case UE_GRADE:
+                before.setUeDate(LocalDate.now());
+                before.setUeVoid(dto.getValid());
                 break;
-            case "uc_grade" :
+            case UC_GRADE:
                 before.setUcDate(LocalDate.now());
                 before.setUcVoid(dto.getValid());
                 break;
-            case "blnst_grade" :
+            case BL_GRADE:
                 before.setBlDate(LocalDate.now());
                 before.setBlVoid(dto.getValid());
                 break;
-            case "at_grade" :
+            case At_GRADE:
                 before.setAtDate(LocalDate.now());
                 before.setAtVoid(dto.getValid());
                 break;
-            default:break;
+            default:
+                break;
         }
         repository.save(before);
     }
