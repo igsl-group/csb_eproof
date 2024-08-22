@@ -398,7 +398,7 @@ const Generate = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Generate']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Generate']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -585,7 +585,7 @@ const Generate = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

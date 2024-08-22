@@ -2,7 +2,7 @@ import request from '@/api/index';
 export function loginAPI(params, ...rest) {
     switch (params) {
         case 'authenticate':
-            return request(`/sso`, 'authenticate', rest[0]);
+            return request(`/tempSso`, 'authenticate', rest[0]);
         case 'profile':
             return request(`/user/currentUser`, 'get');
         case 'logout':
@@ -225,6 +225,8 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/getTodo/revoke`, "get");
         case 'requestCertRevoke':
             return request(`/cert/revoke?certInfoIdList=${rest[0]}`, "post", rest[1]);
+        case 'certEnquiryByCsv':
+            return request(`/cert/enquiryResult/csv`, "formDataDownload", rest[0]);
     }
 }
 

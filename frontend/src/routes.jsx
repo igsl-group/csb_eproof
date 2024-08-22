@@ -21,6 +21,7 @@ import NotifyWorkflowRenew from '@/pages/cert-issue-workflow-renew/notify';
 import Login from '@/pages/login';
 import StatisticalReport from '@/pages/statistical-report';
 import SystemConfiguration from '@/pages/system/system-configuration';
+import BatchVerification from '@/pages/batch-verification';
 
 
 import RoleList from '@/pages/role-list';
@@ -51,6 +52,7 @@ import {
   UserOutlined,
   MailOutlined,
   AuditOutlined,
+  EllipsisOutlined,
   DesktopOutlined,
   FundViewOutlined,
   HistoryOutlined,
@@ -66,6 +68,7 @@ import {
   FileSearchOutlined,
   ToolOutlined,
   BarsOutlined,
+  SecurityScanOutlined,
 } from '@ant-design/icons';
 import {useAuth} from "./context/auth-provider";
 import {useEffect} from "react";
@@ -116,28 +119,8 @@ const routeList = [
           'Examination_Profile_Maintenance',
         ],
       },
-      {
-        id: 4,
-        pid: 0,
-        name: 'Historical Result',
-        icon: <HistoryOutlined />,
-        path: '/HistoricalResult',
-        element: <HistoricalResultList />,
-        ignore: false,
-        show: true,
-        permission: ['Historical_Result_Maintenance'],
-      },
-      {
-        id: 5,
-        pid: 0,
-        name: 'Statistical Reports',
-        icon: <FundViewOutlined />,
-        path: '/StatisticalReports',
-        element: <StatisticalReport />,
-        ignore: false,
-        show: true,
-        permission: ['Statistical_Reports_Maintenance'],
-      },
+
+
       {
         id: 6,
         pid: 0,
@@ -292,6 +275,51 @@ const routeList = [
         ignore: false,
         show: true,
         role: [],
+      },
+      {
+        id: 4,
+        pid: 0,
+        icon: <EllipsisOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
+        name: (<span style={{color: 'rgb(104, 111, 125)'}}>Other</span>),
+        path: '/Other',
+        // element: <HistoricalResultList />,
+        // ignore: false,
+        // show: true,
+        permission: ['Historical_Result_Maintenance'],
+        children:[
+          {
+            id: 41,
+            pid: 4,
+            name: 'Historical Result',
+            icon: <HistoryOutlined />,
+            path: '/Other/HistoricalResult',
+            element: <HistoricalResultList />,
+            show: true,
+            permission: ['Historical_Result_Maintenance'],
+          },
+          {
+            id: 42,
+            pid: 4,
+            name: 'Statistical Reports',
+            icon: <FundViewOutlined />,
+            path: '/Other/StatisticalReports',
+            element: <StatisticalReport />,
+            ignore: false,
+            show: true,
+            permission: ['Statistical_Reports_Maintenance'],
+          },
+          {
+            id: 43,
+            pid: 4,
+            name: 'Batch Enquiry',
+            icon: <SecurityScanOutlined />,
+            path: '/Other/BatchEnquiry',
+            element: <BatchVerification />,
+            ignore: false,
+            show: true,
+            permission: ['Historical_Result_Maintenance'],
+          },
+        ]
       },
       {
         id: 9,
