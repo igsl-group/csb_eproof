@@ -197,7 +197,11 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
     @Override
     public void removeCert(Long certInfoId) {
-        certInfoRenewRepository.updateIsDeleteById(certInfoId);
+        CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(certInfoId).orElse(null);
+        if(Objects.nonNull(certInfoRenew)){
+            certInfoRenew.setIsDelete(true);
+            certInfoRenewRepository.save(certInfoRenew);
+        }
     }
 
     @Override

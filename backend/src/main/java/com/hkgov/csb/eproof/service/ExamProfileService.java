@@ -14,11 +14,11 @@ public interface ExamProfileService {
 
     Boolean create(ExamProfileCreateDto request);
 
-    Boolean freeze(String examProfileSerialNo);
+    void freeze(String examProfileSerialNo);
 
-    Boolean unfreeze(String examProfileSerialNo);
+    void unfreeze(String examProfileSerialNo);
 
-    Boolean update(String id, ExamProfileUpdateDto requestDto);
+    void update(String id, ExamProfileUpdateDto requestDto);
 
     ExamProfile getexamProfileInfo(String examProfileSerialNo);
 

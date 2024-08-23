@@ -31,17 +31,20 @@ public class ExamProfileController {
 
     @PatchMapping("/freeze/{id}")
     public Result<Boolean> freeze(@PathVariable String id){
-        return Result.success(examProfileService.freeze(id));
+        examProfileService.freeze(id);
+        return Result.success();
     }
 
     @PatchMapping("/unfreeze/{id}")
     public Result<Boolean> unfreeze(@PathVariable String id){
-        return Result.success(examProfileService.unfreeze(id));
+        examProfileService.unfreeze(id);
+        return Result.success();
     }
 
     @PatchMapping("/update/{id}")
     public Result<Boolean> update(@PathVariable String id,@RequestBody ExamProfileUpdateDto requestDto){
-        return Result.success(examProfileService.update(id,requestDto));
+        examProfileService.update(id,requestDto);
+        return Result.success();
     }
 
     @GetMapping("/{id}")
