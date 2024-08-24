@@ -274,6 +274,30 @@
             <version>2.0.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>hk.gov.notify</groupId>
+            <artifactId>common</artifactId>
+            <version>2.0.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/egis_common_web-2.0.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>hk.gov.notify</groupId>
+            <artifactId>client</artifactId>
+            <version>1.1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/egis_noti_client-1.1.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>hk.gov.notify</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/egis_noti_restful_client-1.0.1.jar</systemPath>
+        </dependency>
+
 
         <!--  https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.poi.xwpf.converter.core
          <dependency>

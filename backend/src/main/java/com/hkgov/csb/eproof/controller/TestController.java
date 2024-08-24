@@ -20,6 +20,7 @@ import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
+import hk.gov.spica_scopes.spica.notification.client.restful.NotificationRestfulClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
 import org.docx4j.Docx4J;
@@ -247,5 +248,6 @@ public class TestController {
     public void testEmail(){
 
     }
+    
 
 }
