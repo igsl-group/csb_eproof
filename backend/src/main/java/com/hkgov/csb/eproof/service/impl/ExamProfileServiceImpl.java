@@ -52,27 +52,34 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     }
 
     @Override
-    public Boolean freeze(String examProfileSerialNo) {
+    public void freeze(String examProfileSerialNo) {
         ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).orElse(null);
         if(Objects.isNull(examProfile)){
             throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
         }
-        return examProfileRepository.updateIsFreezed(examProfileSerialNo) > 0;
+        examProfile.setIsFreezed(true);
+       examProfileRepository.save(examProfile);
     }
 
     @Override
-    public Boolean unfreeze(String examProfileSerialNo) {
+    public void unfreeze(String examProfileSerialNo) {
         ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).orElse(null);
         if(Objects.isNull(examProfile)){
             throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
         }
-        return examProfileRepository.updateUnFreezed(examProfileSerialNo) > 0;
+        examProfile.setIsFreezed(false);
+        examProfileRepository.save(examProfile);
     }
 
     @Override
-    public Boolean update(String id, ExamProfileUpdateDto request) {
-        return examProfileRepository.updateInfo(id,request.getExamDate(),
-                request.getPlannedEmailIssuanceDate(),request.getLocation(),request.getResultLetterDate(),request.getEffectiveDate()) == 1;
+    public void update(String id, ExamProfileUpdateDto request) {
+        ExamProfile examProfile = examProfileRepository.findById(id).orElse(null);
+        examProfile.setExamDate(request.getExamDate());
+        examProfile.setPlannedEmailIssuanceDate(request.getPlannedEmailIssuanceDate());
+        examProfile.setResultLetterDate(request.getResultLetterDate());
+        examProfile.setLocation(request.getLocation());
+        examProfile.setEffectiveDate(request.getEffectiveDate());
+        examProfileRepository.save(examProfile);
     }
     @Override
     public ExamProfile getexamProfileInfo(String examProfileSerialNo) {
