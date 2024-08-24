@@ -94,10 +94,16 @@ select c from CertInfo c
 
     @Query("""
     SELECT COUNT(c) FROM CertInfo c
-    WHERE (:certStatus != null AND c.certStatus = :certStatus AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)
-    OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage)    
+    WHERE (:certStatus != null AND c.certStatus = :certStatus AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage and c.onHold = false)
+    OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage and c.onHold = false)    
 """)
     Integer countByStageAndStatus(String examProfileSerialNo, CertStage certStage, CertStatus certStatus);
+
+    @Query("""
+    SELECT COUNT(c) FROM CertInfo c
+    WHERE (c.examProfileSerialNo = :examProfileSerialNo and c.onHold = true) 
+""")
+    Integer countByOnHold(String examProfileSerialNo);
 
     @Query("select c from CertInfo c where c.hkid = :hkid and c.valid = true")
     List<CertInfo> findAllByHkid(@Param("hkid") String hkid);
