@@ -19,6 +19,9 @@ import org.apache.commons.lang3.SystemUtils;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
+import org.docx4j.fonts.IdentityPlusMapper;
+import org.docx4j.fonts.Mapper;
+import org.docx4j.fonts.PhysicalFonts;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.docx4j.model.fields.merge.MailMerger;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -99,9 +102,15 @@ public class DocxUtil {
 
         return new File(docxLocation);
     }
-    public byte [] convertDocxToPdf2(byte[] docxFileBinary) throws Docx4JException, IOException {
+    public byte [] convertDocxToPdf2(byte[] docxFileBinary) throws Exception, Docx4JException, IOException {
         InputStream is = new ByteArrayInputStream(docxFileBinary);
         WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(is);
+
+        Mapper fontMapper = new IdentityPlusMapper();
+        fontMapper.put("微軟正黑體", PhysicalFonts.get("微軟正黑體"));
+        fontMapper.put("Arial", PhysicalFonts.get("Arial"));
+
+        wordprocessingMLPackage.setFontMapper(fontMapper);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Docx4J.toPDF(wordprocessingMLPackage,baos);
         baos.close();
@@ -113,6 +122,7 @@ public class DocxUtil {
 
         XWPFDocument document = new XWPFDocument(is);
         PdfOptions options = PdfOptions.create();
+
         PdfConverter.getInstance().convert(document, baos, options);
         baos.close();
         

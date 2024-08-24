@@ -28,6 +28,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +63,8 @@ public class TestController {
 
     @Autowired
     private DocumentGenerateService documentGenerateService;
-
+    @Value("${document.generate-temp-source}")
+    private String tmpSource;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("/fillDocument")
@@ -91,22 +93,22 @@ public class TestController {
     }
 
     @GetMapping("/fillDocument2")
-    public ResponseEntity fillDocument2() throws Exception {
+    public ResponseEntity<byte[]> fillDocument2() throws Exception {
         HttpHeaders header = new HttpHeaders();
         header.setContentDisposition(ContentDisposition
                 .attachment()
                 .filename("test.pdf")
                 .build()
         );
-        CertInfo certInfo = certInfoRepository.findById(442L).get();
-        ExamProfile exam = certInfo.getExamProfile();
+//        CertInfo certInfo = certInfoRepository.findById(442L).get();
+//        ExamProfile exam = certInfo.getExamProfile();
+//
+//        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
+//        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
-        Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
-        Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
-
-        FileInputStream inputStream = new FileInputStream("/var/csb_eproof/test_template.docx");
-
-        return ResponseEntity.ok().headers(header).body(documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),null));
+        FileInputStream inputStream = new FileInputStream(tmpSource);
+        byte[] pdfBytes = docxUtil.convertDocxToPdf_POI(inputStream);
+        return ResponseEntity.ok().headers(header).body(pdfBytes);
     }
 
 

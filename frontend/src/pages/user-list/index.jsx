@@ -53,7 +53,7 @@ const UserList = () =>  {
     sizeOptions: [10, 20, 40],
     pageSize: 10,
     page: 1,
-    sortBy: 'id',
+    sortBy: 'dpUserId',
     orderBy: 'descend',
   }), []);
 
@@ -261,15 +261,13 @@ const UserList = () =>  {
   }, [pagination]);
 
   return (
-    <PermissionControl className={styles['user-list']} permissionRequired={['User_Maintenance']}>
+    <div className={styles['user-list']} permissionRequired={['User_Maintenance']}>
        <Typography.Title level={3}>User</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
-          <PermissionControl permissionRequired={'User_Maintenance'}>
-            <Button type="primary" onClick={() => onCreateClickCallback()} >Create</Button>
-          </PermissionControl>
+          <Button type="primary" onClick={() => onCreateClickCallback()} >Create</Button>
         </Col>
         <Col>
           <Pagination
@@ -312,6 +310,7 @@ const UserList = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
       <UserModal
         type={type}
         recordId={recordId}
@@ -319,7 +318,7 @@ const UserList = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

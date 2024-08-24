@@ -235,6 +235,9 @@ const StatisticalReports = () =>  {
       title: <HomeOutlined />,
     },
     {
+      title: 'Other',
+    },
+    {
       title: 'Statistical Reports',
     },
   ], []);

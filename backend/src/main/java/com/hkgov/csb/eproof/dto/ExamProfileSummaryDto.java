@@ -19,18 +19,23 @@ public class ExamProfileSummaryDto {
     private Integer imported;
 
     private Integer generatePdfTotal;
+    private Integer generatePdfPending;
     private Integer generatePdfFailed;
     private Integer generatePdfSuccess;
     private Integer generatePdfInProgress;
 
     private Integer issuedPdfTotal;
+    private Integer issuedPdfPending;
+    private Integer issuedPdfInScheduled;
     private Integer issuedPdfFailed;
     private Integer issuedPdfSuccess;
     private Integer issuedPdfInProgress;
-
 
     private Integer sendEmailTotal;
     private Integer sendEmailFailed;
     private Integer sendEmailSuccess;
     private Integer sendEmailProgress;
+    private Integer sendEmailScheduled;
+
+    private Integer onHoldCaseTotal;
 }

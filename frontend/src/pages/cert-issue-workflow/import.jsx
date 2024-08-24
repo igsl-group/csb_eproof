@@ -374,7 +374,7 @@ const Import = () =>  {
 
 
   return (
-    <PermissionControl className={styles['exam-profile']} permissionRequired={['Certificate_Import']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Import']}>
       <Typography.Title level={3}>Import Result (CSV)</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -580,7 +580,7 @@ const Import = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
-    </PermissionControl>
+    </div>
 
   )
 }

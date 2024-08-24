@@ -185,18 +185,31 @@ export default function sendRes (url, method, data, loading = true) {
           .catch(err => reject(err))
           .finally(() => hideLoading());
       });
-    case 'form-data-put':
+    case 'formDataDownload':
       showLoading();
       return new Promise((resolve, reject) => {
         fileRequest.request({
           url,
-          method: "put",
+          method: "post",
+          responseType: "blob",
           data: data || {},
         })
           .then(res => resolve(res))
           .catch(err => reject(err))
           .finally(() => hideLoading());
       });
+    // case 'form-data-put':
+    //   showLoading();
+    //   return new Promise((resolve, reject) => {
+    //     fileRequest.request({
+    //       url,
+    //       method: "put",
+    //       data: data || {},
+    //     })
+    //       .then(res => resolve(res))
+    //       .catch(err => reject(err))
+    //       .finally(() => hideLoading());
+    //   });
     case 'download':
       showLoading();
       return new Promise((resolve, reject) => {
@@ -210,19 +223,19 @@ export default function sendRes (url, method, data, loading = true) {
           .catch(err => reject(err))
           .finally(() => hideLoading());
       });
-    case 'download-put':
-      showLoading();
-      return new Promise((resolve, reject) => {
-        normalRequest.request({
-          url,
-          method: "put",
-          responseType: "blob",
-          data: data || {},
-        })
-          .then(res => resolve(res))
-          .catch(err => reject(err))
-          .finally(() => hideLoading());
-      });
+    // case 'download-put':
+    //   showLoading();
+    //   return new Promise((resolve, reject) => {
+    //     normalRequest.request({
+    //       url,
+    //       method: "put",
+    //       responseType: "blob",
+    //       data: data || {},
+    //     })
+    //       .then(res => resolve(res))
+    //       .catch(err => reject(err))
+    //       .finally(() => hideLoading());
+    //   });
     case 'signing-cert':
       showLoading();
       return new Promise((resolve, reject) => {

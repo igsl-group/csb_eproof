@@ -53,7 +53,7 @@ const CertTemplateList = () =>  {
     sizeOptions: [10, 20, 40],
     pageSize: 10,
     page: 1,
-    sortBy: 'id',
+    sortBy: 'name',
     orderBy: 'descend',
   }), []);
 
@@ -245,11 +245,7 @@ const CertTemplateList = () =>  {
         </Row>
         <br/>
       </Card>
-      {/*<EmailModal*/}
-      {/*  open={open}*/}
-      {/*  onCloseCallback={() => setOpen(false)}*/}
-      {/*  onFinishCallback={() => setOpen(false)}*/}
-      {/*/>*/}
+      <br/>
     </div>
 
   )

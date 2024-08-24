@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
+import {createSearchParams, useNavigate, Link, useParams, useSearchParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
 import {
@@ -51,9 +51,16 @@ const Login = () =>  {
   const [freezeExamProfile, setFreezeExamProfile] = useState(false);
   const [options, setOptions] = useState([]);
   const [form] = Form.useForm();
-  const {
-    serialNo,
-  } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const token = searchParams.get("token");
+
+  useEffect(()=>{
+    if (token) {
+      auth.setToken(token);
+      auth.getProfile()
+        .then(() => navigate('/Restricted'));
+    }
+  },[token]);
 
   const onFinish = async (values) => {
     console.log('Success:', values);
@@ -93,28 +100,32 @@ const Login = () =>  {
 
   return (
     <div className={styles['login']}>
-      <Row style={{ marginTop: 50}} gutter={[16, 16]} justify="center" align="middle">
-        <Col span={12}>
-          <Card>
-            <Form
-              layout="vertical"
-              form={form}
-              colon={false}
-              onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
-              autoComplete="off"
-              initialValues={{
-                uid:'system.administrator',
-                dpDeptId:'csb',
-              }}
-            >
-              <Dropdown name={'uid'} label={'DP User Id (User)'} options={options}  size={50}/>
-              <Text name={'dpDeptId'} label={'DP Dept Id'} disabled={true} size={50}/>
-              <Button type={'primary'} htmlType={'submit'}>Login</Button>
-            </Form>
-          </Card>
-        </Col>
-      </Row>
+      {
+        !token ? (
+          <Row style={{ marginTop: 50}} gutter={[16, 16]} justify="center" align="middle">
+            <Col span={12}>
+              <Card>
+                <Form
+                  layout="vertical"
+                  form={form}
+                  colon={false}
+                  onFinish={onFinish}
+                  onFinishFailed={onFinishFailed}
+                  autoComplete="off"
+                  initialValues={{
+                    uid:'system.administrator',
+                    dpDeptId:'csb',
+                  }}
+                >
+                  <Dropdown name={'uid'} label={'DP User Id (User)'} options={options}  size={50}/>
+                  <Text name={'dpDeptId'} label={'DP Dept Id'} disabled={true} size={50}/>
+                  <Button type={'primary'} htmlType={'submit'}>Login</Button>
+                </Form>
+              </Card>
+            </Col>
+          </Row>
+        ) : null
+      }
     </div>
 
   )

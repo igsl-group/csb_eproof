@@ -52,27 +52,34 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     }
 
     @Override
-    public Boolean freeze(String examProfileSerialNo) {
+    public void freeze(String examProfileSerialNo) {
         ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).orElse(null);
         if(Objects.isNull(examProfile)){
             throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
         }
-        return examProfileRepository.updateIsFreezed(examProfileSerialNo) > 0;
+        examProfile.setIsFreezed(true);
+       examProfileRepository.save(examProfile);
     }
 
     @Override
-    public Boolean unfreeze(String examProfileSerialNo) {
+    public void unfreeze(String examProfileSerialNo) {
         ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).orElse(null);
         if(Objects.isNull(examProfile)){
             throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
         }
-        return examProfileRepository.updateUnFreezed(examProfileSerialNo) > 0;
+        examProfile.setIsFreezed(false);
+        examProfileRepository.save(examProfile);
     }
 
     @Override
-    public Boolean update(String id, ExamProfileUpdateDto request) {
-        return examProfileRepository.updateInfo(id,request.getExamDate(),
-                request.getPlannedEmailIssuanceDate(),request.getLocation(),request.getResultLetterDate(),request.getEffectiveDate()) == 1;
+    public void update(String id, ExamProfileUpdateDto request) {
+        ExamProfile examProfile = examProfileRepository.findById(id).orElse(null);
+        examProfile.setExamDate(request.getExamDate());
+        examProfile.setPlannedEmailIssuanceDate(request.getPlannedEmailIssuanceDate());
+        examProfile.setResultLetterDate(request.getResultLetterDate());
+        examProfile.setLocation(request.getLocation());
+        examProfile.setEffectiveDate(request.getEffectiveDate());
+        examProfileRepository.save(examProfile);
     }
     @Override
     public ExamProfile getexamProfileInfo(String examProfileSerialNo) {
@@ -104,20 +111,26 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         return ExamProfileSummaryDto.builder()
                 .imported(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.IMPORTED, null))
 
+                .generatePdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, null))
+                .generatePdfPending(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.PENDING))
                 .generatePdfFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.FAILED))
                 .generatePdfSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.SUCCESS))
                 .generatePdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.IN_PROGRESS))
-                .generatePdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, null))
 
+                .issuedPdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, null))
+                .issuedPdfPending(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.PENDING))
+                .issuedPdfInScheduled(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.SCHEDULED))
                 .issuedPdfFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.FAILED))
                 .issuedPdfSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.SUCCESS))
                 .issuedPdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.IN_PROGRESS))
-                .issuedPdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, null))
 
+                .sendEmailTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, null))
+                .sendEmailScheduled(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SCHEDULED))
                 .sendEmailFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.FAILED))
                 .sendEmailSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SUCCESS))
                 .sendEmailProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.IN_PROGRESS))
-                .sendEmailTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, null))
+
+                .onHoldCaseTotal(certInfoRepository.countByOnHold(examProfileSerialNo))
 
                 .build();
     }
