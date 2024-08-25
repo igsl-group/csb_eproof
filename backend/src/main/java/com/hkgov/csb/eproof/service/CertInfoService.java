@@ -73,8 +73,13 @@ public interface CertInfoService {
 
     void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto);
 
-    void approveRevoke(Long certActionId) throws Exception;
-    void actualRevokeWithEproofModule(Long certInfoId) throws Exception;
+    void approveRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception;
+
+    void rejectRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception;
+
+    void resubmitRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception;
+
+    void actualRevokeWithEproofModule(Long certInfoId, String remark) throws Exception;
 
     ResponseEntity<byte[]> enquiryResult(List<String> params);
 }

@@ -125,10 +125,10 @@ public class ExamProfileServiceImpl implements ExamProfileService {
                 .issuedPdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.IN_PROGRESS))
 
                 .sendEmailTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, null))
+                .sendEmailPending(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.PENDING))
                 .sendEmailScheduled(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SCHEDULED))
                 .sendEmailFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.FAILED))
                 .sendEmailSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SUCCESS))
-                .sendEmailProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.IN_PROGRESS))
 
                 .onHoldCaseTotal(certInfoRepository.countByOnHold(examProfileSerialNo))
 
@@ -151,7 +151,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         for (CertInfo certInfo : certInfoList) {
             if (certInfo.getCertEproof() != null) {
                 // Eproof record found
-                certInfoService.actualRevokeWithEproofModule(certInfo.getId());
+                certInfoService.actualRevokeWithEproofModule(certInfo.getId(), "Reset Exam Profile");
             }
         }
         if(Objects.nonNull(certInfoList) && !certInfoList.isEmpty()){

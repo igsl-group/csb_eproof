@@ -34,7 +34,7 @@ public class ExamProfileSummaryDto {
     private Integer sendEmailTotal;
     private Integer sendEmailFailed;
     private Integer sendEmailSuccess;
-    private Integer sendEmailProgress;
+    private Integer sendEmailPending;
     private Integer sendEmailScheduled;
 
     private Integer onHoldCaseTotal;

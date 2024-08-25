@@ -8,7 +8,9 @@ public enum CertStatus {
     FAILED("FAILED", "Failed"),
     PENDING("PENDING", "Pending"),
     IN_PROGRESS("IN_PROGRESS", "In progress"),
-    SCHEDULED("SCHEDULED", "Scheduled");
+    SCHEDULED("SCHEDULED", "Scheduled"),
+    APPROVED("APPROVED", "Approved"),
+    REJECTED("REJECTED", "Rejected");
 
     private final String code;
     private final String label;
