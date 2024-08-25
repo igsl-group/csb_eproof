@@ -632,7 +632,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         EProofUtil.issuePdf(certEproofRenew.getUuid(),EProofUtil.calcPdfHash(certPdfBinary));
 
         if (CertType.RESULT_UPDATE.equals(certInfoRenew.getType())){
-            certInfoService.actualRevokeWithEproofModule(certInfoRenew.getCertInfo().getId());
+            certInfoService.actualRevokeWithEproofModule(certInfoRenew.getCertInfo().getId(),"Reissue cert");
         }
 
         certInfoRenew.setCertStage(CertStage.SIGN_ISSUE);
