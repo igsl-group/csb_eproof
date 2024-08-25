@@ -27,6 +27,9 @@ public class CertInfoDto implements Serializable {
     LocalDateTime modifiedDate;
     String modifiedBy;
     String createdBy;
+
+    @JsonFormat(pattern = DATE_PATTERN)
+    LocalDate revokeDate;
     String examProfileSerialNo;
     @JsonFormat(pattern = DATE_PATTERN)
     LocalDate examDate;
