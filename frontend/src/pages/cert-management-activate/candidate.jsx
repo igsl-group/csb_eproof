@@ -34,6 +34,7 @@ import mentionsInputStyle from './mentionsInputStyle';
 import mentionStyle from './mentionStyle';
 import Richtext from "../../components/Richtext";
 import HkidPassportModal from "./hkid-passport-modal";
+import PermissionControl from "../../components/PermissionControl";
 
 const Candidate = () =>  {
 
@@ -469,16 +470,18 @@ const Candidate = () =>  {
           <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
             Selected ({selectedRowKeys.length})</Button>
         </Col>
-        <Col>
-          <Button
-            type="primary"
-            onClick={onClickRevokeSelected}
-            // disabled={selectedRowKeys.length === 0}
-            disabled={true}
-          >
-            Revoke Selected ({selectedRowKeys.length})
-          </Button>
-        </Col>
+        <PermissionControl permissionRequired={['Revoke_Submit']}>
+          <Col>
+            <Button
+              type="primary"
+              onClick={onClickRevokeSelected}
+              disabled={selectedRowKeys.length === 0}
+              // disabled={true}
+            >
+              Revoke Selected ({selectedRowKeys.length})
+            </Button>
+          </Col>
+        </PermissionControl>
         <Col>
           <Pagination
             showSizeChanger

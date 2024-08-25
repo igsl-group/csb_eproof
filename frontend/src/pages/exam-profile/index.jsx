@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
@@ -52,9 +52,11 @@ import {
 import OnHoldModal from "./onhold-modal";
 import PermissionControl from "../../components/PermissionControl";
 import {useAuth} from "../../context/auth-provider";
+import ExamProfileSummary from "../../components/ExamProfileSummary";
 
 const ExamProfile = () =>  {
 
+  const ref = useRef(null);
   const modalApi = useModal();
   const messageApi = useMessage();
   const navigate = useNavigate();
@@ -404,7 +406,8 @@ const ExamProfile = () =>  {
   const getOnHoldListAndSummary = useCallback(async() => {
     if (serialNoValue) {
       await getExamProfile();
-      await getExamProfileSummary(serialNoValue);
+      // await getExamProfileSummary(serialNoValue);
+      updateSummary();
       await getCertList(serialNoValue, pagination, filterCondition);
     }
   }, [serialNoValue, pagination, filterCondition]);
@@ -421,6 +424,12 @@ const ExamProfile = () =>  {
     setPagination(tempPagination);
     return tempPagination;
   }, [pagination]);
+
+  const updateSummary = () => {
+    if (ref.current) {
+      ref.current.updateSummary();
+    }
+  };
 
   return (
     <div className={styles['exam-profile']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
@@ -526,35 +535,7 @@ const ExamProfile = () =>  {
         </Row>
       </Form>
       <br/>
-      <fieldset style={{paddingLeft: 30}}>
-        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
-        <Descriptions
-          size={'small'}
-          items={[
-            {
-              key: 1,
-              label: 'Imported',
-              children: summary.imported || 0,
-            },
-            {
-              key: 2,
-              label: 'Generated PDF',
-              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
-            },
-            {
-              key: 3,
-              label: 'Issued Cert.',
-              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
-            },
-            {
-              key: 4,
-              label: 'Sent Email',
-              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
-
-            }
-          ]}
-        />
-      </fieldset>
+      <ExamProfileSummary ref={ref} serialNo={serialNoValue}/>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>

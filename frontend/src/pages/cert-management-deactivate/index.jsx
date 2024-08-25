@@ -309,7 +309,6 @@ const CertificateManagementInvalid = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
-          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
         }))
         .catch(() => false);
 

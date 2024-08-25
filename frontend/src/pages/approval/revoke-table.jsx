@@ -19,10 +19,8 @@ import {
   toQueryString
 } from "@/utils/util";
 import {useAuth} from "../../context/auth-provider";
-import RevokeTable from "./revoke-table";
-import PermissionControl from "../../components/PermissionControl";
 
-const ApprovalWorkflow = () =>  {
+const RevokeTable = () =>  {
 
   const auth = useAuth();
   const modalApi = useModal();
@@ -208,26 +206,26 @@ const ApprovalWorkflow = () =>  {
   }, []);
 
   const getRevokeList = useCallback(async (pagination = {}, filter = {}) => {
-    // await runExamProfileAPI('getRevokeList', toQueryString(pagination, filter));
-    await runExamProfileAPI('examProfileDropdown')
-      .then(response => response.data)
-      .then(async (data) => {
-        const list = [];
-        for (let row of data) {
-          const result = await runExamProfileAPI('examProfileSummaryGet', row.serialNo)
-            .then(response => response.data)
-          list.push({
-            ...result,
-            examProfile: row
-          });
-        }
-        return list;
-      }).then((list) => {
-        setExamProfileSummaryList(list);
-      })
+    await runExamProfileAPI('getRevokeList', toQueryString(pagination, filter));
+    // await runExamProfileAPI('examProfileDropdown')
+    //   .then(response => response.data)
+    //   .then(async (data) => {
+    //     const list = [];
+    //     for (let row of data) {
+    //       const result = await runExamProfileAPI('examProfileSummaryGet', row.serialNo)
+    //         .then(response => response.data)
+    //       list.push({
+    //         ...result,
+    //         examProfile: row
+    //       });
+    //     }
+    //     return list;
+    //   }).then((list) => {
+    //     setExamProfileSummaryList(list);
+    //   })
 
 
-    }, []);
+  }, []);
 
   const resetPagination = useCallback(() => {
     const tempPagination = {
@@ -248,125 +246,80 @@ const ApprovalWorkflow = () =>  {
       <Typography.Title level={3}>Outstanding Tasks</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <PermissionControl permissionRequired={['Revoke_Submit', 'Revoke_Approve']}>
-        <RevokeTable />
-      </PermissionControl>
-      {/*<Card*/}
-      {/*  bordered={false}*/}
-      {/*  className={'card-body-nopadding'}*/}
-      {/*  title={'Pending Revoke'}*/}
-      {/*>*/}
-      {/*  <ResizeableTable*/}
-      {/*    size={'big'}*/}
-      {/*    rowKey={'id'}*/}
-      {/*    // rowSelection={{*/}
-      {/*    //   type: 'checkbox',*/}
-      {/*    //   ...rowSelection,*/}
-      {/*    // }}*/}
-      {/*    onChange={tableOnChange}*/}
-      {/*    pagination={false}*/}
-      {/*    scroll={{*/}
-      {/*      x: '100%',*/}
-      {/*    }}*/}
-      {/*    expandable={{*/}
-      {/*      expandedRowRender: (row) => {*/}
-      {/*        const child = row.certInfos;*/}
-      {/*        return child ? <Table*/}
-      {/*          columns={[*/}
-      {/*            {*/}
-      {/*              title: 'Issue Date',*/}
-      {/*              key: 'actualSignTime',*/}
-      {/*              render: (row) => dayjs(row.actualSignTime).format('YYYY-MM-DD'),*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'Exam Date',*/}
-      {/*              key: 'examDate',*/}
-      {/*              dataIndex: 'examDate',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'UE',*/}
-      {/*              key: 'ueGrade',*/}
-      {/*              dataIndex: 'ueGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'UC',*/}
-      {/*              key: 'ucGrade',*/}
-      {/*              dataIndex: 'ucGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'AT',*/}
-      {/*              key: 'atGrade',*/}
-      {/*              dataIndex: 'atGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'BLNST',*/}
-      {/*              key: 'blnstGrade',*/}
-      {/*              dataIndex: 'blnstGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*          ]}*/}
-      {/*          rowKey={'id'}*/}
-      {/*          dataSource={child}*/}
-      {/*          pagination={false}*/}
-      {/*        /> : null*/}
-      {/*      },*/}
-      {/*      defaultExpandedRowKeys: ['0'],*/}
-      {/*    }}*/}
-      {/*    columns={columns}*/}
-      {/*    dataSource={data}*/}
-      {/*  />*/}
-      {/*  <br/>*/}
-      {/*</Card>*/}
-      <br/>
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Pending Workflow'}
+        title={'Pending Revoke'}
       >
         <ResizeableTable
           size={'big'}
           rowKey={'id'}
+          // rowSelection={{
+          //   type: 'checkbox',
+          //   ...rowSelection,
+          // }}
           onChange={tableOnChange}
           pagination={false}
           scroll={{
             x: '100%',
           }}
-          columns={[
-            {
-              title: 'Serial No.',
-              key: 'serialNo',
-              width: 140,
-              sorter: false,
-              render: (row) => <Link to={`/Workflow/${row.stage}?serialNo=${row.serialNo}`}>{row.serialNo}</Link>,
-
+          expandable={{
+            expandedRowRender: (row) => {
+              const child = row.certInfos;
+              return child ? <Table
+                columns={[
+                  {
+                    title: 'Issue Date',
+                    key: 'actualSignTime',
+                    render: (row) => dayjs(row.actualSignTime).format('YYYY-MM-DD'),
+                    width: 100,
+                    sorter: false,
+                  },
+                  {
+                    title: 'Exam Date',
+                    key: 'examDate',
+                    dataIndex: 'examDate',
+                    width: 100,
+                    sorter: false,
+                  },
+                  {
+                    title: 'UE',
+                    key: 'ueGrade',
+                    dataIndex: 'ueGrade',
+                    width: 100,
+                    sorter: false,
+                  },
+                  {
+                    title: 'UC',
+                    key: 'ucGrade',
+                    dataIndex: 'ucGrade',
+                    width: 100,
+                    sorter: false,
+                  },
+                  {
+                    title: 'AT',
+                    key: 'atGrade',
+                    dataIndex: 'atGrade',
+                    width: 100,
+                    sorter: false,
+                  },
+                  {
+                    title: 'BLNST',
+                    key: 'blnstGrade',
+                    dataIndex: 'blnstGrade',
+                    width: 100,
+                    sorter: false,
+                  },
+                ]}
+                rowKey={'id'}
+                dataSource={child}
+                pagination={false}
+              /> : null
             },
-            {
-              title: 'Exam Date',
-              key: 'examDate',
-              dataIndex: 'examDate',
-              width: 100,
-              sorter: false,
-            },
-            {
-              title: 'Stage',
-              key: 'stage',
-              dataIndex: 'stage',
-              width: 100,
-              sorter: false,
-            },
-          ]}
-          dataSource={actionListData}
+            defaultExpandedRowKeys: ['0'],
+          }}
+          columns={columns}
+          dataSource={data}
         />
         <br/>
       </Card>
@@ -381,4 +334,4 @@ const ApprovalWorkflow = () =>  {
   )
 }
 
-export default ApprovalWorkflow;
+export default RevokeTable;

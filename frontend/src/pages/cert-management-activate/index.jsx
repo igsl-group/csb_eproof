@@ -293,7 +293,6 @@ const CertificateManagementValid = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
-          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
         }))
         .catch(() => false);
 
@@ -324,7 +323,6 @@ const CertificateManagementValid = () =>  {
   );
 
   const getCertList = useCallback(async (pagination = {}, filterCondition) => {
-    console.log('@@@', pagination)
     return runExamProfileAPI('certList', 'VALID', filterCondition, toQueryString(pagination));
   }, []);
 

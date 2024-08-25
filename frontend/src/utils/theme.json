@@ -86,6 +86,15 @@
       "colorPrimary": "rgb(255, 255, 255)",
       "colorPrimaryBorder": "rgb(255, 255, 255)",
       "colorPrimaryHover": "rgb(255, 255, 255)"
+    },
+    "Collapse": {
+      "colorText": "rgba(81, 90, 110, 0.88)",
+      "colorTextHeading": "rgb(81, 90, 106)",
+      "fontSizeIcon": 18.72,
+      "paddingSM": 0,
+      "padding": "0",
+      "headerBg": "rgba(0, 0, 0, 0)",
+      "contentBg": "rgba(255, 255, 255, 0)"
     }
   },
   "version": 2

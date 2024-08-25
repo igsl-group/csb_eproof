@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import {createSearchParams, useNavigate, Link, useParams, useLocation, useSearchParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
 import {Upload, Form, Card, Typography, Breadcrumb, Tag, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
@@ -30,14 +30,18 @@ import {
   toQueryString
 } from "@/utils/util";
 import PermissionControl from "../../components/PermissionControl";
+import ExamProfileSummary from "../../components/ExamProfileSummary";
 
 const Import = () =>  {
 
+  const ref = useRef(null);
   const navigate = useNavigate();
   const modalApi = useModal();
   const messageApi = useMessage();
   const [searchForm] = Form.useForm();
   const [serialNoForm] = Form.useForm();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // const serialNoValue = searchParams.get("serialNo");
   const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [file, setFile] = useState(null);
   const [serialNoOptions, setSerialNoOptions] = useState([]);
@@ -256,7 +260,7 @@ const Import = () =>  {
           }))
           setSerialNoOptions(options);
           if (options.length > 0) {
-            serialNoForm.setFieldValue('serialNo', options[0].value);
+            updateCurrentSerialNo(options[0].value)
           }
           break;
         }
@@ -265,6 +269,7 @@ const Import = () =>  {
           // const data = response.data || {};
           const data = response.data || {};
           const content = data.content || [];
+          console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@certList');
           setPagination({
             ...pagination,
             total: data.totalElements,
@@ -274,14 +279,10 @@ const Import = () =>  {
         }
         case 'certIssuanceDispatch':
           messageApi.success('Dispatch successfully.');
-          await getExamProfileSummary(serialNoValue);
-          await getCertList(serialNoValue, pagination, filterCondition);
           getImportListAndSummary();
           break;
         case 'certIssuanceHold':
           messageApi.success('Hold case successfully.');
-          // await getExamProfileSummary(serialNoValue);
-          // await getCertList(serialNoValue, pagination, filterCondition);
           getImportListAndSummary();
           break;
         default:
@@ -316,9 +317,10 @@ const Import = () =>  {
       examProfileSerialNo: serialNoValue,
     }, toQueryString(pagination));
   }, []);
+
   const getImportListAndSummary = useCallback(async() => {
     if (serialNoValue) {
-      await getExamProfileSummary(serialNoValue);
+      updateSummary();
       await getCertList(serialNoValue, pagination, filterCondition);
     }
   }, [serialNoValue, pagination, filterCondition]);
@@ -329,12 +331,10 @@ const Import = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
-          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
         }))
         .catch(() => false);
 
       if (values) {
-        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
         const payload = values;
         const finalPayload = {};
         let isEmpty = true;
@@ -372,6 +372,19 @@ const Import = () =>  {
     return tempPagination;
   }, [pagination]);
 
+  const updateCurrentSerialNo = useCallback((value) => {
+    navigate({
+      search: `?serialNo=${value}`,
+    });
+    serialNoForm.setFieldValue('serialNo', value);
+
+  }, [])
+
+  const updateSummary = () => {
+    if (ref.current) {
+      ref.current.updateSummary();
+    }
+  };
 
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Import']}>
@@ -398,7 +411,7 @@ const Import = () =>  {
               size={20}
               options={serialNoOptions}
               allowClear={false}
-              onChange={(values) => console.log(values)}
+              onChange={(value) => updateCurrentSerialNo(value)}
             />
           </Col>
           <Col>
@@ -494,35 +507,7 @@ const Import = () =>  {
         </Form>
       </fieldset>
       <br/>
-      <fieldset style={{paddingLeft: 30}}>
-        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
-        <Descriptions
-          size={'small'}
-          items={[
-            {
-              key: 1,
-              label: 'Imported',
-              children: summary.imported || 0,
-            },
-            {
-              key: 2,
-              label: 'Generated PDF',
-              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
-            },
-            {
-              key: 3,
-              label: 'Issued Cert.',
-              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
-            },
-            {
-              key: 4,
-              label: 'Sent Email',
-              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
-
-            }
-          ]}
-        />
-      </fieldset>
+      <ExamProfileSummary ref={ref} serialNo={serialNoValue}/>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>

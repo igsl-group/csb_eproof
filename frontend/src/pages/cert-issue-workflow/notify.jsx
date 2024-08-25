@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import {createSearchParams, useNavigate, Link, useParams} from "react-router-dom";
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import {createSearchParams, useNavigate, Link, useParams, useSearchParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
 import {
@@ -47,14 +47,18 @@ import {
 } from "@/utils/util";
 import PermissionControl from "../../components/PermissionControl";
 import ScheduleSendEmailModal from "./schedule-send-email-modal";
+import ExamProfileSummary from "../../components/ExamProfileSummary";
 
 const Notify = () =>  {
 
+  const ref = useRef(null);
   const navigate = useNavigate();
   const modalApi = useModal();
   const messageApi = useMessage();
   const [searchForm] = Form.useForm();
   const [serialNoForm] = Form.useForm();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // const serialNoValue = searchParams.get("serialNo");
   const serialNoValue = Form.useWatch('serialNo', serialNoForm);
   const [selectedRowKeys, setSelectedRowKeys] = useState('');
   const [serialNoOptions, setSerialNoOptions] = useState([]);
@@ -266,7 +270,7 @@ const Notify = () =>  {
           }))
           setSerialNoOptions(options);
           if (options.length > 0) {
-            serialNoForm.setFieldValue('serialNo', options[0].value);
+            updateCurrentSerialNo(options[0].value)
           }
           break;
         }
@@ -284,8 +288,7 @@ const Notify = () =>  {
         }
         case 'certIssuanceDispatch':
           messageApi.success('Dispatch successfully.');
-          await getExamProfileSummary(serialNoValue);
-          await getCertList(serialNoValue);
+          getImportListAndSummary();
           break;
         case 'certIssuanceBulkDownload':
           download(response);
@@ -328,7 +331,7 @@ const Notify = () =>  {
 
   const getImportListAndSummary = useCallback(async() => {
     if (serialNoValue) {
-      await getExamProfileSummary(serialNoValue);
+      updateSummary();
       await getCertList(serialNoValue, pagination, filterCondition);
     }
   }, [serialNoValue, pagination, filterCondition]);
@@ -339,7 +342,6 @@ const Notify = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
-          hkid: values.hkid?.id && values.hkid?.checkDigit  ? `${values.hkid?.id}${values.hkid.checkDigit}` : '',
         }))
         .catch(() => false);
 
@@ -382,7 +384,18 @@ const Notify = () =>  {
     return tempPagination;
   }, [pagination]);
 
-  console.log(serialNoValue)
+  const updateCurrentSerialNo = useCallback((value) => {
+    navigate({
+      search: `?serialNo=${value}`,
+    });
+    serialNoForm.setFieldValue('serialNo', value);
+  }, [])
+
+  const updateSummary = () => {
+    if (ref.current) {
+      ref.current.updateSummary();
+    }
+  };
 
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Notify']}>
@@ -409,7 +422,7 @@ const Notify = () =>  {
               size={20}
               options={serialNoOptions}
               allowClear={false}
-              onChange={(values) => console.log(values)}
+              onChange={(value) => updateCurrentSerialNo(value)}
             />
           </Col>
           <Col>
@@ -477,35 +490,7 @@ const Notify = () =>  {
         </Form>
       </fieldset>
       <br/>
-      <fieldset style={{paddingLeft: 30}}>
-        <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
-        <Descriptions
-          size={'small'}
-          items={[
-            {
-              key: 1,
-              label: 'Imported',
-              children: summary.imported || 0,
-            },
-            {
-              key: 2,
-              label: 'Generated PDF',
-              children: `${summary.generatePdfFailed || 0} out of ${summary.generatePdfTotal || 0} failed`,
-            },
-            {
-              key: 3,
-              label: 'Issued Cert.',
-              children: `${summary.issuedPdfFailed || 0} out of ${summary.issuedPdfTotal || 0} failed`,
-            },
-            {
-              key: 4,
-              label: 'Sent Email',
-              children: `${summary.sendEmailFailed || 0} out of ${summary.sendEmailTotal || 0} failed`,
-
-            }
-          ]}
-        />
-      </fieldset>
+      <ExamProfileSummary ref={ref} serialNo={serialNoValue}/>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>

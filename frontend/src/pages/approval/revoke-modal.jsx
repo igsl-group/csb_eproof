@@ -13,9 +13,14 @@ import {useRequest} from "ahooks";
 import { examProfileAPI } from '@/api/request';
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
+import {useAuth} from "../../context/auth-provider";
+import PermissionControl from "../../components/PermissionControl";
+import _ from "lodash";
+import dayjs from "dayjs";
 
 const RevokeModal = (props) =>  {
 
+  const auth = useAuth();
   const modalApi = useModal();
   const messageApi = useMessage();
   const [form] = Form.useForm();
@@ -25,6 +30,14 @@ const RevokeModal = (props) =>  {
   const record = props.record;
   const open = props.open;
   const data = record.certInfos;
+  const disabled = useMemo(() => {
+    if (auth.permissions.includes("Revoke_Submit") && record.status === "REJECTED") {
+      return false;
+    } else if (auth.permissions.includes("Revoke_Approve") && record.status === "PENDING") {
+      return false;
+    }
+    return true;
+  }, [record.status, auth.permissions])
 
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
@@ -40,27 +53,70 @@ const RevokeModal = (props) =>  {
     }
   }, [onFinishCallback])
 
+  const onClickApprove = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to revoke the certificate(s) and send the email notification to candidate?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => onSave("Approve"),
+    });
+  },[]);
+
+  const onClickReject = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to reject the case?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => onSave("Reject"),
+    });
+  },[]);
+
+  const onClickResubmit = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to resubmit the case?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => onSave("Resubmit"),
+    });
+  },[]);
 
 
-  const onSave = useCallback(async () => {
-    form.validateFields()
-      .then(() => onFinish())
-      .then(() => form.resetFields())
-      .catch((e) => console.error(e))
+  const onSave = useCallback(async (action) => {
+    const values = await form.validateFields()
+      .then((values) => ({
+        ...values,
+      }))
+      .catch((e) => {
+        console.error(e);
+        return false;
+      })
+
+    if (values) {
+      const recordId = values.id;
+      delete values.id;
+      switch (action) {
+        case "Approve":
+          runExamProfileAPI('approveCertRevoke', recordId, values)
+            .then(() => onFinish());
+          break;
+        case "Reject":
+          runExamProfileAPI("rejectCertRevoke", recordId,  values)
+            .then(() => onFinish());
+          break;
+        case "Resubmit":
+          runExamProfileAPI("resubmitCertRevoke", recordId,  values)
+            .then(() => onFinish());
+          break;
+      }
+    }
   }, []);
-
-  useEffect(() => {
-    form.setFieldsValue({
-      email: 'wilfred.lai@igsl-group.com',
-      informCandidateEmail: `Hi Wilfred,<br/><br/>Your certificate was revoked. `,
-    })
-  }, [])
 
  useEffect(() => {
     if (open) {
+      const _record = _.cloneDeep(record);
       form.setFieldsValue({
         // type: "REVOKE",
-        ...record,
+        ..._record,
         // emailTarget: lastCandidateInfo.email,
         // emailContent: `Hi Wilfred,<br/><br/>Your certificate was revoked. `,
         // certInfoIdList: data.flatMap(row => row.id).join(","),
@@ -163,17 +219,30 @@ const RevokeModal = (props) =>  {
         <Button key="back" onClick={() => onClose()}>
           Cancel
         </Button>,
-        <Button type="primary" danger onClick={() => {}}>
-          Reject
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          onClick={() => onSave()}
-        >
-
-          Approve
-        </Button>,
+        <PermissionControl key="reject" permissionRequired={['Revoke_Approve']} forceHidden={["REJECTED"].includes(record.status)}>
+          <Button type="primary" danger onClick={() => onClickReject()}>
+            Reject
+          </Button>
+        </PermissionControl>
+        ,
+        <PermissionControl key="approve" permissionRequired={['Revoke_Approve']} forceHidden={["REJECTED"].includes(record.status)}>
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => onClickApprove()}
+          >
+            Approve
+          </Button>
+        </PermissionControl>,
+        <PermissionControl key="resubmit" permissionRequired={['Revoke_Submit']} forceHidden={["PENDING"].includes(record.status)}>
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => onClickResubmit()}
+          >
+            Resubmit
+          </Button>
+        </PermissionControl>,
       ]}
       closable={false}
       onOk={onSave}
@@ -193,6 +262,7 @@ const RevokeModal = (props) =>  {
         }}
         name="form"
       >
+        <Text name={'id'} label={'Id'} size={100} disabled={true} hidden={true}/>
         <ResizeableTable
           size={'big'}
           pagination={false}
@@ -205,7 +275,12 @@ const RevokeModal = (props) =>  {
         <br/>
         <Row gutter={24} justify={'center'}>
           <Col span={24}>
-            <Textarea name={'remark'} label={'Remark'} size={100}/>
+            <Textarea
+              name={'remark'}
+              label={'Remark'}
+              size={100}
+              disabled={disabled}
+            />
           </Col>
           <Col span={24}>
             <Email
@@ -217,7 +292,7 @@ const RevokeModal = (props) =>  {
             />
           </Col>
           <Col span={24}>
-            <Richtext name={'emailContent'} label={'Inform candidate’s email content after request is approved'} size={100}/>
+            <Richtext disabled={disabled} name={'emailContent'} label={'Inform candidate’s email content after request is approved'} size={100}/>
           </Col>
         </Row>
         <br />

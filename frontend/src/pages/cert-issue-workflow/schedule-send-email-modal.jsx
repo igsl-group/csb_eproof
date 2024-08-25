@@ -11,6 +11,7 @@ import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import {examProfileAPI, generalAPI} from "../../api/request";
 import Richtext from "../../components/Richtext";
+import dayjs from "dayjs";
 
 const ScheduleSendEmailModal = (props) =>  {
 
@@ -41,6 +42,7 @@ const ScheduleSendEmailModal = (props) =>  {
     const values = await form.validateFields()
       .then((values) => ({
         ...values,
+        scheduledTime: dayjs(values.scheduledTime).format('YYYY-MM-DD'),
       }))
       .catch((e) => {
         console.error(e);
@@ -52,6 +54,7 @@ const ScheduleSendEmailModal = (props) =>  {
       delete values.subject;
       delete values.body;
       delete values.examDate;
+      delete values.resultLetterDate;
 
       runExamProfileAPI('certScheduleSendEmail', serialNoValue, values)
         .then(() => onFinish());

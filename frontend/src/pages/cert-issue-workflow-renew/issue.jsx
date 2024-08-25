@@ -449,7 +449,6 @@ const Issue = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
-          newHkid: values.newHkid?.id && values.newHkid?.checkDigit  ? `${values.newHkid?.id}${values.newHkid.checkDigit}` : '',
         }))
         .catch(() => false);
 

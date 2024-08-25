@@ -225,6 +225,12 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/getTodo/revoke`, "get");
         case 'requestCertRevoke':
             return request(`/cert/revoke?certInfoIdList=${rest[0]}`, "post", rest[1]);
+        case 'approveCertRevoke':
+            return request(`/cert/approveRevoke/${rest[0]}`, "post", rest[1]);
+        case 'rejectCertRevoke':
+            return request(`/cert/rejectRevoke/${rest[0]}`, "post", rest[1]);
+        case 'resubmitCertRevoke':
+            return request(`/cert/resubmitRevoke/${rest[0]}`, "post", rest[1]);
         case 'certEnquiryByCsv':
             return request(`/cert/enquiryResult/csv`, "formDataDownload", rest[0]);
     }

@@ -9,8 +9,9 @@ import { userRoleAPI } from '@/api/request';
 import {TYPE } from '@/config/enum';
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
-
-
+import {
+  toQueryString
+} from "@/utils/util";
 
 const UserModal = (props) =>  {
 
@@ -23,6 +24,22 @@ const UserModal = (props) =>  {
   const onFinishCallback = props.onFinishCallback;
   const [form] = Form.useForm();
   const [roleList, setRoleList] = useState([]);
+
+  const defaultPaginationInfo = useMemo(() => ({
+    sizeOptions: [10, 20, 40],
+    pageSize: 999,
+    page: 1,
+    sortBy: 'name',
+    orderBy: 'descend',
+  }), []);
+
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: defaultPaginationInfo.page,
+    pageSize: defaultPaginationInfo.pageSize,
+    sortBy: defaultPaginationInfo.sortBy,
+    orderBy: defaultPaginationInfo.orderBy,
+  });
 
   const statusOptions = useMemo(() => [
     {
@@ -124,7 +141,7 @@ const UserModal = (props) =>  {
             await runUserRoleAPI('userGet', recordId)
             break;
         }
-        await runUserRoleAPI('roleList');
+        await runUserRoleAPI('roleList', toQueryString(pagination, {}));
       }
     })()
   }, [open, type, recordId]);

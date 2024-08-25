@@ -10,8 +10,8 @@ import {useModal} from "../context/modal-provider";
 import {useAuth} from "../context/auth-provider";
 const whiteList = [
   '/ExamProfile',
-  '/WaitingRevoke',
-  '/HistoricalResult',
+  '/OutstandingTasks',
+  '/BatchEnquiry',
   '/HistoricalResult',
   '/StatisticalReports',
   '/CertificateManagement',
