@@ -94,7 +94,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final FileService fileService;
     private final CertInfoRenewRepository certInfoRenewRepository;
     private final CertEproofRepository certEproofRepository;
-    private final CertRenewPdfRepository certRenewPdfRepository;
+    private final CertPdfRenewRepository certPdfRenewRepository;
     private final EmailTemplateRepository emailTemplateRepository;
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
     private final CertActionRepository certActionRepository;

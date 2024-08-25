@@ -120,13 +120,13 @@ entity "Cert_Pdf" as cert_pdf {
   file_id: varchar <<FK-File.id>>
 }
 
-entity "Cert_Renew_Pdf" as cert_renew_pdf {
+entity "Cert_Pdf_Renew" as cert_pdf_renew {
   cert_info_renew_id: number <<PK>> <<FK_Cert_Info.id>>
   --
   file_id: varchar <<FK-File.id>>
 }
 
-entity "Cert_renew_eProof" as cert_renew_eproof {
+entity "Cert_eproof_renew" as cert_eproof_renew {
   cert_info_renew_id: number <<FK>>
   --
   eproof_id: varchar(20)
@@ -354,8 +354,8 @@ cert_info ||--o{ cert_pdf
 file ||--|{ cert_pdf
 
 file ||--|{ cert_renew_pdf
-cert_info_renew ||--o{ cert_renew_pdf
-cert_info_renew ||--o| cert_renew_eproof
+cert_info_renew ||--o{ cert_pdf_renew
+cert_info_renew ||--o| cert_eproof_renew
 
 gcis_batch_email ||--|| email_template
 gcis_batch_email |o--|{ cert_info

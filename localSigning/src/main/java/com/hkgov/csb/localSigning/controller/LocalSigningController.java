@@ -96,6 +96,8 @@ public class LocalSigningController {
 
         localSigningService.processReissue(jwtTokenFromFrontEnd,reason,location,qr,keyword,response,publicKey, certInfoRenewId);
 
+        return ResponseEntity.ok().build();
+
     }
 
 

@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "cert_renew_pdf")
+@Table(name = "cert_pdf_renew")
 @Getter
 @Setter
-public class CertRenewPdf extends BaseEntity{
+public class CertPdfRenew extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

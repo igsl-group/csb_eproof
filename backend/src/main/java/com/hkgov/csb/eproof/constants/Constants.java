@@ -35,6 +35,7 @@ public final class Constants {
     public static final String EMAIL_TEMPLATE_NOTIFY = "NOTIFY";
 
 
+
     private Constants() {
     }
 }

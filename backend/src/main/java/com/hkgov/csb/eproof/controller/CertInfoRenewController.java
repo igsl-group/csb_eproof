@@ -5,6 +5,7 @@ import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
 import com.hkgov.csb.eproof.dto.CertInfoRenewDto;
 import com.hkgov.csb.eproof.dto.CertRenewSearchDto;
+import com.hkgov.csb.eproof.dto.PrepareEproofPdfRequest;
 import com.hkgov.csb.eproof.entity.CertInfoRenew;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -134,5 +136,29 @@ public class CertInfoRenewController {
     private String getZipFileName(){
         return String.format("%s-cert-pdf.zip",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
+    }
+
+    @GetMapping("/eproof/getUnsignedJson/{certInfoRenewId}")
+    public ResponseEntity getUnsignedJson(@PathVariable Long certInfoRenewId){
+
+        return ResponseEntity.ok(certInfoRenewService.prepareEproofUnsignJson(certInfoRenewId));
+    }
+
+
+    @PostMapping("/eproof/prepareEproofPdf/{certInfoRenewId}")
+    public ResponseEntity prepareEproofPdf(
+            @PathVariable Long certInfoRenewId,
+            @RequestBody PrepareEproofPdfRequest prepareEproofPdfRequest
+    ) throws Exception {
+
+        byte[] preparedEproofPdf = certInfoRenewService.prepareEproofPdf(certInfoRenewId, prepareEproofPdfRequest);
+        return ResponseEntity.ok().body(preparedEproofPdf);
+    }
+
+    @PostMapping("/uploadSignedPdf/{certInfoId}")
+    public Result uploadSignedPdf(@PathVariable Long certInfoRenewId, @RequestPart("file") MultipartFile file) throws Exception {
+        certInfoRenewService.uploadSignedPdf(certInfoRenewId,file);
+        certInfoRenewService.issueCert(certInfoRenewId);
+        return Result.success();
     }
 }

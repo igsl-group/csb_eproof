@@ -257,7 +257,6 @@ public class LocalSigningService {
         apiUtil.uploadSignedPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,signedPdf);
     }
 
-    private void process
 
     public byte[] getSignedPdf(
             InputStream is, String publicK, String reason, String location,
@@ -428,7 +427,7 @@ public class LocalSigningService {
         return ResponseEntity.ok(sigValueBase64);
     }
 
-    public void processReissue(String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey, Long certInfoRenewId) throws CertificateEncodingException, SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+    public void processReissue(String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey, Long certInfoRenewId) throws Exception {
         String unsignedJson = apiUtil.getUnsignedJsonForReissueCert(certInfoRenewId,jwt);
         String signedValue = (String)this.signJson(unsignedJson).getBody();
         logger.info(signedValue);
