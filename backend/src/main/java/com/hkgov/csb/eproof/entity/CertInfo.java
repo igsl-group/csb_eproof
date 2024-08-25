@@ -25,6 +25,10 @@ public class CertInfo extends BaseEntity{
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "revoke_date")
+    @JsonFormat(pattern = Constants.DATE_PATTERN)
+    private LocalDate revokeDate;
+
     @Column(name = "exam_profile_serial")
     private String examProfileSerialNo;
 

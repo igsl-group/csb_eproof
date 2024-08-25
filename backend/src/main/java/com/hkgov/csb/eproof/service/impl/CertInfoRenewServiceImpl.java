@@ -252,7 +252,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
     @Override
     public List<CertRevokeDto> getTodoRevoke() {
-        List<CertAction> certActions = certActionRepository.findAll();
+//        List<CertAction> certActions = certActionRepository.findAll();
+        List<CertAction> certActions = certActionRepository.findPendingOrRejected();
         List<CertRevokeDto> certRevokeDtos = CertActionMapper.INSTANCE.sourceToDestination(certActions);
         for(int i = 0; i < certRevokeDtos.size(); i++){
             CertAction certAction = certActions.get(i);

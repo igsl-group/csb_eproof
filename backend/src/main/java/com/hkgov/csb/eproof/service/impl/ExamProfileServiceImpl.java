@@ -151,7 +151,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         for (CertInfo certInfo : certInfoList) {
             if (certInfo.getCertEproof() != null) {
                 // Eproof record found
-                certInfoService.actualRevokeWithEproofModule(certInfo.getId());
+                certInfoService.actualRevokeWithEproofModule(certInfo.getId(), "Reset Exam Profile");
             }
         }
         if(Objects.nonNull(certInfoList) && !certInfoList.isEmpty()){
