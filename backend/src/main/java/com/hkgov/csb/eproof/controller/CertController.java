@@ -278,9 +278,21 @@ public class CertController {
         return Result.success();
     }
 
-    @GetMapping("/approveRevoke/{certActionId}")
-    public Result approveRevoke(@PathVariable Long certActionId) throws Exception {
-        certInfoService.approveRevoke(certActionId);
+    @PostMapping("/approveRevoke/{certActionId}")
+    public Result approveRevoke(@PathVariable Long certActionId, @RequestBody CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        certInfoService.approveRevoke(certActionId, certApproveRejectRevokeDto);
+        return Result.success();
+    }
+
+    @PostMapping("/rejectRevoke/{certActionId}")
+    public Result rejectRevoke(@PathVariable Long certActionId, @RequestBody CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        certInfoService.rejectRevoke(certActionId, certApproveRejectRevokeDto);
+        return Result.success();
+    }
+
+    @PostMapping("/resubmitRevoke/{certActionId}")
+    public Result resubmitRevoke(@PathVariable Long certActionId, @RequestBody CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        certInfoService.resubmitRevoke(certActionId, certApproveRejectRevokeDto);
         return Result.success();
     }
 

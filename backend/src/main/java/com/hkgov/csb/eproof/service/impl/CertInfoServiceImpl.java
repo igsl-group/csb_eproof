@@ -828,14 +828,41 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
 
-    public void approveRevoke(Long certActionId) throws Exception {
+    public void approveRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
         CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
         List<CertInfo> toBeRevokeCertInfoList = certAction.getCertInfos();
 
         for (CertInfo certInfo : toBeRevokeCertInfoList) {
             this.actualRevokeWithEproofModule(certInfo.getId());
         }
+        certAction.setRemark(certApproveRejectRevokeDto.getRemark());
+        certAction.setCanEmailAddress(certApproveRejectRevokeDto.getEmailTarget());
+        certAction.setCanEmailContent(certApproveRejectRevokeDto.getEmailContent());
+        certAction.setStatus(CertStatus.APPROVED);
+        certActionRepository.save(certAction);
+        //TODO Send email
     }
+
+    public void rejectRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
+
+        certAction.setRemark(certApproveRejectRevokeDto.getRemark());
+        certAction.setCanEmailAddress(certApproveRejectRevokeDto.getEmailTarget());
+        certAction.setCanEmailContent(certApproveRejectRevokeDto.getEmailContent());
+        certAction.setStatus(CertStatus.REJECTED);
+        certActionRepository.save(certAction);
+    }
+
+    public void resubmitRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
+
+        certAction.setRemark(certApproveRejectRevokeDto.getRemark());
+        certAction.setCanEmailAddress(certApproveRejectRevokeDto.getEmailTarget());
+        certAction.setCanEmailContent(certApproveRejectRevokeDto.getEmailContent());
+        certAction.setStatus(CertStatus.PENDING);
+        certActionRepository.save(certAction);
+    }
+
 
     @Override
     public void actualRevokeWithEproofModule(Long certInfoId) throws Exception {
@@ -844,6 +871,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         if (certEproof != null) {
             EProofUtil.revokeEproof(certEproof.getUuid());
         }
+        certInfo.setValid(false);
+        certInfoRepository.save(certInfo);
     }
 
     @Override
