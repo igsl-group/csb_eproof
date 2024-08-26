@@ -28,6 +28,8 @@ spring:
     password: HongIgs_P@ssw0rd
     from: csbeproof@test.com
     protocol: smtps
+    env: test
+    whitelist: wilfred.lai@igsl-group.com,hong.cheung@igsl-group.com
     properties:
       mail:
         smtp:
@@ -146,6 +148,8 @@ mail:
   whitelist:
     enabled: true
     email-list: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
+  include:
+    attachment: Y 
 
 eproof-config:
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
@@ -176,3 +180,18 @@ thread-pool:
 #second minute hour dayOfMonth month dayOfWeek
 cron-expression:
   normal-email-sending: "-"
+
+property:
+  file:
+    path: /var/ghbobs/admin/proximity.properties
+
+keystore:
+  file:
+    path: /var/ghbobs/admin/eproofuat.csb.ccgo.hksarg.p12
+    alias: dsign
+    password: password1234$
+
+gcis:
+  notiSvc:
+    endPointName: NOTI_SENDER_RESTFUL_END_POINT
+    endPointUrl: https://kpgd-xmlfw.egis.hksarg:9444/messaging/ssl/RESTful/csb.csbgb.app001-ogcio.egis.nt001-NotiSenderRest

@@ -13,7 +13,7 @@ public class EncryptionUtil {
 
     public static SecretKey generateKey() throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-        keyGen.init(256); // AES-256
+        keyGen.init(256);
         return keyGen.generateKey();
     }
 

@@ -136,6 +136,8 @@ mail:
   whitelist:
     enabled: true
     email-list: hong.cheung@igsl-group.com
+  include:
+    attachement: Y
 
 eproof-config:
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
@@ -167,6 +169,19 @@ thread-pool:
 cron-expression:
   normal-email-sending: "-"
 
+property:
+  file:
+    path: /var/eproof/admin/ghbobs.csb.ccgo.hksarg.p12
 
+keystore:
+  file:
+    path: /var/ghbobs/admin/eproofuat.csb.ccgo.hksarg.p12
+    alias: dsign
+    password: password1234$
+
+gcis:
+  notiSvc:
+    endPointName: NOTI_SENDER_RESTFUL_END_POINT
+    endPointUrl: https://kpgd-xmlfw.egis.hksarg:9444/messaging/ssl/RESTful/csb.csbgb.app001-ogcio.egis.nt001-NotiSenderRest
 
 
