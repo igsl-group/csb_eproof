@@ -3,7 +3,9 @@ package com.hkgov.csb.eproof.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.hkgov.csb.eproof.dao.EmailEventRepository;
 import com.hkgov.csb.eproof.dao.UserRepository;
+import com.hkgov.csb.eproof.event.EmailEventListener;
 import com.hkgov.csb.eproof.service.EmailService;
 import com.hkgov.csb.eproof.service.impl.GcisEmailServiceImpl;
 import com.hkgov.csb.eproof.service.impl.SmtpEmailServiceImpl;

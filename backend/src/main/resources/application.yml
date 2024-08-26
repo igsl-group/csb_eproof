@@ -28,7 +28,7 @@ spring:
     password: HongIgs_P@ssw0rd
     from: csbeproof@test.com
     protocol: smtps
-    env: test
+    env: uat
     whitelist: wilfred.lai@igsl-group.com,hong.cheung@igsl-group.com
     properties:
       mail:
@@ -72,7 +72,7 @@ password:
   tokenExpirationAfterDays: 1
 
 server:
-  url: https://192.168.2.227
+  url: https://127.0.0.1
   servlet:
     context-path: /api/v1
 security:

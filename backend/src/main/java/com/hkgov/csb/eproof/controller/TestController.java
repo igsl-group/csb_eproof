@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.*;
+import com.hkgov.csb.eproof.event.EmailEventPublisher;
 import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.DocxUtil;
@@ -42,6 +43,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/test")
@@ -62,8 +65,11 @@ public class TestController {
     @Autowired
     private DocumentGenerateService documentGenerateService;
 
-    Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private EmailEventPublisher emailEventPublisher;
 
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @GetMapping("/fillDocument")
     public ResponseEntity fillDocument() throws Exception {
         CertInfo certInfo = certInfoRepository.findById(1L).get();
@@ -245,7 +251,7 @@ public class TestController {
 
     @GetMapping("/testEmail")
     public void testEmail(){
-
+        emailEventPublisher.publicEmailEvent(new EmailEvent());
     }
 
 }
