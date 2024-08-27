@@ -2,6 +2,7 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.CombinedHistoricalResultBeforeRepository;
+import com.hkgov.csb.eproof.dto.HistoricalSearchDto;
 import com.hkgov.csb.eproof.dto.UpdateHistoricalDto;
 import com.hkgov.csb.eproof.entity.CombinedHistoricalResultBefore;
 import com.hkgov.csb.eproof.entity.enums.GradeEnums;
@@ -26,8 +27,8 @@ import java.util.Objects;
 public class CombinedHistoricalResultBeforeServiceImpl implements CombinedHistoricalResultBeforeService {
     private final CombinedHistoricalResultBeforeRepository repository;
     @Override
-    public Page<CombinedHistoricalResultBefore> list(Pageable pageable, String keyword) {
-        return repository.findPage(pageable,keyword);
+    public Page<CombinedHistoricalResultBefore> list(Pageable pageable, HistoricalSearchDto searchDto) {
+        return repository.findPage(pageable,searchDto);
     }
 
     @Override

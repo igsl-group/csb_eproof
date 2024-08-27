@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.service;
 
+import com.hkgov.csb.eproof.dto.HistoricalSearchDto;
 import com.hkgov.csb.eproof.dto.UpdateHistoricalDto;
 import com.hkgov.csb.eproof.entity.CombinedHistoricalResultBefore;
 import org.springframework.data.domain.Page;
@@ -12,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 */
 public interface CombinedHistoricalResultBeforeService {
 
-    Page<CombinedHistoricalResultBefore> list(Pageable pageable, String keyword);
+    Page<CombinedHistoricalResultBefore> list(Pageable pageable, HistoricalSearchDto searchDto);
 
     void valid(Long id, String remark);
 

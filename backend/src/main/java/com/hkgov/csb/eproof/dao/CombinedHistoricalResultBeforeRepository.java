@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.dao;
 
+import com.hkgov.csb.eproof.dto.HistoricalSearchDto;
 import com.hkgov.csb.eproof.entity.CombinedHistoricalResultBefore;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,30 @@ public interface CombinedHistoricalResultBeforeRepository extends JpaRepository<
     @Query("select c from CombinedHistoricalResultBefore c where c.hkid in :hkids or c.passport in :passports order by c.hkid,c.passport")
     List<CombinedHistoricalResultBefore> findByHkidIn(List<String> hkids, List<String> passports);
 
-    @Query("select c from CombinedHistoricalResultBefore c where :keyword is null or (c.name like %:keyword% or c.hkid like %:keyword% " +
-            "or c.passport like %:keyword% or c.blGrade like %:keyword% or c.atGrade like %:keyword% or c.ueGrade like %:keyword% or c.ueGrade like %:keyword%)")
-    Page<CombinedHistoricalResultBefore> findPage(Pageable pageable, @Param("keyword") String keyword);
+    @Query(nativeQuery = true,value = """
+        SELECT * FROM combined_historical_result_before_2024 c WHERE
+        (
+            1=1
+        )
+        AND
+        (
+            ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
+            ( ?#{#searchDto.passport} IS null OR c.passport like %?#{#searchDto.passport}% ) AND
+            ( ?#{#searchDto.name} IS null OR c.name like %?#{#searchDto.name}% ) AND
+            ( ?#{#searchDto.email} IS null OR c.email like %?#{#searchDto.email}% )
+        )
+""",countQuery = """
+ SELECT count(*) FROM combined_historical_result_before_2024 c WHERE
+        (
+            1=1
+        )
+        AND
+        (
+           ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
+            ( ?#{#searchDto.passport} IS null OR c.passport like %?#{#searchDto.passport}% ) AND
+            ( ?#{#searchDto.name} IS null OR c.name like %?#{#searchDto.name}% ) AND
+            ( ?#{#searchDto.email} IS null OR c.email like %?#{#searchDto.email}% )
+        )
+""")
+    Page<CombinedHistoricalResultBefore> findPage(Pageable pageable, @Param("searchDto") HistoricalSearchDto searchDto);
 }

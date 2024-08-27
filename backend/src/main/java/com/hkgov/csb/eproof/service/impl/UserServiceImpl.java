@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 //        Long id = user.getId();
 //        List<UserHasRole> roles = request.getRoles().stream().map(RoleDto::getId).map(x -> new UserHasRole(null,id,x)).collect(Collectors.toList());
 //        userHasRoleRepository.saveAll(roles);
-        auditLogService.addLog("Create","Create User" +user.getUsername(), request);
+        auditLogService.addLog("Create","Create User " +user.getUsername(), request);
         return Objects.nonNull(user);
     }
 

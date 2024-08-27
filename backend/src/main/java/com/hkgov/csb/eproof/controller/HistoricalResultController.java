@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.controller;
 
 import com.hkgov.csb.eproof.dto.HistoricalResultDto;
+import com.hkgov.csb.eproof.dto.HistoricalSearchDto;
 import com.hkgov.csb.eproof.dto.UpdateHistoricalDto;
 import com.hkgov.csb.eproof.mapper.CombinedHistoricalResultBeforeMapper;
 import com.hkgov.csb.eproof.service.CombinedHistoricalResultBeforeService;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HistoricalResultController {
     private final CombinedHistoricalResultBeforeService resultBeforeService;
-    @GetMapping("/list")
-    public Result<Page<HistoricalResultDto>> list(@RequestParam(defaultValue = "0") int page,
+    @PostMapping("/list")
+    public Result<Page<HistoricalResultDto>> list(@RequestBody HistoricalSearchDto searchDto, @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "20") int size,
                                                   @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
-                                                  @RequestParam(required = false) String keyword,
                                                   @RequestParam(defaultValue = "id") String... sortField){
         Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
-        return Result.success(resultBeforeService.list(pageable,keyword).map(CombinedHistoricalResultBeforeMapper.INSTANCE::sourceToDestination));
+        return Result.success(resultBeforeService.list(pageable,searchDto).map(CombinedHistoricalResultBeforeMapper.INSTANCE::sourceToDestination));
     }
     @PostMapping("{id}/valid")
     public Result valid(@PathVariable Long id,@RequestBody UpdateHistoricalDto dto){
