@@ -45,6 +45,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import PermissionControl from "../../components/PermissionControl";
+import EmailModal from "./notify-modal.jsx";
 
 const Notify = () =>  {
   const navigate = useNavigate();
@@ -61,6 +62,14 @@ const Notify = () =>  {
   const [record, setRecord] = useState({});
   const [filterCondition, setFilterCondition] = useState(null);
 
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);;
+  },[]);
+
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+  },[]);
+
   const columns = useMemo(() => [
     {
       title: 'Action',
@@ -71,20 +80,17 @@ const Notify = () =>  {
           {
             ['SUCCESS'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
+                <Button disabled size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Notify</Button>
               </Col>
             ) : null
           }
           {
-            ['PENDING', 'FAIL'].includes(row.certStatus.code) ? (
+            ['PENDING'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickGeneratePdfCallback(row)}>Sign & Issue</Button>
+                <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickNotifyModal(row)}>Notify</Button>
               </Col>
             ) : null
           }
-          <Col span={24}>
-            <Button disabled size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
-          </Col>
         </Row>
       )
     },
@@ -280,6 +286,11 @@ const Notify = () =>  {
       sorter: true,
     },
   ], []);
+
+  const onClickNotifyModal = useCallback((row) => {
+    setRecord(row);
+    setOpen(true);
+  }, [])
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -603,6 +614,13 @@ const Notify = () =>  {
         </Row>
         <br/>
       </Card>
+      <EmailModal
+        open={open}
+        title={'Notify Email'}
+        record={record}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+      />
     </div>
 
   )

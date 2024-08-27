@@ -71,20 +71,24 @@ const Issue = () =>  {
           {
             ['SUCCESS'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
+                <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
               </Col>
             ) : null
           }
           {
             ['PENDING', 'FAIL'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickGeneratePdfCallback(row)}>Sign & Issue</Button>
+                <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickSignAndIssueCallback(row)}>Sign & Issue</Button>
               </Col>
             ) : null
           }
-          <Col span={24}>
-            <Button disabled size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
-          </Col>
+          {
+            ['PENDING'].includes(row.certStatus.code) ? (
+              <Col span={24}>
+                <Button size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
+              </Col>
+            ) : null
+          }
         </Row>
       )
     },
@@ -342,12 +346,12 @@ const Issue = () =>  {
     });
   }, []);
 
-  const onClickGeneratePdfCallback = useCallback((row) => {
+  const onClickSignAndIssueCallback = useCallback((row) => {
     modalApi.confirm({
-      title:'Are you sure to generate PDF?',
+      title:'Are you sure to sign and issue certificate?',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certRenewGenerate', row.id),
+      onOk: () => runExamProfileAPI('certRenewSign', row.id, {}),
     });
 
   },[]);

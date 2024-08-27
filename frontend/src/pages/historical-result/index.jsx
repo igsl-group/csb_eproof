@@ -26,12 +26,29 @@ import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
 import HKID from "@/components/HKID";
 import Email from "@/components/Email";
-
+import { examProfileAPI } from '@/api/request';
+import {useMessage} from "../../context/message-provider";
+import {useModal} from "../../context/modal-provider";
+import {
+  toQueryString
+} from "@/utils/util";
+import PermissionControl from "../../components/PermissionControl";
+import {useAuth} from "../../context/auth-provider";
+import VoidModal from "./modal";
 const HistoricalResultList = () =>  {
+
+  const modalApi = useModal();
+  const messageApi = useMessage();
+  const [searchForm] = Form.useForm();
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [data, setData] = useState(false);
+  const [recordId, setRecordId] = useState('');
+  const [type, setType] = useState('');
+  const [record, setRecord] = useState({});
+  const [filterCondition, setFilterCondition] = useState(null);
+  const auth = useAuth();
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -49,10 +66,6 @@ const HistoricalResultList = () =>  {
     orderBy: defaultPaginationInfo.orderBy,
   });
 
-  const onCloseCallback = useCallback(() => {
-    setOpen(false);
-  });
-
   const breadcrumbItems = useMemo(() => [
     {
       title: <HomeOutlined />,
@@ -62,6 +75,15 @@ const HistoricalResultList = () =>  {
     },
   ], []);
 
+  const onCloseCallback = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const onFinishCallback = useCallback(() => {
+    setOpen(false);
+    getUserList(pagination);
+  }, []);
+
   const columns = useMemo(() => [
     {
       title: 'Action',
@@ -69,9 +91,9 @@ const HistoricalResultList = () =>  {
       width: 100,
       render: (row) => (
         <Row gutter={[8, 8]}>
-          { row.status === '' ? <Col span={24}><Button size={'small'} type={'primary'} onClick={() => {}}>Reissue</Button></Col> : null}
-          { row.status === '' ? <Col span={24}><Button size={'small'} type={'primary'} danger onClick={() => {}}>Void</Button></Col> : null}
-          { row.status === 'DQ' ? <Col span={24}><Button size={'small'} type={'primary'} danger onClick={() => {}}>Un-void</Button></Col> : null}
+          { [null, true].includes(row.valid) ? <Col span={24}><Button style={{width: 80}} size={'small'} type={'primary'} disabled onClick={() => {}}>Reissue</Button></Col> : null}
+          { [null, true].includes(row.valid) ? <Col span={24}><Button style={{width: 80}}size={'small'} type={'primary'} danger onClick={() => onVoidWholeResultClickCallback(row)}>Void</Button></Col> : null}
+          { [false].includes(row.valid) ? <Col span={24}><Button style={{width: 80}} size={'small'} type={'primary'} danger onClick={() => onVoidWholeResultClickCallback(row)}>Un-void</Button></Col> : null}
         </Row>
       )
     },
@@ -98,65 +120,76 @@ const HistoricalResultList = () =>  {
     },
     {
       title: 'UE (Exam Date)',
-      key: 'ue',
+      key: 'ueGrade',
       render: (row) => (
-        <Popconfirm
-          disabled
-          placement="bottomLeft"
-          title={'Are you sure to void the UE result?'}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Link style={{ textDecoration: row.ueVoid ? 'line-through' : 'inherit'}}>{row.ue}</Link>
-        </Popconfirm>
+        row.ueGrade ? (
+          <Popconfirm
+            placement="bottomLeft"
+            title={'Are you sure to void the UE result?'}
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => onVoidClickCallback(row.id, "ue_grade", !row.ueVoid)}
+          >
+            <Link style={{ textDecoration: row.ueVoid ? 'line-through' : 'inherit'}}>{row.ueGrade} ({row.ueDate})</Link>
+          </Popconfirm>
+        ) : null
       ),
       width: 120,
       sorter: true,
     },
     {
       title: 'UC (Exam Date)',
-      key: 'uc',
+      key: 'ucGrade',
       render: (row) => (
-        <Popconfirm
-          placement="bottomLeft"
-          title={'Are you sure to void the UC result?'}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Link style={{ textDecoration: row.ucVoid ? 'line-through' : 'inherit'}}>{row.uc}</Link>
-        </Popconfirm>
+        row.ucGrade ? (
+          <Popconfirm
+            placement="bottomLeft"
+            title={'Are you sure to void the UC result?'}
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => onVoidClickCallback(row.id, "uc_grade", !row.ucVoid)}
+          >
+            <Link style={{ textDecoration: row.ucVoid ? 'line-through' : 'inherit'}}>{row.ucGrade} ({row.ucDate})</Link>
+          </Popconfirm>
+        ) : null
       ),
       width: 120,
       sorter: true,
     },
     {
       title: 'AT (Exam Date)',
-      key: 'at',
+      key: 'atGrade',
       render: (row) => (
-        <Popconfirm
-          placement="bottomLeft"
-          title={'Are you sure to void the AT result?'}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Link style={{ textDecoration: row.atVoid ? 'line-through' : 'inherit'}}>{row.at}</Link>
-        </Popconfirm>
+        row.atGrade ? (
+          <Popconfirm
+            placement="bottomLeft"
+            title={'Are you sure to void the AT result?'}
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => onVoidClickCallback(row.id, "at_grade", !row.atVoid)}
+          >
+            <Link style={{ textDecoration: row.atVoid ? 'line-through' : 'inherit'}}>{row.atGrade} ({row.atDate})</Link>
+          </Popconfirm>
+        ) : null
       ),
       width: 120,
       sorter: true,
     },
     {
       title: 'BLNST (Exam Date)',
-      key: 'blnst',
+      key: 'blGrade',
       render: (row) => (
-        <Popconfirm
-          placement="bottomLeft"
-          title={'Are you sure to void the BLNST result?'}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Link style={{ textDecoration: row.blnstVoid ? 'line-through' : 'inherit'}}>{row.blnst}</Link>
-        </Popconfirm>
+        row.blGrade ? (
+          <Popconfirm
+            placement="bottomLeft"
+            title={'Are you sure to void the BLNST result?'}
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => onVoidClickCallback(row.id, "blnst_grade", !row.blVoid)}
+          >
+            <Link style={{ textDecoration: row.blVoid ? 'line-through' : 'inherit'}}>{row.blGrade} ({row.blDate})</Link>
+          </Popconfirm>
+        ) : null
       ),
       width: 120,
       sorter: true,
@@ -170,56 +203,20 @@ const HistoricalResultList = () =>  {
     },
   ], []);
 
-  const data = [
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700002',
-      name: 'Lee Tai Man',
-      email: 'taiman.lee@hotmail.com',
-      ue: 'L2 (2011-01-01)',
-      uc: 'L1 (2012-01-01)',
-      at: 'Pass (2013-01-01)',
-      blnst: 'Pass (2014-01-01)',
-      ueVoid: false,
-      ucVoid: false,
-      atVoid: false,
-      blnstVoid: false,
-      status: 'DQ',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700003',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L2 (2019-01-01)',
-      uc: 'L1 (2008-01-01)',
-      at: 'Pass (2019-01-01)',
-      blnst: '',
-      ueVoid: true,
-      ucVoid: false,
-      atVoid: false,
-      blnstVoid: false,
-      status: '',
-    },
-    {
-      serialNo: 'N000000001',
-      candidateNo: 'C000001',
-      hkid: 'T7700004',
-      name: 'Wong Tai Man',
-      email: 'taiman.wong@hotmail.com',
-      ue: 'L2 (2019-01-01)',
-      uc: 'L1 (2019-01-01)',
-      at: 'Pass (2020-01-01)',
-      blnst: 'Pass (2017-05-01)',
-      ueVoid: false,
-      ucVoid: false,
-      atVoid: true,
-      blnstVoid: false,
-      status: '',
-    }
-  ];
+
+  const onVoidClickCallback = useCallback((recordId, subject, valid) => {
+    runExamProfileAPI("historicalResultVoid", recordId, {
+      subject,
+      valid,
+      remark: "",
+    });
+  }, [])
+
+  const onVoidWholeResultClickCallback = useCallback((row) => {
+    setOpen(true);
+    setRecord(row);
+  }, [])
+
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -232,6 +229,7 @@ const HistoricalResultList = () =>  {
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
     setPagination(tempPagination);
+    getUserList(tempPagination, filterCondition);
   }, [pagination]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
@@ -241,68 +239,125 @@ const HistoricalResultList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
+    getUserList(tempPagination, filterCondition);
+  }, [pagination]);
+
+  const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'historicalResultList':
+          const data = response.data || {};
+          const content = data.content || [];
+          setPagination({
+            ...pagination,
+            total: data.totalElements,
+          });
+
+          setData(content);
+          break;
+        case 'historicalResultVoid':
+          messageApi.success('Request successfully.');
+          getUserList(pagination);
+          break;
+        case 'userRemove':
+          messageApi.success('Remove successfully.');
+          getUserList(pagination);
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
+  useEffect(() => {
+    getUserList(pagination);
+  }, []);
+
+  const getUserList = useCallback((pagination = {}, filter = {}) => {
+    runExamProfileAPI('historicalResultList', toQueryString(pagination, filter));
+  }, []);
+
+  const resetPagination = useCallback(() => {
+    const tempPagination = {
+      ...pagination,
+      total: 0,
+      page: defaultPaginationInfo.page,
+      pageSize: defaultPaginationInfo.pageSize,
+      sortBy: defaultPaginationInfo.sortBy,
+      orderBy: defaultPaginationInfo.orderBy,
+    }
+    setPagination(tempPagination);
+    return tempPagination;
   }, [pagination]);
 
   return (
-    <Watermark content={'Mockup'} className={styles['user-list']}>
-      <Alert
-        message={<b>The functionality of historical result management page will be fully developed by the end of 2024.</b>}
-        type="warning"
-        closable
-      />
-      <br/>
+    <div content={'Mockup'} className={styles['user-list']}>
+      {/*<Alert*/}
+      {/*  message={<b>The functionality of historical result management page will be fully developed by the end of 2024.</b>}*/}
+      {/*  type="warning"*/}
+      {/*  closable*/}
+      {/*/>*/}
+      {/*<br/>*/}
       <Typography.Title level={3}>Historical Result</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <br/>
-      <fieldset style={{padding: '0 30px'}}>
-        <legend><Typography.Title level={5}>Search</Typography.Title></legend>
-        <Form
-          layout="vertical"
-          autoComplete="off"
-          form={form}
-          colon={false}
-          scrollToFirstError={{
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center',
-          }}
-          name="form"
-        >
-          <Row justify={'start'}>
-            <Col span={20}>
-              <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12}>
-                  <Text name={"serialNo"} label={'Serial No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Text name={'hkid'} label={'HKID'}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Text name={'passportNo'} label={'Passport No.'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Text name={'name'} label={'Candidate Name'} size={12}/>
-                </Col>
-                <Col span={24} md={12}>
-                  <Email name={'email'} label={'Candidate Email'} size={12}/>
-                </Col>
-              </Row>
-            </Col>
-            <Col span={4}>
-              <Row justify={'end'}>
-                <Col>
-                  <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {
-                  }}/>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-        </Form>
-      </fieldset>
+      {/*<br/>*/}
+      {/*<fieldset style={{padding: '0 30px'}}>*/}
+      {/*  <legend><Typography.Title level={5}>Search</Typography.Title></legend>*/}
+      {/*  <Form*/}
+      {/*    layout="vertical"*/}
+      {/*    autoComplete="off"*/}
+      {/*    form={searchForm}*/}
+      {/*    colon={false}*/}
+      {/*    scrollToFirstError={{*/}
+      {/*      behavior: 'smooth',*/}
+      {/*      block: 'center',*/}
+      {/*      inline: 'center',*/}
+      {/*    }}*/}
+      {/*    name="form"*/}
+      {/*  >*/}
+      {/*    <Row justify={'start'}>*/}
+      {/*      <Col span={20}>*/}
+      {/*        <Row gutter={24} justify={'start'}>*/}
+      {/*          <Col span={24} md={12}>*/}
+      {/*            <Text name={"serialNo"} label={'Serial No.'} size={12}/>*/}
+      {/*          </Col>*/}
+      {/*          <Col span={24} md={12}>*/}
+      {/*            <Text name={'candidateNo'} label={'Candidate No.'} size={12}/>*/}
+      {/*          </Col>*/}
+      {/*          <Col span={24} md={12}>*/}
+      {/*            <Text name={'hkid'} label={'HKID'}/>*/}
+      {/*          </Col>*/}
+      {/*          <Col span={24} md={12}>*/}
+      {/*            <Text name={'passportNo'} label={'Passport No.'} size={12}/>*/}
+      {/*          </Col>*/}
+      {/*          <Col span={24} md={12}>*/}
+      {/*            <Text name={'name'} label={'Candidate Name'} size={12}/>*/}
+      {/*          </Col>*/}
+      {/*          <Col span={24} md={12}>*/}
+      {/*            <Email name={'email'} label={'Candidate Email'} size={12}/>*/}
+      {/*          </Col>*/}
+      {/*        </Row>*/}
+      {/*      </Col>*/}
+      {/*      <Col span={4}>*/}
+      {/*        <Row justify={'end'}>*/}
+      {/*          <Col>*/}
+      {/*            <Button shape="circle" type={'primary'} icon={<SearchOutlined/>} onClick={() => {*/}
+      {/*            }}/>*/}
+      {/*          </Col>*/}
+      {/*        </Row>*/}
+      {/*      </Col>*/}
+      {/*    </Row>*/}
+      {/*  </Form>*/}
+      {/*</fieldset>*/}
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
           <Pagination
@@ -345,7 +400,13 @@ const HistoricalResultList = () =>  {
         </Row>
         <br/>
       </Card>
-    </Watermark>
+      <VoidModal
+        open={open}
+        record={record}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+      />
+    </div>
 
   )
 }

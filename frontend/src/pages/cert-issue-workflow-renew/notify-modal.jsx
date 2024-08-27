@@ -61,6 +61,7 @@ const EmailModal = (props) =>  {
     if (open) {
       form.setFieldsValue({
         ...record,
+        examDate: record?.certInfo?.examProfile?.examDate,
       })
       runGeneralAPI('emailTemplateGet', 4);
     }
@@ -107,10 +108,9 @@ const EmailModal = (props) =>  {
       switch (params[0]) {
         case 'emailTemplateGet':
           const data = response.data || {};
-          console.log('@@@@@@@@@data', data)
           let body = data.body;
-          body = body.replaceAll('{{application_name}}', record.name);
-          body = body.replaceAll('{{examination_date}}', dayjs(record.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
+          body = body.replaceAll('{{application_name}}', record.newName);
+          body = body.replaceAll('{{examination_date}}', dayjs(record?.certInfo?.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
           body = body.replaceAll('{{eproof_document_url}}', record.certEproof?.url);
           form.setFieldsValue({
             ...data,
@@ -128,6 +128,8 @@ const EmailModal = (props) =>  {
     onFinally: (params, result, error) => {
     },
   });
+
+  console.log(record);
 
   return (
     <Modal
@@ -154,7 +156,7 @@ const EmailModal = (props) =>  {
         <Row gutter={24}>
           <Col span={12}>
             <Text
-              name={"name"}
+              name={"newName"}
               label={'Name'}
               size={100}
               disabled
@@ -170,7 +172,7 @@ const EmailModal = (props) =>  {
           </Col>
           <Col span={12}>
             <Text
-              name={"hkid"}
+              name={"newHkid"}
               label={'HKID'}
               size={100}
               disabled
@@ -178,7 +180,7 @@ const EmailModal = (props) =>  {
           </Col>
           <Col span={12}>
             <Text
-              name={"passport"}
+              name={"newPassport"}
               label={'Passport'}
               size={100}
               disabled

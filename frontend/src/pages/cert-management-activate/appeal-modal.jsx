@@ -61,7 +61,6 @@ const PersonalParticularsModal = (props) =>  {
   }, []);
 
   const onImportModalFinishCallback = useCallback(async (result) => {
-    console.log(result);
     form.setFieldsValue({
       newUeGrade: result?.['UE Grade'],
       newUcGrade: result?.['UC Grade'],
@@ -117,8 +116,11 @@ const PersonalParticularsModal = (props) =>  {
         console.error(e);
         return false;
       })
-    console.log(values)
+
+    console.log(record);
     if (values) {
+      let id = values.id
+      delete values.id;
       delete values.atGrade;
       delete values.blnstGrade;
       delete values.ucGrade;
@@ -128,7 +130,7 @@ const PersonalParticularsModal = (props) =>  {
       delete values.examDate;
       delete values.passportNo;
       delete values.letterType;
-      runExamProfileAPI('certSingleUpdateResult', record.id, values)
+      runExamProfileAPI('certSingleUpdateResult', id, values)
         .then(() => onFinish());
 
     }
@@ -137,6 +139,7 @@ const PersonalParticularsModal = (props) =>  {
   useEffect(() => {
     if (open) {
       form.setFieldsValue({
+        id: record?.id,
         examDate: record?.examProfile?.examDate,
         name: record?.name,
         hkid: record?.hkid,
@@ -211,6 +214,9 @@ const PersonalParticularsModal = (props) =>  {
         </Row>
         <br/>
         <Row gutter={24} justify={'center'}>
+          <Col span={24} md={24}>
+            <Text name={'id'} label={'Id'} size={100} disabled hidden/>
+          </Col>
           <Col span={24} md={12}>
             <Text name={'name'} label={'Candidate Name'} size={100} disabled/>
           </Col>
