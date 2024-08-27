@@ -155,7 +155,7 @@ public class CertInfoRenewController {
         return ResponseEntity.ok().body(preparedEproofPdf);
     }
 
-    @PostMapping("/uploadSignedPdf/{certInfoId}")
+    @PostMapping("/eproof/uploadSignedPdf/{certInfoRenewId}")
     public Result uploadSignedPdf(@PathVariable Long certInfoRenewId, @RequestPart("file") MultipartFile file) throws Exception {
         certInfoRenewService.uploadSignedPdf(certInfoRenewId,file);
         certInfoRenewService.issueCert(certInfoRenewId);

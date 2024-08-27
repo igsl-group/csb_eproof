@@ -9,15 +9,18 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
+import com.hkgov.csb.eproof.controller.CertInfoRenewController;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.*;
+import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
+import com.hkgov.csb.eproof.mapper.CertEproofMapperImpl;
 import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -44,10 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -101,6 +101,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
     @Value("${minio.path.cert-renew-record}")
     private String certRenewRecordPath;
+    private final CertPdfRepository certPdfRepository;
 
     @Override
     public void changeCertStatusToInProgress(Long certInfoId, CertStage certStage) {
@@ -223,7 +224,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 currentTimeMillisString,
                 UUID.randomUUID().toString().replace("-","")
         );
-        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRenewRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD_RENEW,certRenewRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
 
@@ -254,7 +255,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             if(info.getPdfList() == null || info.getPdfList().size()<=0){
                 continue;
             }
-            File latestPdf = fileRepository. getLatestPdfForCertRenewId(info.getId());
+            File latestPdf = fileRepository. getLatestPdfForCertRenew(info.getId());
             ZipEntry zipEntry = new ZipEntry(latestPdf.getName());
             zos.putNextEntry(zipEntry);
             zos.write(minioUtil.getFileAsByteArray(latestPdf.getPath()));
@@ -388,7 +389,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         LocalDateTime expiryDate = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
         LocalDateTime issueDate = LocalDateTime.now();
 
-        String eproofId = null;
+        String eproofId = certInfoRenew.getCertInfo().getEproofId();
 
         String eproofTemplateCode;
         if ("P".equals(certInfoRenew.getNewLetterType())) {
@@ -434,7 +435,14 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
         CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(certInfoRenewId).get();
         //Register the json to get the UUID from EProof
-        String uuid = null;
+        String uuid = "";
+        if(CertType.RESULT_UPDATE.equals(certInfoRenew.getType())){
+            // set uuid to null to generate a new uuid for the new document
+            uuid = null;
+        } else{
+            // use original uuid to update the version number
+            uuid = certInfoRenew.getCertInfo().getCertEproof().getUuid();
+        }
         String publicKey = prepareEproofPdfRequest.getPublicKey();
         logger.info(publicKey);
         String keyName = systemParameterRepository.findByName(publicKey).orElseThrow(() -> new GenericException("public.key.not.found","Public key not found.")).getValue();
@@ -457,7 +465,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 downloadExpiryDateTime
         );
 
-        logger.debug("[registerResult]" + GSON.toJson(registerResult));
+        logger.info("[registerResult]" + GSON.toJson(registerResult));
 
 
         uuid = (String) registerResult.get("uuid");
@@ -465,9 +473,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         String token = (String) registerResult.get("token");
 
 
-        logger.debug("[KeyName]" + keyName);
-        logger.debug("[uuid]" + uuid);
-        logger.debug("[returnVersion]" + returnVersion);
+        logger.info("[KeyName]" + keyName);
+        logger.info("[uuid]" + uuid);
+        logger.info("[returnVersion]" + returnVersion);
 
 
         // Get QR code string from eProof
@@ -481,7 +489,6 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
         logger.debug("[qrCodeString]" + qrCodeString);
 
-        CertEproofRenew certEproof = certEproofRenewRepository.findByCertInfoRenewId(certInfoRenewId);
 
 
         createCertEproofRecord(
@@ -545,6 +552,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             }else{
                 pdfTitle = "Failed cert";
             }
+
             info.setTitle(pdfTitle);
             info.setAuthor(eProofConfigProperties.getIssuerNameEn());
 
@@ -562,9 +570,19 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
             info.setKeywords(pdfKeyword);
 
+            logger.info("PDF Title: " + info.getTitle());
+            logger.info("PDF Author: " + info.getAuthor());
+            logger.info("PDF Keywords: " + info.getKeywords());
+
             pdDocument.save(baos);
+        } catch (Exception e){
+            e.printStackTrace();
         }
         baos.close();
+
+        FileOutputStream fos = new FileOutputStream("C:\\Users\\IGS\\Downloads\\test20240827\\test.pdf");
+        fos.write(baos.toByteArray());
+        fos.close();
 
         // Upload the updated PDF
 //        minioUtil.uploadFile(latestCert.getPath(), baos);
@@ -611,37 +629,80 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         certPdfRenewRepository.save(certPdfRenew);
     }
     void deleteCertPdf(CertInfoRenew certInfoRenew){
-        CertPdfRenew certPdfRenew = certPdfRenewRepository.findByCertInfoRenewId(certInfoRenew.getId());
+        List<CertPdfRenew> certPdfRenew = certPdfRenewRepository.findByCertInfoRenewId(certInfoRenew.getId());
         if(certPdfRenew != null){
-            certPdfRenewRepository.delete(certPdfRenew);
+            certPdfRenewRepository.deleteAll(certPdfRenew);
         }
     }
 
     @Override
+    @Transactional
     public void issueCert(Long certInfoRenewId) throws Exception {
 
         CertEproofRenew certEproofRenew = certEproofRenewRepository.findByCertInfoRenewId(certInfoRenewId);
 
         CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(certInfoRenewId).get();
 
-        File certPdf = certInfoRenew.getPdfList()!=null&&certInfoRenew.getPdfList().size()>0?certInfoRenew.getPdfList().get(0):null;
+        File certPdf = fileRepository.getLatestPdfForCertRenew(certInfoRenewId);
+//        File certPdf = certInfoRenew.getPdfList()!=null&&certInfoRenew.getPdfList().size()>0?certInfoRenew.getPdfList().get(0):null;
+        logger.info("Pdf name: "+certPdf.getName());
 
         byte[] certPdfBinary = minioUtil.getFileAsByteArray(certPdf.getPath());
 
-
         EProofUtil.issuePdf(certEproofRenew.getUuid(),EProofUtil.calcPdfHash(certPdfBinary));
 
+
         if (CertType.RESULT_UPDATE.equals(certInfoRenew.getType())){
-            certInfoService.actualRevokeWithEproofModule(certInfoRenew.getCertInfo().getId(),"Reissue cert");
+            certInfoService.actualRevokeWithEproofModule(certInfoRenew.getCertInfo().getId(),"Update result. cert_info_renew_id = "+certInfoRenew.getId());
+
+            CertInfo newCertInfo = certInfoRenew.getCertInfo().clone();
+            newCertInfo.setId(null);
+            newCertInfo.setCertEproof(null);
+            newCertInfo.setPdfList(null);
+            newCertInfo.setCertInfoRenewList(null);
+            this.replaceCertInfoWithCertInfoRenew(newCertInfo,certInfoRenew);
+
+            CertEproof newCertEproof = new CertEproof();
+            newCertEproof.setCertInfoId(newCertInfo.getId());
+            this.replaceCertEproofWithCertEproofRenew(newCertEproof,certEproofRenew);
+
+            CertPdf oldPdf = certPdfRepository.getLatestCertPdf(certInfoRenew.getCertInfo().getId());
+            CertPdf newCertPdf =oldPdf.clone();
+            newCertPdf.setCertInfoId(newCertInfo.getId());
+            this.replaceCertPdfWithCertPdfRenew(newCertPdf,certPdfRenewRepository.getLatestCertPdf(certInfoRenewId));
+
+
+        }else{
+            CertInfo certInfo = certInfoRenew.getCertInfo();
+            this.replaceCertInfoWithCertInfoRenew(certInfo,certInfoRenew);
+            this.replaceCertEproofWithCertEproofRenew(certInfo.getCertEproof(),certEproofRenew);
+            CertPdf oldPdf = certPdfRepository.getLatestCertPdf(certInfo.getId());
+            CertPdfRenew newPdf = certPdfRenewRepository.getLatestCertPdf(certInfoRenewId);
+            this.replaceCertPdfWithCertPdfRenew(oldPdf,newPdf);
         }
 
         certInfoRenew.setCertStage(CertStage.SIGN_ISSUE);
         certInfoRenew.setCertStatus(CertStatus.SUCCESS);
-
         certInfoRenewRepository.save(certInfoRenew);
-        CertInfo certInfo = certInfoRenew.getCertInfo();
-        this.replaceCertInfoWithCertInfoRenew(certInfo,certInfoRenew);
-        certInfoRepository.save(certInfo);
+
+    }
+
+    private void replaceCertPdfWithCertPdfRenew(CertPdf oldPdf, CertPdfRenew newPdf) {
+        oldPdf.setFileId(newPdf.getFileId());
+        certPdfRepository.save(oldPdf);
+    }
+
+    private void replaceCertEproofWithCertEproofRenew(CertEproof certEproof, CertEproofRenew certEproofRenew) {
+        certEproof.setEproofId(certEproofRenew.getEproofId());
+        certEproof.setKeyName(certEproofRenew.getKeyName());
+        certEproof.setUuid(certEproofRenew.getUuid());
+        certEproof.setVersion(certEproofRenew.getVersion());
+        certEproof.setECertHtml(certEproofRenew.getECertHtml());
+        certEproof.setEWalletJson(certEproofRenew.getEWalletJson());
+        certEproof.setToken(certEproofRenew.getToken());
+        certEproof.setUrl(certEproofRenew.getUrl());
+        certEproof.setQrCodeString(certEproofRenew.getQrCodeString());
+        certEproofRepository.save(certEproof);
     }
 
     private void replaceCertInfoWithCertInfoRenew(CertInfo certInfo, CertInfoRenew certInfoRenew){
@@ -653,6 +714,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         certInfo.setBlnstGrade(certInfoRenew.getNewBlGrade());
         certInfo.setUcGrade(certInfoRenew.getNewUcGrade());
         certInfo.setUeGrade(certInfoRenew.getNewUeGrade());
+        certInfo.setValid(true);
+        certInfoRepository.save(certInfo);
     }
 
     private CertEproofRenew createCertEproofRecord(

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Table(name = "cert_pdf_renew")
 @Getter
 @Setter
-public class CertPdfRenew extends BaseEntity{
+public class CertPdfRenew extends BaseEntity implements Cloneable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

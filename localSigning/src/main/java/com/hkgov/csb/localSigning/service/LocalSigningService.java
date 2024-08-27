@@ -299,7 +299,7 @@ public class LocalSigningService {
         PDDocument doc = PDDocument.load(is);
 
         //boolean manualAddKeyword = true;
-        if(!Strings.isNullOrEmpty(keyword)) {
+        /*if(!Strings.isNullOrEmpty(keyword)) {
             QRCodeWriter qrWriter = new QRCodeWriter();
             BitMatrix bitMatrix = qrWriter.encode(qr, BarcodeFormat.QR_CODE, 350, 350);
 
@@ -362,7 +362,7 @@ public class LocalSigningService {
             doc.save("pdfwithMetadata.pdf");
 
             doc = PDDocument.load(new File("pdfwithMetadata.pdf"));
-        }
+        }*/
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         signing.signDetached(doc, baos, reason, location);
@@ -431,7 +431,7 @@ public class LocalSigningService {
         String unsignedJson = apiUtil.getUnsignedJsonForReissueCert(certInfoRenewId,jwt);
         String signedValue = (String)this.signJson(unsignedJson).getBody();
         logger.info(signedValue);
-        byte[] preparedPdf = apiUtil.prepareEproofPdfForSigningForReissueCert(jwt,certInfoRenewId,unsignedJson,signedValue);
+        byte[] preparedPdf = apiUtil.prepareEproofPdfForSigningForReissueCert(jwt,certInfoRenewId,unsignedJson,signedValue,publicKey);
 
         this.processSigningForReissueCert(preparedPdf, certInfoRenewId,jwt,reason,  location, qr, keyword, response,publicKey);
 

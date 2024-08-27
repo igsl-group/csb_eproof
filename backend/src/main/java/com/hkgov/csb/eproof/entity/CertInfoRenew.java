@@ -110,7 +110,7 @@ public class CertInfoRenew extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinTable(
-            name = "cert_renew_pdf",
+            name = "cert_pdf_renew",
             joinColumns = @JoinColumn(name = "cert_info_renew_id"),
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.util.zip.ZipEntry;
@@ -290,7 +292,7 @@ public class ApiUtil {
         return null;
     }
 
-    public byte[] prepareEproofPdfForSigningForReissueCert(String jwt, Long certInfoRenewId, String unsignedJson, String signedValue) {
+    public byte[] prepareEproofPdfForSigningForReissueCert(String jwt, Long certInfoRenewId, String unsignedJson, String signedValue, String publicKey) {
         // Define the endpoint for uploading signed PDF
         String prepareEproofPdfUrl2 = prepareReissueCertEproofPdfUrl.replace("{certInfoRenewId}", certInfoRenewId.toString());
 
@@ -299,6 +301,8 @@ public class ApiUtil {
         JsonObject jsonData = new JsonObject();
         jsonData.addProperty("eproofDataJson", unsignedJson);
         jsonData.addProperty("signedProofValue", signedValue);
+        jsonData.addProperty("publicKey", publicKey);
+
 
         // Create a RequestBody with the JSON data
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonData.toString());
@@ -324,9 +328,11 @@ public class ApiUtil {
 
     }
 
-    public void uploadSignedPdfForReissueCert(Long certInfoRenewId, String jwt, byte[] signedPdf) {
+    public void uploadSignedPdfForReissueCert(Long certInfoRenewId, String jwt, byte[] signedPdf) throws IOException {
         // Define the endpoint for uploading signed PDF
         String uploadSignedPdfEndpoint = uploadSignedReissueCertEndpoint.replace("{certInfoRenewId}", certInfoRenewId.toString());
+
+
 
         System.out.println("Uploading signed PDF to: " + uploadSignedPdfEndpoint);
 

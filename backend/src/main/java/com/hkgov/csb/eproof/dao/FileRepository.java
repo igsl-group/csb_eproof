@@ -17,6 +17,9 @@ public interface FileRepository extends JpaRepository<File,Long> {
     LIMIT 1
 """)
     File getLatestPdfForCertRenew(Long certInfoRenewId);
+
+
+
     @Query(nativeQuery = true,value = """
     SELECT * 
     FROM file f 
@@ -26,14 +29,6 @@ public interface FileRepository extends JpaRepository<File,Long> {
     LIMIT 1
 """)
     File getLatestPdfForCert(Long certInfoId);
-    @Query(nativeQuery = true,value = """
-    SELECT * 
-    FROM file f 
-    WHERE f.id IN 
-          (SELECT p.file_id FROM cert_renew_pdf p INNER JOIN cert_info_renew c on p.cert_info_renew_id=c.id WHERE c.id = :certInfoId)
-    ORDER BY f.created_date DESC
-    LIMIT 1
-""")
-    File getLatestPdfForCertRenewId(Long certInfoId);
+
 
 }

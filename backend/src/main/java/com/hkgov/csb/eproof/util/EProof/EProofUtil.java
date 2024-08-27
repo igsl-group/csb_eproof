@@ -531,6 +531,8 @@ public class EProofUtil {
 	}
 
 	public static void issuePdf(String uuid, String pdfHash) throws Exception {
+		logger.info("Pdf hash: "+pdfHash);
+
 
 		if (simulation) {
 			logger.debug("This is simulation of issueDocument");

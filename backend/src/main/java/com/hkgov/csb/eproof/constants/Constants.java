@@ -29,6 +29,7 @@ public final class Constants {
     public static final String LETTER_TEMPLATE_AT_LEAST_ONE_PASS = "AT_LEAST_ONE_PASS_TEMPLATE";
     public static final String LETTER_TEMPLATE_ALL_FAILED_TEMPLATE = "ALL_FAILED_TEMPLATE";
     public static final String FILE_TYPE_CERT_RECORD = "CERT_RECORD";
+    public static final String FILE_TYPE_CERT_RECORD_RENEW = "CERT_RECORD_RENEW";
 
 
     public static final String SYS_PARAM_HEALTH_CHECK_MAIL_TEMPLATE = "HEALTH_CHECK_MAIL_TEMPLATE";

@@ -42,6 +42,8 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+  freemarker:
+    check-template-location: false
 
 management:
   security:
@@ -135,7 +137,6 @@ minio:
   path:
     cert-record: /cert_record
     cert-renew-record: /cert_renew_record
-
 
 mail:
   mode: SMTP

@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name = "cert_info")
 @Getter
 @Setter
-public class CertInfo extends BaseEntity{
+public class CertInfo extends BaseEntity implements Cloneable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -137,5 +137,13 @@ public class CertInfo extends BaseEntity{
     )
     private List<File> pdfList;
 
+    @Override
+    public CertInfo clone() {
+        try {
+            return (CertInfo) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Cloning failed", e);
+        }
+    }
 
 }

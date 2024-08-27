@@ -211,8 +211,8 @@ public class ApiUtil {
 			String[] headers = headersArray.toArray(new String[0]);
 
 			String jsonRequestBody = gson.toJson(requestBodyJsonMap);
-			logger.debug("PUT /eProofMetadata Request Body");
-			logger.debug(jsonRequestBody);
+			logger.info("PUT /eProofMetadata Request Body");
+			logger.info(jsonRequestBody);
 
 			Response response = httpUtil.put(url, headers, jsonRequestBody);
 			ret = response;
@@ -246,8 +246,8 @@ public class ApiUtil {
 			String[] headers = headersArray.toArray(new String[0]);
 
 			String jsonRequestBody = gson.toJson(requestBodyJsonMap);
-			logger.debug("PUT /eProofMetadata/pdfHash Request Body");
-			logger.debug(jsonRequestBody);
+			logger.info("PUT /eProofMetadata/pdfHash Request Body");
+			logger.info(jsonRequestBody);
 
 			Response response = httpUtil.put(url, headers, jsonRequestBody);
 			ret = response;

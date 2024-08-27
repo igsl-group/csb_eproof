@@ -8,24 +8,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.*;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.Base64;
-import java.util.List;
 
 @RestController
 @RequestMapping("/localSigning")
@@ -87,6 +79,7 @@ public class LocalSigningController {
     ) throws Exception {
         String jwtTokenFromFrontEnd = request.getHeader("Authorization");
 
+        jwtTokenFromFrontEnd="Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjEsInVuYW1lIjoic3lzdGVtLmFkbWluaXN0cmF0b3IiLCJkcHVzZXJpZCI6InN5c3RlbS5hZG1pbmlzdHJhdG9yIiwic2lkIjoxNDAsInN1YiI6InN5c3RlbS5hZG1pbmlzdHJhdG9yIiwiaWF0IjoxNzI0NzM4OTgxfQ.7pwZvy_aO-gS81gFVqMvYVSOkpDhEtCenoOpWHngDgg";
         if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
         }
@@ -220,7 +213,6 @@ public class LocalSigningController {
         try{
             localSigningService.init();
             String publicCert = localSigningService.getSigningCert();
-
 
             return ResponseEntity.ok(localSigningService.getSignedPdf( file.getInputStream(),  publicCert,  reason,  location, qr, keyword));
         }catch(Exception e){

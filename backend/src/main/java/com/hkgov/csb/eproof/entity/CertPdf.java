@@ -14,7 +14,7 @@ import lombok.Setter;
 @Table(name = "cert_pdf")
 @Getter
 @Setter
-public class CertPdf extends BaseEntity{
+public class CertPdf extends BaseEntity implements Cloneable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,4 +38,13 @@ public class CertPdf extends BaseEntity{
     @Setter(AccessLevel.NONE)
     @JoinColumn(name = "cert_info_id", insertable = false, updatable = false)
     private File file;
+
+    @Override
+    public CertPdf clone() {
+        try {
+            return (CertPdf) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Cloning failed", e);
+        }
+    }
 }
