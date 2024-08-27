@@ -233,6 +233,17 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/resubmitRevoke/${rest[0]}`, "post", rest[1]);
         case 'certEnquiryByCsv':
             return request(`/cert/enquiryResult/csv`, "formDataDownload", rest[0]);
+        case 'certRenewSign':
+            return request(`/localSigning/reissueStart/${rest[0]}`, "signing-cert", rest[1]);
+
+        case 'historicalResultVoid':
+            return request(`/historicalResult/${rest[0]}/void`, "post", rest[1]);
+        case 'historicalResultValid':
+            return request(`/historicalResult/${rest[0]}/valid`, "post", rest[1]);
+        case 'historicalResultInvalid':
+            return request(`/historicalResult/${rest[0]}/invalid`, "post", rest[1]);
+        case 'historicalResultList':
+            return request(`/historicalResult/list?${rest[0]}`, "post", {});
     }
 }
 

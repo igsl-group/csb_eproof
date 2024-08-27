@@ -35,6 +35,7 @@ import mentionStyle from './mentionStyle';
 import Richtext from "../../components/Richtext";
 import HkidPassportModal from "./hkid-passport-modal";
 import PermissionControl from "../../components/PermissionControl";
+import EmailModal from "./modal";
 
 const Candidate = () =>  {
 
@@ -43,6 +44,7 @@ const Candidate = () =>  {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [openAppealModal, setOpenAppealModal] = useState(false);
   const [openHkidPassportModal, setOpenHkidPassportModal] = useState(false);
@@ -165,6 +167,11 @@ const Candidate = () =>  {
     }
   }, []);
 
+  const onEmailClicked = useCallback((row) => {
+    setEmailModalOpen(true);
+    setRecord(row);
+  }, []);
+
   const onAppealClicked = useCallback((row) => {
     setOpenAppealModal(true);
     setRecord(row);
@@ -185,7 +192,7 @@ const Candidate = () =>  {
           <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col>
           <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col>
           <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col>
-          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} disabled={true} onClick={() => {}}>Resend Email</Button></Col>
+          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onEmailClicked(row)}>Resend Email</Button></Col>
         </Row>
       )
     },
@@ -365,12 +372,17 @@ const Candidate = () =>  {
     setOpen(false);
     setOpenAppealModal(false);
     setOpenHkidPassportModal(false);
+    setEmailModalOpen(false);
+    setRevokeOpen(false);
+    getCandidateCertList();
   },[]);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
     setOpenAppealModal(false);
     setOpenHkidPassportModal(false);
+    setEmailModalOpen(false)
+    setRevokeOpen(false);
   },[]);
 
   const getCertList = useCallback(async (pagination = {}, filter = {}) => {
@@ -399,6 +411,8 @@ const Candidate = () =>  {
       .then(() => getLatestCandidateInfo())
 
   }, []);
+
+
 
   const getCandidateCertList = useCallback(async() => {
     await getCertList(pagination, filterCondition);
@@ -553,8 +567,15 @@ const Candidate = () =>  {
           title={'Revoke Certificate'}
           selectedRecords={selectedRows}
           lastCandidateInfo={lastCandidateInfo}
-          onCloseCallback={() => setRevokeOpen(false)}
-          onFinishCallback={() => setRevokeOpen(false)}
+          onCloseCallback={onCloseCallback}
+          onFinishCallback={onFinishCallback}
+      />
+      <EmailModal
+        open={emailModalOpen}
+        title={'Resend Email'}
+        record={record}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
     </div>
 
