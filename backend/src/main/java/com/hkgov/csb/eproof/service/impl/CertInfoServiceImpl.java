@@ -971,9 +971,9 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     void deleteCertPdf(CertInfo certInfo){
-        CertPdf certPdf = certPdfRepository.findByCertInfoId(certInfo.getId());
-        if(certPdf != null){
-            certPdfRepository.delete(certPdf);
+         List<CertPdf> certPdfList = certPdfRepository.findByCertInfoId(certInfo.getId());
+        if(certPdfList != null){
+            certPdfRepository.deleteAll(certPdfList);
         }
     }
 
@@ -1006,11 +1006,11 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Transactional
     public void updateCertPdfRecord(CertInfo certInfo, File uploadedPdf){
-        CertPdf certPdf = certPdfRepository.findByCertInfoId(certInfo.getId());
-        if(certPdf != null){
-            certPdf.setFileId(uploadedPdf.getId());
-            certPdfRepository.save(certPdf);
-        }
+//        CertPdf certPdf = certPdfRepository.findByCertInfoId(certInfo.getId());
+//        if(certPdf != null){
+//            certPdf.setFileId(uploadedPdf.getId());
+//            certPdfRepository.save(certPdf);
+//        }
     }
 
     private void updateCertStageAndStatus(CertInfo certInfo,CertStage stage, CertStatus status){
