@@ -66,19 +66,19 @@ public class CombinedHistoricalResultBeforeServiceImpl implements CombinedHistor
         GradeEnums gradeEnums = GradeEnums.getGradeType(dto.getSubject());
         switch (gradeEnums){
             case UE_GRADE:
-                before.setUeDate(LocalDate.now());
+//                before.setUeDate(LocalDate.now());
                 before.setUeVoid(dto.getValid());
                 break;
             case UC_GRADE:
-                before.setUcDate(LocalDate.now());
+//                before.setUcDate(LocalDate.now());
                 before.setUcVoid(dto.getValid());
                 break;
             case BL_GRADE:
-                before.setBlDate(LocalDate.now());
+//                before.setBlDate(LocalDate.now());
                 before.setBlVoid(dto.getValid());
                 break;
             case At_GRADE:
-                before.setAtDate(LocalDate.now());
+//                before.setAtDate(LocalDate.now());
                 before.setAtVoid(dto.getValid());
                 break;
             default:
