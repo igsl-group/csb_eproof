@@ -4,6 +4,8 @@ package com.hkgov.csb.eproof.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
+import com.hkgov.csb.eproof.dao.EmailEventRepository;
+import com.hkgov.csb.eproof.dao.EmailMessageRepository;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.event.EmailEventPublisher;
@@ -67,6 +69,14 @@ public class TestController {
 
     @Autowired
     private EmailEventPublisher emailEventPublisher;
+
+    @Autowired
+    private EmailEventRepository emailEventRepository;
+
+    @Autowired
+    private EmailMessageRepository emailMessageRepository;
+
+
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -251,7 +261,7 @@ public class TestController {
 
     @GetMapping("/testEmail")
     public void testEmail(){
-        emailEventPublisher.publicEmailEvent(new EmailEvent());
+        emailEventPublisher.publicEmailEvent(emailEventRepository.getById(1L));
     }
 
 }

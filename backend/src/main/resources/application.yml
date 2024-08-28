@@ -183,15 +183,15 @@ cron-expression:
 
 property:
   file:
-    path: /var/ghbobs/admin/proximity.properties
+    path: /var/ghbobs/admin
 
 keystore:
   file:
-    path: /var/ghbobs/admin/eproofuat.csb.ccgo.hksarg.p12
+    path: /var/ghbobs/admin
     alias: dsign
     password: password1234$
 
 gcis:
   notiSvc:
     endPointName: NOTI_SENDER_RESTFUL_END_POINT
-    endPointUrl: https://kpgd-xmlfw.egis.hksarg:9444/messaging/ssl/RESTful/csb.csbgb.app001-ogcio.egis.nt001-NotiSenderRest
+    endPointUrl: https://192.168.26.127:9444

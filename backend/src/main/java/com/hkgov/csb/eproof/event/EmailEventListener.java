@@ -83,7 +83,6 @@ public class EmailEventListener {
     public void handleAsyncEmailEvent(EmailEvent event) {
         try {
             if (env.equals("uat") || env.equals("prod")) {
-                logger.info("testing");
                 this.DoSend(event);
             } else {
                 emailService.sendEmail(
@@ -108,10 +107,10 @@ public class EmailEventListener {
     public void DoSend(final EmailEvent event) {
         try {
             Properties prop = getSSLProperties(endpointName, endpointUrl);
-
+            logger.info("DoSend function enter point");
             List<String> toList = new ArrayList<>();
             //		List<String> files = new ArrayList<>();
-            toList.add(event.getEmailMessage().getTo());
+            // toList.add(event.getEmailMessage().getTo());
             //		files.add("abc.pdf");
             // Create the NotificationRestfulClient object
             NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
@@ -123,8 +122,8 @@ public class EmailEventListener {
             String subject = "";
             String content = "";
             // if(event.getEmailMessage().getIsCustom() != null && event.getEmailMessage().getIsCustom()){
-                subject = event.getEmailMessage().getSubject();
-                content = event.getEmailMessage().getBody();
+                // subject = event.getEmailMessage().getSubject();
+                // content = event.getEmailMessage().getBody();
             // }else{
                 // subject = event.getEmailMessage().getEmailTemplate().getSubject();
                 // content = emailService.convertContextToHtmlBody(event.getEmailMessage().getEmailTemplate().getBody(),event.getEmailMessage().getContext(), Locale.ENGLISH); ;
@@ -136,7 +135,8 @@ public class EmailEventListener {
 
             List<Attachment> attachments = new ArrayList<>();
             Attachment attachment = new Attachment();
-            boolean containsAttachments = ObjectUtils.isNotEmpty(event.getEmailMessage().getAttachment());
+            boolean containsAttachments = false;
+            // ObjectUtils.isNotEmpty(event.getEmailMessage().getAttachment());
 
             if (containsAttachments) {
                /* if (useSelfAttachment.equals("true")) {
