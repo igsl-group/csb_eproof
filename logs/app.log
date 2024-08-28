@@ -2480,3 +2480,31 @@ Caused by: java.lang.ClassNotFoundException: org.jboss.resteasy.spi.ResteasyProv
 	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
 	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
 	... 20 common frames omitted
+2024-08-28 17:10:00.801 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.0.Final
+2024-08-28 17:10:00.859 [main] INFO  c.h.csb.eproof.CsbEproofApplication - Starting CsbEproofApplication using Java 17.0.12 with PID 8644 (C:\Software\git\csb_eproof\backend\target\classes started by User in C:\Software\git\csb_eproof)
+2024-08-28 17:10:00.862 [main] INFO  c.h.csb.eproof.CsbEproofApplication - No active profile set, falling back to 1 default profile: "default"
+2024-08-28 17:10:02.209 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-08-28 17:10:02.463 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 241 ms. Found 23 JPA repository interfaces.
+2024-08-28 17:10:03.385 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2024-08-28 17:10:03.400 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-08-28 17:10:03.402 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2024-08-28 17:10:03.403 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.4]
+2024-08-28 17:10:03.598 [main] INFO  o.a.c.c.C.[.[localhost].[/api/v1] - Initializing Spring embedded WebApplicationContext
+2024-08-28 17:10:03.600 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2675 ms
+2024-08-28 17:10:03.791 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-08-28 17:10:03.903 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-08-28 17:10:03.970 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.1.6.Final
+2024-08-28 17:10:04.171 [main] WARN  org.hibernate.orm.deprecation - HHH90000021: Encountered deprecated setting [javax.persistence.sharedCache.mode], use [jakarta.persistence.sharedCache.mode] instead
+2024-08-28 17:10:04.302 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-08-28 17:10:04.452 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.mariadb.jdbc.Connection@77cc6a28
+2024-08-28 17:10:04.456 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-08-28 17:10:04.492 [main] INFO  SQL dialect - HHH000400: Using dialect: org.hibernate.dialect.MariaDBDialect
+2024-08-28 17:10:06.139 [main] WARN  o.m.jdbc.message.server.ErrorPacket - Error: 1062-23000: Duplicate entry '1' for key 'UK_or6876i6ao8ci9ini10srgxst'
+2024-08-28 17:10:06.878 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-08-28 17:10:06.888 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-08-28 17:10:11.428 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@67bf0d91, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@56e2f315, org.springframework.security.web.context.SecurityContextHolderFilter@6e2a6063, org.springframework.security.web.header.HeaderWriterFilter@d61ac34, org.springframework.web.filter.CorsFilter@7e9079cf, org.springframework.security.web.authentication.logout.LogoutFilter@78682201, com.hkgov.csb.eproof.security.JwtAuthenticationFilter@3f19f197, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4f2a0651, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7986302f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@29e10870, org.springframework.security.web.session.SessionManagementFilter@13d7410a, org.springframework.security.web.access.ExceptionTranslationFilter@a99f50e, org.springframework.security.web.access.intercept.AuthorizationFilter@6edbf6ed]
+2024-08-28 17:10:11.560 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2024-08-28 17:10:11.758 [main] WARN  o.s.b.a.f.FreeMarkerAutoConfiguration - Cannot find template location(s): [classpath:/templates/] (please add some templates, check your FreeMarker configuration, or set spring.freemarker.check-template-location=false)
+2024-08-28 17:10:11.821 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-08-28 17:10:11.850 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path '/api/v1'
+2024-08-28 17:10:11.867 [main] INFO  c.h.csb.eproof.CsbEproofApplication - Started CsbEproofApplication in 11.446 seconds (process running for 12.113)
