@@ -79,7 +79,7 @@ public class LocalSigningController {
     ) throws Exception {
         String jwtTokenFromFrontEnd = request.getHeader("Authorization");
 
-        jwtTokenFromFrontEnd="Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjEsInVuYW1lIjoic3lzdGVtLmFkbWluaXN0cmF0b3IiLCJkcHVzZXJpZCI6InN5c3RlbS5hZG1pbmlzdHJhdG9yIiwic2lkIjoxNDAsInN1YiI6InN5c3RlbS5hZG1pbmlzdHJhdG9yIiwiaWF0IjoxNzI0NzM4OTgxfQ.7pwZvy_aO-gS81gFVqMvYVSOkpDhEtCenoOpWHngDgg";
+//        jwtTokenFromFrontEnd="Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjEsInVuYW1lIjoic3lzdGVtLmFkbWluaXN0cmF0b3IiLCJkcHVzZXJpZCI6InN5c3RlbS5hZG1pbmlzdHJhdG9yIiwic2lkIjoxNDAsInN1YiI6InN5c3RlbS5hZG1pbmlzdHJhdG9yIiwiaWF0IjoxNzI0NzM4OTgxfQ.7pwZvy_aO-gS81gFVqMvYVSOkpDhEtCenoOpWHngDgg";
         if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
         }
