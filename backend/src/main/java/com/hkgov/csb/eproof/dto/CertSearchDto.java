@@ -1,7 +1,6 @@
 package com.hkgov.csb.eproof.dto;
 
 
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +21,5 @@ public class CertSearchDto {
 
     private Boolean certValid;
     private Boolean onHold;
+    private String letterType;
 }

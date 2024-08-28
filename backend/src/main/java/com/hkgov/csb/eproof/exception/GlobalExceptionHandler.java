@@ -3,11 +3,7 @@ package com.hkgov.csb.eproof.exception;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -15,11 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.JWT_TOKEN_EXPIRY_EXCEPTION_CODE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.JWT_TOKEN_EXPIRY_EXCEPTION_MESSAGE;
@@ -111,6 +103,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty(MESSAGE, ex.getMessage());
         pd.setProperty("field", ex.getField());
         pd.setProperty("value", ex.getValue());
+        ex.printStackTrace();
+        return pd;
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ProblemDetail handleRuntimeException(RuntimeException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        pd.setProperty(CODE, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        pd.setProperty(MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
+                .map(Throwable::getMessage)
+                .orElse(null));
+        ex.printStackTrace();
+        return pd;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleThrowException(Exception ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        pd.setProperty(CODE, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        pd.setProperty(MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
+                .map(Throwable::getMessage)
+                .orElse(null));
         ex.printStackTrace();
         return pd;
     }
