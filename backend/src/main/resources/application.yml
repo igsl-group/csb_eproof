@@ -194,4 +194,4 @@ keystore:
 gcis:
   notiSvc:
     endPointName: NOTI_SENDER_RESTFUL_END_POINT
-    endPointUrl: https://192.168.26.127:9444
+    endPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest

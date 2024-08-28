@@ -261,7 +261,7 @@ public class TestController {
 
     @GetMapping("/testEmail")
     public void testEmail(){
-        emailEventPublisher.publicEmailEvent(emailEventRepository.getById(1L));
+        emailEventPublisher.publicEmailEvent(emailEventRepository.findByEmailMessageId(1L).get(0));
     }
 
 }

@@ -274,28 +274,38 @@
             <version>2.0.3</version>
         </dependency>
 
-        <dependency>
-            <groupId>hk.gov</groupId>
+       <!-- Email lib -->
+		<dependency>
+            <groupId>hk.gov.spica_scopes</groupId>
             <artifactId>egis_common_web</artifactId>
             <version>2.0.1</version>
+            <scope>system</scope>
+            <systemPath>C:\Software\git\csb_eproof\backend\libs\egis_common_web-2.0.1.jar</systemPath>
         </dependency>
-
         <dependency>
-            <groupId>hk.gov</groupId>
+            <groupId>hk.gov.spica_scopes</groupId>
             <artifactId>egis_noti_client</artifactId>
             <version>1.1.0</version>
+            <scope>system</scope>
+            <systemPath>C:\Software\git\csb_eproof\backend\libs\egis_noti_client-1.1.0.jar</systemPath>
         </dependency>
-
         <dependency>
-            <groupId>hk.gov</groupId>
+            <groupId>hk.gov.spica_scopes</groupId>
             <artifactId>egis_noti_restful_client</artifactId>
             <version>1.0.1</version>
+            <scope>system</scope>
+            <systemPath>C:\Software\git\csb_eproof\backend\libs\egis_noti_restful_client-1.0.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0</version>
         </dependency>
 
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>ws.rs-api</artifactId>
-            <version>2.0</version>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-core-spi</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
 

@@ -15,5 +15,6 @@
       "password": "P@ssw0rd1234$",
       "database": "eproof"
     }
-  ]
+  ],
+  "java.compile.nullAnalysis.mode": "automatic"
 }

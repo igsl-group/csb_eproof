@@ -18,4 +18,6 @@ public interface EmailEventRepository extends JpaRepository<EmailEvent, Long> {
         """)
 
     List<EmailEvent> findPendingEmailEvent();
+
+    List<EmailEvent> findByEmailMessageId(Long emailMessageId);
 }
