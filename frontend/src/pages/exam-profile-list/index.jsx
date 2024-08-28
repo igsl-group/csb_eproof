@@ -3,7 +3,22 @@ import {createSearchParams, useNavigate, Link} from "react-router-dom";
 
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Form, Card, Typography, Breadcrumb, Grid, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
+import {
+  Divider,
+  Form,
+  Card,
+  Typography,
+  Breadcrumb,
+  Grid,
+  Space,
+  Button,
+  Col,
+  Row,
+  Flex,
+  Modal,
+  Pagination,
+  DatePicker
+} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -184,9 +199,11 @@ const ExamProfileList = () =>  {
       <Breadcrumb items={breadcrumbItems}/>
       <br />
       <Row gutter={[16, 16]} justify={'end'}>
-        <Col>
-          <Button type="primary" onClick={() => setOpen(true)}>Create</Button>
-        </Col>
+        <PermissionControl permissionRequired={['Examination_Profile_Maintenance']}>
+          <Col>
+            <Button type="primary" onClick={() => setOpen(true)}>Create</Button>
+          </Col>
+        </PermissionControl>
         <Col>
           <Pagination
             showSizeChanger

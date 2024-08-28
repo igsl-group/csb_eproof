@@ -8,12 +8,12 @@ let baseURL = `/api/v1`;
 const headers = {};
 
 if (process.env.NODE_ENV === 'development') {
-  // baseURL = 'https://192.168.26.127:3000/api/v1';
-  // baseURL = 'https://192.168.26.127:3000/api/v1';
+  baseURL = 'http://localhost:8080/api/v1';
+  // baseURL = 'https://192.168.1.176:9001/api/v1';
   // baseURL = 'http://192.168.1.170:8080/api/v1';
   // baseURL = 'http://192.168.2.227:8081/api/v1';
   // baseURL = 'http://192.168.1.171:8080/api/v1';
-  baseURL = 'http://localhost:8080/api/v1';
+  // baseURL = 'http://192.168.26.134:8080/api/v1';
   // headers.Authorization = `Bearer ${token}`;
 }
 

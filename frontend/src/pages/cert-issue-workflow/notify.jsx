@@ -270,7 +270,8 @@ const Notify = () =>  {
           }))
           setSerialNoOptions(options);
           if (options.length > 0) {
-            updateCurrentSerialNo(options[0].value)
+            const value = searchParams.get("serialNo") || options[0].value
+            updateCurrentSerialNo(value)
           }
           break;
         }

@@ -259,8 +259,9 @@ const Import = () =>  {
             label: row.serialNo,
           }))
           setSerialNoOptions(options);
-          if (options.length > 0) {
-            updateCurrentSerialNo(options[0].value)
+          if (options.length > 0 && !searchParams.get("serialNo")) {
+            const value = searchParams.get("serialNo") || options[0].value
+            updateCurrentSerialNo(value)
           }
           break;
         }
@@ -269,7 +270,6 @@ const Import = () =>  {
           // const data = response.data || {};
           const data = response.data || {};
           const content = data.content || [];
-          console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@certList');
           setPagination({
             ...pagination,
             total: data.totalElements,

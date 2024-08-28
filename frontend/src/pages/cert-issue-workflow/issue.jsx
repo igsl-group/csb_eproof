@@ -295,8 +295,9 @@ const Issue = () =>  {
             label: row.serialNo,
           }))
           setSerialNoOptions(options);
-          if (options.length > 0) {
-            updateCurrentSerialNo(options[0].value)
+          if (options.length > 0 && !searchParams.get("serialNo")) {
+            const value = searchParams.get("serialNo") || options[0].value
+            updateCurrentSerialNo(value)
           }
           break;
         }

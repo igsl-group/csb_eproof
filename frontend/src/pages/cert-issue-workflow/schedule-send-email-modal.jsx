@@ -55,7 +55,7 @@ const ScheduleSendEmailModal = (props) =>  {
       delete values.body;
       delete values.examDate;
       delete values.resultLetterDate;
-
+      delete values.effectiveDate;
       runExamProfileAPI('certScheduleSendEmail', serialNoValue, values)
         .then(() => onFinish());
 
@@ -120,6 +120,7 @@ const ScheduleSendEmailModal = (props) =>  {
   return (
     <Modal
       width={800}
+      style={{ top: 20 }}
       title={'Schedule to Send Email'}
       okText={'Confirm'}
       closable={false}
@@ -144,31 +145,31 @@ const ScheduleSendEmailModal = (props) =>  {
           <Col span={12}>
             <Text name={"plannedEmailIssuanceDate"} label={'Planned Email Issuance Date'} size={50} disabled/>
             <Text name={"examDate"} label={'Exam Date'} size={50} disabled hidden/>
-            <Text name={"resultLetterDate"} label={'Result Letter Date'} size={50} disabled/>
+            <Text name={"resultLetterDate"} label={'Result Letter Date'} size={50} disabled hidden/>
+            {/*<Text name={"effectiveDate"} label={'Effective Date'} size={50} disabled />*/}
           </Col>
           <Col span={12}>
             <Date
               required
               name={"scheduledTime"}
               label={'Scheduled Date'}
-              dependencies={['examDate']}
+              dependencies={['effectiveDate']}
               validation={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    const examDate = getFieldValue('examDate');
-                    const resultLetterDate = getFieldValue('resultLetterDate');
-                    const isAfterExamDate = value.isAfter(examDate);
-                    const isAfterResultLetterDate = value.isAfter(resultLetterDate);
-                    if (value && !isAfterExamDate) {
-                      return Promise.reject(new Error('The "Scheduled Date" should be after the "Exam Date"'));
-                    } else if (value && !isAfterResultLetterDate) {
-                      return Promise.reject(new Error('The "Scheduled Date" should be after the "Result Letter Date"'));
+                    const effectiveDate = getFieldValue('effectiveDate');
+                    const isSameOrAfter = value.isSame(effectiveDate, 'day') || value.isAfter(effectiveDate, 'day');
+                    if (!value || isSameOrAfter) {
+                      return Promise.resolve();
                     }
-                    return Promise.resolve();
-                    },
+                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Effective Date"'));
+                  },
                 }),
               ]}
             />
+          </Col>
+          <Col span={12}>
+            <Text name={"effectiveDate"} label={'Effective Date'} size={50} disabled />
           </Col>
           <Col span={24}>
             <Text
@@ -185,6 +186,7 @@ const ScheduleSendEmailModal = (props) =>  {
               required
               label={"Email's Body"}
               size={50}
+              row={10}
               disabled={true}
             />
           </Col>

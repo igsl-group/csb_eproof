@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import {Divider, Form, Card, Typography, Breadcrumb, Grid, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
+import {DatePicker, Form, Card, Typography, Breadcrumb, Grid, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
@@ -92,6 +92,7 @@ const ExamProfileFormModal = (props) =>  {
       onOk={onSave}
       {...props}
     >
+
       <Form
         layout="vertical"
         autoComplete="off"
@@ -104,6 +105,7 @@ const ExamProfileFormModal = (props) =>  {
         }}
         name="form"
       >
+
         <Row gutter={24} justify={'start'}>
           <Col span={24} md={12}>
             <Text name={"serialNo"} label={'Serial No.'} required size={50}/>
@@ -118,20 +120,16 @@ const ExamProfileFormModal = (props) =>  {
               label={'Planned Email Issuance Date'}
               placeholder={'YYYY-MM-DD'}
               size={50}
-              dependencies={['examDate', 'resultLetterDate']}
+              dependencies={['effectiveDate']}
               validation={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    const examDate = getFieldValue('examDate');
-                    const resultLetterDate = getFieldValue('resultLetterDate');
-                    const isAfterExamDate = value.isAfter(examDate);
-                    const isAfterResultLetterDate = value.isAfter(resultLetterDate);
-                    if (value && !isAfterExamDate) {
-                      return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Exam Date"'));
-                    } else if (value && !isAfterResultLetterDate) {
-                      return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Result Letter Date"'));
+                    const effectiveDate = getFieldValue('effectiveDate');
+                    const isSameOrAfter = value.isSame(effectiveDate, 'day') || value.isAfter(effectiveDate, 'day');
+                    if (!value || isSameOrAfter) {
+                      return Promise.resolve();
                     }
-                    return Promise.resolve();
+                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Effective Date"'));
                   },
                 }),
               ]}
@@ -144,21 +142,16 @@ const ExamProfileFormModal = (props) =>  {
               required
               placeholder={'YYYY-MM-DD'}
               size={50}
-              dependencies={['examDate', 'resultLetterDate']}
+              dependencies={['resultLetterDate']}
               validation={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    const examDate = getFieldValue('examDate');
                     const resultLetterDate = getFieldValue('resultLetterDate');
-                    const isAfterExamDate = value.isAfter(examDate);
-                    const isAfterResultLetterDate = value.isAfter(resultLetterDate);
-                    if (value && !isAfterExamDate) {
-                      return Promise.reject(new Error('The "Effective Date" should be after the "Exam Date"'));
-                    } else if (value && !isAfterResultLetterDate) {
-                      return Promise.reject(new Error('The "Effective Date" should be after the "Result Letter Date"'));
+                    const isSameOrAfter = value.isSame(resultLetterDate, 'day') || value.isAfter(resultLetterDate, 'day');
+                    if (!value || isSameOrAfter) {
+                      return Promise.resolve();
                     }
-                    return Promise.resolve();
-
+                    return Promise.reject(new Error('The "Effective Date" should be after the "Result Letter Date"'));
                   },
                 }),
               ]}
@@ -175,8 +168,8 @@ const ExamProfileFormModal = (props) =>  {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     const examDate = getFieldValue('examDate');
-                    const isAfter = value.isAfter(examDate);
-                    if (!value || isAfter) {
+                    const isSameOrAfter = value.isSame(examDate, 'day') || value.isAfter(examDate, 'day');
+                    if (!value || isSameOrAfter) {
                       return Promise.resolve();
                     }
                     return Promise.reject(new Error('The "Result Letter Date" should be after the "Exam Date"'));

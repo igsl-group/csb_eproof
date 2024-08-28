@@ -146,7 +146,7 @@ function Layouts () {
     //   })
     // }
 
-  }, [auth.permissions, routers]);
+  }, [auth?.permissions, routers]);
 
   useEffect(() => {
     setUName(getUsername())
@@ -336,7 +336,7 @@ function Layouts () {
             <Col span={14}>
               <Row gutter={8} span={24} align={'middle'}>
                 <Col><Image src={Logo} width={60} height={60} preview={false}/></Col>
-                <Col span={16}><div style={{}}><b>E-Proof System [Restricted]</b></div></Col>
+                <Col span={16}><div style={{}}><b>Common Recruitment Examination and Basic Law and National Security Law Test E-Proof System [Restricted]</b></div></Col>
               </Row>
             </Col>
             <Col>

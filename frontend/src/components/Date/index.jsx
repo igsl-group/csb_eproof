@@ -46,11 +46,6 @@ function Date (props) {
         { required, message: 'Required'},
         ...validation
       ]}
-      // normalize={normalize}
-      // getValueProps={(value) => ({
-      //   value: value && value.format(format),
-      // })}
-      // normalize={(value) => value && value.format(format) }
       hidden={hidden}
     >
       {
@@ -62,7 +57,7 @@ function Date (props) {
               width: '100%',
               ...style,
             })}
-            needConfirm={needConfirm}
+            // needConfirm={needConfirm}
             // defaultValue={defaultValue}
             disabled={disabled}
           />
