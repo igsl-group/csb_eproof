@@ -38,46 +38,51 @@ public class CertInfoRenewController {
     private final PermissionService permissionService;
 
     @PostMapping("/generate/{renewCertId}")
-    @Operation(summary = "Generate cert pdf in batch mode.",description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
-    public Result singleGeneratePdf(@PathVariable Long renewCertId) throws Exception {
-//        certInfoRenewService.changeCertStatusToInProgress(renewCertId, CertStage.GENERATED);
+    @Operation(summary = "Generate cert pdf in batch mode.",
+            description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
+    public Result singleGeneratePdf(@PathVariable Long renewCertId)
+            throws Exception {
+        // certInfoRenewService.changeCertStatusToInProgress(renewCertId, CertStage.GENERATED);
         certInfoRenewService.singleGeneratePdf(renewCertId);
 
         return Result.success();
     }
+
     @DeleteMapping("/remove/{renewCertId}")
-    public Result removeCert(@PathVariable Long renewCertId){
+    public Result removeCert(@PathVariable Long renewCertId) {
         certInfoRenewService.removeCert(renewCertId);
         return Result.success();
     }
 
     @PostMapping("/downloadCert")
     @Operation(summary = "Download cert with provided cert ID list.")
-    public ResponseEntity downloadPdf(@RequestParam List<Long> certRenewInfoIdList) throws IOException {
+    public ResponseEntity downloadPdf(
+            @RequestParam List<Long> certRenewInfoIdList) throws IOException {
         HttpHeaders header = new HttpHeaders();
-        header.setContentDisposition(ContentDisposition
-                .attachment()
-                .filename(this.getZipFileName())
-                .build()
-        );
-        byte [] zippedPdfListByteArray = certInfoRenewService.getZippedPdfBinary(certRenewInfoIdList);
-        return ResponseEntity.ok()
-                .headers(header)
-                .body(zippedPdfListByteArray);
+        header.setContentDisposition(ContentDisposition.attachment()
+                .filename(this.getZipFileName()).build());
+        byte[] zippedPdfListByteArray =
+                certInfoRenewService.getZippedPdfBinary(certRenewInfoIdList);
+        return ResponseEntity.ok().headers(header).body(zippedPdfListByteArray);
     }
 
     @PostMapping("/search/{searchType}")
     @Transactional(rollbackFor = Exception.class)
     public Result searchCert(@RequestBody CertRenewSearchDto request,
-                             @Schema(type = "string", allowableValues = { "RENEWED","GENERATED","SIGN_ISSUE","NOTIFY" })   @PathVariable String searchType,
-                             @RequestParam(defaultValue = "0") int page,
-                             @RequestParam(defaultValue = "20") int size,
-                             @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
-                             @RequestParam(defaultValue = "id") String... sortField) throws AccessDeniedException {
+            @Schema(type = "string",
+                    allowableValues = {"RENEWED", "GENERATED", "SIGN_ISSUE",
+                            "NOTIFY"}) @PathVariable String searchType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection,
+            @RequestParam(defaultValue = "id") String... sortField)
+            throws AccessDeniedException {
 
         String requiredPermission = "";
         List<String> certStageList = List.of(searchType);
-        List<String> certStatusList = List.of(CertStatus.PENDING.name(),CertStatus.SUCCESS.name(),CertStatus.IN_PROGRESS.name(),CertStatus.FAILED.name());
+        List<String> certStatusList = List.of(CertStatus.PENDING.name(),
+                CertStatus.SUCCESS.name(), CertStatus.IN_PROGRESS.name(),
+                CertStatus.FAILED.name());
         switch (searchType) {
             case "RENEWED" -> {
                 requiredPermission = Permissions.CERT_SEARCH_IMPORT.name();
@@ -88,7 +93,8 @@ public class CertInfoRenewController {
                 certStageList = List.of(CertStage.GENERATED.name());
             }
             case "SIGN_ISSUE" -> {
-                requiredPermission = Permissions.CERT_SEARCH_SIGNANDISSUE.name();
+                requiredPermission =
+                        Permissions.CERT_SEARCH_SIGNANDISSUE.name();
                 certStageList = List.of(CertStage.SIGN_ISSUE.name());
             }
             case "NOTIFY" -> {
@@ -97,42 +103,52 @@ public class CertInfoRenewController {
             }
             case "VALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_VALID.name();
-              //  request.setCertValid(true);
-                /*certStageList = List.of(CertStage.COMPLETED.name(), CertStage.SIGN_ISSUE.name());
-                certStatusList = List.of(CertStatus.SUCCESS.name());*/
+                // request.setCertValid(true);
+                /*
+                 * certStageList = List.of(CertStage.COMPLETED.name(), CertStage.SIGN_ISSUE.name()); certStatusList = List.of(CertStatus.SUCCESS.name());
+                 */
             }
             case "INVALID" -> {
                 requiredPermission = Permissions.CERT_SEARCH_INVALID.name();
-             //   request.setCertValid(false);
-                /*certStageList = List.of(CertStage.VOIDED.name());
-                certStatusList = List.of(CertStatus.SUCCESS.name());*/
+                // request.setCertValid(false);
+                /*
+                 * certStageList = List.of(CertStage.VOIDED.name()); certStatusList = List.of(CertStatus.SUCCESS.name());
+                 */
             }
             case "BY_CANDIDATE" -> {
                 requiredPermission = Permissions.CERT_SEARCH_BY_CAN.name();
             }
-            default -> throw new GenericException(ExceptionEnums.ILLEGAL_SEARCH_TYPE);
+            default -> throw new GenericException(
+                    ExceptionEnums.ILLEGAL_SEARCH_TYPE);
         }
-//        permissionService.manualValidateCurrentUserPermission(List.of(requiredPermission));
-        Pageable pageable = PageRequest.of(page, size, sortDirection, sortField);
+        // permissionService.manualValidateCurrentUserPermission(List.of(requiredPermission));
+   
+
+        Pageable pageable =
+                PageRequest.of(page, size, sortDirection, sortField);
 
         // set certStatusList to null to show all cert regardless what status
-        Page<CertInfoRenew> searchResult = certInfoRenewService.search(request,certStageList,certStatusList ,pageable);
+        Page<CertInfoRenew> searchResult = certInfoRenewService.search(request,
+                certStageList, certStatusList, pageable);
 
-        List<CertInfoRenewDto> resultList = CertInfoRenewMapper.INSTANCE.toDtoList(searchResult.getContent());
-        Page<CertInfoRenewDto> returnResult = new PageImpl<>(resultList, pageable, searchResult.getTotalElements());
+        List<CertInfoRenewDto> resultList = CertInfoRenewMapper.INSTANCE
+                .toDtoList(searchResult.getContent());
+        Page<CertInfoRenewDto> returnResult = new PageImpl<>(resultList,
+                pageable, searchResult.getTotalElements());
 
         return Result.success(returnResult);
     }
 
     @PostMapping("/dispatch/{id}")
     @Transactional(rollbackFor = Exception.class)
-    public Result<Boolean> dispatch(@PathVariable Long id, @RequestParam CertStage currentStage){
-        certInfoRenewService.dispatch(id,currentStage);
+    public Result<Boolean> dispatch(@PathVariable Long id,
+            @RequestParam CertStage currentStage) {
+        certInfoRenewService.dispatch(id, currentStage);
         return Result.success();
     }
 
-    private String getZipFileName(){
-        return String.format("%s-cert-pdf.zip",
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
+    private String getZipFileName() {
+        return String.format("%s-cert-pdf.zip", LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
     }
 }

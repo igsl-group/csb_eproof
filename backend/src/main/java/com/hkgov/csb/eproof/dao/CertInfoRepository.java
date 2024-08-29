@@ -53,6 +53,7 @@ select c from CertInfo c
             ( ?#{#searchDto.certValid} IS null OR c.is_valid = ?#{#searchDto.certValid} ) AND
             ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold} )
         )
+
 """,countQuery = """
  SELECT count(*) FROM cert_info c WHERE
         (

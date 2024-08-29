@@ -58,9 +58,10 @@ public class GcisEmailServiceImpl implements EmailService {
 
     }
 
-    public void sendTestEmail(SendEmailRequest req) throws MessagingException{
+    public Boolean sendTestEmail(SendEmailRequest req) throws MessagingException{
         EmailEvent event = this.createCustomEmailEvent(req.getTo(),req.getCc(),req.getTitle(),req.getHtmlBody());
         emailEventPublisher.publicEmailEvent(event);
+        return true;
     }
 
 
