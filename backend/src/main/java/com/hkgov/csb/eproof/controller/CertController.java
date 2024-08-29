@@ -10,9 +10,11 @@ import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.CertInfoRenewService;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.PermissionService;
+import com.hkgov.csb.eproof.service.impl.GcisEmailServiceImpl;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +44,7 @@ public class CertController {
     private final CertInfoService certInfoService;
     private final PermissionService permissionService;
     private final CertInfoRenewService certInfoRenewService;
+    private final GcisEmailServiceImpl gcisEmailServiceImpl;
 
 
     @PostMapping("/search/{searchType}")
@@ -317,5 +320,9 @@ public class CertController {
         return Result.success(certInfoRenewService.havePendingCase(requestDto));
     }
 
+    @PostMapping(value = "/sendEmail")
+    public Result<Boolean> sendEmail(@RequestBody SendEmailRequest requestDto) {
+        return Result.success(gcisEmailServiceImpl.sendTestEmail(requestDto.getTo(), requestDto.getTitle(), requestDto.getHtmlBody()));
+    }
 
 }

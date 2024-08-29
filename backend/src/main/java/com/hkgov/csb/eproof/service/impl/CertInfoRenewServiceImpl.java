@@ -20,6 +20,7 @@ import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -84,6 +85,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private final CertEproofRepository certEproofRepository;
     private final CertEproofRenewRepository certEproofRenewRepository;
     private final CertInfoRepository certInfoRepository;
+    private final EmailTemplateRepository emailTemplateRepository;
+    private final GcisEmailServiceImpl gcisEmailServiceImpl;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${document.qr-code.height}")
@@ -158,6 +161,15 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         }
 
         return returnString;
+    }
+
+    @Override
+    public void notifyCandidate(Long renewCertId, SendEmailRequest request) throws Exception {
+
+        gcisEmailServiceImpl.sendTestEmail(request.getTo(), request.getTitle(), request.getHtmlBody());
+        CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(renewCertId).get();
+        certInfoRenew.setCertStatus(CertStatus.SUCCESS);
+        certInfoRenewRepository.save(certInfoRenew);
     }
 
     @Override
@@ -277,6 +289,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         certAction.setName(params.getName());
         certAction.setCanEmailAddress(params.getEmailTarget());
         certAction.setCanEmailContent(params.getEmailContent());
+        certAction.setCanEmailSubject(params.getEmailSubject());
         certAction.setType("REVOKE");
         certAction.setStatus(CertStatus.PENDING);
         certAction = certActionRepository.save(certAction);
@@ -288,6 +301,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             targets.add(target);
         }
         actionTargetRepository.saveAll(targets);
+
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName("Revoke_Request");
+        gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
     }
 
     @Override
@@ -300,6 +316,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             CertRevokeDto revokeDto = certRevokeDtos.get(i);
             revokeDto.setEmailTarget(certAction.getCanEmailAddress());
             revokeDto.setEmailContent(certAction.getCanEmailContent());
+            revokeDto.setEmailSubject(certAction.getCanEmailSubject());
             if(Objects.nonNull(certAction.getUser())){
                 revokeDto.setApprover(certAction.getUser().getName());
             }
@@ -326,14 +343,20 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             switch (infoRenew.getCertStage()) {
                 case RENEWED -> {
                     infoRenew.setCertStage(CertStage.GENERATED);
+                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Reissuance");
+                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case GENERATED -> {
                     infoRenew.setCertStage(CertStage.SIGN_ISSUE);
+                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Generate_Dispatch");
+                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case SIGN_ISSUE -> {
                     infoRenew.setCertStage(CertStage.NOTIFY);
+                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Sign_and_Issue_Dispatch");
+                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case NOTIFY -> {
@@ -579,12 +602,12 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         }
         baos.close();
 
-        FileOutputStream fos = new FileOutputStream("C:\\Users\\IGS\\Downloads\\test20240827\\test.pdf");
-        fos.write(baos.toByteArray());
-        fos.close();
+//        FileOutputStream fos = new FileOutputStream("C:\\Users\\IGS\\Downloads\\test20240827\\test.pdf");
+//        fos.write(baos.toByteArray());
+//        fos.close();
 
         // Upload the updated PDF
-//        minioUtil.uploadFile(latestCert.getPath(), baos);
+        minioUtil.uploadFile(latestCert.getPath(), baos);
 
         // return the binary array
         return baos.toByteArray();

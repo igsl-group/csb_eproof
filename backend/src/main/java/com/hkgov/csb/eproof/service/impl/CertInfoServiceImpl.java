@@ -100,7 +100,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final CertActionRepository certActionRepository;
     private final PdfGenerateService pdfGenerateService;
     private final CombinedHistoricalResultBeforeRepository  beforeRepository;
-
+    private final GcisEmailServiceImpl gcisEmailServiceImpl;
     private static final Gson GSON = new Gson();
 
     @Value("${document.qr-code.height}")
@@ -146,14 +146,20 @@ public class CertInfoServiceImpl implements CertInfoService {
             switch (certInfo.getCertStage()) {
                 case IMPORTED -> {
                     certInfo.setCertStage(CertStage.GENERATED);
+                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Import_Dispatch");
+                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case GENERATED -> {
                     certInfo.setCertStage(CertStage.SIGN_ISSUE);
+                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Generate_Dispatch");
+                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case SIGN_ISSUE -> {
                     certInfo.setCertStage(CertStage.NOTIFY);
+                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Sign_and_Issue_Dispatch");
+                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case NOTIFY -> {
@@ -837,10 +843,12 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
         certAction.setRemark(certApproveRejectRevokeDto.getRemark());
         certAction.setCanEmailAddress(certApproveRejectRevokeDto.getEmailTarget());
+        certAction.setCanEmailSubject(certApproveRejectRevokeDto.getEmailSubject());
         certAction.setCanEmailContent(certApproveRejectRevokeDto.getEmailContent());
         certAction.setStatus(CertStatus.APPROVED);
         certActionRepository.save(certAction);
         //TODO Send email
+        gcisEmailServiceImpl.sendTestEmail(certApproveRejectRevokeDto.getEmailTarget(), certApproveRejectRevokeDto.getEmailSubject(), certApproveRejectRevokeDto.getEmailContent());
     }
 
     public void rejectRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
@@ -848,9 +856,13 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         certAction.setRemark(certApproveRejectRevokeDto.getRemark());
         certAction.setCanEmailAddress(certApproveRejectRevokeDto.getEmailTarget());
+        certAction.setCanEmailSubject(certApproveRejectRevokeDto.getEmailSubject());
         certAction.setCanEmailContent(certApproveRejectRevokeDto.getEmailContent());
         certAction.setStatus(CertStatus.REJECTED);
         certActionRepository.save(certAction);
+
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName("Revoke_Reject");
+        gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
     }
 
     public void resubmitRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
@@ -858,9 +870,13 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         certAction.setRemark(certApproveRejectRevokeDto.getRemark());
         certAction.setCanEmailAddress(certApproveRejectRevokeDto.getEmailTarget());
+        certAction.setCanEmailSubject(certApproveRejectRevokeDto.getEmailSubject());
         certAction.setCanEmailContent(certApproveRejectRevokeDto.getEmailContent());
         certAction.setStatus(CertStatus.PENDING);
         certActionRepository.save(certAction);
+
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName("Revoke_Request");
+        gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
     }
 
 

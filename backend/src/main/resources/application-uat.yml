@@ -136,6 +136,8 @@ mail:
   whitelist:
     enabled: true
     email-list: hong.cheung@igsl-group.com
+  include:
+    attachement: Y
 
 eproof-config:
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
@@ -166,6 +168,21 @@ thread-pool:
 #second minute hour dayOfMonth month dayOfWeek
 cron-expression:
   normal-email-sending: "-"
+
+gcis-shared-service:
+  enabled: true
+  emailWhitelist:
+    enabled: true
+    toList: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
+  property:
+    path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\proximity.properties
+  keystore:
+    path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofuat.csb.ccgo.hksarg.p12
+    alias: dsign
+    password: P@ssw0rd1234$
+  notiSvc:
+    endPointName: NOTI_SENDER_RESTFUL_END_POINT
+    endPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
 
 
 

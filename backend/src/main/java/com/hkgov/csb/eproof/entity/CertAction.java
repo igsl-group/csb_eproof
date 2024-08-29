@@ -39,6 +39,9 @@ public class CertAction extends BaseEntity{
     @Column(name = "remark",columnDefinition = "varchar(1000)")
     private String remark;
 
+    @Column(name = "can_email_subject" ,columnDefinition="varchar(1000)")
+    private String canEmailSubject;
+
     @Column(name = "can_email_content" ,columnDefinition="TEXT")
     private String canEmailContent;
 

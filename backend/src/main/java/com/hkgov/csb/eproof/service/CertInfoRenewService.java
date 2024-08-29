@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.dto.HavePendingCaseDto;
 import com.hkgov.csb.eproof.dto.PrepareEproofPdfRequest;
 import com.hkgov.csb.eproof.entity.CertInfoRenew;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,8 @@ public interface CertInfoRenewService {
     void changeCertStatusToInProgress(Long certInfoId, CertStage certStage);
 
     void singleGeneratePdf(Long certInfoId) throws Exception;
+
+    void notifyCandidate(Long renewCertId, SendEmailRequest request) throws Exception;
 
     void removeCert(Long certInfoId);
 

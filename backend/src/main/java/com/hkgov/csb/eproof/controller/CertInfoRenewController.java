@@ -11,6 +11,7 @@ import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.mapper.CertInfoRenewMapper;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.CertInfoRenewService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.Result;
@@ -47,6 +48,15 @@ public class CertInfoRenewController {
 
         return Result.success();
     }
+
+    @PostMapping("/notify/{renewCertId}")
+    public Result notifyCandidate(@PathVariable Long renewCertId, @RequestBody SendEmailRequest requestDto) throws Exception {
+
+        certInfoRenewService.notifyCandidate(renewCertId, requestDto);
+
+        return Result.success();
+    }
+
     @DeleteMapping("/remove/{renewCertId}")
     public Result removeCert(@PathVariable Long renewCertId){
         certInfoRenewService.removeCert(renewCertId);

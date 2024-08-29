@@ -16,7 +16,7 @@ public class CertRevokeDto {
     private String remark;
     private String emailTarget;
     private String emailContent;
-
+    private String emailSubject;
     private String hkid;
     private String passportNo;
     private String name;

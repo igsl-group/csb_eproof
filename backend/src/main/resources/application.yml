@@ -28,6 +28,8 @@ spring:
     password: HongIgs_P@ssw0rd
     from: csbeproof@test.com
     protocol: smtps
+    env: uat
+    whitelist: wilfred.lai@igsl-group.com,hong.cheung@igsl-group.com
     properties:
       mail:
         smtp:
@@ -72,7 +74,7 @@ password:
   tokenExpirationAfterDays: 1
 
 server:
-  url: https://192.168.2.227
+  url: https://127.0.0.1
   servlet:
     context-path: /api/v1
 security:
@@ -147,6 +149,8 @@ mail:
   whitelist:
     enabled: true
     email-list: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
+  include:
+    attachment: Y 
 
 eproof-config:
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
@@ -156,7 +160,7 @@ eproof-config:
   issuer-did: "did:eproof:100cfb00-3029-474a-b794-2f735e1d3c1d"
   client-id: "CSB001"
   client-secret: "J+Y2aUo1FT2M&EpY$F@="
-  url: "http://192.168.26.127:9000/api"
+  url: "http://192.168.1.176:9000/api"
   pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-pdf"
   otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/sendOTP"
   dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-data"
@@ -177,3 +181,19 @@ thread-pool:
 #second minute hour dayOfMonth month dayOfWeek
 cron-expression:
   normal-email-sending: "-"
+
+gcis-shared-service:
+  enabled: true
+  emailWhitelist:
+    enabled: true
+    toList: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
+  property:
+    path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\proximity.properties
+  keystore:
+    path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofuat.csb.ccgo.hksarg.p12
+    alias: dsign
+    password: P@ssw0rd1234$
+  notiSvc:
+    endPointName: NOTI_SENDER_RESTFUL_END_POINT
+    endPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
+
