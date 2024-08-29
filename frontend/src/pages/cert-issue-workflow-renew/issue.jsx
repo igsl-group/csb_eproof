@@ -113,11 +113,11 @@ const Issue = () =>  {
       dataIndex: 'certInfo',
       render: (row) => row.examDate,
       width: 140,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'HKID',
-      key: 'hkid',
+      key: 'new_hkid',
       render: (row) => {
         return (
           <div>
@@ -139,7 +139,7 @@ const Issue = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
+      key: 'new_passport',
       render: (row) => {
         return (
           <div>
@@ -161,7 +161,7 @@ const Issue = () =>  {
     },
     {
       title: 'Name',
-      key: 'name',
+      key: 'new_name',
       render: (row) => {
         return (
           <div>
@@ -183,7 +183,7 @@ const Issue = () =>  {
     },
     {
       title: 'Email',
-      key: 'newEmail',
+      key: 'new_email',
       dataIndex: 'newEmail',
       width: 180,
       sorter: true,
@@ -278,7 +278,7 @@ const Issue = () =>  {
     },
     {
       title: 'Letter Type',
-      key: 'letterType',
+      key: 'new_letter_type',
       render: (row) => {
         return (
           <div>
@@ -300,7 +300,7 @@ const Issue = () =>  {
     },
     {
       title: 'Status',
-      key: 'certStatus',
+      key: 'status',
       dataIndex: 'certStatus',
       width: 120,
       render: (row) => <Tag>{row.label}</Tag>,

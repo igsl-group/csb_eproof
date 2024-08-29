@@ -109,7 +109,6 @@ const Issue = () =>  {
       title: 'Passport',
       key: 'passport_no',
       dataIndex: 'passportNo',
-      // render: (row) => row.passportNo,
       width: 100,
       sorter: true,
     },
@@ -150,6 +149,13 @@ const Issue = () =>  {
       key: 'blnstGrade',
       dataIndex: 'blnstGrade',
       width: 80,
+    },
+    {
+      title: 'Letter Type',
+      key: 'letter_type',
+      dataIndex: 'letterType',
+      width: 80,
+      sorter: true,
     },
     {
       title: 'Status',

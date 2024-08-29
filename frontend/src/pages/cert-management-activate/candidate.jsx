@@ -269,6 +269,13 @@ const Candidate = () =>  {
       dataIndex: 'blnstGrade',
       width: 80,
     },
+    {
+      title: 'Letter Type',
+      key: 'letter_type',
+      dataIndex: 'letterType',
+      width: 80,
+      sorter: true,
+    },
   ], []);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
@@ -292,7 +299,7 @@ const Candidate = () =>  {
           if (content.length > 0) {
             const lastInfo = {
               ...content[0],
-              // hkid: stringToHKID(content[0].hkid),
+              hkid: stringToHKID(content[0].hkid),
             }
             form.setFieldsValue(lastInfo);
             setLastCandidateInfo(lastInfo)
@@ -453,7 +460,7 @@ const Candidate = () =>  {
           <Col span={16}>
             <Row gutter={24} justify={'start'}>
               <Col span={24} md={12}>
-                <Text name={'hkid'} label={'HKID'} disabled  size={12} disabled/>
+                <HKID name={'hkid'} label={'HKID'} disabled  size={12} disabled/>
               </Col>
               <Col span={24} md={12}>
                 <Text name={'passportNo'} label={'Passport No.'} size={12} disabled/>

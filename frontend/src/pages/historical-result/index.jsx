@@ -137,7 +137,7 @@ const HistoricalResultList = () =>  {
         ) : null
       ),
       width: 120,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'UC (Exam Date)',
@@ -156,7 +156,7 @@ const HistoricalResultList = () =>  {
         ) : null
       ),
       width: 120,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'AT (Exam Date)',
@@ -175,7 +175,7 @@ const HistoricalResultList = () =>  {
         ) : null
       ),
       width: 120,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'BLNST (Exam Date)',
@@ -194,7 +194,7 @@ const HistoricalResultList = () =>  {
         ) : null
       ),
       width: 120,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'Remark',

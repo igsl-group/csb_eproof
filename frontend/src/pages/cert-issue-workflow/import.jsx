@@ -89,7 +89,7 @@ const Import = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passportNo',
+      key: 'passport_no',
       dataIndex: 'passportNo',
       width: 100,
       sorter: true,
@@ -134,13 +134,14 @@ const Import = () =>  {
     },
     {
       title: 'Letter Type',
-      key: 'letterType',
+      key: 'letter_type',
       dataIndex: 'letterType',
       width: 80,
+      sorter: true,
     },
     {
       title: 'Status',
-      key: 'certStatus',
+      key: 'status',
       dataIndex: 'certStatus',
       width: 120,
       render: (row) => <Tag>{row.label}</Tag>,

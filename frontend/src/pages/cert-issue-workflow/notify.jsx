@@ -48,7 +48,7 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import ScheduleSendEmailModal from "./schedule-send-email-modal";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
-import {stringToHKIDWithBracket} from "../../components/HKID";
+import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 
 const Notify = () =>  {
 
@@ -107,7 +107,7 @@ const Notify = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passportNo',
+      key: 'passport_no',
       dataIndex: 'passportNo',
       width: 100,
       sorter: true,
@@ -151,8 +151,15 @@ const Notify = () =>  {
       width: 80,
     },
     {
+      title: 'Letter Type',
+      key: 'letterType',
+      dataIndex: 'letterType',
+      width: 80,
+      sorter: true,
+    },
+    {
       title: 'Status',
-      key: 'certStatus',
+      key: 'status',
       width: 150,
       render: (row) => {
         return <Tag>{row?.certStatus?.label}{row?.certStatus?.label === 'Scheduled' ? (<span> on <br/>{row?.gcisBatchEmail?.scheduleDatetime}</span>) : ''}</Tag>
@@ -349,14 +356,18 @@ const Notify = () =>  {
         .catch(() => false);
 
       if (values) {
-        // const payload = dataMapperConvertPayload(dataMapper, TYPE.FILTER, values);
         const payload = values;
         const finalPayload = {};
         let isEmpty = true;
         for (let key in payload) {
           if (payload[key]) {
             isEmpty = false;
-            finalPayload[key] = payload[key];
+            if (key === "hkid") {
+              finalPayload[key] = HKIDToString(payload[key])
+            } else {
+              finalPayload[key] = payload[key];
+            }
+
           }
         }
 
@@ -458,18 +469,34 @@ const Notify = () =>  {
           <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  {/*<HKID name={'hkid'} label={'HKID'} size={50}/>*/}
-                  <Text name={'hkid'} label={'HKID'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
+                <Col span={24} md={12} xl={8} xxl={5}>
                   <Text name={'passportNo'} label={'Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
+                <Col span={24} md={12} xl={8} xxl={5}>
                   <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
+                <Col span={24} md={12} xl={8} xxl={5}>
                   <Text name={'canEmail'} label={'Candidate’s Email'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={4}>
+                  <Dropdown
+                    name={'letterType'}
+                    label={'Letter Type'}
+                    size={50}
+                    options={[
+                      {
+                        value: 'P',
+                        label: 'P',
+                      },
+                      {
+                        value: 'F',
+                        label: 'F',
+                      }
+                    ]}
+                  />
                 </Col>
               </Row>
             </Col>

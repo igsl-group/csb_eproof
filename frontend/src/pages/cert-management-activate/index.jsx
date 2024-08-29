@@ -16,6 +16,7 @@ import {
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
+import Dropdown from "@/components/Dropdown";
 import HKID from "@/components/HKID";
 import Email from "@/components/Email";
 import dayjs from "dayjs";
@@ -28,7 +29,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import {dataMapper} from "../pc/document-list/data-mapper";
-import {stringToHKIDWithBracket} from "../../components/HKID";
+import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 
 const CertificateManagementValid = () =>  {
 
@@ -256,6 +257,13 @@ const CertificateManagementValid = () =>  {
       dataIndex: 'blnstGrade',
       width: 80,
     },
+    {
+      title: 'Letter Type',
+      key: 'letter_type',
+      dataIndex: 'letterType',
+      width: 80,
+      sorter: true,
+    },
   ], []);
 
 
@@ -305,10 +313,14 @@ const CertificateManagementValid = () =>  {
         for (let key in payload) {
           if (payload[key]) {
             isEmpty = false;
-            finalPayload[key] = payload[key];
+            if (key === "hkid") {
+              finalPayload[key] = HKIDToString(payload[key])
+            } else {
+              finalPayload[key] = payload[key];
+            }
+
           }
         }
-
         const resetPage = resetPagination();
         if (isEmpty) {
           setFilterCondition(null);
@@ -373,17 +385,34 @@ const CertificateManagementValid = () =>  {
           <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'hkid'} label={'HKID'} size={50} />
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'passportNo'} label={'Passport'} size={50} />
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'passportNo'} label={'Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'canName'} label={'Candidate’s Name'} size={50} />
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'canName'} label={'Candidate’s Name'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Email name={'email'} label={'Candidate’s Email'} size={50} />
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'canEmail'} label={'Candidate’s Email'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={4}>
+                  <Dropdown
+                    name={'letterType'}
+                    label={'Letter Type'}
+                    size={50}
+                    options={[
+                      {
+                        value: 'P',
+                        label: 'P',
+                      },
+                      {
+                        value: 'F',
+                        label: 'F',
+                      }
+                    ]}
+                  />
                 </Col>
               </Row>
             </Col>
