@@ -1,32 +1,28 @@
 package com.hkgov.csb.eproof.event;
 
+import com.hkgov.csb.eproof.dao.EmailEventRepository;
+import com.hkgov.csb.eproof.entity.EmailEvent;
+import com.hkgov.csb.eproof.service.EmailService;
 import hk.gov.spica_scopes.common.client.PropertyNames;
 import hk.gov.spica_scopes.common.jaxb.ScopesFault;
-import hk.gov.spica_scopes.common.utils.encoder.EncoderUtils;
 import hk.gov.spica_scopes.spica.jaxb.notisender.Attachment;
 import hk.gov.spica_scopes.spica.jaxb.notisender.NotiStatus;
 import hk.gov.spica_scopes.spica.jaxb.notisender.Recipient;
 import hk.gov.spica_scopes.spica.notification.client.restful.NotificationRestfulClient;
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import com.hkgov.csb.eproof.dao.EmailEventRepository;
-import com.hkgov.csb.eproof.entity.EmailEvent;
-import com.hkgov.csb.eproof.service.EmailService;
-import jakarta.mail.MessagingException;
-import java.io.File;
-import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.util.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 @Component
 @EnableAsync
@@ -320,10 +316,10 @@ public class EmailEventListener {
             throws Exception {
         String curPath = new File(".").getCanonicalPath();
         
-        String password = "P@ssw0rd";
+        String password = "P@ssw0rd1234$";
         String alias = "dsign";
         String propertyFile = curPath + "/proximity.properties";
-        String keyStoreFile = curPath + "/ghbobsuat.csb.hksarg.p12";
+        String keyStoreFile = curPath + "/eproofuat.csb.ccgo.hksarg.p12";
 
         Properties propAuth = new Properties();
         propAuth.setProperty(PropertyNames.AUTH_TYPE_PROPERTY,
