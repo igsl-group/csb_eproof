@@ -20,7 +20,6 @@ import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
-import com.hkgov.csb.eproof.mapper.CertEproofMapperImpl;
 import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;

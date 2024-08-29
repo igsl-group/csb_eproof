@@ -66,7 +66,8 @@ public class CertInfoRenewDto {
 
     private Boolean done;
 
-    private String letterType;
+    private String oldLetterType;
+    private String newLetterType;
 
     private Boolean isDelete;
 

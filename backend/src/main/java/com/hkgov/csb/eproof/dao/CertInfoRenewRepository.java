@@ -38,7 +38,9 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
             ( ?#{#searchDto.oldBlGrade} IS null OR c.old_bl_grade like %?#{#searchDto.oldBlGrade}%  ) AND
             ( ?#{#searchDto.oldUeGrade} IS null OR c.old_ue_grade like %?#{#searchDto.oldUeGrade}%  ) AND
             ( ?#{#searchDto.oldUcGrade} IS null OR c.old_uc_grade like %?#{#searchDto.oldUcGrade}%  ) AND
-            ( ?#{#searchDto.oldAtGrade} IS null OR c.old_at_grade like %?#{#searchDto.oldAtGrade}%  ) 
+            ( ?#{#searchDto.oldAtGrade} IS null OR c.old_at_grade like %?#{#searchDto.oldAtGrade}%  ) AND
+            ( ?#{#searchDto.oldLetterType} IS null OR c.old_letter_type like %?#{#searchDto.oldLetterType}%  ) AND
+            ( ?#{#searchDto.newLetterType} IS null OR c.new_letter_type like %?#{#searchDto.newLetterType}%  )
     
         )
 """,countQuery = """
@@ -64,7 +66,9 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
             ( ?#{#searchDto.oldBlGrade} IS null OR c.old_bl_grade like %?#{#searchDto.oldBlGrade}%  ) AND
             ( ?#{#searchDto.oldUeGrade} IS null OR c.old_ue_grade like %?#{#searchDto.oldUeGrade}%  ) AND
             ( ?#{#searchDto.oldUcGrade} IS null OR c.old_uc_grade like %?#{#searchDto.oldUcGrade}%  ) AND
-            ( ?#{#searchDto.oldAtGrade} IS null OR c.old_at_grade like %?#{#searchDto.oldAtGrade}%  ) 
+            ( ?#{#searchDto.oldAtGrade} IS null OR c.old_at_grade like %?#{#searchDto.oldAtGrade}%  ) AND
+            ( ?#{#searchDto.oldLetterType} IS null OR c.old_letter_type like %?#{#searchDto.oldLetterType}%  ) AND
+            ( ?#{#searchDto.newLetterType} IS null OR c.new_letter_type like %?#{#searchDto.newLetterType}%  )
         ) 
 """)
     Page<CertInfoRenew> certSearch(@Param("searchDto") CertRenewSearchDto searchDto,
