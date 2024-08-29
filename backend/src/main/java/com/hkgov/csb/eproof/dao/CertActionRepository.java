@@ -12,4 +12,10 @@ public interface CertActionRepository extends JpaRepository<CertAction,Long> {
 
     @Query("SELECT ca FROM CertAction ca where ca.status = 'Pending' or ca.status = 'Rejected'")
     List<CertAction> findPendingOrRejected();
+
+    @Query("select c from CertAction c where c.status <> 'APPROVED' and c.type = 'REVOKE' and  c.hkid = :hkid ")
+    List<CertAction> getinfoByHkid(String hkid);
+
+    @Query("select c from CertAction c where c.status <> 'APPROVED' and c.type = 'REVOKE' and  c.passportNo = :passport ")
+    List<CertAction> getinfoByPassport(String passport);
 }
