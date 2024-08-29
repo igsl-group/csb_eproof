@@ -45,6 +45,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import PermissionControl from "../../components/PermissionControl";
+import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 
 const Generate = () =>  {
 
@@ -105,25 +106,25 @@ const Generate = () =>  {
     },
     {
       title: 'Exam Date',
-      key: 'examDate',
+      key: 'exam_date',
       dataIndex: 'certInfo',
       render: (row) => row.examDate,
       width: 140,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'HKID',
-      key: 'hkid',
+      key: 'new_hkid',
       render: (row) => {
         return (
           <div>
             {
               row.oldHkid === row.newHkid ? (
-                <span>{row.newHkid}</span>
+                <span>{stringToHKIDWithBracket(row.newHkid)}</span>
               ) : (
                 <div>
                   <div>{row.oldHkid}</div>
-                  <div style={{ color: 'red'}}>{row.newHkid || '-'}</div>
+                  <div style={{ color: 'red'}}>{stringToHKIDWithBracket(row.newHkid) || '-'}</div>
                 </div>
               )
             }
@@ -135,7 +136,7 @@ const Generate = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passport',
+      key: 'new_passport',
       render: (row) => {
         return (
           <div>
@@ -157,7 +158,7 @@ const Generate = () =>  {
     },
     {
       title: 'Name',
-      key: 'name',
+      key: 'new_name',
       render: (row) => {
         return (
           <div>
@@ -179,7 +180,7 @@ const Generate = () =>  {
     },
     {
       title: 'Email',
-      key: 'newEmail',
+      key: 'new_email',
       dataIndex: 'newEmail',
       width: 180,
       sorter: true,
@@ -204,7 +205,7 @@ const Generate = () =>  {
         )
       },
       width: 100,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'UC',
@@ -226,7 +227,7 @@ const Generate = () =>  {
         )
       },
       width: 100,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'AT',
@@ -248,7 +249,7 @@ const Generate = () =>  {
         )
       },
       width: 100,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'BLNST',
@@ -270,11 +271,33 @@ const Generate = () =>  {
         )
       },
       width: 100,
+      sorter: false,
+    },
+    {
+      title: 'Letter Type',
+      key: 'new_letter_type',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldLetterType === row.newLetterType ? (
+                <span>{row.newLetterType}</span>
+              ) : (
+                <div>
+                  <div>{row.oldLetterType}</div>
+                  <div style={{ color: 'red'}}>{row.newLetterType}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
+      width: 160,
       sorter: true,
     },
     {
       title: 'Status',
-      key: 'certStatus',
+      key: 'status',
       dataIndex: 'certStatus',
       width: 120,
       render: (row) => <Tag>{row.label}</Tag>,
@@ -461,7 +484,12 @@ const Generate = () =>  {
         for (let key in payload) {
           if (payload[key]) {
             isEmpty = false;
-            finalPayload[key] = payload[key];
+            if (key === "newHkid") {
+              finalPayload[key] = HKIDToString(payload[key])
+            } else {
+              finalPayload[key] = payload[key];
+            }
+
           }
         }
 
@@ -524,17 +552,34 @@ const Generate = () =>  {
           <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <d  name={'newHkid'} label={'New HKID'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <HKID  name={'newHkid'} label={'New HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
+                <Col span={24} md={12} xl={8} xxl={5}>
                   <Text name={'newPassport'} label={'New Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'newName'} label={'New Candidate’s Name'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'newName'} label={"New Candidate's Name"} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'newEmail'} label={'Candidate’s Email'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'newEmail'} label={"New Candidate's Email"} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={4}>
+                  <Dropdown
+                    name={'newLetterType'}
+                    label={'New Letter Type'}
+                    size={50}
+                    options={[
+                      {
+                        value: 'P',
+                        label: 'P',
+                      },
+                      {
+                        value: 'F',
+                        label: 'F',
+                      }
+                    ]}
+                  />
                 </Col>
               </Row>
             </Col>

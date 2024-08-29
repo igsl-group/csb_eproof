@@ -28,6 +28,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import {dataMapper} from "../pc/document-list/data-mapper";
+import {stringToHKIDWithBracket} from "../../components/HKID";
 
 const CertificateManagementValid = () =>  {
 
@@ -184,7 +185,7 @@ const CertificateManagementValid = () =>  {
     // },
     {
       title: 'Exam Date',
-      key: 'examDate',
+      key: 'exam_date',
       dataIndex: 'examDate',
       width: 140,
       sorter: true,
@@ -193,12 +194,12 @@ const CertificateManagementValid = () =>  {
       title: 'HKID',
       key: 'hkid',
       width: 100,
-      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?hkid=${row.hkid}`}>{row.hkid}</Link>,
+      render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?hkid=${row.hkid}`}>{stringToHKIDWithBracket(row.hkid)}</Link>,
       sorter: true,
     },
     {
       title: 'Passport',
-      key: 'passportNo',
+      key: 'passport_no',
       width: 100,
       render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?passport=${row.passportNo}`}>{row.passportNo}</Link>,
       sorter: true,
@@ -222,7 +223,7 @@ const CertificateManagementValid = () =>  {
       key: 'resultLetterDate',
       render: (row) => row.examProfile?.resultLetterDate,
       width: 180,
-      // sorter: true,
+      sorter: false,
     },
     {
       title: 'Email Issuance Date',

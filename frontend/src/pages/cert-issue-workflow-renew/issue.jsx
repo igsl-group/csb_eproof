@@ -45,6 +45,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import PermissionControl from "../../components/PermissionControl";
+import {HKIDToString, stringToHKID, stringToHKIDWithBracket} from "../../components/HKID";
 
 const Issue = () =>  {
   const navigate = useNavigate();
@@ -122,11 +123,11 @@ const Issue = () =>  {
           <div>
             {
               row.oldHkid === row.newHkid ? (
-                <span>{row.newHkid}</span>
+                <span>{stringToHKIDWithBracket(row.newHkid)}</span>
               ) : (
                 <div>
                   <div>{row.oldHkid}</div>
-                  <div style={{ color: 'red'}}>{row.newHkid}</div>
+                  <div style={{ color: 'red'}}>{stringToHKIDWithBracket(row.newHkid)}</div>
                 </div>
               )
             }
@@ -273,6 +274,28 @@ const Issue = () =>  {
         )
       },
       width: 100,
+      sorter: true,
+    },
+    {
+      title: 'Letter Type',
+      key: 'letterType',
+      render: (row) => {
+        return (
+          <div>
+            {
+              row.oldLetterType === row.newLetterType ? (
+                <span>{row.newLetterType}</span>
+              ) : (
+                <div>
+                  <div>{row.oldLetterType}</div>
+                  <div style={{ color: 'red'}}>{row.newLetterType}</div>
+                </div>
+              )
+            }
+          </div>
+        )
+      },
+      width: 160,
       sorter: true,
     },
     {
@@ -464,7 +487,12 @@ const Issue = () =>  {
         for (let key in payload) {
           if (payload[key]) {
             isEmpty = false;
-            finalPayload[key] = payload[key];
+            if (key === "newHkid") {
+              finalPayload[key] = HKIDToString(payload[key])
+            } else {
+              finalPayload[key] = payload[key];
+            }
+
           }
         }
 
@@ -518,17 +546,34 @@ const Issue = () =>  {
           <Row justify={'start'} gutter={[8, 8]}>
             <Col span={20}>
               <Row gutter={24} justify={'start'}>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'newHkid'} label={'New HKID'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <HKID name={'newHkid'} label={'New HKID'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
+                <Col span={24} md={12} xl={8} xxl={5}>
                   <Text name={'newPassport'} label={'New Passport'} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'newName'} label={'New Candidate’s Name'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'newName'} label={"New Candidate's Name"} size={50}/>
                 </Col>
-                <Col span={24} md={12} xl={8} xxl={6}>
-                  <Text name={'newEmail'} label={'Candidate’s Email'} size={50}/>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'newEmail'} label={"New Candidate's Email"} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={4}>
+                  <Dropdown
+                    name={'newLetterType'}
+                    label={'New Letter Type'}
+                    size={50}
+                    options={[
+                      {
+                        value: 'P',
+                        label: 'P',
+                      },
+                      {
+                        value: 'F',
+                        label: 'F',
+                      }
+                    ]}
+                  />
                 </Col>
               </Row>
             </Col>

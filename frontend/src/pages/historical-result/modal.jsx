@@ -3,6 +3,7 @@ import {Divider, Form, Card, Typography, Breadcrumb, Grid, Space, Button, Col, R
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Dropdown from "@/components/Dropdown";
+import HKID from "@/components/HKID";
 import Textarea from "@/components/Textarea";
 import Email from "@/components/Email";
 import {useRequest} from "ahooks";
@@ -14,6 +15,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import {examProfileAPI} from "../../api/request";
+import {stringToHKID} from "../../components/HKID";
 
 const VoidModal = (props) =>  {
 
@@ -30,11 +32,10 @@ const VoidModal = (props) =>  {
     if (open) {
       form.setFieldsValue({
         ...record,
+        hkid: stringToHKID(record.hkid),
       })
     }
   }, [open, record]);
-
-  console.log('@@@@@@@@@record', record)
 
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
@@ -129,7 +130,7 @@ const VoidModal = (props) =>  {
         <Text name={"id"} size={50} hidden/>
         <Row gutter={24} justify={'center'}>
           <Col span={12}>
-            <Text name={"hkid"} label={'HKID'} size={50} disabled/>
+            <HKID name={"hkid"} label={'HKID'} size={50} disabled/>
           </Col>
           <Col span={12}>
             <Text name={'passport'} label={'Passport'} size={50} disabled/>

@@ -28,6 +28,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import {dataMapper} from "../pc/document-list/data-mapper";
+import {stringToHKIDWithBracket} from "../../components/HKID";
 
 const CertificateManagementInvalid = () =>  {
 
@@ -184,7 +185,7 @@ const CertificateManagementInvalid = () =>  {
     // },
     {
       title: 'Revoke Date',
-      key: 'revokeDate',
+      key: 'revoke_date',
       dataIndex: 'revokeDate',
       width: 140,
       sorter: true,
@@ -194,11 +195,11 @@ const CertificateManagementInvalid = () =>  {
       key: 'remark',
       dataIndex: 'remark',
       width: 200,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'Exam Date',
-      key: 'examDate',
+      key: 'exam_date',
       dataIndex: 'examDate',
       width: 140,
       sorter: true,
@@ -207,13 +208,14 @@ const CertificateManagementInvalid = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      render: (row) => stringToHKIDWithBracket(row),
       width: 100,
       // render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?hkid=${row.hkid}`}>{row.hkid}</Link>,
       sorter: true,
     },
     {
       title: 'Passport',
-      key: 'passportNo',
+      key: 'passport_no',
       dataIndex: 'passportNo',
       width: 100,
       // render: (row) => <Link to={`/CertificateManagement/Valid/Candidate?passport=${row.passportNo}`}>{row.passportNo}</Link>,
@@ -238,14 +240,14 @@ const CertificateManagementInvalid = () =>  {
       key: 'actualSignTime',
       dataIndex: 'actualSignTime',
       width: 180,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'Email Issuance Date',
       key: 'actualEmailSendTime',
       dataIndex: 'actualEmailSendTime',
       width: 180,
-      sorter: true,
+      sorter: false,
     },
     {
       title: 'UE',

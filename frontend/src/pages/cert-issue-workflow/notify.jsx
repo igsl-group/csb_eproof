@@ -48,6 +48,7 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import ScheduleSendEmailModal from "./schedule-send-email-modal";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
+import {stringToHKIDWithBracket} from "../../components/HKID";
 
 const Notify = () =>  {
 
@@ -100,6 +101,7 @@ const Notify = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      render: (row) => stringToHKIDWithBracket(row),
       width: 100,
       sorter: true,
     },

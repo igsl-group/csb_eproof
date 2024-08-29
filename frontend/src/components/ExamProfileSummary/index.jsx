@@ -55,13 +55,23 @@ const ExamProfileSummary = forwardRef((props, ref) => {
     <fieldset style={{paddingLeft: 30, paddingBottom: 8}}>
     <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
       <Row style={{color: 'rgba(81, 90, 106, 0.45)'}} gutter={[8, 8]}>
-        <Col span={5}>
+        <Col span={4}>
+          <Row gutter={[4, 4]}>
+            <Col span={24}>All Cases</Col>
+            <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>
+              {
+                Number(summary.imported || 0) + Number(summary.generatePdfTotal || 0) + Number(summary.issuedPdfTotal || 0) + Number(summary.sendEmailPending || 0) + Number(summary.onHoldCaseTotal || 0)
+              }
+            </span></Col>
+          </Row>
+        </Col>
+        <Col span={4}>
           <Row gutter={[4, 4]}>
             <Col span={24}>Import Stage</Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.imported || 0}</span></Col>
           </Row>
         </Col>
-        <Col span={5}>
+        <Col span={4}>
           <Row gutter={[4, 4]}>
             <Col span={24}>Generate Stage</Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.generatePdfTotal || 0}</span></Col>
@@ -71,7 +81,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
             <Col span={24}>Failed: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.generatePdfFailed || 0}</span></Col>
           </Row>
         </Col>
-        <Col span={5}>
+        <Col span={4}>
           <Row gutter={[4, 4]}>
             <Col span={24}>Sign and Issue Stage</Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfTotal || 0}</span></Col>
@@ -81,7 +91,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
             <Col span={24}>Failed: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfFailed || 0}</span></Col>
           </Row>
         </Col>
-        <Col span={5}>
+        <Col span={4}>
           <Row gutter={[4, 4]}>
             <Col span={24}>Notify Stage</Col>
             <Col span={24}>Notify Stage - Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailPending || 0}</span></Col>

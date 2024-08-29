@@ -35,6 +35,7 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import {useAuth} from "../../context/auth-provider";
 import VoidModal from "./modal";
+import {stringToHKIDWithBracket} from "../../components/HKID";
 const HistoricalResultList = () =>  {
 
   const modalApi = useModal();
@@ -101,6 +102,7 @@ const HistoricalResultList = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      render: (row) => stringToHKIDWithBracket(row),
       width: 100,
       sorter: true,
     },

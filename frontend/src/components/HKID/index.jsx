@@ -2,13 +2,30 @@ import React, { useState, useEffect, useRef } from 'react';
 import {Input, Form, Button, Space, Select, InputNumber, Row, Col} from "antd";
 import _ from "lodash";
 
-export const stringToHKID = (hkid) => {
-  const _hkid = hkid.replaceAll(/\(|\)/g, '')
+export const HKIDToString = (hkid = {}) => {
+  if (hkid.id && hkid.checkDigit) {
+    return `${hkid.id}${hkid.checkDigit}`
+  }
+  return '';
+}
+
+export const stringToHKID = (hkid = "") => {
+  let _hkid = hkid || "";
+  _hkid = _hkid.replaceAll(/\(|\)/g, '')
 
   return {
     id: _hkid.substring(0,  _hkid.length - 1),
     checkDigit: _hkid.charAt(_hkid.length - 1)
   }
+}
+
+export const stringToHKIDWithBracket = (hkid = "") => {
+
+  let _hkid = hkid || "";
+  _hkid = _hkid.replaceAll(/\(|\)/g, '')
+  const id = _hkid.substring(0,  _hkid.length - 1);
+  const checkDigit = _hkid.charAt(_hkid.length - 1);
+  return hkid ? `${id}(${checkDigit})` : ''
 }
 
 const checkHKIDCheckDigit = (id, checkdigit) => {
@@ -89,6 +106,8 @@ function HKID (props) {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     const checkDigit = getFieldValue(name)?.checkDigit;
+                    //To DO
+                    return Promise.resolve();
                     if ((value || checkDigit) && !checkHKIDCheckDigit(value, checkDigit)) {
                       setValidateStatus('error');
                       setHelp('Invalid HKID number');
@@ -128,6 +147,8 @@ function HKID (props) {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     const id = getFieldValue(name)?.id;
+                    //To DO
+                    return Promise.resolve();
                     if ((value || id) && !checkHKIDCheckDigit(id, value)) {
                       // return Promise.reject(new Error(""));
                       setValidateStatus('error');

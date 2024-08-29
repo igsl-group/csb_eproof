@@ -10,6 +10,7 @@ import {useRequest} from "ahooks";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
 import {examProfileAPI} from "../../api/request";
+import {stringToHKID} from "../../components/HKID";
 
 const OnHoldModal = (props) =>  {
 
@@ -90,14 +91,18 @@ const OnHoldModal = (props) =>  {
 
   useEffect(() => {
     const record = props.record || {};
-    if (typeof record.hkid === 'string') {
-      record.hkid = {
-        id: record.hkid.substring(0,  record.hkid.length - 1),
-        checkDigit: record.hkid.charAt(record.hkid.length - 1)
-      }
-    }
+    // if (typeof record.hkid === 'string') {
+    //   record.hkid = {
+    //     id: record.hkid.substring(0,  record.hkid.length - 1),
+    //     checkDigit: record.hkid.charAt(record.hkid.length - 1)
+    //   }
+    // }
+    console.log('record', record);
+    form.setFieldsValue({
+      ...record,
+      hkid: stringToHKID(record.hkid)
+    });
 
-    form.setFieldsValue(record);
   }, [record]);
 
   return (
@@ -132,7 +137,7 @@ const OnHoldModal = (props) =>  {
             <Email name={"email"} label={'Email'} disabled/>
           </Col>
           <Col span={12}>
-            <Text name={"hkid"} disabled/>
+            <HKID name={"hkid"} disabled/>
           </Col>
           <Col span={12}>
             <Text name={"passportNo"} label={'Passport'} disabled/>

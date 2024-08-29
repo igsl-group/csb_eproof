@@ -198,10 +198,10 @@ const Candidate = () =>  {
     },
     {
       title: 'Exam Date',
-      key: 'examDate',
+      key: 'exam_date',
       dataIndex: 'examDate',
       width: 140,
-      // sorter: true,
+      sorter: true,
     },
     {
       title: 'HKID',
@@ -212,7 +212,7 @@ const Candidate = () =>  {
     },
     {
       title: 'Passport',
-      key: 'passportNo',
+      key: 'passport_no',
       dataIndex: 'passportNo',
       width: 100,
       sorter: true,
