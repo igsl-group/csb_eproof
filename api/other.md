@@ -212,3 +212,39 @@ type response = {
   message: string,
 }
 ```
+
+## [post] /cert/havePendingCase
+### void result by request
+
+
+1. Backend got the request, find all VALID cert under same HKID or passport
+- 優先看hkid, 如果hkid===null, 才看 passport
+- 即使hkid 及 passport同時存在, 也只需要看 hkid
+
+2. 條件有2個
+```sql
+from cert_info_renew
+where hkid = :hkid or passport = :passport and (stats != "COMPLETED")
+
+from cert_action
+where hkid = :hkid or passport_no = :passport and (stats != "APPROVED" and type = "REVOKE") 
+```
+3. 以上任何搜索到record, 傳回true
+```typescript
+type request = {
+    hkid: string,
+    passport: boolean,
+
+}
+
+type response = {
+    havePendingCase: boolean
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
