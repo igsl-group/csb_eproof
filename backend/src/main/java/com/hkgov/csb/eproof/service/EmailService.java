@@ -3,6 +3,8 @@ package com.hkgov.csb.eproof.service;
 import jakarta.mail.MessagingException;
 
 import java.util.List;
+import com.hkgov.csb.eproof.entity.EmailEvent;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 
 public interface EmailService {
 
@@ -29,4 +31,5 @@ public interface EmailService {
                         String content,
                         String attachmentName,
                         byte [] attachment) throws MessagingException;
+
 }

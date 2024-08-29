@@ -9,8 +9,11 @@ import com.hkgov.csb.eproof.dao.EmailMessageRepository;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.event.EmailEventPublisher;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.DocumentGenerateService;
+import com.hkgov.csb.eproof.service.EmailService;
 import com.hkgov.csb.eproof.service.PermissionService;
+import com.hkgov.csb.eproof.service.impl.GcisEmailServiceImpl;
 import com.hkgov.csb.eproof.util.DocxUtil;
 
 import com.hkgov.csb.eproof.util.MinioUtil;
@@ -24,6 +27,7 @@ import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 import jakarta.annotation.Resource;
+import jakarta.mail.MessagingException;
 import org.apache.commons.io.IOUtils;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -35,11 +39,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.*;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +79,7 @@ public class TestController {
     private EmailEventRepository emailEventRepository;
 
     @Autowired
-    private EmailMessageRepository emailMessageRepository;
+    private GcisEmailServiceImpl gcisEmailServiceImpl;
 
 
 
@@ -262,6 +267,11 @@ public class TestController {
     @GetMapping("/testEmail")
     public void testEmail(){
         emailEventPublisher.publicEmailEvent(emailEventRepository.findByEmailMessageId(1L).get(0));
+    }
+
+    @PostMapping(value="/sendEmail")
+    public void sendEmail(@RequestBody SendEmailRequest req) throws MessagingException {
+        gcisEmailServiceImpl.sendTestEmail(req);
     }
 
 }

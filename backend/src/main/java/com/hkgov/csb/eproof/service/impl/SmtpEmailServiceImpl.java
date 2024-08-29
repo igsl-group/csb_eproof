@@ -1,16 +1,21 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.dao.EmailEventRepository;
+import com.hkgov.csb.eproof.entity.EmailEvent;
+import com.hkgov.csb.eproof.entity.EmailMessage;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -33,20 +38,16 @@ public class SmtpEmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendEmail(List<String> to,
-                          List<String> cc,
-                          List<String> bcc,
-                          String subject,
-                          String content,
-                          String attachmentName,
-                          byte[] attachment) throws MessagingException {
+    public void sendEmail(List<String> to, List<String> cc, List<String> bcc,
+            String subject, String content, String attachmentName,
+            byte[] attachment) throws MessagingException {
 
-        if(whitelistEnabled){
+        if (whitelistEnabled) {
             to.removeIf(email -> !whitelist.contains(email));
-            if(cc != null && !cc.isEmpty()){
+            if (cc != null && !cc.isEmpty()) {
                 cc.removeIf(email -> !whitelist.contains(email));
             }
-            if(bcc != null && !bcc.isEmpty()){
+            if (bcc != null && !bcc.isEmpty()) {
                 bcc.removeIf(email -> !whitelist.contains(email));
             }
         }
@@ -54,35 +55,43 @@ public class SmtpEmailServiceImpl implements EmailService {
         boolean hasAttachment = attachment != null && attachment.length > 0;
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,hasAttachment,"UTF-8");
+        MimeMessageHelper helper =
+                new MimeMessageHelper(mimeMessage, hasAttachment, "UTF-8");
 
         helper.setFrom(mailFrom);
         helper.setTo(to.toArray(new String[0]));
-        if(cc != null && !cc.isEmpty()){
+        if (cc != null && !cc.isEmpty()) {
             helper.setCc(cc.toArray(new String[0]));
         }
-        if(bcc != null && !bcc.isEmpty()){
+        if (bcc != null && !bcc.isEmpty()) {
             helper.setBcc(bcc.toArray(new String[0]));
         }
 
         helper.setSubject(subject);
-        helper.setText(content,true);
+        helper.setText(content, true);
 
 
-        if (hasAttachment){
-            helper.addAttachment(attachmentName,new ByteArrayDataSource(attachment,"application/octet-stream"));
+        if (hasAttachment) {
+            helper.addAttachment(attachmentName, new ByteArrayDataSource(
+                    attachment, "application/octet-stream"));
         }
 
-        logger.info("Sending email. To: {},CC: {}, BCC: {}, Subject: {}",to,cc,bcc,subject);
+        logger.info("Sending email. To: {},CC: {}, BCC: {}, Subject: {}", to,
+                cc, bcc, subject);
         mailSender.send(mimeMessage);
     }
 
     @Override
-    public void sendBatchEmail(List<String> toList, String subject, String content, String attachmentName, byte[] attachment) throws MessagingException {
-        if(toList != null && !toList.isEmpty()){
+    public void sendBatchEmail(List<String> toList, String subject,
+            String content, String attachmentName, byte[] attachment)
+            throws MessagingException {
+        if (toList != null && !toList.isEmpty()) {
             for (String to : toList) {
-                sendEmail(List.of(to),null,null,subject,content,attachmentName,attachment);
+                sendEmail(List.of(to), null, null, subject, content,
+                        attachmentName, attachment);
             }
         }
     }
+    
 }
+

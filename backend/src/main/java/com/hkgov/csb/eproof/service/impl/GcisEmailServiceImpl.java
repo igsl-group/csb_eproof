@@ -1,17 +1,30 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import com.hkgov.csb.eproof.dao.EmailEventRepository;
+import com.hkgov.csb.eproof.entity.EmailEvent;
+import com.hkgov.csb.eproof.entity.EmailMessage;
+import com.hkgov.csb.eproof.event.EmailEventPublisher;
+import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
 public class GcisEmailServiceImpl implements EmailService {
+
+    @Autowired
+    EmailEventRepository emailEventRepository;
+
+    @Autowired
+    EmailEventPublisher emailEventPublisher;
 
     @Override
     public void sendEmail(List<String> to,
@@ -44,4 +57,30 @@ public class GcisEmailServiceImpl implements EmailService {
     public void sendBatchEmail(List<String> to, String subject, String content, String attachmentName, byte[] attachment) throws MessagingException {
 
     }
+
+    public void sendTestEmail(SendEmailRequest req) throws MessagingException{
+        EmailEvent event = this.createCustomEmailEvent(req.getTo(),req.getCc(),req.getTitle(),req.getHtmlBody());
+        emailEventPublisher.publicEmailEvent(event);
+    }
+
+
+    @Transactional
+    public EmailEvent createCustomEmailEvent(String emailTo, String emailCc,
+            String customTitle, String htmlBody) {
+        return emailEventRepository.save(this.prepareCustomEmailEvent(emailTo,
+                emailCc, customTitle, htmlBody));
+    }
+
+    public EmailEvent prepareCustomEmailEvent(String emailTo, String emailCc,
+            String customTitle, String customHtmlBody) {
+        EmailEvent event = new EmailEvent();
+        EmailMessage message = new EmailMessage();
+        message.setTo(emailTo);
+        message.setCc(emailCc);
+        message.setSubject(customTitle);
+        message.setBody(customHtmlBody);
+        event.setEmailMessage(message);
+        return event;
+    }
+
 }
