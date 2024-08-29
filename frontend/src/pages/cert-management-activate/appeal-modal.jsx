@@ -117,7 +117,6 @@ const PersonalParticularsModal = (props) =>  {
         return false;
       })
 
-    console.log(record);
     if (values) {
       let id = values.id
       delete values.id;

@@ -754,6 +754,9 @@ export default function Cases(props) {
                     onChange={docsPaginationOnChange}
                     pageSize={defaultPaginationInfo.pageSize}
                     current={docsPagination.page}
+                    showTotal={(total) => `Total ${total} items`}
+                    showSizeChanger
+                    showQuickJumper
                   />
                 </Col>
               </Row>
@@ -792,6 +795,9 @@ export default function Cases(props) {
                     onChange={supplementaryDocumentPaginationOnChange}
                     pageSize={defaultPaginationInfo.pageSize}
                     current={suppDocsPagination.page}
+                    showTotal={(total) => `Total ${total} items`}
+                    showSizeChanger
+                    showQuickJumper
                   />
                 </Col>
               </Row>

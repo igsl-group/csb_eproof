@@ -35,6 +35,7 @@ const ApprovalWorkflow = () =>  {
   const [record, setRecord] = useState({});
   const [examProfileSummaryList, setExamProfileSummaryList] = useState([]);
   const [actionListData, setActionListData] = useState([]);
+  const [actionReissueData, setActionReissueData] = useState([]);
   const [revokeOpen, setRevokeOpen] = useState(false);
 
   const actionListCallback = useCallback((list, keys = [], stage = '') => {
@@ -64,6 +65,14 @@ const ApprovalWorkflow = () =>  {
     getRevokeList();
   }, []);
 
+
+  const certStageMapping = useMemo(() => ({
+    GENERATED: "Generate",
+    SIGN_ISSUE: "SignAndIssueCert",
+    NOTIFY: "Notify",
+  }), []);
+
+
   useEffect(() => {
     let workflowActionList = [];
     if (auth.permissions.includes('Certificate_Import')) {
@@ -85,7 +94,7 @@ const ApprovalWorkflow = () =>  {
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
-    pageSize: 10,
+    pageSize: 99999,
     page: 1,
     sortBy: 'id',
     orderBy: 'descend',
@@ -204,10 +213,10 @@ const ApprovalWorkflow = () =>  {
   });
 
   useEffect(() => {
-    getRevokeList(pagination);
-  }, []);
+    getRevokeList(pagination, {}, auth.permissions);
+  }, [auth.permissions]);
 
-  const getRevokeList = useCallback(async (pagination = {}, filter = {}) => {
+  const getRevokeList = useCallback(async (pagination = {}, filter = {}, permissions) => {
     // await runExamProfileAPI('getRevokeList', toQueryString(pagination, filter));
     await runExamProfileAPI('examProfileDropdown')
       .then(response => response.data)
@@ -225,10 +234,28 @@ const ApprovalWorkflow = () =>  {
       }).then((list) => {
         setExamProfileSummaryList(list);
       })
+      const reissueList = [];
+      if (permissions.includes('Certificate_Generate')) {
+        const data = await runExamProfileAPI('certRenewList', 'GENERATED', {}, toQueryString(pagination))
+          .then((response) => response.data)
+          .then((data) => data.content);
+        reissueList.push(...data);
+      }
 
-
-    }, []);
-
+    if (permissions.includes('Certificate_Sign_And_Issue')) {
+      const data = await runExamProfileAPI('certRenewList', 'SIGN_ISSUE', {}, toQueryString(pagination))
+        .then((response) => response.data)
+        .then((data) => data.content);
+      reissueList.push(...data);
+    }
+    if (permissions.includes('Certificate_Notify')) {
+      const data = await runExamProfileAPI('certRenewList', 'NOTIFY', {}, toQueryString(pagination))
+        .then((response) => response.data)
+        .then((data) => data.content);
+      reissueList.push(...data);
+    }
+    setActionReissueData(reissueList);
+  }, []);
   const resetPagination = useCallback(() => {
     const tempPagination = {
       ...pagination,
@@ -249,90 +276,13 @@ const ApprovalWorkflow = () =>  {
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
       <PermissionControl permissionRequired={['Revoke_Submit', 'Revoke_Approve']}>
-        <RevokeTable />
+        <RevokeTable/>
       </PermissionControl>
-      {/*<Card*/}
-      {/*  bordered={false}*/}
-      {/*  className={'card-body-nopadding'}*/}
-      {/*  title={'Pending Revoke'}*/}
-      {/*>*/}
-      {/*  <ResizeableTable*/}
-      {/*    size={'big'}*/}
-      {/*    rowKey={'id'}*/}
-      {/*    // rowSelection={{*/}
-      {/*    //   type: 'checkbox',*/}
-      {/*    //   ...rowSelection,*/}
-      {/*    // }}*/}
-      {/*    onChange={tableOnChange}*/}
-      {/*    pagination={false}*/}
-      {/*    scroll={{*/}
-      {/*      x: '100%',*/}
-      {/*    }}*/}
-      {/*    expandable={{*/}
-      {/*      expandedRowRender: (row) => {*/}
-      {/*        const child = row.certInfos;*/}
-      {/*        return child ? <Table*/}
-      {/*          columns={[*/}
-      {/*            {*/}
-      {/*              title: 'Issue Date',*/}
-      {/*              key: 'actualSignTime',*/}
-      {/*              render: (row) => dayjs(row.actualSignTime).format('YYYY-MM-DD'),*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'Exam Date',*/}
-      {/*              key: 'examDate',*/}
-      {/*              dataIndex: 'examDate',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'UE',*/}
-      {/*              key: 'ueGrade',*/}
-      {/*              dataIndex: 'ueGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'UC',*/}
-      {/*              key: 'ucGrade',*/}
-      {/*              dataIndex: 'ucGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'AT',*/}
-      {/*              key: 'atGrade',*/}
-      {/*              dataIndex: 'atGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*            {*/}
-      {/*              title: 'BLNST',*/}
-      {/*              key: 'blnstGrade',*/}
-      {/*              dataIndex: 'blnstGrade',*/}
-      {/*              width: 100,*/}
-      {/*              sorter: false,*/}
-      {/*            },*/}
-      {/*          ]}*/}
-      {/*          rowKey={'id'}*/}
-      {/*          dataSource={child}*/}
-      {/*          pagination={false}*/}
-      {/*        /> : null*/}
-      {/*      },*/}
-      {/*      defaultExpandedRowKeys: ['0'],*/}
-      {/*    }}*/}
-      {/*    columns={columns}*/}
-      {/*    dataSource={data}*/}
-      {/*  />*/}
-      {/*  <br/>*/}
-      {/*</Card>*/}
       <br/>
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Pending Workflow'}
+        title={'Pending Certificate Issuance'}
       >
         <ResizeableTable
           size={'big'}
@@ -368,15 +318,49 @@ const ApprovalWorkflow = () =>  {
           ]}
           dataSource={actionListData}
         />
-        <br/>
       </Card>
-      <RevokeCertModal
-        open={revokeOpen}
-        title={'Revoke Certificate'}
-        record={record}
-        onCloseCallback={onCloseCallback}
-        onFinishCallback={onFinishCallback}
-      />
+      <br/>
+      <Card
+        bordered={false}
+        className={'card-body-nopadding'}
+        title={'Pending Certificate Reissuance'}
+      >
+        <ResizeableTable
+          size={'big'}
+          rowKey={'id'}
+          onChange={tableOnChange}
+          pagination={false}
+          scroll={{
+            x: '100%',
+          }}
+          columns={[
+            {
+              title: 'Stage',
+              key: 'stage',
+              width: 140,
+              sorter: false,
+              render: (row) => <Link to={`/WorkflowRenew/${certStageMapping[row?.certStage?.code]}`}>{certStageMapping[row?.certStage?.code]}</Link>,
+
+            },
+            {
+              title: 'Type',
+              key: 'type',
+              dataIndex: 'type',
+              width: 100,
+              sorter: false,
+            },
+            {
+              title: 'Remark',
+              key: 'remark',
+              dataIndex: 'remark',
+              width: 100,
+              sorter: false,
+            },
+          ]}
+          dataSource={actionReissueData}
+        />
+      </Card>
+      <br/>
     </div>
   )
 }

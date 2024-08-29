@@ -107,7 +107,6 @@ const EmailModal = (props) =>  {
       switch (params[0]) {
         case 'emailTemplateGet':
           const data = response.data || {};
-          console.log('@@@@@@@@@data', data)
           let body = data.body;
           body = body.replaceAll('{{application_name}}', record.name);
           body = body.replaceAll('{{examination_date}}', dayjs(record.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));

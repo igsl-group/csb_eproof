@@ -173,40 +173,45 @@ const EmailModal = (props) =>  {
             <Text name={'subject'} label={'Subject'} size={100} required/>
           </Col>
           <Col span={24}>
-            <Richtext name={'body'} label={'Body'} size={100} row={10} required/>
+            <Richtext name={'body'} label={'Body'} size={100} required/>
           </Col>
-          <Col span={24}>
-            <Row gutter={[8, 8]}>
-              <Col span={8} xs={12}>
-                <Dropdown
-                  size={50}
-                  placeholder={'Place choose mail merge key ...'}
-                  name={'mailMergeKey'}
-                  options={[
-                    {
-                      label: 'Application Name',
-                      value: '{{application_name}}',
-                    },
-                    {
-                      label: 'Examination Date',
-                      value: '{{examination_date}}',
-                    },
-                    {
-                      label: 'eProof Document Url',
-                      value: '{{eproof_document_url}}',
-                    },
-                    {
-                      label: 'One Time Password',
-                      value: '{{one_time_password}}',
-                    }
-                  ]}
-                />
+          {
+            form.getFieldValue(type) !== "Internal" ? (
+              <Col span={24}>
+                <Row gutter={[8, 8]}>
+                  <Col span={8} xs={12}>
+                    <Dropdown
+                      size={50}
+                      placeholder={'Place choose mail merge key ...'}
+                      name={'mailMergeKey'}
+                      options={[
+                        {
+                          label: 'Application Name',
+                          value: '{{application_name}}',
+                        },
+                        {
+                          label: 'Examination Date',
+                          value: '{{examination_date}}',
+                        },
+                        {
+                          label: 'eProof Document Url',
+                          value: '{{eproof_document_url}}',
+                        },
+                        {
+                          label: 'One Time Password',
+                          value: '{{one_time_password}}',
+                        }
+                      ]}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Button onClick={onMailMergeButtonClicked}>Add</Button>
+                  </Col>
+                </Row>
               </Col>
-              <Col span={8}>
-                <Button onClick={onMailMergeButtonClicked}>Add</Button>
-              </Col>
-            </Row>
-          </Col>
+            ) : null
+          }
+
         </Row>
       </Form>
     </Modal>

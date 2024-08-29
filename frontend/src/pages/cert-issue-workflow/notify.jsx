@@ -442,7 +442,7 @@ const Notify = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+                <Button disable={!notifyData.length} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
                 <Button type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>
@@ -536,12 +536,14 @@ const Notify = () =>  {
         </Col>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -575,6 +577,9 @@ const Notify = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

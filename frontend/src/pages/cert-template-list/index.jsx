@@ -206,12 +206,14 @@ const CertTemplateList = () =>  {
         {/*</Col>*/}
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -240,6 +242,9 @@ const CertTemplateList = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

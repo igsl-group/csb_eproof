@@ -71,7 +71,6 @@ const RevokeModal = (props) =>  {
       }
     }, [lastCandidateInfo, data, open])
 
-    console.log(lastCandidateInfo)
     const columns = useMemo(() => [
       {
         title: 'Exam Date',
@@ -187,7 +186,7 @@ const RevokeModal = (props) =>  {
         <Text name={'type'} label={'Type'} size={100} disabled hidden/>
         <Text name={'certInfoIdList'} label={'Cert Info Ids'} size={100} disabled hidden/>
         <Text name={'name'} label={'Name'} size={100} disabled hidden/>
-        <Text name={'hkid'} label={'HKID'} size={100} disabled hidden/>
+        <Text name={'hkid'} label={'HKID'} size={100} disabled/>
         <Text name={'passport'} label={'Passport'} size={100} disabled hidden/>
         <ResizeableTable
           size={'big'}
@@ -207,13 +206,25 @@ const RevokeModal = (props) =>  {
             <Email
               name={'emailTarget'}
               label={'Latest Candidate\'s email address'}
-              required
               disabled
               size={100}
             />
           </Col>
           <Col span={24}>
-            <Richtext name={'emailContent'} label={'Inform candidate’s email content after request is approved'} size={100}/>
+            <br/>
+            <Text
+              name={'emailSubject'}
+              label={(
+                <span>
+                  Inform candidate’s email subject and content after request is approved<br/>
+                  Subject
+                </span>
+              )}
+              size={100}
+            />
+          </Col>
+          <Col span={24}>
+            <Richtext name={'emailContent'} label={'Body'} size={100}/>
           </Col>
         </Row>
         <br />

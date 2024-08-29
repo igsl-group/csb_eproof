@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {createSearchParams, useNavigate, Link, useParams, useSearchParams} from "react-router-dom";
 import styles from './style/index.module.less';
 import { useRequest } from "ahooks";
-import {Divider, Form, Card, Typography, Breadcrumb, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
+import {Alert, Form, Card, Typography, Breadcrumb, Button, Space, Tabs, Col, Row, Descriptions, Modal, Pagination} from 'antd';
 import ResizeableTable from "@/components/ResizeableTable";
 import {
   HomeOutlined,
@@ -36,6 +36,7 @@ import Richtext from "../../components/Richtext";
 import HkidPassportModal from "./hkid-passport-modal";
 import PermissionControl from "../../components/PermissionControl";
 import EmailModal from "./modal";
+import {stringToHKIDWithBracket} from "../../components/HKID";
 
 const Candidate = () =>  {
 
@@ -57,6 +58,7 @@ const Candidate = () =>  {
   const [filterCondition, setFilterCondition] = useState(null);
   const [validCertCandidateData, setValidCandidateCertData] = useState([]);
   const [record, setRecord] = useState([]);
+  const [hasTodoCase, setHasTodoCase] = useState(true);
   const [textAreaVal, setTextAreaVal] = React.useState("");
   const [formState, setFormState] = useState({
     username: '',
@@ -189,10 +191,10 @@ const Candidate = () =>  {
       width: 160,
       render: (row) => (
         <Row gutter={[8, 8]}>
-          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col>
-          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col>
-          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col>
-          <Col span={24}><Button size={'small'} style={{width: 125}} type={'primary'} onClick={() => onEmailClicked(row)}>Resend Email</Button></Col>
+          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col>
+          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col>
+          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col>
+          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onEmailClicked(row)}>Resend Email</Button></Col>
         </Row>
       )
     },
@@ -207,6 +209,7 @@ const Candidate = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      render: (row) => stringToHKIDWithBracket(row),
       width: 100,
       sorter: true,
     },
@@ -276,7 +279,7 @@ const Candidate = () =>  {
       width: 80,
       sorter: true,
     },
-  ], []);
+  ], [hasTodoCase]);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
@@ -302,7 +305,7 @@ const Candidate = () =>  {
               hkid: stringToHKID(content[0].hkid),
             }
             form.setFieldsValue(lastInfo);
-            setLastCandidateInfo(lastInfo)
+            setLastCandidateInfo(content[0])
           }
           break;
         case 'certBatchUpdateEmail':
@@ -314,6 +317,12 @@ const Candidate = () =>  {
           download(response);
           messageApi.success('Download successfully.');
           break;
+        case 'havePendingCase':
+        {
+          const data = response.data || {};
+          setHasTodoCase(data.havePendingCase);
+          break;
+        }
         default:
           break;
       }
@@ -372,7 +381,6 @@ const Candidate = () =>  {
 
   const onClickRevokeSelected = useCallback(() => {
     setRevokeOpen(true);
-    console.log(selectedRows)
   },[selectedRows]);
 
   const onFinishCallback = useCallback(() => {
@@ -400,6 +408,13 @@ const Candidate = () =>  {
     }, toQueryString(pagination, filter));
   }, [hkid, passport]);
 
+  const havePendingCase = useCallback(() => {
+    return runExamProfileAPI('havePendingCase', {
+      hkid,
+      passport
+    });
+  }, [hkid, passport]);
+
   const getLatestCandidateInfo = useCallback(async (pagination = {}, filter = {}) => {
 
     return runExamProfileAPI('certLatestCandidateInfo', {
@@ -423,6 +438,7 @@ const Candidate = () =>  {
 
   const getCandidateCertList = useCallback(async() => {
     await getCertList(pagination, filterCondition);
+    await havePendingCase();
   }, [pagination, filterCondition]);
 
   const resetPagination = useCallback(() => {
@@ -444,6 +460,14 @@ const Candidate = () =>  {
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
       <br/>
+      {
+        hasTodoCase ? (
+          <div>
+            <Alert showIcon type={'warning'} description={<b>Since there is at least one candidate case in progress, all action buttons are disabled until the case(s) are completed.</b>}/>
+            <br/>
+          </div>
+        ) : null
+      }
       <Form
         layout="vertical"
         autoComplete="off"
@@ -470,8 +494,8 @@ const Candidate = () =>  {
               </Col>
               <Col span={24} md={12}>
                 <Space>
-                  <Email name={'email'} label={'Email'} size={12}/>
-                  <Button type={'primary'}  onClick={onClickBulkUpdateEmail} disabled={emailError}>Bulk Update Email</Button>
+                  <Email disabled={hasTodoCase} name={'email'} label={'Email'} size={12}/>
+                  <Button type={'primary'}  onClick={onClickBulkUpdateEmail} disabled={emailError || hasTodoCase}>Bulk Update Email</Button>
                 </Space>
               </Col>
             </Row>
@@ -479,7 +503,7 @@ const Candidate = () =>  {
           <Col span={8}>
             <Row gutter={[8, 8]} justify={'end'}>
               <Col>
-                <Button type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update Candidate Name</Button>
+                <Button disabled={hasTodoCase} type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update Candidate Name</Button>
               </Col>
             </Row>
           </Col>
@@ -496,8 +520,7 @@ const Candidate = () =>  {
             <Button
               type="primary"
               onClick={onClickRevokeSelected}
-              disabled={selectedRowKeys.length === 0}
-              // disabled={true}
+              disabled={selectedRowKeys.length === 0 || hasTodoCase}
             >
               Revoke Selected ({selectedRowKeys.length})
             </Button>
@@ -505,12 +528,14 @@ const Candidate = () =>  {
         </PermissionControl>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -544,6 +569,9 @@ const Candidate = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

@@ -281,12 +281,14 @@ const Notify = () =>  {
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -320,6 +322,9 @@ const Notify = () =>  {
               onChange={paginationOnChange}
               pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

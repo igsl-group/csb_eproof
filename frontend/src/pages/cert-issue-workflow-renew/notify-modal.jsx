@@ -4,6 +4,7 @@ import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Dropdown from "@/components/Dropdown";
 import Textarea from "@/components/Textarea";
+import HKID from "@/components/HKID";
 import {validators} from "../../utils/validators";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
@@ -11,6 +12,7 @@ import {useRequest} from "ahooks";
 import {examProfileAPI, generalAPI} from "../../api/request";
 import Richtext from "../../components/Richtext";
 import dayjs from "dayjs";
+import {stringToHKID} from "../../components/HKID";
 
 const EmailModal = (props) =>  {
 
@@ -44,6 +46,7 @@ const EmailModal = (props) =>  {
     const values = await form.validateFields()
       .then((values) => ({
         ...values,
+        to: values.newEmail,
       }))
       .catch((e) => {
         console.error(e);
@@ -51,8 +54,16 @@ const EmailModal = (props) =>  {
       })
 
     if (values) {
-      // runExamProfileAPI('sendEmail', record.id, values)
-      //   .then(() => onFinish());
+      const id = record.id;
+      delete values.id;
+      delete values.examDate;
+      delete values.newHkid;
+      delete values.newName;
+      delete values.newPassport;
+      delete values.newEmail;
+
+      runExamProfileAPI('certSendEmail', id, values)
+        .then(() => onFinish());
       onFinish()
     }
   }, []);
@@ -61,6 +72,7 @@ const EmailModal = (props) =>  {
     if (open) {
       form.setFieldsValue({
         ...record,
+        newHkid: stringToHKID(record.newHkid),
         examDate: record?.certInfo?.examProfile?.examDate,
       })
       runGeneralAPI('emailTemplateGet', 4);
@@ -129,8 +141,6 @@ const EmailModal = (props) =>  {
     },
   });
 
-  console.log(record);
-
   return (
     <Modal
       width={1000}
@@ -154,6 +164,13 @@ const EmailModal = (props) =>  {
         name="form"
       >
         <Row gutter={24}>
+          <Text
+            name={"id"}
+            label={'Name'}
+            size={100}
+            disabled
+            hidden
+          />
           <Col span={12}>
             <Text
               name={"newName"}
@@ -171,7 +188,7 @@ const EmailModal = (props) =>  {
             />
           </Col>
           <Col span={12}>
-            <Text
+            <HKID
               name={"newHkid"}
               label={'HKID'}
               size={100}
@@ -187,10 +204,13 @@ const EmailModal = (props) =>  {
             />
           </Col>
           <Col span={24}>
-            <Text name={'subject'} label={'Subject'} size={100} required/>
+            <Text name={'newEmail'} label={'Email'} size={100} required disabled/>
           </Col>
           <Col span={24}>
-            <Richtext name={'body'} label={'Body'} size={100} required/>
+            <Text name={'title'} label={'Subject'} size={100} required/>
+          </Col>
+          <Col span={24}>
+            <Richtext name={'htmlBody'} label={'Body'} size={100} required/>
           </Col>
         </Row>
       </Form>

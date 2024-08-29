@@ -478,6 +478,8 @@ export default function Profile(props) {
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -506,6 +508,9 @@ export default function Profile(props) {
               onChange={paginationOnChange}
               pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

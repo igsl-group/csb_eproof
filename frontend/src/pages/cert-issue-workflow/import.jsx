@@ -431,7 +431,7 @@ const Import = () =>  {
           <Col>
             <Row gutter={[16, 16]}>
               <Col>
-                <Button type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
+                <Button disable={!importedData.length} type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
               </Col>
               <Col>
                 <Button
@@ -542,12 +542,14 @@ const Import = () =>  {
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -576,6 +578,9 @@ const Import = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

@@ -292,7 +292,20 @@ const RevokeModal = (props) =>  {
             />
           </Col>
           <Col span={24}>
-            <Richtext disabled={disabled} name={'emailContent'} label={'Inform candidate’s email content after request is approved'} size={100}/>
+            <br/>
+            <Text
+              name={'emailSubject'}
+              label={(
+                <span>
+                  Inform candidate’s email subject and content after request is approved<br/>
+                  Subject
+                </span>
+              )}
+              size={100}
+            />
+          </Col>
+          <Col span={24}>
+            <Richtext name={'emailContent'} label={'Body'} size={100}/>
           </Col>
         </Row>
         <br />

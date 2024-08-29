@@ -126,8 +126,8 @@ const Issue = () =>  {
                 <span>{stringToHKIDWithBracket(row.newHkid)}</span>
               ) : (
                 <div>
-                  <div>{row.oldHkid}</div>
-                  <div style={{ color: 'red'}}>{stringToHKIDWithBracket(row.newHkid)}</div>
+                  <div>{stringToHKIDWithBracket(row.oldHkid)}</div>
+                  <div style={{color: 'red'}}>{stringToHKIDWithBracket(row.newHkid)}</div>
                 </div>
               )
             }
@@ -371,7 +371,7 @@ const Issue = () =>  {
 
   const onClickSignAndIssueCallback = useCallback((row) => {
     modalApi.confirm({
-      title:'Are you sure to sign and issue certificate?',
+      title:'Once you sign and issue the certificate, the old certificate will become invalid. Are you sure to sign and issue the new certificate?',
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certRenewSign', row.id, {}),
@@ -435,8 +435,8 @@ const Issue = () =>  {
           download(response);
           messageApi.success('Download successfully.');
           break;
-        case 'certRenewGenerate':
-          messageApi.success('Generate certificates as PDF are in-progress, please wait a moment.');
+        case 'certRenewSign':
+          messageApi.success('Sign and issue certificate successfully.');
           getImportList();
           break;
         case 'certRenewDelete':
@@ -608,12 +608,14 @@ const Issue = () =>  {
         </Col>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -647,6 +649,9 @@ const Issue = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

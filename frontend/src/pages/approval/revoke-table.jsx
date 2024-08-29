@@ -19,6 +19,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import {useAuth} from "../../context/auth-provider";
+import {stringToHKIDWithBracket} from "../../components/HKID";
 
 const RevokeTable = () =>  {
 
@@ -119,6 +120,7 @@ const RevokeTable = () =>  {
       title: 'HKID',
       key: 'hkid',
       dataIndex: 'hkid',
+      render: (row) => stringToHKIDWithBracket(row),
       width: 100,
       sorter: false,
     },
@@ -243,9 +245,6 @@ const RevokeTable = () =>  {
 
   return (
     <div className={styles['approval']}>
-      <Typography.Title level={3}>Outstanding Tasks</Typography.Title>
-      <Breadcrumb items={breadcrumbItems}/>
-      <br/>
       <Card
         bordered={false}
         className={'card-body-nopadding'}
@@ -321,7 +320,6 @@ const RevokeTable = () =>  {
           columns={columns}
           dataSource={data}
         />
-        <br/>
       </Card>
       <RevokeCertModal
         open={revokeOpen}

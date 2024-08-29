@@ -201,6 +201,8 @@ const AuditLog = () =>  {
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -231,6 +233,8 @@ const AuditLog = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showQuickJumper
             />
           </Col>
         </Row>

@@ -457,10 +457,10 @@ const Generate = () =>  {
           <Col span={16}>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
+                <Button disable={!generatedData.length} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
               </Col>
               <Col>
-                <Button type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
+                <Button disable={!generatedData.length} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
               </Col>
             </Row>
           </Col>
@@ -551,12 +551,14 @@ const Generate = () =>  {
         </Col>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -590,6 +592,9 @@ const Generate = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

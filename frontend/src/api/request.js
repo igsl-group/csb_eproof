@@ -244,6 +244,10 @@ export function examProfileAPI(params, ...rest) {
             return request(`/historicalResult/${rest[0]}/invalid`, "post", rest[1]);
         case 'historicalResultList':
             return request(`/historicalResult/list?${rest[0]}`, "post", {});
+        case 'certSendEmail':
+            return request(`/reissueCert/notify/${rest[0]}`, "post", rest[1]);
+        case 'havePendingCase':
+            return request(`/cert/havePendingCase`, "post", rest[0]);
     }
 }
 

@@ -97,7 +97,6 @@ const OnHoldModal = (props) =>  {
     //     checkDigit: record.hkid.charAt(record.hkid.length - 1)
     //   }
     // }
-    console.log('record', record);
     form.setFieldsValue({
       ...record,
       hkid: stringToHKID(record.hkid)

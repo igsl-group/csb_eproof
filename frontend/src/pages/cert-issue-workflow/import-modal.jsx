@@ -107,7 +107,6 @@ const ImportModal = (props) =>  {
         ]
       })
         .then(csvData => {
-          console.log(csvData);
           setDataMsg(csvData.inValidData.slice(0, 20))
         })
         .catch(err => console.error(err))

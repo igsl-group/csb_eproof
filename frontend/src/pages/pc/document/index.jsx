@@ -1003,6 +1003,9 @@ export default function Document(props) {
                     onChange={attachmentPaginationOnChange}
                     pageSize={defaultPaginationInfo.pageSize}
                     current={attachmentPagination.page}
+                    showTotal={(total) => `Total ${total} items`}
+                    showSizeChanger
+                    showQuickJumper
                   />
                 </Col>
               </Row>
@@ -1033,6 +1036,9 @@ export default function Document(props) {
                     onChange={historyPaginationOnChange}
                     pageSize={defaultPaginationInfo.pageSize}
                     current={historyPagination.page}
+                    showTotal={(total) => `Total ${total} items`}
+                    showSizeChanger
+                    showQuickJumper
                   />
                 </Col>
               </Row>

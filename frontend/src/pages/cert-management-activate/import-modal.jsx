@@ -135,7 +135,6 @@ const ImportModal = (props) =>  {
   //console.log(dataMsg)
   const onSave = useCallback(async () => {
     onFinish(result);
-    console.log(result)
   }, [result]);
 
   return (

@@ -15,6 +15,7 @@ import {
 } from "@/utils/util";
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
+import {HKIDToString} from "../../components/HKID";
 
 const HkidPassportModal = (props) =>  {
 
@@ -58,6 +59,8 @@ const HkidPassportModal = (props) =>  {
     const values = await form.validateFields()
       .then((values) => ({
         ...values,
+        newHkid: HKIDToString(values.newHkid),
+        currentHkid: HKIDToString(values.currentHkid),
       }))
       .catch((e) => {
         console.error(e);
@@ -97,8 +100,9 @@ const HkidPassportModal = (props) =>  {
     if (open) {
       form.setFieldsValue({
         currentName: record.name,
+        newName: record.name,
         examDate: record.examDate,
-        currentHkid: record.hkid,
+        currentHkid: stringToHKID(record.hkid),
         currentPassport: record.passportNo,
       })
     }
@@ -134,14 +138,11 @@ const HkidPassportModal = (props) =>  {
             <Text name={'currentName'} label={'Last Candidate Name'} size={100} disabled/>
             <Text name={'newName'} label={'New Candidate Name'} size={100} disabled hidden/>
           </Col>
-          {/*<Col span={24} md={12}>*/}
-
-          {/*</Col>*/}
           <Col span={24} md={12}>
-            <Text name={'currentHkid'} label={'Current HKID'} size={100} disabled />
+            <HKID name={'currentHkid'} label={'Current HKID'} size={100} disabled />
           </Col>
           <Col span={24} md={12}>
-            <Text name={'newHkid'} label={'New HKID'} size={100}/>
+            <HKID name={'newHkid'} label={'New HKID'} size={100}/>
           </Col>
           <Col span={24} md={12}>
             <Text name={'currentPassport'} label={'Current Passport'} size={100} disabled/>

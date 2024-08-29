@@ -123,7 +123,7 @@ const Generate = () =>  {
                 <span>{stringToHKIDWithBracket(row.newHkid)}</span>
               ) : (
                 <div>
-                  <div>{row.oldHkid}</div>
+                  <div>{stringToHKIDWithBracket(row.oldHkid)}</div>
                   <div style={{ color: 'red'}}>{stringToHKIDWithBracket(row.newHkid) || '-'}</div>
                 </div>
               )
@@ -433,7 +433,7 @@ const Generate = () =>  {
           messageApi.success('Download successfully.');
           break;
         case 'certRenewGenerate':
-          messageApi.success('Generate certificates as PDF successfully.');
+          messageApi.success('Generate certificate as PDF successfully.');
           getImportList();
           break;
         case 'certRenewDelete':
@@ -614,12 +614,14 @@ const Generate = () =>  {
         </Col>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -653,6 +655,9 @@ const Generate = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>

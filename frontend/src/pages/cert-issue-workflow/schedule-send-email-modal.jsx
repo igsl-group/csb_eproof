@@ -71,7 +71,6 @@ const ScheduleSendEmailModal = (props) =>  {
           break;
         case 'examProfileGet':
           const data = response.data || {};
-          console.log(data)
           form.setFieldsValue({
             ...data,
           });

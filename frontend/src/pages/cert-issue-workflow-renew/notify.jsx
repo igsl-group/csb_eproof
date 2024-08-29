@@ -64,7 +64,8 @@ const Notify = () =>  {
   const [filterCondition, setFilterCondition] = useState(null);
 
   const onFinishCallback = useCallback(() => {
-    setOpen(false);;
+    setOpen(false);
+    getImportList();
   },[]);
 
   const onCloseCallback = useCallback(() => {
@@ -81,7 +82,7 @@ const Notify = () =>  {
           {
             ['SUCCESS'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Notify</Button>
+                <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
               </Col>
             ) : null
           }
@@ -128,8 +129,8 @@ const Notify = () =>  {
                 <span>{stringToHKIDWithBracket(row.newHkid)}</span>
               ) : (
                 <div>
-                  <div>{row.oldHkid}</div>
-                  <div style={{ color: 'red'}}>{stringToHKIDWithBracket(row.newHkid)}</div>
+                  <div>{stringToHKIDWithBracket(row.oldHkid)}</div>
+                  <div style={{color: 'red'}}>{stringToHKIDWithBracket(row.newHkid)}</div>
                 </div>
               )
             }
@@ -388,7 +389,7 @@ const Notify = () =>  {
 
   const onClickDispatch = useCallback((row) => {
     modalApi.confirm({
-      title:'Are you sure to dispatch to sign and issue Cert. stage?',
+      title:'Are you sure to dispatch to complete stage?',
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certRenewDispatch', row.id, 'NOTIFY')
@@ -615,12 +616,14 @@ const Notify = () =>  {
         </Col>
         <Col>
           <Pagination
-            showSizeChanger
             total={pagination.total}
             pageSizeOptions={defaultPaginationInfo.sizeOptions}
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
+            showTotal={(total) => `Total ${total} items`}
+            showSizeChanger
+            showQuickJumper
           />
         </Col>
       </Row>
@@ -654,6 +657,9 @@ const Notify = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              showSizeChanger
+              showQuickJumper
             />
           </Col>
         </Row>
