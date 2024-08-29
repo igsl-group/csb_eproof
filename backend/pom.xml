@@ -275,30 +275,45 @@
         </dependency>
 
         <dependency>
-            <groupId>hk.gov.notify</groupId>
-            <artifactId>common</artifactId>
+            <groupId>hk.gov.spica_scopes</groupId>
+            <artifactId>egis_common_web</artifactId>
             <version>2.0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/egis_common_web-2.0.1.jar</systemPath>
         </dependency>
-
         <dependency>
-            <groupId>hk.gov.notify</groupId>
-            <artifactId>client</artifactId>
+            <groupId>hk.gov.spica_scopes</groupId>
+            <artifactId>egis_noti_client</artifactId>
             <version>1.1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/egis_noti_client-1.1.0.jar</systemPath>
         </dependency>
-
         <dependency>
-            <groupId>hk.gov.notify</groupId>
-            <artifactId>common</artifactId>
+            <groupId>hk.gov.spica_scopes</groupId>
+            <artifactId>egis_noti_restful_client</artifactId>
             <version>1.0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/egis_noti_restful_client-1.0.1.jar</systemPath>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
+            <version>3.15.6.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxb-provider</artifactId>
+            <version>3.15.6.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+            <version>3.15.6.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>javax.activation-api</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0</version>
+        </dependency>
         <!--  https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.poi.xwpf.converter.core
          <dependency>
              <groupId>fr.opensagres.xdocreport</groupId>
