@@ -52,8 +52,8 @@ public class EmailEventListener {
     @Value("${gcis-shared-service.notiSvc.endPointUrl}")
     private String endpointUrl;
 
-    @Value("${gcis-shared-service.enabled")
-    private Boolean serviceEnabled;
+    @Value("${gcis-shared-service.enabled:false}")
+    private boolean serviceEnabled;
     public EmailEventListener(EmailService emailService,
             EmailEventRepository emailEventRepository) {
         this.emailService = emailService;
