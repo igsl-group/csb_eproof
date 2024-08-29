@@ -78,6 +78,12 @@ public interface CertInfoRenewRepository extends JpaRepository<CertInfoRenew,Lon
 
     @Query("select c from CertInfoRenew c where c.id = :id and c.certStage = :stage and c.certStatus = 'SUCCESS' ")
     List<CertInfoRenew> getinfoByNoAndStatus(@Param("id") Long id, @Param("stage") CertStage stage);
+
+    @Query("select c from CertInfoRenew c where c.certStatus <> 'COMPLETED' and c.oldHkid = :hkid")
+    List<CertInfoRenew> getInfoByHkid(String hkid);
+
+    @Query("select c from CertInfoRenew c where c.certStatus <> 'COMPLETED' and c.oldPassport = :passport")
+    List<CertInfoRenew> getInfoByPassport(String passport);
 }
 
 

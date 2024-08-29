@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
@@ -9,11 +10,10 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
-import com.hkgov.csb.eproof.controller.CertInfoRenewController;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
-import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.File;
+import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
@@ -684,6 +684,25 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         certInfoRenew.setCertStatus(CertStatus.SUCCESS);
         certInfoRenewRepository.save(certInfoRenew);
 
+    }
+
+    @Override
+    public HavePendingCaseDto havePendingCase(HavePendingCaseDto requestDto) {
+        HavePendingCaseDto dto = new HavePendingCaseDto();
+        boolean havePendingCase = false;
+        if(StringUtils.isBlank(requestDto.getHkid()) && StringUtils.isBlank(requestDto.getPassport())){
+            dto.setHavePendingCase(havePendingCase);
+            return dto;
+        }
+        String hkid = requestDto.getHkid();
+        String passport = requestDto.getPassport();
+        List<CertInfoRenew> certInfoRenews =  StringUtils.isNotBlank(hkid) ? certInfoRenewRepository.getInfoByHkid(hkid)
+                : certInfoRenewRepository.getInfoByPassport(passport);
+        List<CertAction> certActions = StringUtils.isNotBlank(hkid) ? certActionRepository.getinfoByHkid(hkid)
+                : certActionRepository.getinfoByPassport(passport);
+        havePendingCase = CollUtil.isNotEmpty(certInfoRenews) | CollUtil.isNotEmpty(certActions);
+        dto.setHavePendingCase(havePendingCase);
+        return dto;
     }
 
     private void replaceCertPdfWithCertPdfRenew(CertPdf oldPdf, CertPdfRenew newPdf) {

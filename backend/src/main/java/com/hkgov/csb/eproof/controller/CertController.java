@@ -312,4 +312,10 @@ public class CertController {
         return certInfoService.enquiryResult(params);
     }
 
+    @PostMapping("/havePendingCase")
+    public Result<HavePendingCaseDto> havePendingCase(@RequestBody HavePendingCaseDto requestDto){
+        return Result.success(certInfoRenewService.havePendingCase(requestDto));
+    }
+
+
 }
