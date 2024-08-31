@@ -146,20 +146,14 @@ public class CertInfoServiceImpl implements CertInfoService {
             switch (certInfo.getCertStage()) {
                 case IMPORTED -> {
                     certInfo.setCertStage(CertStage.GENERATED);
-                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Import_Dispatch");
-                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case GENERATED -> {
                     certInfo.setCertStage(CertStage.SIGN_ISSUE);
-                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Generate_Dispatch");
-                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case SIGN_ISSUE -> {
                     certInfo.setCertStage(CertStage.NOTIFY);
-                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Sign_and_Issue_Dispatch");
-                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case NOTIFY -> {
@@ -173,6 +167,27 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfo.setCertStatus(CertStatus.PENDING);
         }
         certInfoRepository.saveAll(list);
+
+        switch (currentStage) {
+            case IMPORTED -> {
+                EmailTemplate emailTemplate = emailTemplateRepository.findByName("Import_Dispatch");
+                gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
+                break;
+            }
+            case GENERATED -> {
+                EmailTemplate emailTemplate = emailTemplateRepository.findByName("Generate_Dispatch");
+                gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
+                break;
+            }
+            case SIGN_ISSUE -> {
+                EmailTemplate emailTemplate = emailTemplateRepository.findByName("Sign_and_Issue_Dispatch");
+                gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
+                break;
+            }
+            default ->{
+                break;
+            }
+        }
         return true;
     }
 
