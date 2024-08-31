@@ -21,9 +21,9 @@ public class EmailTemplateController {
 
     private final EmailTemplateService emailTemplateService;
 
-    @GetMapping("/{emailId}")
-    public Result<EmailTemplateDto> getEmailTemplateINfo(@PathVariable Long emailId){
-        return Result.success(EmailTemplateMapper.INSTANCE.sourceToDestination(emailTemplateService.email(emailId)));
+    @GetMapping("/{templateName}")
+    public Result<EmailTemplateDto> getEmailTemplateINfo(@PathVariable String templateName){
+        return Result.success(EmailTemplateMapper.INSTANCE.sourceToDestination(emailTemplateService.email(templateName)));
     }
 
     @GetMapping("/list")

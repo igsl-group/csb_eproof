@@ -26,8 +26,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     private final EmailTemplateRepository emailTemplateRepository;
 
     @Override
-    public EmailTemplate email(Long id) {
-        return emailTemplateRepository.findById(id).orElse(null);
+    public EmailTemplate email(String templateName) {
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName(templateName);
+        if (Objects.isNull(emailTemplate)) {
+            throw new GenericException(ExceptionEnums.TEMPLATE_NOT_EXIST);
+        }
+        return emailTemplateRepository.findByName(templateName);
     }
 
     @Override
