@@ -343,20 +343,14 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             switch (infoRenew.getCertStage()) {
                 case RENEWED -> {
                     infoRenew.setCertStage(CertStage.GENERATED);
-                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Reissuance");
-                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case GENERATED -> {
                     infoRenew.setCertStage(CertStage.SIGN_ISSUE);
-                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Generate_Dispatch");
-                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case SIGN_ISSUE -> {
                     infoRenew.setCertStage(CertStage.NOTIFY);
-                    EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Sign_and_Issue_Dispatch");
-                    gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
                     break;
                 }
                 case NOTIFY -> {
@@ -370,6 +364,27 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             infoRenew.setCertStatus(CertStatus.PENDING);
         }
         certInfoRenewRepository.saveAll(list);
+
+        switch (currentStage) {
+            case RENEWED -> {
+                EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Reissuance");
+                gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
+                break;
+            }
+            case GENERATED -> {
+                EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Generate_Dispatch");
+                gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
+                break;
+            }
+            case SIGN_ISSUE -> {
+                EmailTemplate emailTemplate = emailTemplateRepository.findByName("Adhoc_Sign_and_Issue_Dispatch");
+                gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
+                break;
+            }
+            default ->{
+                break;
+            }
+        }
     }
 
     @Override

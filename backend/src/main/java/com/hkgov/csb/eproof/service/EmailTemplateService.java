@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 * @createDate 2024-06-17 10:17:32
 */
 public interface EmailTemplateService {
-    EmailTemplate email(Long id);
+    EmailTemplate email(String templateName);
 
     Page<EmailTemplate> list(Pageable pageable, String keyWord);
 
