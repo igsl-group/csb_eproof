@@ -1,6 +1,5 @@
 package com.hkgov.csb.eproof.service.impl;
 
-import com.hkgov.csb.eproof.dao.PermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleHasPermissionRepository;
 import com.hkgov.csb.eproof.dao.RoleRepository;
 import com.hkgov.csb.eproof.dto.RoleDto;
@@ -9,9 +8,9 @@ import com.hkgov.csb.eproof.entity.RoleHasPermission;
 import com.hkgov.csb.eproof.mapper.RoleMapper;
 import com.hkgov.csb.eproof.service.AuditLogService;
 import com.hkgov.csb.eproof.service.RoleService;
-import jakarta.annotation.Resource;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,26 +25,15 @@ import java.util.stream.Collectors;
 * @createDate 2024-04-23 14:06:28
 */
 @Service
+@RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
-    @Resource
-    private RoleMapper roleMapper;
-    @Resource
-    private RoleRepository roleRepository;
-    @Resource
-    private RoleHasPermissionRepository hasPermissionRepository;
-    @Resource
-    private PermissionRepository permissionRepository;
-    @Resource
-    private AuditLogService auditLogService;
+    private final RoleRepository roleRepository;
+    private final RoleHasPermissionRepository hasPermissionRepository;
+    private final AuditLogService auditLogService;
     @Override
     public Boolean createRole(RoleDto requestDto) {
-        Role role = roleMapper.INSTANCE.destinationToSource(requestDto);
+        Role role = RoleMapper.INSTANCE.destinationToSource(requestDto);
         role = roleRepository.save(role);
-//        Long id = role.getId();
-//        if (requestDto.getPermissionList() != null && requestDto.getPermissionList().size()>0) {
-//            List<RoleHasPermission> roles = requestDto.getPermissionList().stream().map(x -> new RoleHasPermission(null, id, x)).toList();
-//            hasPermissionRepository.saveAll(roles);
-//        }
         auditLogService.addLog("Create","Create role " +role.getName(), requestDto);
         return Objects.nonNull(role);
     }
@@ -68,7 +56,7 @@ public class RoleServiceImpl implements RoleService {
 
         Role role = roleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Role not found"));
 
-        roleMapper.INSTANCE.partialUpdate(role, requestDto);
+        RoleMapper.INSTANCE.partialUpdate(role, requestDto);
         role = roleRepository.save(role);
 //        List<RoleHasPermission> roles = requestDto.getPermissions().stream().map(x -> new RoleHasPermission(null,id,x.getId())).toList();
 //        hasPermissionRepository.saveAll(roles);
