@@ -238,7 +238,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
 //    @Transactional(noRollbackFor = Exception.class)
-
+    @Async
     public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
         List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
