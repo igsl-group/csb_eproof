@@ -14,6 +14,7 @@ import com.hkgov.csb.eproof.mapper.CertInfoRenewMapper;
 import com.hkgov.csb.eproof.request.SendEmailRequest;
 import com.hkgov.csb.eproof.service.CertInfoRenewService;
 import com.hkgov.csb.eproof.service.PermissionService;
+import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,6 +40,8 @@ import java.util.List;
 public class CertInfoRenewController {
     private final CertInfoRenewService certInfoRenewService;
     private final PermissionService permissionService;
+    private final EProofConfigProperties eProofConfigProperties;
+
 
     @PostMapping("/generate/{renewCertId}")
     @Operation(summary = "Generate cert pdf in batch mode.",description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
@@ -162,6 +165,9 @@ public class CertInfoRenewController {
     ) throws Exception {
 
         byte[] preparedEproofPdf = certInfoRenewService.prepareEproofPdf(certInfoRenewId, prepareEproofPdfRequest);
+        // Set access token to null to force the following action to get a new access token
+        eProofConfigProperties.setAccessToken(null);
+
         return ResponseEntity.ok().body(preparedEproofPdf);
     }
 
