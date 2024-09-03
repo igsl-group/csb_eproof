@@ -1074,7 +1074,6 @@ public class CertInfoServiceImpl implements CertInfoService {
         ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
         LocalDate dbExamDate = examProfile.getExamDate();
         List<CertImportDto> certInfos = CertInfoMapper.INSTANCE.sourceToDestinationList(certInfoRepository.getInfoListByExamSerialNo(examProfileSerialNo));
-        CodeUtil codeUtil = new CodeUtil();
         int count = certInfos.size();
         List<CertInfo> list = new ArrayList<>();
         certInfos.addAll(csvData);
@@ -1114,7 +1113,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 //                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("Fail") && !csv.getLetterType().equals("Pass"))){
 //                    throw new ServiceException(ResultCode.CSV_LETTER_TYPE,row);
 //                }
-                if(!codeUtil.validEmai(csv.getEmail())){
+                if(!CodeUtil.validEmai(csv.getEmail())){
                     throw new ServiceException(ResultCode.CSV_EMAIL_ERROR,row);
                 }
                 //组装batch info数据
