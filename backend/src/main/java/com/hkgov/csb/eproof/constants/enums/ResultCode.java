@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-;
 @AllArgsConstructor
 @NoArgsConstructor
 public enum ResultCode implements Serializable {
