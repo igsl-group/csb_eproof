@@ -181,6 +181,7 @@ thread-pool:
 #second minute hour dayOfMonth month dayOfWeek
 cron-expression:
   normal-email-sending: "-"
+  refresh-eproof-access-token: "0 0/30 * * * *"
 
 gcis-shared-service:
   enabled: true

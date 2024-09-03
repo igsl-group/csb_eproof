@@ -31,7 +31,9 @@ public class ApiUtil {
 	public static Boolean getAccessTokenByClientCredentials(EProofConfigProperties config) throws Exception {
 		// check if the token is valid
 		Boolean ret = false;
-		if ( config.getAccessToken() == null || config.getAccessToken().length()== 0 ) {
+//		if ( config.getAccessToken() == null || config.getAccessToken().length()== 0 ) {
+		// 20240903update get new token no matter if it is empty
+		if ( true ) {
 			logger.debug("Empty token, try to get one");
 
 			String url = config.getUrl() +  "/auth/token";
