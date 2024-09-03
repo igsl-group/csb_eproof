@@ -5,7 +5,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.context.i18n.LocaleContextHolder;
+
+import java.util.Locale;
 
 /**
  * load I18N resource file
@@ -24,7 +25,7 @@ public class MessageUtils {
      */
     public static String message(String code, Object... args) {
         try {
-            return MESSAGE_SOURCE.getMessage(code, args, LocaleContextHolder.getLocale());
+            return MESSAGE_SOURCE.getMessage(code, args, Locale.US);
         } catch (NoSuchMessageException e) {
             return code;
         }

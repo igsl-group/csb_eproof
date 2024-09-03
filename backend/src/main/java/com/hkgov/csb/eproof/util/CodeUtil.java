@@ -27,7 +27,7 @@ public class CodeUtil {
     public static String convertToCombinedCode(String first, String second) {
         return convertToCode(trim(first) + SPACE + trim(second));
     }
-    public Boolean validEmai(String email){
+    public static Boolean validEmai(String email){
         if(email.isEmpty()) {
             return false;
         }
