@@ -102,6 +102,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final CombinedHistoricalResultBeforeRepository  beforeRepository;
     private final GcisEmailServiceImpl gcisEmailServiceImpl;
     private static final Gson GSON = new Gson();
+    private final AuthenticationService authenticationService;
 
     @Value("${document.qr-code.height}")
     private Integer qrCodeHeight;
@@ -138,10 +139,12 @@ public class CertInfoServiceImpl implements CertInfoService {
                 && !currentStage.equals(CertStage.SIGN_ISSUE) && !currentStage.equals(CertStage.NOTIFY)){
             throw new ServiceException(ResultCode.STAGE_ERROR);
         }
+/*
         List<CertInfo> list = certInfoRepository.getinfoByNoAndStatus(examProfileSerialNo,currentStage);
         if(list.isEmpty()){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
+*/
 
         CertStage nextStage = null;
         switch (currentStage){
@@ -151,8 +154,9 @@ public class CertInfoServiceImpl implements CertInfoService {
             case NOTIFY -> {nextStage = CertStage.COMPLETED; break;}
             default ->{throw new ServiceException(ResultCode.STAGE_ERROR);}
         }
-        for(CertInfo certInfo : list){
-            /*switch (certInfo.getCertStage()) {
+//            20240904 Improve dispatch performance
+        /*for(CertInfo certInfo : list){
+            switch (certInfo.getCertStage()) {
                 case IMPORTED -> {
                     certInfo.setCertStage(CertStage.GENERATED);
                     break;
@@ -172,12 +176,13 @@ public class CertInfoServiceImpl implements CertInfoService {
                 default ->{
                     break;
                 }
-            }*/
-//            20240904 Improve dispatch performance
+            }
             certInfo.setCertStage(nextStage);
             certInfo.setCertStatus(CertStatus.PENDING);
         }
-        certInfoRepository.saveAll(list);
+        certInfoRepository.saveAll(list);*/
+
+        certInfoRepository.dispatchCert(examProfileSerialNo,currentStage,nextStage,CertStatus.PENDING,authenticationService.getCurrentUser().getDpUserId());
 
         switch (currentStage) {
             case IMPORTED -> {

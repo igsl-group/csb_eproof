@@ -2,12 +2,14 @@ package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.dto.CertSearchDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -122,4 +124,13 @@ select c from CertInfo c
 
     @Query("select c from CertInfo c where (c.passed is null or c.passed = false ) and c.valid = true and (c.hkid in :hkids or c.passportNo in :passports) order by c.examDate,c.hkid,c.passportNo")
     List<CertInfo> findByHkidIn(List<String> hkids,List<String> passports);
+
+    @Modifying
+    @Query("""
+    UPDATE CertInfo 
+    SET certStage = :nextStage , certStatus= :pendingCertStatus, modifiedBy = :currentUserName, modifiedDate = current_timestamp
+    WHERE examProfileSerialNo = :examSerialNo and certStage = :currentStage
+""")
+    Integer dispatchCert(String examSerialNo, CertStage currentStage, CertStage nextStage, CertStatus pendingCertStatus, String currentUserName);
+
 }
