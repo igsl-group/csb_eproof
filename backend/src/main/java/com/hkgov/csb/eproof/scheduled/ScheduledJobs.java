@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.scheduled;
 
+import com.hkgov.csb.eproof.util.EProof.ApiUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,10 @@ public class ScheduledJobs {
     }
 
     @Scheduled(cron = "${cron-expression.refresh-eproof-access-token}")
-    public void refreshCachedAccessToken()  {
+    public void refreshCachedAccessToken() throws Exception {
         logStartMessage("Refresh cached access token");
-        eProofConfigProperties.setAccessToken(null);
+//        eProofConfigProperties.setAccessToken(null);
+        ApiUtil.getAccessTokenByClientCredentials(eProofConfigProperties);
         logEndMessage("Refresh cached access token");
     }
 
