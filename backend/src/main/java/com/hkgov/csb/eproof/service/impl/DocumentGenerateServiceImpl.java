@@ -72,8 +72,8 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
             case PDF ->{
                 logger.info("Start convert pdf.");
 //                returnBinary = docxUtil.convertDocxToPdf(tempDocxFile);
-//                returnBinary = docxUtil.convertDocxToPdf_POI(new ByteArrayInputStream(mergedDocxBinaryArray));
-                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
+                returnBinary = docxUtil.convertDocxToPdf_POI(new ByteArrayInputStream(mergedDocxBinaryArray));
+//                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
 //                returnBinary = docxUtil.convertDocxToPdf2(mergedDocxBinaryArray);
                 logger.info("Finish convert pdf.");
             }
