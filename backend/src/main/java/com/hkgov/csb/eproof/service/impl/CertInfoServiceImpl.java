@@ -142,8 +142,17 @@ public class CertInfoServiceImpl implements CertInfoService {
         if(list.isEmpty()){
             throw new GenericException(ExceptionEnums.CERT_NOT_EXIST);
         }
+
+        CertStage nextStage = null;
+        switch (currentStage){
+            case IMPORTED -> {nextStage = CertStage.GENERATED; break;}
+            case GENERATED -> {nextStage = CertStage.SIGN_ISSUE; break;}
+            case SIGN_ISSUE -> {nextStage = CertStage.NOTIFY; break;}
+            case NOTIFY -> {nextStage = CertStage.COMPLETED; break;}
+            default ->{throw new ServiceException(ResultCode.STAGE_ERROR);}
+        }
         for(CertInfo certInfo : list){
-            switch (certInfo.getCertStage()) {
+            /*switch (certInfo.getCertStage()) {
                 case IMPORTED -> {
                     certInfo.setCertStage(CertStage.GENERATED);
                     break;
@@ -163,7 +172,9 @@ public class CertInfoServiceImpl implements CertInfoService {
                 default ->{
                     break;
                 }
-            }
+            }*/
+//            20240904 Improve dispatch performance
+            certInfo.setCertStage(nextStage);
             certInfo.setCertStatus(CertStatus.PENDING);
         }
         certInfoRepository.saveAll(list);
