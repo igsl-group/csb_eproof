@@ -13,6 +13,7 @@ import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.*;
+import com.hkgov.csb.eproof.entity.File;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
@@ -36,6 +37,12 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.docx4j.model.fields.merge.DataFieldName;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,11 +58,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.imageio.ImageIO;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -849,18 +855,81 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) {
+    public void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) throws DocumentException, IOException {
         List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.NOTIFY,List.of(CertStatus.SCHEDULED));
-        List<List<CertInfo>> choppedCertInfo2dList = splitCertInfoList(certInfoList, 1000);
+        List<List<CertInfo>> choppedCertInfo2dList = splitCertInfoList(certInfoList, 999);
 
         EmailTemplate notifyEmailTemplate = emailTemplateRepository.findByName(Constants.EMAIL_TEMPLATE_NOTIFY);
+        SystemParameter xmlTemplateLocation = systemParameterRepository.findByName(Constants.SYS_PARAM_NOTI_BATCH_XML_LOCATION).get();
+
+        if(xmlTemplateLocation == null){
+            throw new GenericException("xml.template.location.not.found","XML template location not found.");
+        }
+
+        byte [] xmlByteArray = minioUtil.getFileAsByteArray(xmlTemplateLocation.getValue());
+
+        SAXReader reader = new SAXReader();
+
         for (List<CertInfo> choppedCertInfoList : choppedCertInfo2dList) {
-            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,choppedCertInfoList);
+            String processedXml = processBatchEmailXml(reader,xmlByteArray,choppedCertInfoList);
+
+            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml);
             choppedCertInfoList.forEach(certInfo -> {
                 certInfo.setGcisBatchEmailId(gcisBatchEmail.getId());
             });
             certInfoRepository.saveAll(choppedCertInfoList);
         }
+    }
+
+    private String processBatchEmailXml(SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
+        String listName = "CSBEP_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_2));
+
+        Document document = reader.read(new ByteArrayInputStream(xmlByteArray));
+        Element root = document.getRootElement();
+
+        // Update <NOTI_LIST> content
+        Element notiList = root.element("NOTI_LIST");
+        notiList.element("NOTI_LIST_NAME").setText(listName);
+
+        // Update <NOTI_LIST_NAME> for each merge item
+        List<Element> notiMergItemList= root.elements("NOTI_MERG_ITEM");
+        for (Element element : notiMergItemList) {
+            element.element("NOTI_LIST_NAME").setText(listName);
+        }
+
+        // Add <SUBR_MERG_ITEM> content
+        for (CertInfo certInfo : choppedCertInfoList) {
+            Element recipient = root.addElement("SUBR_MERG_ITEM");
+            recipient.addElement("ACTION").setText("Create");
+            recipient.addElement("NOTI_LIST_NAME").setText("Create");
+            recipient.addElement("ADDRESS").setText(certInfo.getEmail());
+
+            // TODO: Temporary add 10 attachment xml according to the template.
+            //  If attachment xml section is not needed, this part can be removed.
+            for (int i=1;i<=10;i++){
+                recipient.addElement("SUBR_ATTH_0"+i);
+            }
+
+            Element candidateName = recipient.addElement("MERG_ITEM");
+            candidateName.addElement("MERG_ITEM_NAME").setText("CANDIDATE_NAME");
+            candidateName.addElement("MERG_ITEM_VALUE").setText(certInfo.getName());
+
+            Element candidateTitle = recipient.addElement("MERG_ITEM");
+            candidateTitle.addElement("MERG_ITEM_NAME").setText("CANDIDATE_TITLE");
+            candidateTitle.addElement("MERG_ITEM_VALUE").setText(certInfo.getEproofId());
+        }
+        
+        String processedXml = document.asXML();
+        return beautifyXml(processedXml);
+    }
+
+    private String beautifyXml(String processedXml) throws IOException, DocumentException {
+        StringWriter stringWriter = new StringWriter();
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        XMLWriter writer = new XMLWriter(stringWriter, format);
+        writer.write(new org.dom4j.io.SAXReader().read(new java.io.StringReader(processedXml)));
+        writer.close();
+        return stringWriter.toString();
     }
 
     @Override
@@ -966,10 +1035,12 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
     @Transactional
-    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, List<CertInfo> choppedCertInfoList){
+    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml){
+
+
         GcisBatchEmail gcisBatchEmail = new GcisBatchEmail();
         gcisBatchEmail.setEmailTemplateId(notifyEmailTemplate.getId());
-        gcisBatchEmail.setXml("");
+        gcisBatchEmail.setXml(processedXml);
         gcisBatchEmail.setScheduleDatetime(insertGcisBatchEmailDto.getScheduledTime().atTime(9,0,0));
         gcisBatchEmail.setStatus("SCHEDULED");
         gcisBatchEmailRepository.save(gcisBatchEmail);

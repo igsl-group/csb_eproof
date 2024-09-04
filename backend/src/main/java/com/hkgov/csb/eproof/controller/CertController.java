@@ -20,6 +20,7 @@ import com.hkgov.csb.eproof.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.dom4j.DocumentException;
 import org.springframework.data.domain.*;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -140,7 +141,7 @@ public class CertController {
     public Result batchScheduleMail(
             @PathVariable String examProfileSerialNo,
             @RequestBody InsertGcisBatchEmailDto insertGcisBatchEmailDto
-    ){
+    ) throws DocumentException, IOException {
         certInfoService.changeCertStatusToScheduled(examProfileSerialNo,CertStage.NOTIFY);
         certInfoService.insertGcisBatchEmail(examProfileSerialNo,insertGcisBatchEmailDto);
         return Result.success();
