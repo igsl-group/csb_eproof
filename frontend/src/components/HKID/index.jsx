@@ -23,9 +23,10 @@ export const stringToHKIDWithBracket = (hkid = "") => {
 
   let _hkid = hkid || "";
   _hkid = _hkid.replaceAll(/\(|\)/g, '')
-  const id = _hkid.substring(0,  _hkid.length - 1);
+  const char = _hkid.substring(0,  1);
+  const digit = _hkid.substring(1,  _hkid.length - 1);
   const checkDigit = _hkid.charAt(_hkid.length - 1);
-  return hkid ? `${id}(${checkDigit})` : ''
+  return hkid ? `${char} ${digit}(${checkDigit})` : ''
 }
 
 const checkHKIDCheckDigit = (id, checkdigit) => {

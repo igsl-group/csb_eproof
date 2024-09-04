@@ -38,7 +38,7 @@ const EmailTemplateList = () =>  {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
   const [type, setType] = useState('');
-  const [recordId, setRecordId] = useState('');
+  const [record, setRecord] = useState('');
   const [filterCondition, setFilterCondition] = useState(null);
 
   const defaultPaginationInfo = useMemo(() => ({
@@ -63,8 +63,8 @@ const EmailTemplateList = () =>  {
   //
   // }, []);
 
-  const onEditClickCallback = useCallback((id) => {
-    setRecordId(id);
+  const onEditClickCallback = useCallback((row) => {
+    setRecord(row);
     setOpen(true);
     setType(TYPE.EDIT);
     // runUserRoleAPI('userGet', recordId)
@@ -128,7 +128,7 @@ const EmailTemplateList = () =>  {
       width: 80,
       render: (row) => (
         <Space>
-          <Button size={'small'} title={'Edit'} onClick={() => onEditClickCallback(row.id)} icon={<EditOutlined />}/>
+          <Button size={'small'} title={'Edit'} onClick={() => onEditClickCallback(row)} icon={<EditOutlined />}/>
         </Space>
       )
     },
@@ -283,7 +283,7 @@ const EmailTemplateList = () =>  {
       <br/>
       <EmailModal
         type={type}
-        recordId={recordId}
+        record={record}
         open={open}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}

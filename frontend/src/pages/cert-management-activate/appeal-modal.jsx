@@ -27,6 +27,7 @@ import {useMessage} from "../../context/message-provider";
 import ImportModal from "./import-modal";
 import {useRequest} from "ahooks";
 import { examProfileAPI } from '@/api/request';
+import {stringToHKID} from "../../components/HKID";
 
 const PersonalParticularsModal = (props) =>  {
 
@@ -141,7 +142,7 @@ const PersonalParticularsModal = (props) =>  {
         id: record?.id,
         examDate: record?.examProfile?.examDate,
         name: record?.name,
-        hkid: record?.hkid,
+        hkid: stringToHKID(record?.hkid),
         passportNo: record?.passportNo,
         ueGrade: record?.ueGrade,
         ucGrade: record?.ucGrade,
@@ -152,13 +153,13 @@ const PersonalParticularsModal = (props) =>  {
     }
   }, [open]);
 
-  console.log(record.letterType)
 
   return (
     <Modal
       width={1000}
       okText={'Submit for renew'}
       closable={false}
+      maskClosable={false}
       onOk={onConfirm}
       onCancel={onClose}
       style={{ top: 20 }}
@@ -220,10 +221,10 @@ const PersonalParticularsModal = (props) =>  {
             <Text name={'name'} label={'Candidate Name'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'examDate'} label={'ExamDate'} size={100} disabled/>
+            <Text name={'examDate'} label={'Exam Date'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
-            <Text name={'hkid'} label={'HKID'} size={100} disabled/>
+            <HKID name={'hkid'} label={'HKID'} size={100} disabled/>
           </Col>
           <Col span={24} md={12}>
             <Text name={'passportNo'} label={'Passport'} size={100} disabled/>

@@ -51,9 +51,14 @@ const EmailModal = (props) =>  {
       })
 
     if (values) {
-      // runExamProfileAPI('sendEmail', record.id, values)
-      //   .then(() => onFinish());
-      onFinish()
+      console.log(values)
+      delete values.examDate;
+      delete values.hkid;
+      delete values.name;
+      delete values.passport;
+      runExamProfileAPI('certAdhocSendEmail', values)
+        .then(() => onFinish());
+      // onFinish()
     }
   }, []);
 
@@ -61,8 +66,9 @@ const EmailModal = (props) =>  {
     if (open) {
       form.setFieldsValue({
         ...record,
+        to: record.email,
       })
-      runGeneralAPI('emailTemplateGet', 4);
+      runGeneralAPI('emailTemplateGet', 'Notify');
     }
   }, [open, record]);
 
@@ -89,6 +95,9 @@ const EmailModal = (props) =>  {
           const data = response.data || {};
           const content = data.content || [];
           break;
+        case 'certAdhocSendEmail':
+          messageApi.success('Notify candidate successfully.');
+          break;
         default:
           break;
       }
@@ -107,13 +116,13 @@ const EmailModal = (props) =>  {
       switch (params[0]) {
         case 'emailTemplateGet':
           const data = response.data || {};
-          let body = data.body;
-          body = body.replaceAll('{{application_name}}', record.name);
-          body = body.replaceAll('{{examination_date}}', dayjs(record.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
-          body = body.replaceAll('{{eproof_document_url}}', record.certEproof?.url);
+          let htmlBody = data.body;
+          htmlBody = htmlBody.replaceAll('{{application_name}}', record.name);
+          htmlBody = htmlBody.replaceAll('{{examination_date}}', dayjs(record.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
+          htmlBody = htmlBody.replaceAll('{{eproof_document_url}}', record.certEproof?.url);
           form.setFieldsValue({
-            ...data,
-            body,
+            title: data.subject,
+            htmlBody,
           });
           break;
         default:
@@ -184,10 +193,13 @@ const EmailModal = (props) =>  {
             />
           </Col>
           <Col span={24}>
-            <Text name={'subject'} label={'Subject'} size={100} required/>
+            <Text name={'to'} label={'Email'} size={100} required disabled/>
           </Col>
           <Col span={24}>
-            <Richtext name={'body'} label={'Body'} size={100} required/>
+            <Text name={'title'} label={'Subject'} size={100} required/>
+          </Col>
+          <Col span={24}>
+            <Richtext name={'htmlBody'} label={'Body'} size={100} required/>
           </Col>
         </Row>
       </Form>

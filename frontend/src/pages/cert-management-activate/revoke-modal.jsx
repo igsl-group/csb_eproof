@@ -59,13 +59,22 @@ const RevokeModal = (props) =>  {
     }
   }, []);
 
+  const onClickSubmit = useCallback(() => {
+    modalApi.confirm({
+      title:'Are you sure to Submit the case?',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => onSave(),
+    });
+  },[]);
+
     useEffect(() => {
       if (open) {
         form.setFieldsValue({
           type: "REVOKE",
           ...lastCandidateInfo,
           emailTarget: lastCandidateInfo.email,
-          emailContent: `Hi Wilfred,<br/><br/>Your certificate was revoked. `,
+          emailContent: ``,
           certInfoIdList: data.flatMap(row => row.id).join(","),
         })
       }
@@ -166,7 +175,8 @@ const RevokeModal = (props) =>  {
       width={1000}
       okText={'Submit for revoke'}
       closable={false}
-      onOk={onSave}
+      maskClosable={false}
+      onOk={onClickSubmit}
       onCancel={onClose}
       style={{ top: 20 }}
       {...props}
@@ -187,7 +197,7 @@ const RevokeModal = (props) =>  {
         <Text name={'certInfoIdList'} label={'Cert Info Ids'} size={100} disabled hidden/>
         <Text name={'name'} label={'Name'} size={100} disabled hidden/>
         <Text name={'hkid'} label={'HKID'} size={100} disabled/>
-        <Text name={'passport'} label={'Passport'} size={100} disabled hidden/>
+        <Text name={'passportNo'} label={'Passport'} size={100} disabled hidden/>
         <ResizeableTable
           size={'big'}
           pagination={false}

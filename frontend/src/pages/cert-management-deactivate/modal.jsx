@@ -24,6 +24,7 @@ const EmailModal = (props) =>  {
       title={'Create Exam Profile'}
       okText={'Save'}
       closable={false}
+      maskClosable={false}
       onOk={onSave}
       onCancel={onClose}
       {...props}

@@ -125,7 +125,7 @@ const RevokeTable = () =>  {
       sorter: false,
     },
     {
-      title: 'HKID',
+      title: 'Passport',
       key: 'passportNo',
       dataIndex: 'passportNo',
       width: 100,

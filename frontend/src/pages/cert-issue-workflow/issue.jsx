@@ -304,7 +304,7 @@ const Issue = () =>  {
             label: row.serialNo,
           }))
           setSerialNoOptions(options);
-          if (options.length > 0 && !searchParams.get("serialNo")) {
+          if (options.length > 0) {
             const value = searchParams.get("serialNo") || options[0].value
             updateCurrentSerialNo(value)
           }
@@ -483,10 +483,10 @@ const Issue = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disable={!issueCertData.length} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+                <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
-                <Button disable={!issueCertData.length} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
+                <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
               </Col>
             </Row>
           </Col>

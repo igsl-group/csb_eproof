@@ -278,11 +278,98 @@ const ApprovalWorkflow = () =>  {
       <PermissionControl permissionRequired={['Revoke_Submit', 'Revoke_Approve']}>
         <RevokeTable/>
       </PermissionControl>
+      <PermissionControl permissionRequired={['Certificate_Import', 'Certificate_Generate', 'Certificate_Sign_And_Issue', 'Certificate_Notify']}>
+        <br/>
+        <Card
+          bordered={false}
+          className={'card-body-nopadding'}
+          title={'Pending Certificate Issuance'}
+        >
+          <ResizeableTable
+            size={'big'}
+            rowKey={'id'}
+            onChange={tableOnChange}
+            pagination={false}
+            scroll={{
+              x: '100%',
+            }}
+            columns={[
+              {
+                title: 'Serial No.',
+                key: 'serialNo',
+                width: 140,
+                sorter: false,
+                render: (row) => <Link to={`/Workflow/${row.stage}?serialNo=${row.serialNo}`}>{row.serialNo}</Link>,
+
+              },
+              {
+                title: 'Exam Date',
+                key: 'examDate',
+                dataIndex: 'examDate',
+                width: 100,
+                sorter: false,
+              },
+              {
+                title: 'Stage',
+                key: 'stage',
+                dataIndex: 'stage',
+                width: 100,
+                sorter: false,
+              },
+            ]}
+            dataSource={actionListData}
+          />
+        </Card>
+      </PermissionControl>
+      <PermissionControl permissionRequired={['Certificate_Generate', 'Certificate_Sign_And_Issue', 'Certificate_Notify']}>
+        <br/>
+        <Card
+          bordered={false}
+          className={'card-body-nopadding'}
+          title={'Pending Certificate Reissuance'}
+        >
+          <ResizeableTable
+            size={'big'}
+            rowKey={'id'}
+            onChange={tableOnChange}
+            pagination={false}
+            scroll={{
+              x: '100%',
+            }}
+            columns={[
+              {
+                title: 'Stage',
+                key: 'stage',
+                width: 140,
+                sorter: false,
+                render: (row) => <Link
+                  to={`/WorkflowRenew/${certStageMapping[row?.certStage?.code]}`}>{certStageMapping[row?.certStage?.code]}</Link>,
+
+              },
+              {
+                title: 'Type',
+                key: 'type',
+                dataIndex: 'type',
+                width: 100,
+                sorter: false,
+              },
+              {
+                title: 'Remark',
+                key: 'remark',
+                dataIndex: 'remark',
+                width: 100,
+                sorter: false,
+              },
+            ]}
+            dataSource={actionReissueData}
+          />
+        </Card>
+      </PermissionControl>
       <br/>
       <Card
         bordered={false}
         className={'card-body-nopadding'}
-        title={'Pending Certificate Issuance'}
+        title={'Pending to Void/Unvoid Historical Result'}
       >
         <ResizeableTable
           size={'big'}
@@ -294,60 +381,28 @@ const ApprovalWorkflow = () =>  {
           }}
           columns={[
             {
-              title: 'Serial No.',
-              key: 'serialNo',
+              title: 'Action',
+              key: 'action',
+              dataIndex: 'action',
               width: 140,
               sorter: false,
-              render: (row) => <Link to={`/Workflow/${row.stage}?serialNo=${row.serialNo}`}>{row.serialNo}</Link>,
 
             },
             {
-              title: 'Exam Date',
-              key: 'examDate',
-              dataIndex: 'examDate',
-              width: 100,
-              sorter: false,
-            },
-            {
-              title: 'Stage',
-              key: 'stage',
-              dataIndex: 'stage',
-              width: 100,
-              sorter: false,
-            },
-          ]}
-          dataSource={actionListData}
-        />
-      </Card>
-      <br/>
-      <Card
-        bordered={false}
-        className={'card-body-nopadding'}
-        title={'Pending Certificate Reissuance'}
-      >
-        <ResizeableTable
-          size={'big'}
-          rowKey={'id'}
-          onChange={tableOnChange}
-          pagination={false}
-          scroll={{
-            x: '100%',
-          }}
-          columns={[
-            {
-              title: 'Stage',
-              key: 'stage',
+              title: 'Name',
+              key: 'name',
+              dataIndex: 'name',
               width: 140,
               sorter: false,
-              render: (row) => <Link to={`/WorkflowRenew/${certStageMapping[row?.certStage?.code]}`}>{certStageMapping[row?.certStage?.code]}</Link>,
 
             },
             {
-              title: 'Type',
-              key: 'type',
-              dataIndex: 'type',
-              width: 100,
+              title: 'HKID',
+              key: 'hkid',
+              dataIndex: 'hkid',
+              width: 140,
               sorter: false,
+
             },
             {
               title: 'Remark',
@@ -357,7 +412,7 @@ const ApprovalWorkflow = () =>  {
               sorter: false,
             },
           ]}
-          dataSource={actionReissueData}
+          dataSource={[]}
         />
       </Card>
       <br/>

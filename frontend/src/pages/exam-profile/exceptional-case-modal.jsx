@@ -183,6 +183,7 @@ const ExceptionalCaseModal = (props) =>  {
       title={'Create Exam Profile'}
       okText={'Save'}
       closable={false}
+      maskClosable={false}
       onCancel={onClose}
       {...props}
     >

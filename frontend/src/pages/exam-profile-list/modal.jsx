@@ -129,7 +129,7 @@ const ExamProfileFormModal = (props) =>  {
                     if (!value || isSameOrAfter) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Effective Date"'));
+                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be no earlier than the "Effective Date".'));
                   },
                 }),
               ]}
@@ -151,7 +151,7 @@ const ExamProfileFormModal = (props) =>  {
                     if (!value || isSameOrAfter) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('The "Effective Date" should be after the "Result Letter Date"'));
+                    return Promise.reject(new Error('The "Effective Date" should be no earlier than the "Result Letter Date".'));
                   },
                 }),
               ]}
@@ -172,7 +172,7 @@ const ExamProfileFormModal = (props) =>  {
                     if (!value || isSameOrAfter) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('The "Result Letter Date" should be after the "Exam Date"'));
+                    return Promise.reject(new Error('The "Result Letter Date" should be no earlier than the "Exam Date".'));
                   },
                 }),
               ]}
