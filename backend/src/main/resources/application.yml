@@ -178,7 +178,7 @@ thread-pool:
   generate-pdf:
     core-pool-size: 20
     max-pool-size: 20
-    queue-capacity: 30000
+    queue-capacity: 100
     thread-name-prefix: genpdf-thread-pool-
 
 #second minute hour dayOfMonth month dayOfWeek
