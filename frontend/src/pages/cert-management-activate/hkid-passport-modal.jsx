@@ -113,6 +113,7 @@ const HkidPassportModal = (props) =>  {
       width={1000}
       okText={'Submit for renew (All)'}
       closable={false}
+      maskClosable={false}
       onOk={onConfirm}
       onCancel={onClose}
       style={{ top: 20 }}

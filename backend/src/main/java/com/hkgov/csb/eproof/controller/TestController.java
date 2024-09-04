@@ -27,6 +27,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,7 @@ public class TestController {
 
     @Autowired
     private DocumentGenerateService documentGenerateService;
-   // @Value("${document.generate-temp-source}")
+    @Value("${document.generate-temp-source}")
     private String tmpSource;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 

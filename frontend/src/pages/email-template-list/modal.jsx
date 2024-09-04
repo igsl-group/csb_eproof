@@ -11,6 +11,10 @@ import {useMessage} from "../../context/message-provider";
 import {useRequest} from "ahooks";
 import {TYPE } from '@/config/enum';
 import {generalAPI} from "../../api/request";
+import { userRoleAPI } from '@/api/request';
+import {
+  toQueryString
+} from "@/utils/util";
 
 const EmailModal = (props) =>  {
 
@@ -18,11 +22,11 @@ const EmailModal = (props) =>  {
   const messageApi = useMessage();
   const type = props.type;
   const open = props.open;
-  const recordId = props.recordId;
+  const record = props.record;
   const onCloseCallback = props.onCloseCallback;
   const onFinishCallback = props.onFinishCallback;
   const [form] = Form.useForm();
-  const [roleList, setRoleList] = useState([]);
+  const [options, setOptions] = useState([]);
 
   const onClose = useCallback(() => {
     if (typeof onCloseCallback === "function") {
@@ -87,19 +91,68 @@ const EmailModal = (props) =>  {
     },
   });
 
+
+  const { runAsync: runUserRoleAPI } = useRequest(userRoleAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'userList':
+        {
+          const data = response.data || {};
+          const content = data.content || []
+          console.log(content);
+          const options = content.flatMap((row) => ({
+            value: row.email,
+            label: row.email,
+          }))
+
+          setOptions(options);
+          // messageApi.success('Create successfully.');
+          break;
+        }
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
+
   useEffect(() => {
     (async() => {
       if (open) {
         form.resetFields();
         switch (type) {
           case TYPE.EDIT:
-            await runGeneralAPI('emailTemplateGet', recordId)
+            await runGeneralAPI('emailTemplateGet', record.templateName)
             break;
         }
-        // await runGeneralAPI('roleList');
+
+        const defaultPaginationInfo = {
+          sizeOptions: [10, 20, 40],
+          pageSize: 999,
+          page: 1,
+          sortBy: 'id',
+          orderBy: 'descend',
+        };
+
+        const pagination = {
+          total: 0,
+          page: defaultPaginationInfo.page,
+          pageSize: defaultPaginationInfo.pageSize,
+          sortBy: defaultPaginationInfo.sortBy,
+          orderBy: defaultPaginationInfo.orderBy,
+        };
+
+        await runUserRoleAPI('userList', toQueryString(pagination, {}));
       }
     })()
-  }, [open, type, recordId]);
+  }, [open, type, record]);
 
   const onMailMergeButtonClicked = useCallback(() => {
     if (form.getFieldValue('mailMergeKey')) {
@@ -165,6 +218,7 @@ const EmailModal = (props) =>  {
               size={100}
               mode="tags"
               tokenSeparators={[',']}
+              options={options}
               validation={[validators.emailValidator()]}
               hidden={form.getFieldValue('type') === 'External'}
             />
@@ -176,7 +230,7 @@ const EmailModal = (props) =>  {
             <Richtext name={'body'} label={'Body'} size={100} required/>
           </Col>
           {
-            form.getFieldValue(type) !== "Internal" ? (
+            form.getFieldValue('type') === 'External' ? (
               <Col span={24}>
                 <Row gutter={[8, 8]}>
                   <Col span={8} xs={12}>

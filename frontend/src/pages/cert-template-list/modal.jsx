@@ -24,6 +24,7 @@ const CertificateModal = (props) =>  {
       title={'Edit Certificate'}
       okText={'Save'}
       closable={false}
+      maskClosable={false}
       onOk={onSave}
       onCancel={onClose}
       style={{ top: 20 }}

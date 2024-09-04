@@ -77,10 +77,7 @@ const BatchVerification = () =>  {
       title: <HomeOutlined />,
     },
     {
-      title: 'Other',
-    },
-    {
-      title: 'Batch Verification',
+      title: 'Batch Enquiry',
     },
   ], []);
 
@@ -106,7 +103,7 @@ const BatchVerification = () =>  {
 
   return (
     <div className={styles['batch-verification']}>
-      <Typography.Title level={3}>Batch Verification</Typography.Title>
+      <Typography.Title level={3}>Batch Enquiry</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
       <Row justify={'end'}  gutter={[16, 16]}>

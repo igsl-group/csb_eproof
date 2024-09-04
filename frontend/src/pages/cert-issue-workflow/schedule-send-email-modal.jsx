@@ -112,7 +112,7 @@ const ScheduleSendEmailModal = (props) =>  {
   useEffect(() => {
     if (serialNoValue && open) {
       runExamProfileAPI('examProfileGet', serialNoValue);
-      runGeneralAPI('emailTemplateGet', 4);
+      runGeneralAPI('emailTemplateGet', 'Notify');
     }
   }, [serialNoValue, open])
 
@@ -161,7 +161,7 @@ const ScheduleSendEmailModal = (props) =>  {
                     if (!value || isSameOrAfter) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be after the "Effective Date"'));
+                    return Promise.reject(new Error('The "Planned Email Issuance Date" should be no earlier than the "Effective Date".'));
                   },
                 }),
               ]}

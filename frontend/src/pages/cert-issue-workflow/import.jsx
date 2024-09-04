@@ -268,7 +268,7 @@ const Import = () =>  {
             label: row.serialNo,
           }))
           setSerialNoOptions(options);
-          if (options.length > 0 && !searchParams.get("serialNo")) {
+          if (options.length > 0) {
             const value = searchParams.get("serialNo") || options[0].value
             updateCurrentSerialNo(value)
           }
@@ -431,7 +431,7 @@ const Import = () =>  {
           <Col>
             <Row gutter={[16, 16]}>
               <Col>
-                <Button disable={!importedData.length} type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
+                <Button disabled={importedData.length === 0} type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
               </Col>
               <Col>
                 <Button

@@ -7,16 +7,17 @@ import com.deepoove.poi.plugin.table.LoopRowTableRenderPolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.exception.GenericException;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
+import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
-
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
 import org.docx4j.fonts.IdentityPlusMapper;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,8 +48,11 @@ public class DocxUtil {
     private String tempDocumentPath;
     @Value("${document.libreoffice-program-path}")
     private String libreOfficeProgramPath;
+    @Value("${document.font-en-path}")
+    private String fontEnPath;
 
-
+    @Value("${document.font-zh-path}")
+    private String fontZhPath;
     Logger logger = LoggerFactory.getLogger(this.getClass());
     public DocxUtil(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -122,6 +127,28 @@ public class DocxUtil {
 
         XWPFDocument document = new XWPFDocument(is);
         PdfOptions options = PdfOptions.create();
+        options.fontProvider(new IFontProvider() {
+            @Override
+            public Font getFont(String fontFamily, String encoding, float size, int style, java.awt.Color color) {
+                try {
+
+                    if ("Times New Roman".equalsIgnoreCase(fontFamily)) {
+                        BaseFont baseFont = BaseFont.createFont(fontEnPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                        return new Font(baseFont, size, style, color);
+                    } else if ("華康中黑體".equalsIgnoreCase(fontFamily) || "DFKai-SB".equalsIgnoreCase(fontFamily)) {
+                        BaseFont baseFont = BaseFont.createFont(fontZhPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                        return new Font(baseFont, size, style, color);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return new Font(Font.TIMES_ROMAN, size, style, color); // Fallback
+
+            }
+        });
+
 
         PdfConverter.getInstance().convert(document, baos, options);
         baos.close();

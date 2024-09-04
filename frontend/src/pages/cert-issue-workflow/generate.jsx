@@ -150,7 +150,7 @@ const Generate = () =>  {
     },
     {
       title: 'Letter Type',
-      key: 'letterType',
+      key: 'letter_type',
       dataIndex: 'letterType',
       width: 80,
       sorter: true,
@@ -290,7 +290,7 @@ const Generate = () =>  {
             label: row.serialNo,
           }))
           setSerialNoOptions(options);
-          if (options.length > 0 && !searchParams.get("serialNo")) {
+          if (options.length > 0) {
             const value = searchParams.get("serialNo") || options[0].value
             updateCurrentSerialNo(value)
           }
@@ -457,10 +457,10 @@ const Generate = () =>  {
           <Col span={16}>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disable={!generatedData.length} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
+                <Button disabled={generatedData.length === 0} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
               </Col>
               <Col>
-                <Button disable={!generatedData.length} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
+                <Button disabled={generatedData.length === 0} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
               </Col>
             </Row>
           </Col>

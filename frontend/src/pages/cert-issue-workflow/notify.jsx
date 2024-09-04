@@ -152,7 +152,7 @@ const Notify = () =>  {
     },
     {
       title: 'Letter Type',
-      key: 'letterType',
+      key: 'letter_type',
       dataIndex: 'letterType',
       width: 80,
       sorter: true,
@@ -442,7 +442,7 @@ const Notify = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disable={!notifyData.length} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+                <Button disabled={notifyData.length === 0} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
               </Col>
               <Col>
                 <Button type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>

@@ -46,7 +46,6 @@ const EmailModal = (props) =>  {
     const values = await form.validateFields()
       .then((values) => ({
         ...values,
-        to: values.newEmail,
       }))
       .catch((e) => {
         console.error(e);
@@ -54,7 +53,7 @@ const EmailModal = (props) =>  {
       })
 
     if (values) {
-      const id = record.id;
+      const id = values.id;
       delete values.id;
       delete values.examDate;
       delete values.newHkid;
@@ -62,7 +61,7 @@ const EmailModal = (props) =>  {
       delete values.newPassport;
       delete values.newEmail;
 
-      runExamProfileAPI('certSendEmail', id, values)
+      runExamProfileAPI('certRenewSendEmail', id, values)
         .then(() => onFinish());
       onFinish()
     }
@@ -72,10 +71,11 @@ const EmailModal = (props) =>  {
     if (open) {
       form.setFieldsValue({
         ...record,
+        to: record.newEmail,
         newHkid: stringToHKID(record.newHkid),
         examDate: record?.certInfo?.examProfile?.examDate,
-      })
-      runGeneralAPI('emailTemplateGet', 4);
+      });
+      runGeneralAPI('emailTemplateGet', 'Notify');
     }
   }, [open, record]);
 
@@ -102,6 +102,9 @@ const EmailModal = (props) =>  {
           const data = response.data || {};
           const content = data.content || [];
           break;
+        case 'certRenewSendEmail':
+          messageApi.success('Notify candidate successfully.');
+          break;
         default:
           break;
       }
@@ -120,13 +123,13 @@ const EmailModal = (props) =>  {
       switch (params[0]) {
         case 'emailTemplateGet':
           const data = response.data || {};
-          let body = data.body;
-          body = body.replaceAll('{{application_name}}', record.newName);
-          body = body.replaceAll('{{examination_date}}', dayjs(record?.certInfo?.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
-          body = body.replaceAll('{{eproof_document_url}}', record.certEproof?.url);
+          let htmlBody = data.body;
+          htmlBody = htmlBody.replaceAll('{{application_name}}', record.newName);
+          htmlBody = htmlBody.replaceAll('{{examination_date}}', dayjs(record?.certInfo?.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
+          htmlBody = htmlBody.replaceAll('{{eproof_document_url}}', record.certEproof?.url);
           form.setFieldsValue({
-            ...data,
-            body,
+            title: data.subject,
+            htmlBody,
           });
           break;
         default:
@@ -166,7 +169,7 @@ const EmailModal = (props) =>  {
         <Row gutter={24}>
           <Text
             name={"id"}
-            label={'Name'}
+            label={'Id'}
             size={100}
             disabled
             hidden
@@ -204,7 +207,7 @@ const EmailModal = (props) =>  {
             />
           </Col>
           <Col span={24}>
-            <Text name={'newEmail'} label={'Email'} size={100} required disabled/>
+            <Text name={'to'} label={'Email'} size={100} required disabled/>
           </Col>
           <Col span={24}>
             <Text name={'title'} label={'Subject'} size={100} required/>
