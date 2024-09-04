@@ -62,7 +62,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
     @Async("generatePdfThreadPool")
     public void singleGeneratePdf(CertInfo certInfo, byte[] atLeastOnePassedTemplate, byte[] allFailedTemplate, boolean isBatchMode, boolean isNewCertInfo) throws Exception {
         try{
-            logger.info("Start generate.");
+            logger.info("Start generate. CertInfo ID: {}",certInfo.getId());
 
             if (!isBatchMode){
                 // added this logic to avoid querying db using a bunch of time for the same template in batch mode.
@@ -80,7 +80,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
             this.createCertPdfRecord(certInfo,uploadFileRecord);
             this.updateCertStageAndStatus(certInfo, CertStage.GENERATED, CertStatus.SUCCESS);
 
-            logger.info("Complete generate");
+            logger.info("Complete generate. CertInfo ID: {}",certInfo.getId());
         } catch(Exception e){
             e.printStackTrace();
             certInfo.setCertStatus(CertStatus.FAILED);
