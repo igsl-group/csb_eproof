@@ -12,8 +12,8 @@ import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
-import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.File;
+import com.hkgov.csb.eproof.entity.*;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
@@ -58,8 +58,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.imageio.ImageIO;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
@@ -1200,7 +1198,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 //                if(!csv.getLetterType().isEmpty() && (!csv.getLetterType().equals("Fail") && !csv.getLetterType().equals("Pass"))){
 //                    throw new ServiceException(ResultCode.CSV_LETTER_TYPE,row);
 //                }
-                if(!CodeUtil.validEmai(csv.getEmail())){
+                if(!CodeUtil.validEmail(csv.getEmail())){
                     throw new ServiceException(ResultCode.CSV_EMAIL_ERROR,row);
                 }
                 //组装batch info数据
