@@ -176,9 +176,9 @@ thread-pool:
     queue-capacity: 100
     thread-name-prefix: scheduled-task-thread-pool-
   generate-pdf:
-    core-pool-size: 20
+    core-pool-size: 1
     max-pool-size: 20
-    queue-capacity: 100
+    queue-capacity: 100000
     thread-name-prefix: genpdf-thread-pool-
 
 #second minute hour dayOfMonth month dayOfWeek

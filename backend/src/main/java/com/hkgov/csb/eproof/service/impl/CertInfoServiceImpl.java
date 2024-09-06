@@ -268,6 +268,25 @@ public class CertInfoServiceImpl implements CertInfoService {
         for (CertInfo cert : inProgressCertList) {
             pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
         }
+
+        inProgressCertList = inProgressCertList.stream().filter(certInfo->CertStatus.FAILED.equals(certInfo.getCertStatus())).toList();
+
+        if(!inProgressCertList.isEmpty()){
+            logger.info("Found {} failed generate cert in first round. Start second round.",inProgressCertList.size());
+            for (CertInfo certInfo : inProgressCertList) {
+                pdfGenerateService.singleGeneratePdf(certInfo,passTemplateInputStream,allFailedTemplate,true,false);
+            }
+        }
+
+
+        inProgressCertList = inProgressCertList.stream().filter(certInfo->CertStatus.FAILED.equals(certInfo.getCertStatus())).toList();
+
+        if(!inProgressCertList.isEmpty()){
+            logger.info("Found {} failed generate cert in second round. Start third round.",inProgressCertList.size());
+            for (CertInfo certInfo : inProgressCertList) {
+                pdfGenerateService.singleGeneratePdf(certInfo,passTemplateInputStream,allFailedTemplate,true,false);
+            }
+        }
         /*} catch (Exception e){
             inProgressCertList.forEach(cert->{
                 if (cert.getCertStatus() != CertStatus.SUCCESS){
