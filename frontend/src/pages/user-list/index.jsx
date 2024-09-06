@@ -276,7 +276,7 @@ const UserList = () =>  {
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
-            showTotal={(total) => `Total ${total} items`}
+            showTotal={(total) => `Total ${total} item(s)`}
             showSizeChanger
             showQuickJumper
           />
@@ -307,7 +307,7 @@ const UserList = () =>  {
               onChange={paginationOnChange}
               current={pagination.page}
               pageSize={pagination.pageSize}
-              showTotal={(total) => `Total ${total} items`}
+              showTotal={(total) => `Total ${total} item(s)`}
               showSizeChanger
               showQuickJumper
             />

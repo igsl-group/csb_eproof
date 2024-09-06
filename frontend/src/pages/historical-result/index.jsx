@@ -368,7 +368,7 @@ const HistoricalResultList = () =>  {
             onChange={paginationOnChange}
             current={pagination.page}
             pageSize={pagination.pageSize}
-            showTotal={(total) => `Total ${total} items`}
+            showTotal={(total) => `Total ${total} item(s)`}
             showSizeChanger
             showQuickJumper
           />
@@ -399,7 +399,7 @@ const HistoricalResultList = () =>  {
               onChange={paginationOnChange}
               pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
-              showTotal={(total) => `Total ${total} items`}
+              showTotal={(total) => `Total ${total} item(s)`}
               showSizeChanger
               showQuickJumper
             />
