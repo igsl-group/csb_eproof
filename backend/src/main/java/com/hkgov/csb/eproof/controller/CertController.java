@@ -227,13 +227,13 @@ public class CertController {
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
     }
 
-    @GetMapping("/eproof/getUnsignedJson/{certInfoId}")
+    /*@GetMapping("/eproof/getUnsignedJson/{certInfoId}")
     public ResponseEntity getUnsignedJson(@PathVariable Long certInfoId){
 
         return ResponseEntity.ok(certInfoService.prepareEproofUnsignJson(certInfoId));
-    }
+    }*/
 
-    @PostMapping("/eproof/prepareEproofPdf/{certInfoId}")
+    /*@PostMapping("/eproof/prepareEproofPdf/{certInfoId}")
     public ResponseEntity prepareEproofPdf(
             @PathVariable Long certInfoId,
             @RequestBody PrepareEproofPdfRequest prepareEproofPdfRequest
@@ -241,10 +241,10 @@ public class CertController {
 
         byte[] preparedEproofPdf = certInfoService.prepareEproofPdf(certInfoId, prepareEproofPdfRequest);
         return ResponseEntity.ok().body(preparedEproofPdf);
-    }
+    }*/
 
 
-    @PutMapping("/eproof/batch/startScheduleSign/{examProfileSerialNo}")
+    /*@PutMapping("/eproof/batch/startScheduleSign/{examProfileSerialNo}")
     public Result startScheduledSign(@PathVariable String examProfileSerialNo){
 
         List<CertInfo>scheduledCert = certInfoService.batchScheduleCertSignAndIssue(examProfileSerialNo);
@@ -253,11 +253,11 @@ public class CertController {
         } else {
             return Result.success("Already scheduled certs found. No new cert scheduled for sign and issue.");
         }
-    }
+    }*/
 
 
 
-    @GetMapping("/eproof/getNextScheduledSignAndIssueCert/{examProfileSerialNo}")
+    /*@GetMapping("/eproof/getNextScheduledSignAndIssueCert/{examProfileSerialNo}")
     public ResponseEntity getNextScheduledSignAndIssueCert(@PathVariable String examProfileSerialNo){
 
         CertInfo nextScheduledCertForProcessing = certInfoService.getNextScheduledSignAndIssueCert(examProfileSerialNo);
@@ -266,14 +266,14 @@ public class CertController {
         } else {
             return ResponseEntity.badRequest().body("No next scheduled cert found.");
         }
-    }
+    }*/
 
-    @PostMapping("/uploadSignedPdf/{certInfoId}")
+    /*@PostMapping("/uploadSignedPdf/{certInfoId}")
     public Result uploadSignedPdf(@PathVariable Long certInfoId, @RequestPart("file") MultipartFile file) throws Exception {
         certInfoService.uploadSignedPdf(certInfoId,file);
         certInfoService.issueCert(certInfoId);
         return Result.success();
-    }
+    }*/
 
     @PostMapping("/revoke")
     public Result revoke(@RequestParam List<Long> certInfoIdList,@RequestBody CertRevokeDto params) {

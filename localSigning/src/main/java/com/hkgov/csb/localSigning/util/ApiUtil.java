@@ -34,9 +34,6 @@ public class ApiUtil {
     @Value("${backend.endpoint.get.next.job}")
     private String getNextJobEndpoint;
 
-    @Value("${backend.endpoint.download.cert}")
-    private String downloadCertEndpoint;
-
     @Value("${backend.endpoint.upload.signed.cert}")
     private String uploadSignedCertEndpoint;
 

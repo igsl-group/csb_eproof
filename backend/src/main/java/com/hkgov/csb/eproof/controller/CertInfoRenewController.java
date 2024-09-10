@@ -149,15 +149,15 @@ public class CertInfoRenewController {
         return String.format("%s-cert-pdf.zip",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
     }
-
+/*
     @GetMapping("/eproof/getUnsignedJson/{certInfoRenewId}")
     public ResponseEntity getUnsignedJson(@PathVariable Long certInfoRenewId){
 
         return ResponseEntity.ok(certInfoRenewService.prepareEproofUnsignJson(certInfoRenewId));
-    }
+    }*/
 
 
-    @PostMapping("/eproof/prepareEproofPdf/{certInfoRenewId}")
+   /* @PostMapping("/eproof/prepareEproofPdf/{certInfoRenewId}")
     public ResponseEntity prepareEproofPdf(
             @PathVariable Long certInfoRenewId,
             @RequestBody PrepareEproofPdfRequest prepareEproofPdfRequest
@@ -168,12 +168,12 @@ public class CertInfoRenewController {
         eProofConfigProperties.setAccessToken(null);
 
         return ResponseEntity.ok().body(preparedEproofPdf);
-    }
+    }*/
 
-    @PostMapping("/eproof/uploadSignedPdf/{certInfoRenewId}")
+  /*  @PostMapping("/eproof/uploadSignedPdf/{certInfoRenewId}")
     public Result uploadSignedPdf(@PathVariable Long certInfoRenewId, @RequestPart("file") MultipartFile file) throws Exception {
         certInfoRenewService.uploadSignedPdf(certInfoRenewId,file);
         certInfoRenewService.issueCert(certInfoRenewId);
         return Result.success();
-    }
+    }*/
 }
