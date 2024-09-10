@@ -131,16 +131,16 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         List<ExamScoreDto> markDtoList = new ArrayList<>();
 
         if(StringUtils.isNotEmpty(certInfoRenew.getNewUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese",convertGradeToReadableGrade(certInfoRenew.getNewUcGrade())));
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfoRenew.getNewUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfoRenew.getNewUeGrade())){
-            markDtoList.add(new ExamScoreDto("Use of English",convertGradeToReadableGrade(certInfoRenew.getNewUeGrade())));
+            markDtoList.add(new ExamScoreDto("Use of English (UE)",convertGradeToReadableGrade(certInfoRenew.getNewUeGrade())));
         }
         if(StringUtils.isNotEmpty(certInfoRenew.getNewAtGrade())){
-            markDtoList.add(new ExamScoreDto("Aptitude Test",convertGradeToReadableGrade(certInfoRenew.getNewAtGrade())));
+            markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",convertGradeToReadableGrade(certInfoRenew.getNewAtGrade())));
         }
         if(StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade())) {
-            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", convertGradeToReadableGrade(certInfoRenew.getNewBlGrade())));
+            markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfoRenew.getNewBlGrade())));
         }
 
         HashMap<String,List> map = new HashMap<>();
@@ -412,13 +412,13 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfoRenew.getNewUcGrade()) ? "Use of Chinese" : "");
         extraInfo.put("result_1", certInfoRenew.getNewUcGrade());
 
-        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfoRenew.getNewUeGrade()) ? "Use of English" : "");
+        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfoRenew.getNewUeGrade()) ? "Use of English (UE)" : "");
         extraInfo.put("result_2", certInfoRenew.getNewUeGrade());
 
-        extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfoRenew.getNewAtGrade()) ? "Aptitude Test" : "");
+        extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfoRenew.getNewAtGrade()) ? "Aptitude Test (AT)" : "");
         extraInfo.put("result_3", certInfoRenew.getNewAtGrade());
 
-        extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade()) ? "Basic Law and National Security Law Test" : "");
+        extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade()) ? "BLNST" : "");
         extraInfo.put("result_4", certInfoRenew.getNewBlGrade());
 
         extraInfo.put("hkid_or_passport", certInfoRenew.getHkidOrPassport());
@@ -436,15 +436,15 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         }
 
         int majorVersion = 1;
-        en1 = certInfoRenew.getNewName();
-        en2 = certInfoRenew.getHkidOrPassport();
-        en3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        tc1 = certInfoRenew.getNewName();
-        tc2 = certInfoRenew.getHkidOrPassport();
-        tc3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        sc1 = certInfoRenew.getNewName();
-        sc2 = certInfoRenew.getHkidOrPassport();
-        sc3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        en1 = certInfoRenew.getName();
+        en2 = certInfoRenew.getCertInfo().getExamDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        en3 = "Common Recruitment Examination / Basic Law and National Security Law Test (Degree / Professional Grades)";
+        tc1 = certInfoRenew.getName();
+        tc2 = certInfoRenew.getCertInfo().getExamDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        tc3 = "綜合招聘考試及《基本法及香港國安法》測試（學位/專業程度職系）";
+        sc1 = certInfoRenew.getName();
+        sc2 = certInfoRenew.getCertInfo().getExamDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        sc3 = "综合招聘考试及《基本法及香港国安法》测试（学位/专业程度职系）";
 
         return EProofUtil.getUnsignedEproofJson(
                 null,

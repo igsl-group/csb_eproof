@@ -319,16 +319,16 @@ public class CertInfoServiceImpl implements CertInfoService {
         List<ExamScoreDto> markDtoList = new ArrayList<>();
 
         if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese",convertGradeToReadableGrade(certInfo.getUcGrade())));
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfo.getUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
-            markDtoList.add(new ExamScoreDto("Use of English",convertGradeToReadableGrade(certInfo.getUeGrade())));
+            markDtoList.add(new ExamScoreDto("Use of English (UE)",convertGradeToReadableGrade(certInfo.getUeGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
-            markDtoList.add(new ExamScoreDto("Aptitude Test",convertGradeToReadableGrade(certInfo.getAtGrade())));
+            markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",convertGradeToReadableGrade(certInfo.getAtGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
-            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
+            markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
         }
 
         HashMap<String,List> map = new HashMap<>();
@@ -649,16 +649,16 @@ public class CertInfoServiceImpl implements CertInfoService {
         extraInfo.put("candidate_name", certInfo.getName());
         extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
 
-        extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese" : "");
+        extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese (UC)" : "");
         extraInfo.put("result_1", certInfo.getUcGrade());
 
-        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfo.getUeGrade()) ? "Use of English" : "");
+        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfo.getUeGrade()) ? "Use of English (UE)" : "");
         extraInfo.put("result_2", certInfo.getUeGrade());
 
-        extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfo.getAtGrade()) ? "Aptitude Test" : "");
+        extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfo.getAtGrade()) ? "Aptitude Test (AT)" : "");
         extraInfo.put("result_3", certInfo.getAtGrade());
 
-        extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfo.getBlnstGrade())? "Basic Law and National Security Law Test" : "");
+        extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfo.getBlnstGrade())? "BLNST" : "");
         extraInfo.put("result_4", certInfo.getBlnstGrade());
 
         extraInfo.put("hkid_or_passport", certInfo.getHkidOrPassport());
@@ -677,14 +677,14 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         int majorVersion = 1;
         en1 = certInfo.getName();
-        en2 = certInfo.getHkidOrPassport();
-        en3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        en2 = certInfo.getExamDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        en3 = "Common Recruitment Examination / Basic Law and National Security Law Test (Degree / Professional Grades)";
         tc1 = certInfo.getName();
-        tc2 = certInfo.getHkidOrPassport();
-        tc3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        tc2 = certInfo.getExamDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        tc3 = "綜合招聘考試及《基本法及香港國安法》測試（學位/專業程度職系）";
         sc1 = certInfo.getName();
-        sc2 = certInfo.getHkidOrPassport();
-        sc3 = issueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        sc2 = certInfo.getExamDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        sc3 = "综合招聘考试及《基本法及香港国安法》测试（学位/专业程度职系）";
 
         return EProofUtil.getUnsignedEproofJson(
                 null,

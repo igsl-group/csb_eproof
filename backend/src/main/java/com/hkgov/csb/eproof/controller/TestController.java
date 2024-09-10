@@ -124,17 +124,17 @@ public class TestController {
 
         List<ExamScoreDto> markDtoList = new ArrayList<>();
         if(certInfo.getUcGrade() != null){
-            markDtoList.add(new ExamScoreDto("Use of Chinese",certInfo.getUcGrade()));
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",certInfo.getUcGrade()));
         }
         if(certInfo.getUeGrade() != null){
-            markDtoList.add(new ExamScoreDto("Use of English",certInfo.getUeGrade()));
+            markDtoList.add(new ExamScoreDto("Use of English (UE)",certInfo.getUeGrade()));
         }
 
         if(certInfo.getAtGrade() != null){
-            markDtoList.add(new ExamScoreDto("Aptitude Test",certInfo.getAtGrade()));
+            markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",certInfo.getAtGrade()));
         }
         if(certInfo.getBlnstGrade() != null){
-            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", certInfo.getBlnstGrade()));
+            markDtoList.add(new ExamScoreDto("BLNST", certInfo.getBlnstGrade()));
         }
 
 
