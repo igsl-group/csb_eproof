@@ -34,7 +34,7 @@ public interface CertInfoService {
     void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage);
     List<CertInfo> changeCertStatusToScheduled(String examProfileSerialNo, CertStage certStage);
 
-    List<CertInfo> batchScheduleCertSignAndIssue(String examProfileSerialNo);
+    Boolean batchScheduleCertSignAndIssue(String examProfileSerialNo);
 
     void batchGeneratePdf(String examProfileSerialNo) throws Exception;
 

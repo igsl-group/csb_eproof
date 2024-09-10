@@ -133,4 +133,13 @@ select c from CertInfo c
 """)
     Integer dispatchCert(String examSerialNo, CertStage currentStage, CertStage nextStage, CertStatus pendingCertStatus, String currentUserName);
 
+
+    @Modifying
+    @Query("""
+    UPDATE CertInfo
+    SET certStatus = :scheduledStatus, modifiedBy = :dpUserId, modifiedDate = current_timestamp
+    WHERE certStatus in :inProgressAndPending and examProfileSerialNo = :examProfileSerialNo
+    and certStage = :signAndIssueStage
+""")
+    void batchScheduledSignAndIssue(String examProfileSerialNo, CertStage signAndIssueStage,List<CertStatus> inProgressAndPending, CertStatus scheduledStatus, String dpUserId);
 }

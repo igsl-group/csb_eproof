@@ -230,14 +230,15 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     @Transactional
-    public List<CertInfo>  batchScheduleCertSignAndIssue(String examProfileSerialNo) {
+    public Boolean  batchScheduleCertSignAndIssue(String examProfileSerialNo) {
 
         List<CertInfo> alreadyScheduledCert = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.SCHEDULED));
         if (!alreadyScheduledCert.isEmpty()){
-            return null;
+            return false;
         }
 
-        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS));
+        certInfoRepository.batchScheduledSignAndIssue(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS,CertStatus.PENDING),CertStatus.SCHEDULED,authenticationService.getCurrentUser().getDpUserId());
+       /* List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS));
         List<CertInfo> pendingSignAndIssueCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.PENDING));
 
         List<CertInfo> toBeScheduledCert = new ArrayList<>();
@@ -248,12 +249,12 @@ public class CertInfoServiceImpl implements CertInfoService {
             cert.setCertStatus(CertStatus.SCHEDULED);
         });
 
-        certInfoRepository.saveAll(toBeScheduledCert);
+        certInfoRepository.saveAll(toBeScheduledCert);*/
 
         // Set access token to null to force the following action to get a new access token
         eProofConfigProperties.setAccessToken(null);
 
-        return pendingSignAndIssueCertList;
+        return true;
     }
 
     @Override

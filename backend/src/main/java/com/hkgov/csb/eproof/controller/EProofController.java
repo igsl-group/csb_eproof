@@ -70,9 +70,9 @@ public class EProofController {
     @PutMapping("/eproof/batch/startScheduleSign/{examProfileSerialNo}")
     public Result startScheduledSign(@PathVariable String examProfileSerialNo){
 
-        List<CertInfo> scheduledCert = certInfoService.batchScheduleCertSignAndIssue(examProfileSerialNo);
-        if (scheduledCert!=null && !scheduledCert.isEmpty()){
-            return Result.success("Scheduled sign and issue started for "+scheduledCert.size()+" cert(s).");
+        Boolean isCertScheduled = certInfoService.batchScheduleCertSignAndIssue(examProfileSerialNo);
+        if (isCertScheduled){
+            return Result.success("Scheduled sign and issue started.");
         } else {
             return Result.success("Already scheduled certs found. No new cert scheduled for sign and issue.");
         }
