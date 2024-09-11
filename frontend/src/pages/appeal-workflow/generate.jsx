@@ -32,7 +32,7 @@ const Generate = () =>  {
     serialNo,
   } = useParams();
 
-  const [selectedRowKeys, setSelectedRowKeys] = useState('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([
     {
       serialNo: 'N000000001',
@@ -204,11 +204,13 @@ const Generate = () =>  {
     });
   },[]);
 
-  const rowSelection = useCallback({
+  const rowSelection = useMemo(() => ({
+    selectedRowKeys,
+    preserveSelectedRowKeys: true,
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
     },
-  }, []);
+  }), [selectedRowKeys]);
 
   return (
     <div className={styles['exam-profile']}>

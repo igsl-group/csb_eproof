@@ -44,7 +44,7 @@ const CertificateManagementInvalid = () =>  {
     serialNo,
   } = useParams();
 
-  const [selectedRowKeys, setSelectedRowKeys] = useState('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([
     {
       serialNo: 'N000000001',
@@ -155,11 +155,13 @@ const CertificateManagementInvalid = () =>  {
     });
   },[]);
 
-  const rowSelection = useCallback({
+  const rowSelection = useMemo(() => ({
+    selectedRowKeys,
+    preserveSelectedRowKeys: true,
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
     },
-  }, []);
+  }), [selectedRowKeys]);
 
   const onClickDownloadSelected = useCallback(() => {
     modalApi.confirm({
