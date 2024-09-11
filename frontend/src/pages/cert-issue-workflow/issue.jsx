@@ -168,7 +168,7 @@ const Issue = () =>  {
   ], []);
 
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [10, 20, 40],
+    sizeOptions: [4, 8, 40],
     pageSize: 10,
     page: 1,
     sortBy: 'id',
@@ -447,6 +447,7 @@ const Issue = () =>  {
     });
     serialNoForm.setFieldValue('serialNo', value);
     setSelectedRowKeys([]);
+    resetPagination();
   }, [])
 
   const updateSummary = () => {

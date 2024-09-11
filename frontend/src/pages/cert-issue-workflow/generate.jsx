@@ -422,6 +422,7 @@ const Generate = () =>  {
     });
     serialNoForm.setFieldValue('serialNo', value);
     setSelectedRowKeys([]);
+    resetPagination();
   }, [])
 
   const updateSummary = () => {
