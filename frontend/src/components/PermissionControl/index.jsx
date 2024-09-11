@@ -21,7 +21,7 @@ const PermissionControl = (props) => {
     return [];
   }, [permissionRequired]);
 
-  const userHasPermissions = useMemo(() => auth.permissions, []);
+  const userHasPermissions = useMemo(() => auth.permissions, [auth]);
 
   const hasPermission = useMemo(() => {
     let flag = false;
