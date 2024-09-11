@@ -450,9 +450,23 @@ const Issue = () =>  {
       }
 
     },
-    onError: (error) => {
+    onError: (error, params) => {
       const message = error.data?.properties?.message || '';
-      messageApi.error(message);
+
+      switch (params[0]) {
+        case 'certRenewSign':
+        {
+          if (message) {
+            messageApi.error(message);
+          } else {
+            messageApi.error('Cannot detect E-Proof Local Service, please ensure it is running or contact system administrator for assistance.');
+          }
+          break;
+        }
+        default:
+          messageApi.error(message);
+          break;
+      }
     },
     onFinally: (params, result, error) => {
     },
