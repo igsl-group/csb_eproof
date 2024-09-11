@@ -36,6 +36,7 @@ const ApprovalWorkflow = () =>  {
   const [examProfileSummaryList, setExamProfileSummaryList] = useState([]);
   const [actionListData, setActionListData] = useState([]);
   const [actionReissueData, setActionReissueData] = useState([]);
+  const [onholdCaseData, setOnholdCaseData] = useState([]);
   const [revokeOpen, setRevokeOpen] = useState(false);
 
   const actionListCallback = useCallback((list, keys = [], stage = '') => {
@@ -48,6 +49,7 @@ const ApprovalWorkflow = () =>  {
             serialNo: row.examProfile.serialNo,
             stage,
             examDate: row.examProfile.examDate,
+            summary: row,
           });
           break;
         }
@@ -75,6 +77,7 @@ const ApprovalWorkflow = () =>  {
 
   useEffect(() => {
     let workflowActionList = [];
+    let onholdActionList = [];
     if (auth.permissions.includes('Certificate_Import')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['imported'], 'Import'))
     }
@@ -87,8 +90,14 @@ const ApprovalWorkflow = () =>  {
     if (auth.permissions.includes('Certificate_Notify')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['sendEmailTotal'], 'Notify'))
     }
+    if (auth.permissions.includes('Case_Maintenance')) {
+      onholdActionList.push(...actionListCallback(examProfileSummaryList, ['onHoldCaseTotal'], 'Onhold'))
+    }
+    console.log(onholdActionList)
     workflowActionList = workflowActionList.sort((a, b) => dayjs(a.examDate, 'YYYY-MM-DD') - dayjs(b.examDate, 'YYYY-MM-DD'))
+    onholdActionList = onholdActionList.sort((a, b) => dayjs(a.examDate, 'YYYY-MM-DD') - dayjs(b.examDate, 'YYYY-MM-DD'))
     setActionListData(workflowActionList);
+    setOnholdCaseData(onholdActionList);
   }, [auth.permissions, examProfileSummaryList])
 
 
@@ -362,6 +371,50 @@ const ApprovalWorkflow = () =>  {
               },
             ]}
             dataSource={actionReissueData}
+          />
+        </Card>
+      </PermissionControl>
+      <br/>
+      <PermissionControl permissionRequired={['Case_Maintenance']}>
+        <br/>
+        <Card
+          bordered={false}
+          className={'card-body-nopadding'}
+          title={'Review On-hold Case'}
+        >
+          <ResizeableTable
+            size={'big'}
+            rowKey={'id'}
+            onChange={tableOnChange}
+            pagination={false}
+            scroll={{
+              x: '100%',
+            }}
+            columns={[
+              {
+                title: 'Serial No.',
+                key: 'serialNo',
+                width: 140,
+                sorter: false,
+                render: (row) => <Link to={`/ExamProfile/${row.serialNo}`}>{row.serialNo}</Link>,
+
+              },
+              {
+                title: 'Exam Date',
+                key: 'examDate',
+                dataIndex: 'examDate',
+                width: 100,
+                sorter: false,
+              },
+              {
+                title: 'Total Case(s)',
+                key: 'total',
+                render: (row) => row?.summary?.onHoldCaseTotal,
+                width: 100,
+                sorter: false,
+              },
+            ]}
+            dataSource={onholdCaseData}
           />
         </Card>
       </PermissionControl>
