@@ -61,7 +61,7 @@ const Notify = () =>  {
   const [searchParams, setSearchParams] = useSearchParams();
   // const serialNoValue = searchParams.get("serialNo");
   const serialNoValue = Form.useWatch('serialNo', serialNoForm);
-  const [selectedRowKeys, setSelectedRowKeys] = useState('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [serialNoOptions, setSerialNoOptions] = useState([]);
   const [openImportModal, setImportModal] = useState(false);
   const [open, setOpen] = useState(false)
@@ -246,11 +246,13 @@ const Notify = () =>  {
     });
   },[selectedRowKeys]);
 
-  const rowSelection = useCallback({
+  const rowSelection = useMemo(() => ({
+    selectedRowKeys,
+    preserveSelectedRowKeys: true,
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
     },
-  }, []);
+  }), [selectedRowKeys]);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
@@ -403,6 +405,7 @@ const Notify = () =>  {
       search: `?serialNo=${value}`,
     });
     serialNoForm.setFieldValue('serialNo', value);
+    setSelectedRowKeys([]);
   }, [])
 
   const updateSummary = () => {

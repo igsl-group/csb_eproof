@@ -32,8 +32,8 @@ public class ApiUtil {
 		// check if the token is valid
 		Boolean ret = false;
 		// 20240903update get new token no matter if it is empty
-//		if ( config.getAccessToken() == null || config.getAccessToken().length()== 0 ) {
-		if ( true ) {
+		if ( config.getAccessToken() == null || config.getAccessToken().length()== 0 ) {
+//		if ( true ) {
 			logger.debug("Empty token, try to get one");
 
 			String url = config.getUrl() +  "/auth/token";

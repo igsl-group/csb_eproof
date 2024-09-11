@@ -419,11 +419,13 @@ export default function Cases(props) {
     },
   ], [caseId]);
 
-  const rowSelection = useCallback({
+  const rowSelection = useMemo(() => ({
+    selectedRowKeys: selectedSupplementaryDocumentRowKeys,
+    preserveSelectedRowKeys: true,
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedSupplementaryDocumentRowKeys(selectedRowKeys);
     },
-  }, []);
+  }), [selectedSupplementaryDocumentRowKeys]);
 
   const onFinish = useCallback(async () => {
     setDisabledForm(true);

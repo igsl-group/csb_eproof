@@ -3,10 +3,9 @@ import {Input, Form, Button, Space, Select, InputNumber, Row, Col} from "antd";
 import _ from "lodash";
 
 export const HKIDToString = (hkid = {}) => {
-  if (hkid.id && hkid.checkDigit) {
-    return `${hkid.id}${hkid.checkDigit}`
-  }
-  return '';
+  const id = hkid.id || '';
+  const checkDigit = hkid.checkDigit || '';
+  return `${id}${checkDigit}`;
 }
 
 export const stringToHKID = (hkid = "") => {

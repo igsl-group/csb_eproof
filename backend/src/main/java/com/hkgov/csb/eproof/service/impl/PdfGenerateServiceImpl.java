@@ -129,16 +129,16 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
         List<ExamScoreDto> markDtoList = new ArrayList<>();
 
         if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese",convertGradeToReadableGrade(certInfo.getUcGrade())));
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfo.getUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
-            markDtoList.add(new ExamScoreDto("Use of English",convertGradeToReadableGrade(certInfo.getUeGrade())));
+            markDtoList.add(new ExamScoreDto("Use of English (UE)",convertGradeToReadableGrade(certInfo.getUeGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
-            markDtoList.add(new ExamScoreDto("Aptitude Test",convertGradeToReadableGrade(certInfo.getAtGrade())));
+            markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",convertGradeToReadableGrade(certInfo.getAtGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
-            markDtoList.add(new ExamScoreDto("Basic Law and National Security Law Test", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
+            markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
         }
 
         HashMap<String,List> map = new HashMap<>();

@@ -52,7 +52,7 @@ const Candidate = () =>  {
   const [searchParams, setSearchParams] = useSearchParams();
   const hkid = searchParams.get("hkid");
   const passport = searchParams.get("passport");
-  const [selectedRowKeys, setSelectedRowKeys] = useState('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [lastCandidateInfo, setLastCandidateInfo] = useState({});
   const [filterCondition, setFilterCondition] = useState(null);
@@ -337,12 +337,14 @@ const Candidate = () =>  {
     },
   });
 
-  const rowSelection = useCallback({
+  const rowSelection = useMemo(() => ({
+    selectedRowKeys,
+    preserveSelectedRowKeys: true,
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
       setSelectedRows(selectedRows);
     },
-  }, []);
+  }), [selectedRowKeys]);
 
   const onClickUpdatePersonalParticulars = useCallback(() => {
     setOpen(true);
