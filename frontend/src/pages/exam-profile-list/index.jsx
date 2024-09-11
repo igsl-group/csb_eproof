@@ -53,8 +53,8 @@ const ExamProfileList = () =>  {
   const [filterCondition, setFilterCondition] = useState(null);
   const [keyword, setKeyword] = useState("");
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [20, 30, 40],
-    pageSize: 20,
+    sizeOptions: [10, 20, 40],
+    pageSize: 10,
     page: 1,
     sortBy: 'id',
     orderBy: 'descend',
