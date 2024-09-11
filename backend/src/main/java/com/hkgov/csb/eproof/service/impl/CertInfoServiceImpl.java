@@ -889,7 +889,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         SAXReader reader = new SAXReader();
 
         for (List<CertInfo> choppedCertInfoList : choppedCertInfo2dList) {
-            String processedXml = processBatchEmailXml(reader,xmlByteArray,choppedCertInfoList);
+            String processedXml = processBatchEmailXml(examProfileSerialNo,reader,xmlByteArray,choppedCertInfoList);
 
             GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml);
             choppedCertInfoList.forEach(certInfo -> {
@@ -899,8 +899,10 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
     }
 
-    private String processBatchEmailXml(SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
-        String listName = "CSBEP_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_2));
+    private String processBatchEmailXml(String examProfileSerialNo, SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
+        String listName = String.format("CSBEP_%s_%s"
+                ,examProfileSerialNo
+                ,LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_2)));
 
         Document document = reader.read(new ByteArrayInputStream(xmlByteArray));
         Element root = document.getRootElement();
@@ -919,7 +921,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         for (CertInfo certInfo : choppedCertInfoList) {
             Element recipient = root.addElement("SUBR_MERG_ITEM");
             recipient.addElement("ACTION").setText("Create");
-            recipient.addElement("NOTI_LIST_NAME").setText("Create");
+            recipient.addElement("NOTI_LIST_NAME").setText(listName);
             recipient.addElement("ADDRESS").setText(certInfo.getEmail());
 
             // TODO: Temporary add 10 attachment xml according to the template.
@@ -1049,6 +1051,39 @@ public class CertInfoServiceImpl implements CertInfoService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV");
         }
         return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+        List<CertInfo> randomAllPassed = certInfoRepository.getRandomCert(
+                examProfileSerialNo,
+                List.of("L1","L2","P"),
+                List.of("L1","L2","P"),
+                List.of("L1","L2","P"),
+                List.of("L1","L2","P"),
+                allPassedCount);
+        List<CertInfo> randomPartialFailed = certInfoRepository.getPartialFailedCert(
+                examProfileSerialNo,
+                List.of("L1","L2","P"),
+                List.of("F"),
+                List.of("L1","L2","P"),
+                List.of("F"),
+                List.of("L1","L2","P"),
+                List.of("F"),
+                List.of("L1","L2","P"),
+                List.of("F"),
+                partialFailedCount);
+
+        List<CertInfo> randomAllFailed = certInfoRepository.getRandomCert(
+                examProfileSerialNo,
+                List.of("F"),
+                List.of("F"),
+                List.of("F"),
+                List.of("F"),
+                allFailedCount);
+
+        return null;
+
     }
 
 

@@ -325,4 +325,14 @@ public class CertController {
         return Result.success(gcisEmailServiceImpl.sendTestEmail(requestDto.getTo(), requestDto.getTitle(), requestDto.getHtmlBody()));
     }
 
+    @GetMapping(value = "/getRandomPdf")
+    public ResponseEntity getRandomPdf(
+            @RequestParam String examProfileSerialNo,
+            @RequestParam Integer allPassed,
+            @RequestParam Integer partialFailed,
+            @RequestParam Integer allFailed
+            ) {
+        return certInfoService.getRamdomPdf(examProfileSerialNo, allPassed, partialFailed, allFailed);
+    }
+
 }
