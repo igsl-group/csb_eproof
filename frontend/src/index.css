@@ -89,3 +89,10 @@ code {
 /*  white-space: pre-wrap;*/
 /*  line-height: 18px;*/
 /*}*/
+table > thead > tr > th {
+  white-space: pre-wrap !important;
+}
+
+table > tbody > tr > td {
+  white-space: pre-wrap !important;
+}
