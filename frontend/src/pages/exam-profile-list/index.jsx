@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {createSearchParams, useNavigate, Link} from "react-router-dom";
 
 import styles from './style/index.module.less';
@@ -15,6 +15,7 @@ import {
   Col,
   Row,
   Flex,
+  Input,
   Modal,
   Pagination,
   DatePicker
@@ -45,14 +46,15 @@ const ExamProfileList = () =>  {
 
   const modalApi = useModal();
   const messageApi = useMessage();
+  const keywordRef = useRef(null);
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
   const [filterCondition, setFilterCondition] = useState(null);
-
+  const [keyword, setKeyword] = useState("");
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [10, 20, 40],
-    pageSize: 10,
+    sizeOptions: [20, 30, 40],
+    pageSize: 20,
     page: 1,
     sortBy: 'id',
     orderBy: 'descend',
@@ -72,7 +74,8 @@ const ExamProfileList = () =>  {
 
   const onFinishCallback = useCallback(() => {
     setOpen(false);
-    getExamProfileList();
+    console.log(resetPagination())
+    getExamProfileList(resetPagination());
   }, []);
 
   const breadcrumbItems = useMemo(() => [
@@ -133,8 +136,8 @@ const ExamProfileList = () =>  {
       orderBy: order || defaultPaginationInfo.orderBy,
       sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
     }
-    getExamProfileList(tempPagination, filterCondition);
-  }, [pagination]);
+    getExamProfileList(tempPagination, {keyword});
+  }, [pagination, keyword]);
 
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
@@ -143,8 +146,8 @@ const ExamProfileList = () =>  {
       pageSize,
     }
     setPagination(tempPagination);
-    getExamProfileList(tempPagination, filterCondition);
-  }, [pagination]);
+    getExamProfileList(tempPagination, {keyword});
+  }, [pagination, keyword]);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
@@ -193,11 +196,26 @@ const ExamProfileList = () =>  {
     return tempPagination;
   }, [pagination]);
 
+  const onSearchClicked = useCallback(async () => {
+    if (keywordRef.current) {
+      const value = keywordRef.current.input?.value;
+      const resetPage = resetPagination();
+      setKeyword(value);
+      if (value) {
+        await getExamProfileList(resetPage, { keyword: value });
+      } else {
+        await getExamProfileList(resetPage);
+      }
+    }
+  }, [pagination, filterCondition, keyword, resetPagination]);
+
+
   return (
-    <div className={styles['exam-profile-list']} permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
+    <div className={styles['exam-profile-list']}
+         permissionRequired={['Examination_Profile_Maintenance', 'Examination_Profile_View']}>
       <Typography.Title level={3}>Exam Profile</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
-      <br />
+      <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <PermissionControl permissionRequired={['Examination_Profile_Maintenance']}>
           <Col>
@@ -216,8 +234,20 @@ const ExamProfileList = () =>  {
             showQuickJumper
           />
         </Col>
+
       </Row>
-      <br />
+      <br/>
+      <Row gutter={[16, 16]} justify={'end'}>
+        <Col>
+          <Input.Search
+            placeholder="Search ..."
+            ref={keywordRef}
+            onSearch={onSearchClicked}
+            enterButton
+          />
+        </Col>
+      </Row>
+      <br/>
       <Card
         bordered={false}
         className={'card-body-nopadding'}
@@ -234,7 +264,7 @@ const ExamProfileList = () =>  {
           dataSource={data}
         />
         <br/>
-        <Row justify={'end'} >
+        <Row justify={'end'}>
           <Col>
             <Pagination
               total={pagination.total}
