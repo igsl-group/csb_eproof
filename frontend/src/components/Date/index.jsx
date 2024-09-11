@@ -31,6 +31,7 @@ function Date (props) {
   const showTime = props.showTime || false;
   const needConfirm = props.needConfirm || false;
   const dependencies = props.dependencies || [];
+  const disabledDate = props.disabledDate || (() => {});
   const normalize = useCallback((value, prevValue, prevValues) => {
     return value ? value.format(format) : '';
   }, []);
@@ -52,12 +53,13 @@ function Date (props) {
         mode === 'date' ? (
           <DatePicker
             showTime={showTime}
+            disabledDate={disabledDate}
             placeholder={placeholder}
             style={getStyle({
               width: '100%',
               ...style,
             })}
-            // needConfirm={needConfirm}
+            needConfirm={needConfirm}
             // defaultValue={defaultValue}
             disabled={disabled}
           />
