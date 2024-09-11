@@ -6,7 +6,8 @@ export function loginAPI(params, ...rest) {
         case 'profile':
             return request(`/user/currentUser`, 'get');
         case 'logout':
-            return request(`/signOut`, 'get');
+            // return request(`/signOut`, 'get');
+            return;
         default:
             return;
     }
