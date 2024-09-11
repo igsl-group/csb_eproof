@@ -15,7 +15,7 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     @Query("select u from ExamProfile u where u.serialNo = :serialNo")
     ExamProfile getinfoByNo(@Param("serialNo") String serialNo);
 
-    @Query("select u from ExamProfile u where:keyword is null or (u.location like %:keyword%)")
+    @Query("select u from ExamProfile u where:keyword is null or (u.location like %:keyword% or u.serialNo like %:keyword% or DATE_FORMAT(u.examDate, '%Y-%m-%d') LIKE %:keyword% or DATE_FORMAT(u.resultLetterDate, '%Y-%m-%d') LIKE %:keyword% or DATE_FORMAT(u.effectiveDate, '%Y-%m-%d') LIKE %:keyword% or DATE_FORMAT(u.plannedEmailIssuanceDate, '%Y-%m-%d') LIKE %:keyword%) ")
     Page<ExamProfile> findPage(Pageable pageable, @Param("keyword") String keyWord);
 
     @Query("select u from ExamProfile u where u.isFreezed = false ")
