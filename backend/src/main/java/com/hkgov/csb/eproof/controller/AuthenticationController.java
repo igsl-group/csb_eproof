@@ -51,9 +51,9 @@ public class AuthenticationController {
 
     @GetMapping("/tempSso")
     public Result tempSso(
-            @RequestHeader(value = "uid", required = false) String uid,
-            @RequestHeader(value = "dpdeptid", required = false) String dpDeptId,
-            @RequestHeader(value = "host", required = false) String host,
+            @RequestHeader(value = "tmpUid", required = false) String uid,
+            @RequestHeader(value = "tmpDpdeptid", required = false) String dpDeptId,
+            @RequestHeader(value = "tmpHost", required = false) String host,
             HttpServletRequest req , HttpServletResponse resp){
         logger.info("uid: {} DeDeptId: {} host: {}", uid, dpDeptId, host);
         // logAllRequestHeaders(req);
