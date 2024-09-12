@@ -331,6 +331,12 @@ public class CertInfoServiceImpl implements CertInfoService {
             markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
         }
 
+        if (markDtoList.size() < 4){
+            for(int i = markDtoList.size(); i <= 4; i++){
+                markDtoList.add(new ExamScoreDto("",""));
+            }
+        }
+
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
         return map;
