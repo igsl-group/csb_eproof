@@ -5,6 +5,7 @@ public final class Constants {
     public static final String DATE_PATTERN_2 = "dd MMMM yyyy";
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_TIME_PATTERN_2 = "yyyy-MM-dd-HH-mm-ss";
+    public static final String DATE_TIME_PATTERN_3 = "yyyyMMddHHmmss";
     public static final String COOKIE_KEY_LOGIN_UID = "uid";
     public static final String COOKIE_KEY_LOGIN_DPDEPTID = "dpdeptid";
     public static final String EXAM_DATE = "MM/dd/yyyy";
