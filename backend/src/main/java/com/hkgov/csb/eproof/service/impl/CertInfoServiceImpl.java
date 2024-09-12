@@ -1205,7 +1205,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 currentTimeMillisString,
                 UUID.randomUUID().toString().replace("-","")
         );
-        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath+"/"+certInfo.getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
     public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData){
