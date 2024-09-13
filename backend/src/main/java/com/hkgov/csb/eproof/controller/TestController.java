@@ -137,6 +137,12 @@ public class TestController {
             markDtoList.add(new ExamScoreDto("BLNST", certInfo.getBlnstGrade()));
         }
 
+        if (markDtoList.size() < 4){
+            for(int i = markDtoList.size(); i <= 4; i++){
+                markDtoList.add(new ExamScoreDto("",""));
+            }
+        }
+
 
         Map<String,String> certInfoMap = docxUtil.convertObjectToMap(certInfo,"cert");
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");

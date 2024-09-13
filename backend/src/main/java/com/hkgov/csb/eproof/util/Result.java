@@ -1,4 +1,4 @@
-package com.hkgov.csb.eproof.util;;
+package com.hkgov.csb.eproof.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;

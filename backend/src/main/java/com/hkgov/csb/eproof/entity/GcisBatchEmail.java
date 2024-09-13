@@ -29,4 +29,28 @@ public class GcisBatchEmail extends BaseEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "gcis_noti_list_name")
+    private String gcisNotiListName;
+
+    @Column(name = "gcis_template_name")
+    private String gcisTemplateName;
+
+    @Column(name = "batch_upload_ref_num")
+    private String batchUploadRefNum;
+
+    @Column(name = "batch_upload_status")
+    private String batchUploadStatus;
+
+    @Column(name = "schedule_job_id")
+    private String scheduleJobId;
+
+    @Column(name = "schedule_job_status")
+    private String scheduleJobStatus;
+
+    @Column(name = "schedule_est_start_time")
+    private String scheduleEstStartTime;
+
+    @Column(name = "schedule_est_end_time")
+    private String scheduleEstEndTime;
+
 }

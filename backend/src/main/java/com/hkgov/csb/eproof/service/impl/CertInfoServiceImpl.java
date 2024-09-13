@@ -120,6 +120,9 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${document.qr-code.y}")
     private Integer qrCodeY;
 
+    @Value("${gcis-shared-service.batch-email.split-size}")
+    private Integer splitSize;
+
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CertPdfRepository certPdfRepository;
@@ -329,6 +332,12 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
         if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
             markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
+        }
+
+        if (markDtoList.size() < 4){
+            for(int i = markDtoList.size(); i <= 4; i++){
+                markDtoList.add(new ExamScoreDto("",""));
+            }
         }
 
         HashMap<String,List> map = new HashMap<>();
@@ -881,7 +890,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     public void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) throws DocumentException, IOException {
         List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.NOTIFY,List.of(CertStatus.SCHEDULED));
-        List<List<CertInfo>> choppedCertInfo2dList = splitCertInfoList(certInfoList, 999);
+        List<List<CertInfo>> choppedCertInfo2dList = splitCertInfoList(certInfoList, splitSize);
 
         EmailTemplate notifyEmailTemplate = emailTemplateRepository.findByName(Constants.EMAIL_TEMPLATE_NOTIFY);
         SystemParameter xmlTemplateLocation = systemParameterRepository.findByName(Constants.SYS_PARAM_NOTI_BATCH_XML_LOCATION).get();
@@ -894,21 +903,29 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         SAXReader reader = new SAXReader();
 
+        int i=1;
         for (List<CertInfo> choppedCertInfoList : choppedCertInfo2dList) {
-            String processedXml = processBatchEmailXml(examProfileSerialNo,reader,xmlByteArray,choppedCertInfoList);
+            String listName = generateListName(examProfileSerialNo,i);
+            String processedXml = processBatchEmailXml(listName,examProfileSerialNo,reader,xmlByteArray,choppedCertInfoList);
 
-            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml);
+            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml,listName);
             choppedCertInfoList.forEach(certInfo -> {
                 certInfo.setGcisBatchEmailId(gcisBatchEmail.getId());
             });
+            i++;
             certInfoRepository.saveAll(choppedCertInfoList);
         }
     }
 
-    private String processBatchEmailXml(String examProfileSerialNo, SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
-        String listName = String.format("CSBEP_%s_%s"
+    private String generateListName(String examProfileSerialNo, int loopIndex) {
+        return String.format("CSBEP_%s_%s_%s"
                 ,examProfileSerialNo
-                ,LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_2)));
+                ,LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_2))
+                ,loopIndex
+        );
+    }
+    private String processBatchEmailXml(String listName, String examProfileSerialNo, SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
+
 
         Document document = reader.read(new ByteArrayInputStream(xmlByteArray));
         Element root = document.getRootElement();
@@ -1100,7 +1117,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
     @Transactional
-    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml){
+    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml, String listName){
 
 
         GcisBatchEmail gcisBatchEmail = new GcisBatchEmail();
@@ -1108,6 +1125,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         gcisBatchEmail.setXml(processedXml);
         gcisBatchEmail.setScheduleDatetime(insertGcisBatchEmailDto.getScheduledTime().atTime(9,0,0));
         gcisBatchEmail.setStatus("SCHEDULED");
+        gcisBatchEmail.setGcisNotiListName(listName);
+        gcisBatchEmail.setGcisTemplateName(listName);
         gcisBatchEmailRepository.save(gcisBatchEmail);
         return gcisBatchEmail;
     }
@@ -1217,7 +1236,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 currentTimeMillisString,
                 UUID.randomUUID().toString().replace("-","")
         );
-        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath+"/"+certInfo.getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
     public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData){

@@ -18,7 +18,7 @@ public class SystemParameter extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "name")
+    @Column(name = "name",columnDefinition = "varchar(4000)")
     private String name;
 
     @Column(name = "value",columnDefinition = "varchar(4000)")
