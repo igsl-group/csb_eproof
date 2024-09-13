@@ -525,6 +525,9 @@ public class CertInfoServiceImpl implements CertInfoService {
         certInfo.setOnHold(false);
         certInfo.setOnHoldRemark(remark);
         certInfoRepository.save(certInfo);
+
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName("Exam_Profile_Case_Resume");
+        gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
     }
 
     @Override
@@ -541,6 +544,9 @@ public class CertInfoServiceImpl implements CertInfoService {
         certInfo.setOnHold(true);
         certInfo.setOnHoldRemark(remark);
         certInfoRepository.save(certInfo);
+
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName("Exam_Profile_Case_Onhold");
+        gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
     }
 
     @Override
@@ -1054,7 +1060,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public ResponseEntity getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+    @Transactional
+    public ResponseEntity<List<CertInfo>> getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
         List<CertInfo> randomAllPassed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
                 List.of("L1","L2","P"),
@@ -1082,8 +1089,13 @@ public class CertInfoServiceImpl implements CertInfoService {
                 List.of("F"),
                 allFailedCount);
 
-        return null;
+        List<CertInfo> combinedCertInfoList = new ArrayList<>();
+        combinedCertInfoList.addAll(randomAllPassed);   // Add all-passed certificates
+        combinedCertInfoList.addAll(randomPartialFailed);  // Add partial-failed certificates
+        combinedCertInfoList.addAll(randomAllFailed);   // Add all-failed certificates
 
+        // Return the combined list in a ResponseEntity
+        return ResponseEntity.ok(combinedCertInfoList);
     }
 
 

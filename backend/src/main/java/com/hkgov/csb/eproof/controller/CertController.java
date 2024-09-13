@@ -326,7 +326,7 @@ public class CertController {
     }
 
     @GetMapping(value = "/getRandomPdf")
-    public ResponseEntity getRandomPdf(
+    public ResponseEntity<List<CertInfo>> getRandomPdf(
             @RequestParam String examProfileSerialNo,
             @RequestParam Integer allPassed,
             @RequestParam Integer partialFailed,

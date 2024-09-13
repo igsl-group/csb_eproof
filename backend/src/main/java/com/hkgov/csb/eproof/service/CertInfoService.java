@@ -78,5 +78,5 @@ public interface CertInfoService {
 
     ResponseEntity<byte[]> enquiryResult(List<String> params);
 
-    ResponseEntity getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
+    ResponseEntity<List<CertInfo>> getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
 }
