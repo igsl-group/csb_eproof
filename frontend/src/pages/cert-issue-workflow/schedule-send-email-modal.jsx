@@ -145,7 +145,6 @@ const ScheduleSendEmailModal = (props) =>  {
             <Text name={"plannedEmailIssuanceDate"} label={'Planned Email Issuance Date'} size={50} disabled/>
             <Text name={"examDate"} label={'Exam Date'} size={50} disabled hidden/>
             <Text name={"resultLetterDate"} label={'Result Letter Date'} size={50} disabled hidden/>
-            {/*<Text name={"effectiveDate"} label={'Effective Date'} size={50} disabled />*/}
           </Col>
           <Col span={12}>
             <Date
@@ -153,6 +152,9 @@ const ScheduleSendEmailModal = (props) =>  {
               name={"scheduledTime"}
               label={'Scheduled Date'}
               dependencies={['effectiveDate']}
+              disabledDate={(current) => {
+                return current && current < dayjs().endOf('day');
+              }}
               validation={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {

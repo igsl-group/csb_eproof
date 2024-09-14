@@ -48,6 +48,7 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
+import RandomDownloadModal from "./random-download-modal";
 
 const Issue = () =>  {
 
@@ -70,11 +71,13 @@ const Issue = () =>  {
   const [summary, setSummary] = useState({});
   const [generatedData, setGeneratedData] = useState([]);
   const [record, setRecord] = useState({});
+  const [downloadPdfOpen, setDownloadPdfOpen] = useState(false);
   const [filterCondition, setFilterCondition] = useState(null);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
-    setImportModal(false)
+    setImportModal(false);
+    setDownloadPdfOpen(false);
   });
 
   const onFinishCallback = useCallback(async () => {
@@ -168,7 +171,7 @@ const Issue = () =>  {
   ], []);
 
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [10, 20, 40],
+    sizeOptions: [4, 8, 40],
     pageSize: 10,
     page: 1,
     sortBy: 'id',
@@ -447,6 +450,7 @@ const Issue = () =>  {
     });
     serialNoForm.setFieldValue('serialNo', value);
     setSelectedRowKeys([]);
+    resetPagination();
   }, [])
 
   const updateSummary = () => {
@@ -571,6 +575,9 @@ const Issue = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
+              <Button type="primary" onClick={() => setDownloadPdfOpen(true)} disabled={issueCertData.length === 0}>Random Check</Button>
+            </Col>
+            <Col>
               <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
@@ -634,6 +641,12 @@ const Issue = () =>  {
         open={open}
         record={record}
         isOnHold={isOnHold}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+      />
+      <RandomDownloadModal
+        recordId={serialNoValue}
+        open={downloadPdfOpen}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />

@@ -391,7 +391,7 @@ const Import = () =>  {
       search: `?serialNo=${value}`,
     });
     serialNoForm.setFieldValue('serialNo', value);
-
+    resetPagination();
   }, [])
 
   const updateSummary = () => {

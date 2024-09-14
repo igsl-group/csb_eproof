@@ -36,12 +36,12 @@ public class EProofController {
 
 
 
-    @PostMapping("/sendOTP")
+    @PostMapping("/eproof/sendOTP")
     public EproofResponseDto sendOTP(@RequestBody ProofDto requestDto){
         EproofResponseDto responseDto = proofService.sendOTP(requestDto);
         return responseDto;
     }
-    @PostMapping("/eProof-data")
+    @PostMapping("/eproof/eProof-data")
     public EproofResponseDto getData(@RequestBody EproofDataDto requestDto){
         try{
             EproofResponseDto responseDto = proofService.getData(requestDto);
@@ -54,7 +54,7 @@ public class EProofController {
         }
     }
 
-    @PostMapping("/eProof-pdf")
+    @PostMapping("/eproof/eProof-pdf")
     public EproofResponseDto getPdf(@RequestBody EproofDataDto requestDto){
         try{
             EproofResponseDto responseDto = proofService.getPdf(requestDto);

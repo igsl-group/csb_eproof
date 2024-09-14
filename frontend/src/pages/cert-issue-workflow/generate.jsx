@@ -48,6 +48,7 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKID, stringToHKIDWithBracket} from "../../components/HKID";
+import RandomPreviewModal from "./random-preview-modal";
 
 const Generate = () =>  {
 
@@ -64,6 +65,7 @@ const Generate = () =>  {
   const [serialNoOptions, setSerialNoOptions] = useState([]);
   const [openImportModal, setImportModal] = useState(false);
   const [open, setOpen] = useState(false)
+  const [previewPdfOpen, setPreviewPdfOpen] = useState(false)
   const [isOnHold, setIsOnHold] = useState(false)
   const [summary, setSummary] = useState({});
   const [generatedData, setGeneratedData] = useState([]);
@@ -72,6 +74,7 @@ const Generate = () =>  {
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
+    setPreviewPdfOpen(false);
     setImportModal(false)
   });
 
@@ -422,6 +425,7 @@ const Generate = () =>  {
     });
     serialNoForm.setFieldValue('serialNo', value);
     setSelectedRowKeys([]);
+    resetPagination();
   }, [])
 
   const updateSummary = () => {
@@ -545,6 +549,9 @@ const Generate = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
+              <Button type="primary" onClick={() => setPreviewPdfOpen(true)} disabled={generatedData.length === 0}>Random Check</Button>
+            </Col>
+            <Col>
               <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
@@ -608,6 +615,12 @@ const Generate = () =>  {
         open={open}
         record={record}
         isOnHold={isOnHold}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
+      />
+      <RandomPreviewModal
+        recordId={serialNoValue}
+        open={previewPdfOpen}
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />

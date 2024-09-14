@@ -108,7 +108,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
                 currentTimeMillisString,
                 UUID.randomUUID().toString().replace("-","")
         );
-        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath+"/"+certInfo.getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
 
@@ -139,6 +139,12 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
         }
         if(StringUtils.isNotEmpty(certInfo.getBlnstGrade())) {
             markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfo.getBlnstGrade())));
+        }
+
+        if (markDtoList.size() < 4){
+            for(int i = markDtoList.size(); i <= 4; i++){
+                markDtoList.add(new ExamScoreDto("",""));
+            }
         }
 
         HashMap<String,List> map = new HashMap<>();

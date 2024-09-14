@@ -406,6 +406,7 @@ const Notify = () =>  {
     });
     serialNoForm.setFieldValue('serialNo', value);
     setSelectedRowKeys([]);
+    resetPagination();
   }, [])
 
   const updateSummary = () => {

@@ -187,6 +187,11 @@ cron-expression:
   refresh-eproof-access-token: "0 0/30 * * * *"
 
 gcis-shared-service:
+  batch-email:
+    split-size: 999
+    local-temporary-xml-folder-path: C:\tempGcisBatchXml
+    upload-trial-times: 2
+    projectId: CSBEP
   enabled: true
   emailWhitelist:
     enabled: true
@@ -200,4 +205,14 @@ gcis-shared-service:
   notiSvc:
     endPointName: NOTI_SENDER_RESTFUL_END_POINT
     endPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
+    batchUploadEndPointName: BATCH_UPLOAD_RESTFUL_END_POINT
+    batchUploadEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchUploadRest
+    scheduleEndPointName: SCHEDULE_RESTFUL_END_POINT
+    scheduleEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheduleRest
+    batchEnquireEndPointName: BATCH_ENQ_RESTFUL_END_POINT
+    batchEnquireEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchEnqRest
+    scheduleEnquireEndPointName: SCHE_ENQ_RESTFUL_END_POINT
+    scheduleEnquireEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheEnqRest
+
+
 

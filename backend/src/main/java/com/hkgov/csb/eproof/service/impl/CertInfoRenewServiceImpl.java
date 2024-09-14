@@ -143,6 +143,12 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             markDtoList.add(new ExamScoreDto("BLNST", convertGradeToReadableGrade(certInfoRenew.getNewBlGrade())));
         }
 
+        if (markDtoList.size() < 4){
+            for(int i = markDtoList.size(); i <= 4; i++){
+                markDtoList.add(new ExamScoreDto("",""));
+            }
+        }
+
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
         return map;
@@ -173,6 +179,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     }
 
     @Override
+    @Transactional
     public void singleGeneratePdf(Long renewCertInfoId) throws Exception {
         CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(renewCertInfoId).get();
         try{
@@ -235,7 +242,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 currentTimeMillisString,
                 UUID.randomUUID().toString().replace("-","")
         );
-        return fileService.uploadFile(FILE_TYPE_CERT_RECORD_RENEW,certRenewRecordPath,savePdfName,new ByteArrayInputStream(mergedPdf));
+        return fileService.uploadFile(FILE_TYPE_CERT_RECORD_RENEW,certRenewRecordPath+"/"+certInfoRenew.getCertInfo().getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
 
@@ -630,6 +637,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     }
 
     @Override
+    @Transactional
     public void uploadSignedPdf(Long certInfoRenewId, MultipartFile file) {
         {
             CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(certInfoRenewId).orElse(null);
