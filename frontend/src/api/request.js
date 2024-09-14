@@ -255,8 +255,17 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/getRandomPdf?${rest[0]}`, "get");
         case 'previewPdf':
             return request(`/cert/preview/pdf?certInfoId=${rest[0]}`, "download");
+
     }
 }
+
+export function reportAPI(params, ...rest) {
+    switch (params) {
+        case 'exportReport':
+            return request('/report/result', "download", rest[0]);
+    }
+}
+
 
 export function systemAPI(params, ...rest) {
     switch (params) {

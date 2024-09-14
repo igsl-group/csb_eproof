@@ -32,6 +32,7 @@ import {
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
+import Dropdown from "@/components/Dropdown";
 import Textarea from "@/components/Textarea";
 // import Import from "./import";
 // import Generate from "./generate";
@@ -40,51 +41,89 @@ import Textarea from "@/components/Textarea";
 import dayjs from "dayjs";
 // import ExceptionalCaseModal from "./exceptional-case-modal";
 import {useModal} from "../../context/modal-provider";
+import { reportAPI } from "../../api/request";
+import {useMessage} from "../../context/message-provider";
+import {download} from "../../utils/util";
 // import ExamProfileFormModal from "./modal";
 
 const StatisticalReports = () =>  {
 
   const navigate = useNavigate();
   const modalApi = useModal();
+  const messageApi = useMessage();
   const [open, setOpen] = useState(false);
-  const [freezeExamProfile, setFreezeExamProfile] = useState(false);
   const [form] = Form.useForm();
-  const {
-    serialNo,
-  } = useParams();
+  const [record, setRecord] = useState({});
 
-  const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [10, 20, 40],
-    pageSize: 10,
-    page: 1,
-    sortBy: 'id',
-    orderBy: 'descend',
-  }), []);
-
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: defaultPaginationInfo.page,
-    pageSize: defaultPaginationInfo.pageSize,
-    sortBy: defaultPaginationInfo.sortBy,
-    orderBy: defaultPaginationInfo.orderBy,
-  });
+  const onFinish = useCallback(() => {
+    form.resetFields();
+    setOpen(false);
+    setRecord({});
+  }, []);
 
   const [data, setData] = useState([
     {
-      serialNo: 'N000000001',
-      reason: 'Checking',
-      candidateNo: 'C000001',
-      hkid: 'T7700002',
-      name: 'Chan Tai Man',
-      email: 'taiman.chan@hotmail.com',
-      ue: 'L2',
-      uc: 'L1',
-      at: 'Pass',
-      blnst: 'Pass',
-      status: 'Success',
-      stage: 'Import',
+      type: 'Statistics of Examination Results (by Examination Profile)',
+      id: '9',
+      formFields: (
+        <Row gutter={24} justify={'start'}>
+          <Col span={12}>
+            <Date
+              name={'start'}
+              label={'From'}
+              required
+            />
+          </Col>
+          <Col span={12}>
+            <Date
+              required
+              name={'end'}
+              label={'To'}
+              dependencies={['start']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const startDate = getFieldValue('start');
+                    const isSameOrAfter = value.isSame(startDate, 'day') || value.isAfter(startDate, 'day');
+                    if (!value || isSameOrAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "To" should be no earlier than the "From".'));
+                  },
+                }),
+              ]}
+            />
+          </Col>
+        </Row>
+      )
+    },
+    {
+      type: 'Statistics of Examination Results (by Year)',
+      id: '10',
+      formFields: (
+        <Row gutter={24} justify={'start'}>
+          <Col span={24}>
+            <Dropdown
+              required
+              name={'year'}
+              label={'Year'}
+              size={50}
+              options={(() => {
+                const startYear = 2022;
+                const currentYear = dayjs().year();
+                return Array.from({ length: currentYear - startYear + 1 }, (_, i) => ({ value: `${currentYear - i}`, label: `${currentYear - i}` }));
+              })()}
+            />
+          </Col>
+        </Row>
+      )
     }
   ]);
+
+  const onExportButtonClick = useCallback((row) => {
+    setOpen(true);
+    setRecord(row);
+  }, [])
 
   const columns = useMemo(() => [
     {
@@ -93,359 +132,124 @@ const StatisticalReports = () =>  {
       width: 140,
       render: (row) => (
         <Row gutter={[8, 8]}>
-          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => {}}>Resume Case</Button></Col>
-          <Col span={24}><Button size={'small'} type={'primary'} danger onClick={() => {}}>Remove Case</Button></Col>
+          <Col span={24}><Button size={'small'} type={'primary'} onClick={() => onExportButtonClick(row)}>Export</Button></Col>
         </Row>
       )
     },
     {
-      title: 'Current Stage',
-      key: 'stage',
-      dataIndex: 'stage',
-      width: 130,
-      sorter: true,
+      title: 'Type',
+      key: 'type',
+      dataIndex: 'type',
+      sorter: false,
     },
-    {
-      title: 'Reason',
-      key: 'reason',
-      dataIndex: 'reason',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'HKID',
-      key: 'hkid',
-      dataIndex: 'hkid',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Passport',
-      key: 'passport',
-      dataIndex: 'passport',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Name',
-      key: 'name',
-      dataIndex: 'name',
-      width: 160,
-      sorter: true,
-    },
-    {
-      title: 'Email',
-      key: 'email',
-      dataIndex: 'email',
-      width: 180,
-      sorter: true,
-    },
-    {
-      title: 'UE',
-      key: 'ue',
-      dataIndex: 'ue',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'UC',
-      key: 'uc',
-      dataIndex: 'uc',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'AT',
-      key: 'at',
-      dataIndex: 'at',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'BLNST',
-      key: 'blnst',
-      dataIndex: 'blnst',
-      width: 100,
-      sorter: true,
-    },
-
   ], []);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
   });
 
-  const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
-    const {
-      order,
-      columnKey
-    } = sorter;
-    const tempPagination = {
-      ...pagination,
-      orderBy: order || defaultPaginationInfo.orderBy,
-      sortBy: order ? columnKey : defaultPaginationInfo.sortBy,
-    }
-    setPagination(tempPagination);
-  }, [pagination]);
-
-  const paginationOnChange = useCallback((page, pageSize) => {
-    const tempPagination = {
-      ...pagination,
-      page,
-      pageSize,
-    }
-    setPagination(tempPagination);
-  }, [pagination]);
-
-
-  useEffect(() => {
-    form.setFieldsValue({
-      serialNo: 'N000000001',
-      examDate: '',
-      plannedAnnouncedDate: '',
-      location: 'Hong Kong',
-    })
-  }, []);
-
-  // const tabItems = useMemo(() => [
-  //   {
-  //     key: 1,
-  //     label: 'Import Result',
-  //     children: <Import />,
-  //   },
-  //   {
-  //     key: 2,
-  //     label: 'Generate PDF',
-  //     children: <Generate />,
-  //   },
-  //   {
-  //     key: 3,
-  //     label: 'Sign and Issue Certificate',
-  //     children: <Issue />,
-  //   },
-  //   {
-  //     key: 4,
-  //     label: 'Notify Candidate',
-  //     children: <Notify />,
-  //   },
-  // ], []);
-
   const breadcrumbItems = useMemo(() => [
     {
       title: <HomeOutlined />,
-    },
-    {
-      title: 'Other',
     },
     {
       title: 'Statistical Reports',
     },
   ], []);
 
-  const onClickReset = useCallback(() => {
-    modalApi.confirm({
-      title:'If you confirm to reset Exam Profile, all imported results, generated PDFs, signed and issued certificates will be removed.',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
+  const onSave = useCallback(async () => {
+    const values = await form.validateFields()
+      .then((values) => ({
+        year: "",
+        examSerialNumber: "",
+        ...values,
+        start: values.start ? dayjs(values.start).format('YYYY-MM-DD') : '',
+        end: values.end ? dayjs(values.end).format('YYYY-MM-DD') : '',
+        reportType: record.id,
+      }))
+      .catch((e) => {
+        console.error(e);
+        return false;
+      })
 
+    if (values) {
+      runReportAPI('exportReport', values)
+        .then(() => onFinish());
+    }
+  }, [record]);
+
+  const { runAsync: runReportAPI } = useRequest(reportAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'exportReport':
+          download(response);
+          break;
+        default:
+          break;
+      }
+
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
 
   return (
-    <Watermark content={'Mockup'} className={styles['exam-profile']}>
-      <Alert
-        message={<b>The functionality of historical result management page will be fully developed by the end of 2024.</b>}
-        type="warning"
-        closable
-      />
-      <br/>
+    <div content={'Mockup'} className={styles['exam-profile']}>
       <Typography.Title level={3}>Statistical Reports</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
-      <Row justify={'end'}>
-        <Col>
-          <Button type={'primary'} onClick={onClickReset}>Export Statistical Reports</Button>
-        </Col>
-      </Row>
-      {/*<Form*/}
-      {/*  layout="vertical"*/}
-      {/*  autoComplete="off"*/}
-      {/*  form={form}*/}
-      {/*  colon={false}*/}
-      {/*  scrollToFirstError={{*/}
-      {/*    behavior: 'smooth',*/}
-      {/*    block: 'center',*/}
-      {/*    inline: 'center',*/}
-      {/*  }}*/}
-      {/*  name="form"*/}
-      {/*>*/}
-      {/*  <Row justify={'start'}>*/}
-      {/*    <Col span={16}>*/}
-      {/*      <Row gutter={24} justify={'center'}>*/}
-      {/*        <Col span={24} md={12}>*/}
-      {/*          <Text name={"serialNo"} label={'Serial No.'} required size={12} disabled/>*/}
-      {/*        </Col>*/}
-      {/*        <Col span={24} md={12}>*/}
-      {/*          <Text name={'examDate'} label={'Exam Date'} required size={12} disabled placeholder={'YYYY-MM-DD'} size={12} />*/}
-      {/*        </Col>*/}
-      {/*        <Col span={24} md={12}>*/}
-      {/*          <Text name={'actualAnnouncedDate'} label={'Result Letter Date'} disabled={true}*/}
-      {/*                placeholder={'YYYY-MM-DD'} size={12}/>*/}
-      {/*        </Col>*/}
-      {/*        <Col span={24} md={12}>*/}
-      {/*          <Text name={'actualAnnouncedDate'} label={'Planned Email Issuance Date'} disabled={true}*/}
-      {/*                placeholder={'YYYY-MM-DD'} size={12}/>*/}
-      {/*        </Col>*/}
-      {/*        <Col span={24} md={12}>*/}
-      {/*          <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (From)'} disabled={true}*/}
-      {/*                placeholder={'YYYY-MM-DD'} size={12}/>*/}
-      {/*        </Col>*/}
-      {/*        <Col span={24} md={12}>*/}
-      {/*          <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (To)'} disabled={true}*/}
-      {/*                placeholder={'YYYY-MM-DD'} size={12}/>*/}
-      {/*        </Col>*/}
+      <Card
+        bordered={false}
+        className={'card-body-nopadding'}
+        title={'Report'}
+      >
+        <ResizeableTable
+          size={'big'}
+          rowKey={'id'}
+          pagination={false}
+          scroll={{
+            x: '100%',
+          }}
+          columns={columns}
+          dataSource={data}
+        />
+      </Card>
+      <Modal
+        width={600}
+        open={open}
+        style={{ top: 20 }}
+        title={record.type}
+        okText={'Export'}
+        onOk={onSave}
+        closable={false}
+        maskClosable={false}
+        onCancel={onCloseCallback}
+      >
 
-      {/*        <Col span={24}>*/}
-      {/*          <Text name={'location'} label={'Location'} size={50} disabled/>*/}
-      {/*        </Col>*/}
-      {/*      </Row>*/}
-      {/*    </Col>*/}
-      {/*    <Col span={8}>*/}
-      {/*      <Row gutter={[8, 8]} justify={'end'}>*/}
-      {/*        <Col>*/}
-      {/*          <Button type={'primary'} onClick={() => setOpen(true)}>Edit</Button>*/}
-      {/*        </Col>*/}
-      {/*        <Col>*/}
-      {/*          <Button type={'primary'} onClick={onClickReset}>Reset Exam Profile</Button>*/}
-      {/*        </Col>*/}
-      {/*        <Col>*/}
-      {/*          <Button type={'primary'} danger={freezeExamProfile} onClick={() => {*/}
-      {/*            setFreezeExamProfile(!freezeExamProfile)*/}
-      {/*          }}>{!freezeExamProfile ? 'Freeze Exam Profile' : 'Un-freeze Exam Profile'}</Button>*/}
-      {/*        </Col>*/}
-      {/*      </Row>*/}
-      {/*    </Col>*/}
-      {/*  </Row>*/}
-      {/*</Form>*/}
-      {/*<br/>*/}
-      {/*<fieldset style={{paddingLeft: 30}}>*/}
-      {/*  <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>*/}
-      {/*  <Descriptions*/}
-      {/*    size={'small'}*/}
-      {/*    items={[*/}
-      {/*      {*/}
-      {/*        key: 1,*/}
-      {/*        label: 'Imported',*/}
-      {/*        children: 30000,*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 2,*/}
-      {/*        label: 'Generated PDF',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 3,*/}
-      {/*        label: 'Issued Cert.',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 4,*/}
-      {/*        label: 'Sent Email',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      }*/}
-      {/*    ]}*/}
-      {/*  />*/}
-      {/*</fieldset>*/}
-      {/*<br/>*/}
-      {/*<Row gutter={[16, 16]} justify={'end'}>*/}
-      {/*  <Col>*/}
-      {/*    <Pagination*/}
-      {/*      showSizeChanger*/}
-      {/*      total={pagination.total}*/}
-      {/*      pageSizeOptions={defaultPaginationInfo.sizeOptions}*/}
-      {/*      onChange={paginationOnChange}*/}
-      {/*      current={pagination.page}*/}
-      {/*      pageSize={pagination.pageSize}*/}
-      {/*    />*/}
-      {/*  </Col>*/}
-      {/*</Row>*/}
-      {/*<br/>*/}
-      {/*<Card*/}
-      {/*  bordered={false}*/}
-      {/*  className={'card-body-nopadding'}*/}
-      {/*  title={'On Hold Case'}*/}
-      {/*>*/}
-      {/*  <ResizeableTable*/}
-      {/*    size={'big'}*/}
-      {/*    rowKey={'candidateNo'}*/}
-      {/*    onChange={tableOnChange}*/}
-      {/*    pagination={false}*/}
-      {/*    scroll={{*/}
-      {/*      x: '100%',*/}
-      {/*    }}*/}
-      {/*    columns={columns}*/}
-      {/*    dataSource={data}*/}
-      {/*  />*/}
-      {/*  <br/>*/}
-      {/*  <Row justify={'end'}>*/}
-      {/*    <Col>*/}
-      {/*      <Pagination*/}
-      {/*        total={pagination.total}*/}
-      {/*        pageSizeOptions={defaultPaginationInfo.sizeOptions}*/}
-      {/*        onChange={paginationOnChange}*/}
-      {/*        pageSize={defaultPaginationInfo.pageSize}*/}
-      {/*        current={pagination.page}*/}
-      {/*      />*/}
-      {/*    </Col>*/}
-      {/*  </Row>*/}
-      {/*  <br/>*/}
-      {/*</Card>*/}
-      {/*<ExamProfileFormModal*/}
-      {/*  open={open}*/}
-      {/*  onCloseCallback={onCloseCallback}*/}
-      {/*/>*/}
-      {/*<fieldset style={{paddingLeft: 30}}>*/}
-      {/*  <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>*/}
-      {/*  <Descriptions*/}
-      {/*    size={'small'}*/}
-      {/*    items={[*/}
-      {/*      {*/}
-      {/*        key: 1,*/}
-      {/*        label: 'Imported',*/}
-      {/*        children: 30000,*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 2,*/}
-      {/*        label: 'Generated PDF',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 3,*/}
-      {/*        label: 'Issued Cert.',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      },*/}
-      {/*      {*/}
-      {/*        key: 4,*/}
-      {/*        label: 'Sent Email',*/}
-      {/*        children: '0 out of 0 failed',*/}
-      {/*      }*/}
-      {/*    ]}*/}
-      {/*  />*/}
-      {/*</fieldset>*/}
-      {/*<br/>*/}
-      {/*<Import />*/}
-      {/*<Tabs*/}
-      {/*  onChange={() => {}}*/}
-      {/*  items={tabItems}*/}
-      {/*/>*/}
-      {/*<br/>*/}
-      {/*<ExceptionalCaseModal*/}
-      {/*  open={exceptionalCaseOpen}*/}
-      {/*  title={'Exceptional Case'}*/}
-      {/*  onCloseCallback={() => setExceptionalCaseOpen(false)}*/}
-      {/*  // onFinishCallback={() => setRevokeOpen(false)}*/}
-      {/*/>*/}
-    </Watermark>
+        <Form
+          layout="vertical"
+          autoComplete="off"
+          form={form}
+          colon={false}
+          scrollToFirstError={{
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+          }}
+          name="form"
+        >
+
+          {
+            record?.formFields ? record.formFields : null
+          }
+        </Form>
+      </Modal>
+    </div>
 
   )
 }
