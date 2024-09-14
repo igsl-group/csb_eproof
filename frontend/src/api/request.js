@@ -251,6 +251,10 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/sendEmail`, "post", rest[0]);
         case 'havePendingCase':
             return request(`/cert/havePendingCase`, "post", rest[0]);
+        case 'getRandomCert':
+            return request(`/cert/getRandomPdf?${rest[0]}`, "get");
+        case 'previewPdf':
+            return request(`/cert/preview/pdf?certInfoId=${rest[0]}`, "download");
     }
 }
 
