@@ -1,7 +1,9 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.dto.CertSearchDto;
+import com.hkgov.csb.eproof.dto.ExamResultReportDTO;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +14,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import java.time.LocalDate;
 import java.util.List;
 @Repository
 public interface CertInfoRepository extends JpaRepository<CertInfo,Long> {
@@ -199,4 +201,42 @@ select c from CertInfo c
                                  List<String> atPassGrade,
                                  List<String> atFailGrade,
                                  Integer limit);
+
+    @Query(value = "SELECT " +
+    "exam_profile_serial, " +
+    "COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END) AS uc_total_candidate, " +
+    "COUNT(CASE WHEN uc_grade = 'L2' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END), 0) AS uc_no_of_L2, " +
+    "COUNT(CASE WHEN uc_grade = 'L1' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END), 0) AS uc_no_of_L1, " +
+    "COUNT(CASE WHEN ue_grade IS NOT NULL AND ue_grade <> '' THEN 1 END) AS ue_total_candidate, " +
+    "COUNT(CASE WHEN ue_grade = 'L2' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN ue_grade IS NOT NULL AND ue_grade <> '' THEN 1 END), 0) AS ue_no_of_L2, " +
+    "COUNT(CASE WHEN ue_grade = 'L1' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN ue_grade IS NOT NULL AND ue_grade <> '' THEN 1 END), 0) AS ue_no_of_L1, " +
+    "COUNT(CASE WHEN at_grade IS NOT NULL AND at_grade <> '' THEN 1 END) AS at_total_candidate, " +
+    "COUNT(CASE WHEN at_grade = 'P' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN at_grade IS NOT NULL AND at_grade <> '' THEN 1 END), 0) AS at_pass_rate, " +
+    "COUNT(CASE WHEN at_grade = 'F' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN at_grade IS NOT NULL AND at_grade <> '' THEN 1 END), 0) AS at_fail_rate, " +
+    "COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END) AS blnst_total_candidate, " +
+    "COUNT(CASE WHEN blnst_grade = 'P' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END), 0) AS blnst_pass_rate, " +
+    "COUNT(CASE WHEN blnst_grade = 'F' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END), 0) AS blnst_fail_rate " +
+    "FROM cert_info " +
+    "WHERE exam_date BETWEEN :startDate AND :endDate " +
+    "GROUP BY exam_profile_serial", nativeQuery = true)
+    List<Object[]> findReportData(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query(value = "SELECT " +
+    "YEAR(exam_date) AS year, " +
+    "COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END) AS uc_total_candidate, " +
+    "COUNT(CASE WHEN uc_grade = 'L2' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END), 0) AS uc_no_of_L2, " +
+    "COUNT(CASE WHEN uc_grade = 'L1' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END), 0) AS uc_no_of_L1, " +
+    "COUNT(CASE WHEN ue_grade IS NOT NULL AND ue_grade <> '' THEN 1 END) AS ue_total_candidate, " +
+    "COUNT(CASE WHEN ue_grade = 'L2' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN ue_grade IS NOT NULL AND ue_grade <> '' THEN 1 END), 0) AS ue_no_of_L2, " +
+    "COUNT(CASE WHEN ue_grade = 'L1' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN ue_grade IS NOT NULL AND ue_grade <> '' THEN 1 END), 0) AS ue_no_of_L1, " +
+    "COUNT(CASE WHEN at_grade IS NOT NULL AND at_grade <> '' THEN 1 END) AS at_total_candidate, " +
+    "COUNT(CASE WHEN at_grade = 'P' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN at_grade IS NOT NULL AND at_grade <> '' THEN 1 END), 0) AS at_pass_rate, " +
+    "COUNT(CASE WHEN at_grade = 'F' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN at_grade IS NOT NULL AND at_grade <> '' THEN 1 END), 0) AS at_fail_rate, " +
+    "COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END) AS blnst_total_candidate, " +
+    "COUNT(CASE WHEN blnst_grade = 'P' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END), 0) AS blnst_pass_rate, " +
+    "COUNT(CASE WHEN blnst_grade = 'F' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END), 0) AS blnst_fail_rate " +
+    "FROM cert_info " +
+    "WHERE YEAR(exam_date) = :year " +
+    "GROUP BY YEAR(exam_date)", nativeQuery = true)
+    List<Object[]> findReportData(@Param("year") int year);
 }
