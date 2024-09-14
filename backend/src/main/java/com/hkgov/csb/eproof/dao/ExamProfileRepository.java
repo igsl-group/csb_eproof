@@ -16,19 +16,30 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     ExamProfile getinfoByNo(@Param("serialNo") String serialNo);
 
     @Query(nativeQuery = true, value =
+            """
+             select u.* from exam_profile u
+             where :keyword is null
+             or (
+                 u.location like %:keyword% or
+                 u.serial_no like %:keyword% or
+                 u.exam_date LIKE %:keyword% or
+                 u.result_letter_date LIKE %:keyword% or
+                 u.effective_date LIKE %:keyword% or
+                 u.planned_email_issuance_date LIKE %:keyword%
+             )
+             """,
+            countQuery = """
+    select count(*) from exam_profile u
+    where :keyword is null
+    or (
+        u.location like %:keyword% or
+        u.serial_no like %:keyword% or
+        u.exam_date LIKE %:keyword% or
+        u.result_letter_date LIKE %:keyword% or
+        u.effective_date LIKE %:keyword% or
+        u.planned_email_issuance_date LIKE %:keyword%
+    )
     """
-    select u.* from exam_profile u
-        where :keyword is null
-        or
-        (
-            u.location like %:keyword% or
-            u.serial_no like %:keyword% or
-            u.exam_date LIKE %:keyword% or
-            u.result_letter_date LIKE %:keyword% or
-            u.effective_date LIKE %:keyword% or
-            u.planned_email_issuance_date LIKE %:keyword%
-        )
-"""
     )
     Page<ExamProfile> findPage(Pageable pageable, @Param("keyword") String keyWord);
 
