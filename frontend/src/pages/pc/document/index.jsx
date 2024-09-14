@@ -1028,7 +1028,7 @@ export default function Document(props) {
                 pagination={false}
               />
               <br/>
-              <Row justify={'end'}>
+              <Row justify={'end'} gutter={[24, 8]}>
                 <Col>
                   <Pagination
                     total={historyPagination.total}
@@ -1041,6 +1041,7 @@ export default function Document(props) {
                     showQuickJumper
                   />
                 </Col>
+                <Col></Col>
               </Row>
               <br/>
             </Card>

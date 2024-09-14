@@ -56,7 +56,7 @@ const ExamProfileList = () =>  {
     sizeOptions: [10, 20, 40],
     pageSize: 10,
     page: 1,
-    sortBy: 'id',
+    sortBy: 'exam_date',
     orderBy: 'descend',
   }), []);
 
@@ -90,28 +90,28 @@ const ExamProfileList = () =>  {
   const columns = useMemo(() => [
     {
       title: 'Serial No.',
-      key: 'serialNo',
+      key: 'serial_no',
       width: 100,
       render: (row) => <Link to={`/ExamProfile/${row.serialNo}`}>{row.serialNo}</Link>,
       sorter: true,
     },
     {
       title: 'Exam Date',
-      key: 'examDate',
+      key: 'exam_date',
       dataIndex: 'examDate',
       width: 150,
       sorter: true,
     },
     {
       title: 'Result Letter Date',
-      key: 'resultLetterDate',
+      key: 'result_letter_date',
       dataIndex: 'resultLetterDate',
       width: 150,
       sorter: true,
     },
     {
       title: 'Planned Email Issuance Date',
-      key: 'plannedEmailIssuanceDate',
+      key: 'planned_email_issuance_date',
       dataIndex: 'plannedEmailIssuanceDate',
       width: 150,
       sorter: true,
@@ -264,7 +264,7 @@ const ExamProfileList = () =>  {
           dataSource={data}
         />
         <br/>
-        <Row justify={'end'}>
+        <Row justify={'end'} gutter={[24, 8]}>
           <Col>
             <Pagination
               total={pagination.total}
@@ -276,7 +276,9 @@ const ExamProfileList = () =>  {
               showSizeChanger
               showQuickJumper
             />
+
           </Col>
+          <Col></Col>
         </Row>
         <br/>
       </Card>

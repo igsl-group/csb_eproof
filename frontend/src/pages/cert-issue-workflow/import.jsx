@@ -570,7 +570,7 @@ const Import = () =>  {
           dataSource={importedData}
         />
         <br/>
-        <Row justify={'end'}>
+        <Row justify={'end'} gutter={[24, 8]}>
           <Col>
             <Pagination
               total={pagination.total}
@@ -583,6 +583,7 @@ const Import = () =>  {
               showQuickJumper
             />
           </Col>
+          <Col></Col>
         </Row>
         <br/>
       </Card>

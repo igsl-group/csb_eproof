@@ -288,7 +288,7 @@ const Candidate = () =>  {
           dataSource={data}
         />
         <br/>
-        <Row justify={'end'}>
+        <Row justify={'end'} gutter={[24, 8]}>
           <Col>
             <Pagination
               total={pagination.total}
@@ -301,6 +301,7 @@ const Candidate = () =>  {
               showQuickJumper
             />
           </Col>
+          <Col></Col>
         </Row>
         <br/>
       </Card>

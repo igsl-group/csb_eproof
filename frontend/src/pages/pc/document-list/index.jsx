@@ -596,7 +596,7 @@ export default function DocumentList(props) {
           dataSource={documentData}
         />
         <br/>
-        <Row justify={'end'}>
+        <Row justify={'end'} gutter={[24, 8]}>
           <Col>
             <Pagination
               total={pagination.total}
@@ -609,6 +609,7 @@ export default function DocumentList(props) {
               showQuickJumper
             />
           </Col>
+          <Col></Col>
         </Row>
         <br/>
       </Card>
