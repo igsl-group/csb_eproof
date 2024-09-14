@@ -1332,6 +1332,27 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     }
 
+    @Override
+    public byte [] previewCertPdf(Long certInfoId) throws IOException {
+        CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
+        byte[] mergedPdf = null;
+        try{
+            byte[] atLeastOnePassedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
+            byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
+            InputStream appliedTemplate = "P".equals(certInfo.getLetterType())?new ByteArrayInputStream(atLeastOnePassedTemplate):new ByteArrayInputStream(allFailedTemplate);
+            mergedPdf = documentGenerateService.getMergedDocument(appliedTemplate, DocumentOutputType.PDF,getMergeMapForCert(certInfo),getTableLoopMapForCert(certInfo));
+
+            appliedTemplate.close();
+            IOUtils.close(appliedTemplate);
+
+
+        } catch (Exception e){
+            certInfo.setCertStatus(CertStatus.FAILED);
+            e.printStackTrace();
+        }
+        return mergedPdf;
+    }
+
     public CertInfoRenew addCertInfoRenew(CertInfo info,UpdatePersonalDto personalDto){
         CertInfoRenew certInfoRenew = new CertInfoRenew();
         certInfoRenew.setCertInfoId(info.getId());

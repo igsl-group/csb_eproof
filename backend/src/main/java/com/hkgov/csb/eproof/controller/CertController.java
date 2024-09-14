@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -326,13 +327,28 @@ public class CertController {
     }
 
     @GetMapping(value = "/getRandomPdf")
-    public ResponseEntity<List<CertInfo>> getRandomPdf(
+    public Result getRandomPdf(
             @RequestParam String examProfileSerialNo,
             @RequestParam Integer allPassed,
             @RequestParam Integer partialFailed,
             @RequestParam Integer allFailed
             ) {
-        return certInfoService.getRamdomPdf(examProfileSerialNo, allPassed, partialFailed, allFailed);
+        return Result.success(certInfoService.getRamdomPdf(examProfileSerialNo, allPassed, partialFailed, allFailed));
+    }
+
+    @PostMapping("/preview/pdf")
+    public ResponseEntity<byte[]> previewCertPdf(@RequestParam Long certInfoId) throws Exception {
+        HttpHeaders header = new HttpHeaders();
+        String fileName = String.format("%s.pdf", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_2)));
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename(fileName)
+                .build()
+        );
+
+        byte [] previewCertPdf = certInfoService.previewCertPdf(certInfoId);
+
+        return ResponseEntity.ok().headers(header).body(previewCertPdf);
     }
 
 }

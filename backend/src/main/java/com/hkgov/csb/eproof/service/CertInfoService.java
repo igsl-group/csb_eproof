@@ -38,7 +38,7 @@ public interface CertInfoService {
                            boolean isBatchMode,boolean isNewCertInfo) throws Exception;
     byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException;
 
-
+    byte [] previewCertPdf(Long certInfoId) throws Exception;
 
     Boolean updateEmail(UpdateEmailDto updateEmailDto);
 
