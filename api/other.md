@@ -248,3 +248,92 @@ type response = {
   message: string,
 }
 ```
+
+
+## Approve Workflow for Void/Unvoid "Combined_Historical_Result_Before_2024"
+> 現在table Combined_Historical_Result_Before_2024
+> 新增table Combined_Historical_Result_Before_2024_Approve 
+> Combined_Historical_Result_Before_2024 One to Many Combined_Historical_Result_Before_2024_Approve
+
+### Combined_Historical_Result_Before_2024_Approve
+```table
+id: number
+historical_result_id: number
+old_bl_void: bit 0 = false, 1 = true, 2 = null
+new_bl_void: bit 0 = false, 1 = true, 2 = null
+old_ue_void: bit 0 = false, 1 = true, 2 = null
+new_ue_void: bit 0 = false, 1 = true, 2 = null
+old_uc_void: bit 0 = false, 1 = true, 2 = null
+new_uc_void: bit 0 = false, 1 = true, 2 = null
+old_at_void: bit 0 = false, 1 = true, 2 = null
+new_at_void: bit 0 = false, 1 = true, 2 = null
+old_valid: bit 0 = false, 1 = true, 2 = null
+new_valid: bit 0 = false, 1 = true, 2 = null
+remark: varchar(1000)
+status: : varchar(50) --> Pending | Approved | Rejected
+created_by: varchar(255)
+modified_by: varchar(255)
+created_date: datetime
+modified_date: datetime
+}
+```
+
+## [post] /historicalResult/Update
+```javascript
+const requet = {
+    historicalResultId: number,
+    oldVlVoid: boolean, -> true | false | null
+    newBlVoid: boolean, -> true | false | null
+    oldUeVoid: boolean, -> true | false | null
+    newUeVoid: boolean, -> true | false | null
+    oldUcVoid: boolean, -> true | false | null
+    newUcVoid: boolean, -> true | false | null
+    oldAtVoid: boolean, -> true | false | null
+    newAtVoid: boolean, -> true | false | null
+    oldValid: boolean, -> true | false | null
+    newValid: boolean, -> true | false | null
+    remark: string,
+}
+
+```
+
+## [post] /historicalResult/request
+```javascript
+const requet = {
+    historicalResultId: number,
+    oldVlVoid: boolean, -> true | false | null
+    newBlVoid: boolean, -> true | false | null
+    oldUeVoid: boolean, -> true | false | null
+    newUeVoid: boolean, -> true | false | null
+    oldUcVoid: boolean, -> true | false | null
+    newUcVoid: boolean, -> true | false | null
+    oldAtVoid: boolean, -> true | false | null
+    newAtVoid: boolean, -> true | false | null
+    oldValid: boolean, -> true | false | null
+    newValid: boolean, -> true | false | null
+    remark: string,
+}
+
+```
+
+## [post] /historicalResult/approve
+1. status change form Pending -> Approved
+2. Update remark
+3. copy new_xx_void value and new_valid value to Combined_Historical_Result_Before_2024 table
+```javascript
+const requet = {
+    remark: string,
+}
+
+```
+
+## [post] /historicalResult/reject
+1. status change form Pending -> Rejected
+2. Update remark
+
+```javascript
+const requet = {
+    remark: string,
+}
+
+```
