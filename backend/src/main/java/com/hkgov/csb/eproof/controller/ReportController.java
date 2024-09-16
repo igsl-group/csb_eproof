@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.hkgov.csb.eproof.dto.ReportDTO;
 import com.hkgov.csb.eproof.service.ReportService;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 
@@ -45,10 +44,38 @@ public class ReportController {
         // code block
         break;
       case "6":
-        // code block
+      try {
+        ByteArrayInputStream bais = reportService
+            .createPersonalParticularsUpdatedReport(requestBody.getStart(),
+                requestBody.getEnd(), requestBody.getCandidateName(),
+                requestBody.getHkidNumber(), requestBody.getPassportNumber());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=personal_articulars_updated_report.xlsx");
+        headers.add(HttpHeaders.CONTENT_TYPE,
+            MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        InputStreamResource resource = new InputStreamResource(bais);
+        return ResponseEntity.ok().headers(headers).body(resource);
+      } catch (IOException err) {
+        err.printStackTrace();
+      }
         break;
       case "7":
-        // code block
+      try {
+        ByteArrayInputStream bais = reportService
+            .createResultUpdatedReport(requestBody.getStart(),
+                requestBody.getEnd(), requestBody.getCandidateName(),
+                requestBody.getHkidNumber(), requestBody.getPassportNumber());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=result_updated_report.xlsx");
+        headers.add(HttpHeaders.CONTENT_TYPE,
+            MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        InputStreamResource resource = new InputStreamResource(bais);
+        return ResponseEntity.ok().headers(headers).body(resource);
+      } catch (IOException err) {
+        err.printStackTrace();
+      }
         break;
       case "8":
         //code block
