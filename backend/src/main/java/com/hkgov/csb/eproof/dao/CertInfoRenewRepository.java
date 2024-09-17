@@ -98,29 +98,26 @@ public interface CertInfoRenewRepository
             + "    WHEN c.old_passport <> c.new_passport THEN 'Passport' "
             + "    WHEN c.old_email <> c.new_email THEN 'Email' "
             + "    ELSE 'None' " + "END AS personalParticularsUpdated, "
+            + "c.old_name AS oldName, " + "c.old_hkid AS oldHkid, "
+            + "c.old_passport AS oldPassport, " + "c.old_email AS oldEmail, "
             + "CASE "
-            + "    WHEN c.old_name <> c.new_name THEN CONCAT('Name: ', COALESCE(c.old_name, '')) "
-            + "    WHEN c.old_hkid <> c.new_hkid THEN CONCAT('HKID: ', COALESCE(c.old_hkid, '')) "
-            + "    WHEN c.old_passport <> c.new_passport THEN CONCAT('Passport: ', COALESCE(c.old_passport, '')) "
-            + "    WHEN c.old_email <> c.new_email THEN CONCAT('Email: ', COALESCE(c.old_email, '')) "
-            + "    ELSE NULL " + "END AS oldValue, " + "CASE "
             + "    WHEN c.old_name <> c.new_name THEN CONCAT('Name: ', COALESCE(c.new_name, '')) "
+            + "    ELSE NULL " + "END AS newName, " + "CASE "
             + "    WHEN c.old_hkid <> c.new_hkid THEN CONCAT('HKID: ', COALESCE(c.new_hkid, '')) "
+            + "    ELSE NULL " + "END AS newHkid, " + "CASE "
             + "    WHEN c.old_passport <> c.new_passport THEN CONCAT('Passport: ', COALESCE(c.new_passport, '')) "
+            + "    ELSE NULL " + "END AS newPassport, " + "CASE "
             + "    WHEN c.old_email <> c.new_email THEN CONCAT('Email: ', COALESCE(c.new_email, '')) "
-            + "    ELSE NULL " + "END AS newValue, " + "c.remark AS remarks, "
+            + "    ELSE NULL " + "END AS newEmail, " + "c.remark AS remarks, "
             + "c.modified_date AS modifiedDate " + "FROM cert_info_renew c "
             + "WHERE c.modified_date BETWEEN :startDate AND :endDate "
-            + "AND (:candidateName IS NULL OR TRIM(:candidateName) = '' OR c.new_name LIKE CONCAT('%', :candidateName, '%'))"
-            + "AND (:hkidNumber IS NULL OR TRIM(:hkidNumber) = '' OR c.new_hkid LIKE CONCAT('%', :hkidNumber, '%'))"
-            + "AND (:passportNumber IS NULL OR TRIM(:passportNumber) = '' OR c.new_passport LIKE CONCAT('%', :passportNumber, '%'))"
-            + "  AND (CASE "
-            + "        WHEN c.old_name <> c.new_name THEN 'Name' "
-            + "        WHEN c.old_hkid <> c.new_hkid THEN 'HKID' "
-            + "        WHEN c.old_passport <> c.new_passport THEN 'Passport' "
-            + "        WHEN c.old_email <> c.new_email THEN 'Email' "
-            + "        ELSE 'None' " + "      END <> 'None')",
-            nativeQuery = true)
+            + "AND (:candidateName IS NULL OR TRIM(:candidateName) = '' OR c.new_name LIKE CONCAT('%', :candidateName, '%')) "
+            + "AND (:hkidNumber IS NULL OR TRIM(:hkidNumber) = '' OR c.new_hkid LIKE CONCAT('%', :hkidNumber, '%')) "
+            + "AND (:passportNumber IS NULL OR TRIM(:passportNumber) = '' OR c.new_passport LIKE CONCAT('%', :passportNumber, '%')) "
+            + "AND (c.old_name <> c.new_name OR "
+            + "     c.old_hkid <> c.new_hkid OR "
+            + "     c.old_passport <> c.new_passport OR "
+            + "     c.old_email <> c.new_email)", nativeQuery = true)
     List<Object[]> findPersonalParticularsData(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -128,41 +125,54 @@ public interface CertInfoRenewRepository
             @Param("hkidNumber") String hkidNumber,
             @Param("passportNumber") String passportNumber);
 
-    @Query(value = "SELECT " + "c.new_name AS candidateName, "
+            @Query(value = "SELECT "
+            + "c.new_name AS candidateName, "
             + "COALESCE(c.new_hkid, c.old_hkid) AS hkidNumber, "
             + "COALESCE(c.new_passport, c.old_passport) AS passportNumber, "
+            + "COALESCE(TRIM(CONCAT_WS(', ', "
+            + "    CASE WHEN c.old_uc_grade <> c.new_uc_grade THEN 'UC Grade' ELSE NULL END, "
+            + "    CASE WHEN c.old_ue_grade <> c.new_ue_grade THEN 'UE Grade' ELSE NULL END, "
+            + "    CASE WHEN c.old_bl_grade <> c.new_bl_grade THEN 'BL Grade' ELSE NULL END, "
+            + "    CASE WHEN c.old_at_grade <> c.new_at_grade THEN 'AT Grade' ELSE NULL END "
+            + ")), 'None') AS resultUpdated, "
+            + "ci.exam_date AS examDate, "
+            + "COALESCE(c.old_at_grade, '') AS oldAtGrade, "
+            + "COALESCE(c.old_bl_grade, '') AS oldBlGrade, "
+            + "COALESCE(c.old_uc_grade, '') AS oldUcGrade, "
+            + "COALESCE(c.old_ue_grade, '') AS oldUeGrade, "
             + "CASE "
-            + "    WHEN c.old_uc_grade <> c.new_uc_grade THEN 'UC Grade' "
-            + "    WHEN c.old_ue_grade <> c.new_ue_grade THEN 'UE Grade' "
-            + "    WHEN c.old_bl_grade <> c.new_bl_grade THEN 'BL Grade' "
-            + "    WHEN c.old_at_grade <> c.new_at_grade THEN 'AT Grade' "
-            + "    ELSE 'None' " + "END AS resultUpdated, " + "CASE "
-            + "    WHEN c.old_uc_grade <> c.new_uc_grade THEN CONCAT('UC Grade: ', COALESCE(c.old_uc_grade, '')) "
-            + "    WHEN c.old_ue_grade <> c.new_ue_grade THEN CONCAT('UE Grade: ', COALESCE(c.old_ue_grade, '')) "
-            + "    WHEN c.old_bl_grade <> c.new_bl_grade THEN CONCAT('BL Grade: ', COALESCE(c.old_bl_grade, '')) "
-            + "    WHEN c.old_at_grade <> c.new_at_grade THEN CONCAT('AT Grade: ', COALESCE(c.old_at_grade, '')) "
-            + "    ELSE NULL " + "END AS oldValue, " + "CASE "
-            + "    WHEN c.old_uc_grade <> c.new_uc_grade THEN CONCAT('UC Grade: ', COALESCE(c.new_uc_grade, '')) "
-            + "    WHEN c.old_ue_grade <> c.new_ue_grade THEN CONCAT('UE Grade: ', COALESCE(c.new_ue_grade, '')) "
-            + "    WHEN c.old_bl_grade <> c.new_bl_grade THEN CONCAT('BL Grade: ', COALESCE(c.new_bl_grade, '')) "
-            + "    WHEN c.old_at_grade <> c.new_at_grade THEN CONCAT('AT Grade: ', COALESCE(c.new_at_grade, '')) "
-            + "    ELSE NULL " + "END AS newValue, " + "c.remark AS remarks, "
-            + "c.modified_date AS modifiedDate " + "FROM cert_info_renew c "
+            + "    WHEN c.old_at_grade <> c.new_at_grade THEN c.new_at_grade "
+            + "    ELSE NULL "
+            + "END AS newAtGrade, "
+            + "CASE "
+            + "    WHEN c.old_bl_grade <> c.new_bl_grade THEN c.new_bl_grade "
+            + "    ELSE NULL "
+            + "END AS newBlGrade, "
+            + "CASE "
+            + "    WHEN c.old_uc_grade <> c.new_uc_grade THEN c.new_uc_grade "
+            + "    ELSE NULL "
+            + "END AS newUcGrade, "
+            + "CASE "
+            + "    WHEN c.old_ue_grade <> c.new_ue_grade THEN c.new_ue_grade "
+            + "    ELSE NULL "
+            + "END AS newUeGrade, "
+            + "c.remark AS remarks, "
+            + "c.modified_date AS modifiedDate "
+            + "FROM cert_info_renew c "
+            + "JOIN cert_info ci ON c.cert_info_id = ci.id "
             + "WHERE c.modified_date BETWEEN :startDate AND :endDate "
-            + "AND (:candidateName IS NULL OR TRIM(:candidateName) = '' OR c.new_name LIKE CONCAT('%', :candidateName, '%'))"
-            + "AND (:hkidNumber IS NULL OR TRIM(:hkidNumber) = '' OR c.new_hkid LIKE CONCAT('%', :hkidNumber, '%'))"
-            + "AND (:passportNumber IS NULL OR TRIM(:passportNumber) = '' OR c.new_passport LIKE CONCAT('%', :passportNumber, '%'))"
-            + "AND (CASE "
-            + "    WHEN c.old_uc_grade <> c.new_uc_grade THEN 'UC Grade' "
-            + "    WHEN c.old_ue_grade <> c.new_ue_grade THEN 'UE Grade' "
-            + "    WHEN c.old_bl_grade <> c.new_bl_grade THEN 'BL Grade' "
-            + "    WHEN c.old_at_grade <> c.new_at_grade THEN 'AT Grade' "
-            + "        ELSE 'None' " + "END <> 'None')", nativeQuery = true)
-    List<Object[]> findResultData(@Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("candidateName") String candidateName,
-            @Param("hkidNumber") String hkidNumber,
-            @Param("passportNumber") String passportNumber);
+            + "AND (:candidateName IS NULL OR TRIM(:candidateName) = '' OR c.new_name LIKE CONCAT('%', :candidateName, '%')) "
+            + "AND (:hkidNumber IS NULL OR TRIM(:hkidNumber) = '' OR c.new_hkid LIKE CONCAT('%', :hkidNumber, '%')) "
+            + "AND (:passportNumber IS NULL OR TRIM(:passportNumber) = '' OR c.new_passport LIKE CONCAT('%', :passportNumber, '%')) "
+            + "AND (c.old_uc_grade <> c.new_uc_grade OR "
+            + "     c.old_ue_grade <> c.new_ue_grade OR "
+            + "     c.old_bl_grade <> c.new_bl_grade OR "
+            + "     c.old_at_grade <> c.new_at_grade)", nativeQuery = true)
+List<Object[]> findResultData(@Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("candidateName") String candidateName,
+        @Param("hkidNumber") String hkidNumber,
+        @Param("passportNumber") String passportNumber);
 }
 
 

@@ -13,13 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CertInfoRenewReportDTO {
   
-  private String candidateName;
-  private String hkidNumber;
-  private String passportNumber;
-  private String personalParticularsUpdated;
-  private String oldValue;
-  private String newValue;
-  private String remarks;
-  private LocalDate modifiedDate;
+    
+      private String candidateName;
+      private String hkidNumber;
+      private String passportNumber;
+      private String personalParticularsUpdated;
+      private String oldName;
+      private String oldHkid;
+      private String oldPassport;
+      private String oldEmail;
+      private String newName;
+      private String newHkid;
+      private String newPassport;
+      private String newEmail;
+      private String remarks;
+      private LocalDate modifiedDate;
+      
+  
   
 }

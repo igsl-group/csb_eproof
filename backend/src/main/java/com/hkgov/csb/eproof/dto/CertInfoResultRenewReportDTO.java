@@ -16,9 +16,16 @@ public class CertInfoResultRenewReportDTO {
   private String candidateName;
   private String hkidNumber;
   private String passportNumber;
-  private String result;
-  private String oldValue;
-  private String newValue;
+  private String resultUpdated;
+  private LocalDate examDate;
+  private String oldAtGrade;
+  private String oldBlGrade;
+  private String oldUcGrade;
+  private String oldUeGrade;
+  private String newAtGrade;
+  private String newBlGrade;
+  private String newUcGrade;
+  private String newUeGrade;
   private String remarks;
   private LocalDate modifiedDate;
   
