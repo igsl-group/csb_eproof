@@ -279,42 +279,185 @@ modified_date: datetime
 ```
 
 ## [post] /historicalResult/request
-```javascript
-const requet = {
+> User 提交一個請求
+1. 把data insert 到 Combined_Historical_Result_Before_2024_Approve table
+2. status = PENDING
+```typescript
+type request = {
     historicalResultId: number,
-    oldVlVoid: boolean, -> true | false | null
-    newBlVoid: boolean, -> true | false | null
-    oldUeVoid: boolean, -> true | false | null
-    newUeVoid: boolean, -> true | false | null
-    oldUcVoid: boolean, -> true | false | null
-    newUcVoid: boolean, -> true | false | null
-    oldAtVoid: boolean, -> true | false | null
-    newAtVoid: boolean, -> true | false | null
-    oldValid: boolean, -> true | false | null
-    newValid: boolean, -> true | false | null
+    oldVlVoid: boolean, //-> true | false | null
+    newBlVoid: boolean, //-> true | false | null
+    oldUeVoid: boolean, //-> true | false | null
+    newUeVoid: boolean, //-> true | false | null
+    oldUcVoid: boolean, //-> true | false | null
+    newUcVoid: boolean, //-> true | false | null
+    oldAtVoid: boolean, //-> true | false | null
+    newAtVoid: boolean, //-> true | false | null
+    oldValid: boolean, //-> true | false | null
+    newValid: boolean, //-> true | false | null
     remark: string,
+}
+
+// response 200
+type response = {
+    success: true,
+    message: 'Success',
+    code: 200,
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
 }
 
 ```
 
 ## [post] /historicalResult/{id}/approve
-1. status change form Pending -> Approved
+> Approver approve 請求
+1. status change form PENDING -> APPROVED
 2. Update remark
 3. copy new_xx_void value and new_valid value to Combined_Historical_Result_Before_2024 table
-```javascript
+```typescript
+type request = {
+    remark: string,
+}
+
+// response 200
+type response = {
+  success: true,
+  message: 'Success',
+  code: 200,
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
+
+## [post] /historicalResult/{id}/reject
+> Approver approve 請求
+1. status change form PENDING -> REJECTED
+2. Update remark
+
+```typescript
 const requet = {
     remark: string,
+}
+
+// response 200
+type response = {
+  success: true,
+  message: 'Success',
+  code: 200,
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
 }
 
 ```
 
-## [post] /historicalResult/{id}/reject
-1. status change form Pending -> Rejected
+
+## [put] /historicalResult/{id}/update
+> User 重新提交一個請求
+1. status change form REJECTED -> PENDING
 2. Update remark
 
-```javascript
-const requet = {
+```typescript
+type requet = {
+    oldVlVoid: boolean, //-> true | false | null
+    newBlVoid: boolean, //-> true | false | null
+    oldUeVoid: boolean, //-> true | false | null
+    newUeVoid: boolean, //-> true | false | null
+    oldUcVoid: boolean, //-> true | false | null
+    newUcVoid: boolean, //-> true | false | null
+    oldAtVoid: boolean, //-> true | false | null
+    newAtVoid: boolean, //-> true | false | null
+    oldValid: boolean, //-> true | false | null
+    newValid: boolean, //-> true | false | null
     remark: string,
 }
 
+// response 200
+type response = {
+  success: true,
+  message: 'Success',
+  code: 200,
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
+
+
+## [get] /historicalResult/list
+> 不用分頁
+1. where status = PENDING or REJECTED
+
+```typescript
+type response = {
+    success: true,
+    message: 'Success',
+    code: 200,
+    result: {
+        data: {                // arrya
+            historicalResultId: number,
+            oldVlVoid: boolean,
+            newBlVoid: boolean,
+            oldUeVoid: boolean,
+            newUeVoid: boolean,
+            oldUcVoid: boolean,
+            newUcVoid: boolean,
+            oldAtVoid: boolean,
+            newAtVoid: boolean,
+            oldValid: boolean,
+            newValid: boolean,
+            remark: string,
+        }[]
+    }
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
+```
+
+## [delete] /historicalResult/{id}/remove
+> User 撤回請求
+1. status = WITHDRAWAL
+
+```typescript
+type request = {
+
+}
+
+// response 200
+type response = {
+  success: true,
+  message: 'Success',
+  code: 200,
+  result: {}
+}
+
+// response 400
+type response = {
+  success: false,
+  code: 400,
+  message: string,
+}
 ```
