@@ -12,4 +12,7 @@ public class ReportDTO {
     private LocalDate end;
     private String year;
     private String examSerialNumber;
+    private String candidateName;
+    private String hkidNumber;
+    private String passportNumber;
 }
