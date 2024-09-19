@@ -278,25 +278,6 @@ modified_date: datetime
 }
 ```
 
-## [post] /historicalResult/Update
-```javascript
-const requet = {
-    historicalResultId: number,
-    oldVlVoid: boolean, -> true | false | null
-    newBlVoid: boolean, -> true | false | null
-    oldUeVoid: boolean, -> true | false | null
-    newUeVoid: boolean, -> true | false | null
-    oldUcVoid: boolean, -> true | false | null
-    newUcVoid: boolean, -> true | false | null
-    oldAtVoid: boolean, -> true | false | null
-    newAtVoid: boolean, -> true | false | null
-    oldValid: boolean, -> true | false | null
-    newValid: boolean, -> true | false | null
-    remark: string,
-}
-
-```
-
 ## [post] /historicalResult/request
 ```javascript
 const requet = {
@@ -316,7 +297,7 @@ const requet = {
 
 ```
 
-## [post] /historicalResult/approve
+## [post] /historicalResult/{id}/approve
 1. status change form Pending -> Approved
 2. Update remark
 3. copy new_xx_void value and new_valid value to Combined_Historical_Result_Before_2024 table
@@ -327,7 +308,7 @@ const requet = {
 
 ```
 
-## [post] /historicalResult/reject
+## [post] /historicalResult/{id}/reject
 1. status change form Pending -> Rejected
 2. Update remark
 
