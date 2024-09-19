@@ -83,7 +83,7 @@ public class ReportController {
       case "9":
         try {
           ByteArrayInputStream bais = reportService.createExamResultReport(
-              requestBody.getStart(), requestBody.getEnd());
+              requestBody.getStart(), requestBody.getEnd(), requestBody.getExamSerialNumber());
           HttpHeaders headers = new HttpHeaders();
           headers.add(HttpHeaders.CONTENT_DISPOSITION,
               "attachment; filename=exam_report.xlsx");

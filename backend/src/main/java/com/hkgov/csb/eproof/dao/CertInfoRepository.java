@@ -226,10 +226,11 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             + "ROUND(COUNT(CASE WHEN blnst_grade = 'P' THEN 1 END) / NULLIF(COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END), 0),2) AS blnst_pass_rate, "
             + "ROUND(COUNT(CASE WHEN blnst_grade = 'F' THEN 1 END) / NULLIF(COUNT(CASE WHEN blnst_grade IS NOT NULL AND blnst_grade <> '' THEN 1 END), 0),2) AS blnst_fail_rate "
             + "FROM cert_info "
-            + "WHERE exam_date BETWEEN :startDate AND :endDate "
+            + "WHERE exam_profile_serial LIKE %:examProfileSerialNo% "
+            + "AND (:startDate IS NULL AND :endDate IS NULL OR exam_date BETWEEN :startDate AND :endDate) "
             + "GROUP BY exam_profile_serial", nativeQuery = true)
     List<Object[]> findReportData(@Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate);
+            @Param("endDate") LocalDate endDate, @Param("examProfileSerialNo") String examProfileSerialNo);
 
     @Query(value = "SELECT " + "YEAR(exam_date) AS year, "
             + "COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END) AS uc_total_candidate, "

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public interface ReportService {
 
   ByteArrayInputStream createExamResultReport(LocalDate startDate,
-      LocalDate endDate) throws IOException;
+      LocalDate endDate, String examProfileSerialNo) throws IOException;
 
   ByteArrayInputStream createExamResultByYearReport(int year)
       throws IOException;
