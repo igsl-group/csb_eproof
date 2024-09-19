@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "combined_historical_result_before_2024")
@@ -82,4 +83,7 @@ public class CombinedHistoricalResultBefore extends BaseEntity{
 
     @Column(name = "valid")
     private Boolean valid;
+
+    @OneToMany(mappedBy = "historicalResult", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<CombinedHisResultBefApprove> historicalResultBefApproves;
 }

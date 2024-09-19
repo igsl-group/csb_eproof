@@ -9,7 +9,6 @@ import lombok.Getter;
 /**
  * base exception
  *
- * @author Aliven
  */
 @Getter
 @AllArgsConstructor

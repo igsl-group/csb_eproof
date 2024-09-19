@@ -6,7 +6,6 @@ import com.hkgov.csb.eproof.constants.enums.ResultCode;
 /**
  * Servcie Exception
  *
- * @author Aliven
  */
 public class ServiceException extends BaseException {
 

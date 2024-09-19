@@ -10,7 +10,8 @@ public enum CertStatus {
     IN_PROGRESS("IN_PROGRESS", "In progress"),
     SCHEDULED("SCHEDULED", "Scheduled"),
     APPROVED("APPROVED", "Approved"),
-    REJECTED("REJECTED", "Rejected");
+    REJECTED("REJECTED", "Rejected"),
+    WITHDRAWAL("WITHDRAWAL", "Withdrawal");
 
     private final String code;
     private final String label;
