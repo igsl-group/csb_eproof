@@ -35,9 +35,9 @@ public class ReportServiceImpl implements ReportService {
 
         @Override
         public ByteArrayInputStream createExamResultReport(LocalDate startDate,
-                        LocalDate endDate) throws IOException {
+                        LocalDate endDate, String examProfileSerialNo) throws IOException {
                 List<Object[]> results = certInfoRepository
-                                .findReportData(startDate, endDate);
+                                .findReportData(startDate, endDate, examProfileSerialNo);
                 List<ExamResultReportDTO> reportData = results.stream()
                                 .map(row -> new ExamResultReportDTO(
                                                 (String) row[0],
