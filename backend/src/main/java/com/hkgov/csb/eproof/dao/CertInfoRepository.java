@@ -97,19 +97,24 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
     List<CertInfo> getInfoWithNotifyAndCompletedStageList(
             @Param("serialNo") String serialNo);
 
-    @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo")
+    @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo")
     List<CertInfo> getInfoListByExamSerialNo(
             @Param("serialNo") String serialNo);
 
-    @Query("select c from CertInfo c left join ExamProfile where c.examProfileSerialNo = :serialNo and c.certStage= :stage and c.certStatus = 'SUCCESS' and c.onHold = false  ")
+    @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo and c.certStage= :stage and c.certStatus = 'SUCCESS' and c.onHold = false  ")
     List<CertInfo> getinfoByNoAndStatus(@Param("serialNo") String serialNo,
             @Param("stage") CertStage stage);
 
 
     @Query("""
                 SELECT COUNT(c) FROM CertInfo c
-                WHERE (:certStatus != null AND c.certStatus = :certStatus AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage and c.onHold = false)
-                OR (:certStatus = null AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage and c.onHold = false)
+                WHERE (c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage and c.onHold = false)
+            """)
+    Integer countByStageWithOnHold(String examProfileSerialNo, CertStage certStage);
+
+    @Query("""
+                SELECT COUNT(c) FROM CertInfo c
+                WHERE (c.certStatus = :certStatus AND c.examProfileSerialNo = :examProfileSerialNo and c.certStage = :certStage and c.onHold = false)
             """)
     Integer countByStageAndStatus(String examProfileSerialNo,
             CertStage certStage, CertStatus certStatus);
@@ -142,7 +147,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
     @Query("""
                 UPDATE CertInfo
                 SET certStage = :nextStage , certStatus= :pendingCertStatus, modifiedBy = :currentUserName, modifiedDate = current_timestamp
-                WHERE examProfileSerialNo = :examSerialNo and certStage = :currentStage
+                WHERE examProfileSerialNo = :examSerialNo and certStage = :currentStage and certStatus = 'SUCCESS' and onHold = false  
             """)
     Integer dispatchCert(String examSerialNo, CertStage currentStage,
             CertStage nextStage, CertStatus pendingCertStatus,

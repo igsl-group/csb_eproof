@@ -17,6 +17,8 @@ import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.ExamProfileService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     private final CertInfoRepository certInfoRepository;
     private final CertInfoRenewRepository certInfoRenewRepository;
     private final CertInfoService certInfoService;
-
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Boolean create(ExamProfileCreateDto request) {
         var examProfile = examProfileRepository.getinfoByNo(request.getSerialNo());
@@ -108,23 +110,24 @@ public class ExamProfileServiceImpl implements ExamProfileService {
 
     @Override
     public ExamProfileSummaryDto getSummary(String examProfileSerialNo) {
-        return ExamProfileSummaryDto.builder()
-                .imported(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.IMPORTED, null))
 
-                .generatePdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, null))
+        return ExamProfileSummaryDto.builder()
+                .imported(certInfoRepository.countByStageWithOnHold(examProfileSerialNo, CertStage.IMPORTED))
+
+                .generatePdfTotal(certInfoRepository.countByStageWithOnHold(examProfileSerialNo, CertStage.GENERATED))
                 .generatePdfPending(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.PENDING))
                 .generatePdfFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.FAILED))
                 .generatePdfSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.SUCCESS))
                 .generatePdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.GENERATED, CertStatus.IN_PROGRESS))
 
-                .issuedPdfTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, null))
+                .issuedPdfTotal(certInfoRepository.countByStageWithOnHold(examProfileSerialNo, CertStage.SIGN_ISSUE))
                 .issuedPdfPending(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.PENDING))
                 .issuedPdfInScheduled(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.SCHEDULED))
                 .issuedPdfFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.FAILED))
                 .issuedPdfSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.SUCCESS))
                 .issuedPdfInProgress(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.SIGN_ISSUE, CertStatus.IN_PROGRESS))
 
-                .sendEmailTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, null))
+                .sendEmailTotal(certInfoRepository.countByStageWithOnHold(examProfileSerialNo, CertStage.NOTIFY))
                 .sendEmailPending(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.PENDING))
                 .sendEmailScheduled(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SCHEDULED))
                 .sendEmailFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.FAILED))
