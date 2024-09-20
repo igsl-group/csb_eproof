@@ -10,6 +10,7 @@ import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.ResultCode;
+import com.hkgov.csb.eproof.controller.TemplateController;
 import com.hkgov.csb.eproof.dao.*;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.File;
@@ -26,8 +27,10 @@ import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.EProof.FileUtil;
+import com.hkgov.csb.eproof.util.EmailUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.itextpdf.text.pdf.qrcode.WriterException;
+import freemarker.template.TemplateException;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -86,8 +89,11 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final ExamProfileRepository examProfileRepository;
     private final EmailEventRepository emailEventRepository;
     private final EProofConfigProperties eProofConfigProperties;
+    private final TemplateController template;
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
+
+    private final EmailUtil emailUtil;
 
     private final CertInfoRepository certInfoRepository;
 
@@ -107,6 +113,11 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final GcisEmailServiceImpl gcisEmailServiceImpl;
     private static final Gson GSON = new Gson();
     private final AuthenticationService authenticationService;
+
+    @Value("${gcis-shared-service.emailWhitelist.enabled}")
+    private Boolean whiteListEnabled;
+    @Value("${gcis-shared-service.emailWhitelist.toList}")
+    private List<String> whiteList;
 
     @Value("${document.qr-code.height}")
     private Integer qrCodeHeight;
@@ -888,11 +899,14 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) throws DocumentException, IOException {
-        List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.NOTIFY,List.of(CertStatus.SCHEDULED));
+    public void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) throws DocumentException, IOException, TemplateException {
+
+        List<CertInfo> certInfoList = certInfoRepository.getToBeSendBatchEmailCert(examProfileSerialNo);
         List<List<CertInfo>> choppedCertInfo2dList = splitCertInfoList(certInfoList, splitSize);
 
         EmailTemplate notifyEmailTemplate = emailTemplateRepository.findByName(Constants.EMAIL_TEMPLATE_NOTIFY);
+
+        String convertedEmailTemplate = convertEmailTemplateToGcisBatchEmailTemplate(notifyEmailTemplate.getBody());
         SystemParameter xmlTemplateLocation = systemParameterRepository.findByName(Constants.SYS_PARAM_NOTI_BATCH_XML_LOCATION).get();
 
         if(xmlTemplateLocation == null){
@@ -901,12 +915,15 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         byte [] xmlByteArray = minioUtil.getFileAsByteArray(xmlTemplateLocation.getValue());
 
+
         SAXReader reader = new SAXReader();
+
+        ExamProfile examProfile = examProfileRepository.findById(examProfileSerialNo).get();
 
         int i=1;
         for (List<CertInfo> choppedCertInfoList : choppedCertInfo2dList) {
             String listName = generateListName(examProfileSerialNo,i);
-            String processedXml = processBatchEmailXml(listName,examProfileSerialNo,reader,xmlByteArray,choppedCertInfoList);
+            String processedXml = processBatchEmailXml(notifyEmailTemplate.getSubject(),convertedEmailTemplate, listName,examProfile,reader,xmlByteArray,choppedCertInfoList);
 
             GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml,listName);
             choppedCertInfoList.forEach(certInfo -> {
@@ -917,14 +934,22 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
     }
 
+    private String convertEmailTemplateToGcisBatchEmailTemplate(String templateBody) throws TemplateException, IOException {
+        Map<String, Object> replaceMap = new HashMap<>();
+        replaceMap.put("application_name","*#*application_name*#*");
+        replaceMap.put("examination_date","*#*examination_date*#*");
+        replaceMap.put("eproof_document_url","*#*eproof_document_url*#*");
+        return emailUtil.getRenderedHtml(templateBody,replaceMap);
+    }
+
     private String generateListName(String examProfileSerialNo, int loopIndex) {
-        return String.format("CSBEP_%s_%s_%s"
+        return String.format("%s%s%s"
                 ,examProfileSerialNo
-                ,LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_2))
+                ,LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN_3))
                 ,loopIndex
         );
     }
-    private String processBatchEmailXml(String listName, String examProfileSerialNo, SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
+    private String processBatchEmailXml(String emailTitle,String convertedEmailTemplate, String listName, ExamProfile examProfile, SAXReader reader, byte[] xmlByteArray, List<CertInfo> choppedCertInfoList) throws DocumentException, IOException {
 
 
         Document document = reader.read(new ByteArrayInputStream(xmlByteArray));
@@ -933,6 +958,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         // Update <NOTI_LIST> content
         Element notiList = root.element("NOTI_LIST");
         notiList.element("NOTI_LIST_NAME").setText(listName);
+        notiList.element("TEML_NAME").setText(listName);
 
         // Update <NOTI_LIST_NAME> for each merge item
         List<Element> notiMergItemList= root.elements("NOTI_MERG_ITEM");
@@ -940,8 +966,20 @@ public class CertInfoServiceImpl implements CertInfoService {
             element.element("NOTI_LIST_NAME").setText(listName);
         }
 
+        // Update TEMPLATE content
+        Element template = root.element("TEMPLATE");
+        template.element("TEML_NAME").setText(listName);
+        template.element("NOTI_SUBJ").setText(emailTitle);
+        template.element("NOTI_CONT").setText(convertedEmailTemplate);
+        template.element("NOTI_LIST_NAME").setText(listName);
+
         // Add <SUBR_MERG_ITEM> content
         for (CertInfo certInfo : choppedCertInfoList) {
+            if(whiteListEnabled && whiteList != null && !whiteList.contains(certInfo.getEmail())){
+                // skip adding this recipient since he/she is not in the white list
+                continue;
+            }
+
             Element recipient = root.addElement("SUBR_MERG_ITEM");
             recipient.addElement("ACTION").setText("Create");
             recipient.addElement("NOTI_LIST_NAME").setText(listName);
@@ -950,18 +988,32 @@ public class CertInfoServiceImpl implements CertInfoService {
             // TODO: Temporary add 10 attachment xml according to the template.
             //  If attachment xml section is not needed, this part can be removed.
             for (int i=1;i<=10;i++){
-                recipient.addElement("SUBR_ATTH_0"+i);
+                if(i<10){
+                    recipient.addElement("SUBR_ATTH_0"+i);
+                }
+                else{
+                    recipient.addElement("SUBR_ATTH_"+i);
+                }
             }
 
             Element candidateName = recipient.addElement("MERG_ITEM");
-            candidateName.addElement("MERG_ITEM_NAME").setText("CANDIDATE_NAME");
+            candidateName.addElement("MERG_ITEM_NAME").setText("application_name");
             candidateName.addElement("MERG_ITEM_VALUE").setText(certInfo.getName());
 
-            Element candidateTitle = recipient.addElement("MERG_ITEM");
-            candidateTitle.addElement("MERG_ITEM_NAME").setText("CANDIDATE_TITLE");
-            candidateTitle.addElement("MERG_ITEM_VALUE").setText(certInfo.getEproofId());
+            Element examDate = recipient.addElement("MERG_ITEM");
+            examDate.addElement("MERG_ITEM_NAME").setText("examination_date");
+            examDate.addElement("MERG_ITEM_VALUE").setText(examProfile.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+
+            Element eproofDocumentUrl = recipient.addElement("MERG_ITEM");
+            eproofDocumentUrl.addElement("MERG_ITEM_NAME").setText("eproof_document_url");
+
+            eproofDocumentUrl.addElement("MERG_ITEM_VALUE").setText(certInfo.getCertEproof()!= null? certInfo.getCertEproof().getUrl():"");
+
+
         }
-        
+
+
+
         String processedXml = document.asXML();
         return beautifyXml(processedXml);
     }
@@ -1113,6 +1165,14 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         // Return the combined list in a ResponseEntity
         return ResponseEntity.ok(combinedCertInfoList);
+    }
+
+    @Override
+    public void deleteFutureBatchEmail(String examProfileSerialNo) {
+        List<GcisBatchEmail> toBeDeleteGcisBatEmail = gcisBatchEmailRepository.findToBeDeleteBatchEmail(examProfileSerialNo, LocalDate.now().plusDays(1).atTime(0,0,0));
+        certInfoRepository.updateNotYetSentCertBatchEmailToNull(examProfileSerialNo,LocalDate.now().plusDays(1).atTime(0,0,0));
+        gcisBatchEmailRepository.deleteAll(toBeDeleteGcisBatEmail);
+
     }
 
 

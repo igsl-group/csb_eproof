@@ -19,10 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
 import javax.ws.rs.core.Response;
-import java.io.File;
 import java.util.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 @Component
 @EnableAsync
@@ -44,9 +41,9 @@ public class EmailEventListener {
     @Value("${gcis-shared-service.keystore.alias}")
     private String keyStoreFileAlias;
     @Value("${gcis-shared-service.emailWhitelist.enabled}")
-    private String[] whitelistEnabled;
+    private Boolean  whitelistEnabled;
     @Value("${gcis-shared-service.emailWhitelist.toList}")
-    private String[] toList;
+    private String[] whiteList;
     @Value("${gcis-shared-service.notiSvc.endPointName}")
     private String endpointName;
     @Value("${gcis-shared-service.notiSvc.endPointUrl}")
@@ -203,8 +200,8 @@ public class EmailEventListener {
 
     private boolean whitelistFilter(String to) {
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        if (toList != null) {
-            return Arrays.stream(toList)
+        if (whiteList != null) {
+            return Arrays.stream(whiteList)
                     .anyMatch(p -> pathMatcher.match(p, to));
         } else {
             return false;

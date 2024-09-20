@@ -13,12 +13,20 @@ public class ScheduledJobs {
 
 
     private final NormalEmailSendJob normalEmailSendJob;
+    private final UploadTodayBatchXmlJob uploadTodayBatchXmlJob;
+    private final ScheduleTodayBatchEmailJob scheduleTodayBatchEmailJob;
+    private final EnquireAndUpdateTodayScheduleStatusJob enquireAndUpdateScheduleStatusJob;
+
+
     private final EProofConfigProperties eProofConfigProperties;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ScheduledJobs(NormalEmailSendJob normalEmailSendJob, EProofConfigProperties eProofConfigProperties) {
+    public ScheduledJobs(NormalEmailSendJob normalEmailSendJob, UploadTodayBatchXmlJob uploadTodayBatchXmlJob, ScheduleTodayBatchEmailJob scheduleTodayBatchEmailJob, EnquireAndUpdateTodayScheduleStatusJob enquireAndUpdateScheduleStatusJob, EProofConfigProperties eProofConfigProperties) {
         this.normalEmailSendJob = normalEmailSendJob;
+        this.uploadTodayBatchXmlJob = uploadTodayBatchXmlJob;
+        this.scheduleTodayBatchEmailJob = scheduleTodayBatchEmailJob;
+        this.enquireAndUpdateScheduleStatusJob = enquireAndUpdateScheduleStatusJob;
         this.eProofConfigProperties = eProofConfigProperties;
     }
 
@@ -38,6 +46,26 @@ public class ScheduledJobs {
     }
 
 
+    @Scheduled(cron = "${cron-expression.upload-today-batch-xml-to-gcis}")
+    public void uploadTodayBatchToGcis() throws Exception {
+        logStartMessage("Upload batch email xml");
+        uploadTodayBatchXmlJob.start();
+        logEndMessage("Upload batch email xml");
+    }
+
+    @Scheduled(cron = "${cron-expression.schedule-today-batch-email}")
+    public void scheduleBatchEmail() throws Exception {
+        logStartMessage("Schedule mail");
+        scheduleTodayBatchEmailJob.start();
+        logEndMessage("Schedule mail");
+    }
+
+    @Scheduled(cron = "${cron-expression.enquire-and-update-schedule-status}")
+    public void enquireAndUpdateScheduleStatus() throws Exception{
+        logStartMessage("Enquire and update schedule status");
+        enquireAndUpdateScheduleStatusJob.start();
+        logEndMessage("Enquire and update schedule status");
+    }
     private void logStartMessage(String jobName){
         logger.info(String.format("[%s] Cronjob START",jobName));
     }

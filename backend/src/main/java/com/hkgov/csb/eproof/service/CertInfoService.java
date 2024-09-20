@@ -2,7 +2,9 @@ package com.hkgov.csb.eproof.service;
 
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
+import freemarker.template.TemplateException;
 import org.dom4j.DocumentException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import java.util.List;
 * @createDate 2024-05-10 17:47:40
 */
 public interface CertInfoService {
+
     Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
     Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData);
@@ -66,7 +69,7 @@ public interface CertInfoService {
 
     byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception;
 
-    void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) throws DocumentException, IOException;
+    void insertGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto) throws DocumentException, IOException, TemplateException;
 
     void approveRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception;
 
@@ -79,4 +82,6 @@ public interface CertInfoService {
     ResponseEntity<byte[]> enquiryResult(List<String> params);
 
     ResponseEntity<List<CertInfo>> getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
+
+    void deleteFutureBatchEmail(String examProfileSerialNo);
 }

@@ -2,14 +2,23 @@ package com.hkgov.csb.eproof.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
+import com.hkgov.csb.eproof.dao.EmailTemplateRepository;
+import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.EmailTemplate;
 import com.hkgov.csb.eproof.entity.ExamProfile;
+import com.hkgov.csb.eproof.entity.GcisBatchEmail;
+import com.hkgov.csb.eproof.exception.GenericException;
+import com.hkgov.csb.eproof.request.ManualResendBatchEmailRequest;
 import com.hkgov.csb.eproof.service.DocumentGenerateService;
+import com.hkgov.csb.eproof.service.GcisBatchEmailService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.util.DocxUtil;
+import com.hkgov.csb.eproof.util.EmailUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.comp.helper.Bootstrap;
@@ -32,13 +41,13 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,10 +70,22 @@ public class TestController {
     private ObjectMapper objectMapper;
 
     @Autowired
+    private GcisBatchEmailService gcisBatchEmailService;
+
+    @Autowired
+    private GcisBatchEmailRepository gcisBatchEmailRepository;
+
+
+    @Autowired
     private DocumentGenerateService documentGenerateService;
     @Value("${document.generate-temp-source}")
     private String tmpSource;
     Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public TestController(EmailTemplateRepository emailTemplateRepository, EmailUtil emailUtil) {
+        this.emailTemplateRepository = emailTemplateRepository;
+        this.emailUtil = emailUtil;
+    }
 
     @GetMapping("/fillDocument")
     public ResponseEntity fillDocument() throws Exception {
@@ -251,10 +272,35 @@ public class TestController {
         return ResponseEntity.ok().body(IOUtils.toByteArray(minioUtil.getFileAsStream("/letter_template/pass_template.docx")));
     }
 
+    private final EmailTemplateRepository emailTemplateRepository;
+     private final EmailUtil emailUtil;
+
+    @GetMapping("/testEmail2")
+    public String testEmail2() throws Exception {
+        EmailTemplate notifyEmailTemplate = emailTemplateRepository.findByName(Constants.EMAIL_TEMPLATE_NOTIFY);
+
+        Map<String, Object> replaceMap = new HashMap<>();
+        replaceMap.put("application_name","*#*application_name*#*");
+        replaceMap.put("examination_date","*#*examination_date*#*");
+        replaceMap.put("eproof_document_url","*#*eproof_document_url*#*");
+        return emailUtil.getRenderedHtml(notifyEmailTemplate.getBody(),replaceMap);    }
+
     @GetMapping("/testEmail")
     public void testEmail(){
 
     }
-    
+
+    @PostMapping("/gcisBatchEmail/manualResendBatch")
+    public Object manualResendBatch(@RequestBody ManualResendBatchEmailRequest manualResendBatchEmailRequest) throws Exception {
+        GcisBatchEmail gcisBatchEmail =gcisBatchEmailRepository.findById(manualResendBatchEmailRequest.getGcisBatchEmailId()).orElseThrow(()->new GenericException("gcis.batch.email.not.found","GCIS batch email not found"));
+        return gcisBatchEmailService.scheduleBatchEmail(gcisBatchEmail, LocalDateTime.parse(manualResendBatchEmailRequest.getScheduleTime(), DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN)));
+    }
+
+    @GetMapping("/gcisBatchEmail/manualEnquire/{gcisBatchEmailId}")
+    public Object manualEnquire(@PathVariable Long gcisBatchEmailId) throws Exception {
+        GcisBatchEmail gcisBatchEmail =gcisBatchEmailRepository.findById(gcisBatchEmailId).orElseThrow(()->new GenericException("gcis.batch.email.not.found","GCIS batch email not found"));
+        return gcisBatchEmailService.enquireUploadStatus(gcisBatchEmail.getId());
+     }
+
 
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "gcis_batch_email")
@@ -41,16 +42,26 @@ public class GcisBatchEmail extends BaseEntity {
     @Column(name = "batch_upload_status")
     private String batchUploadStatus;
 
+    @Column(name = "batch_upload_remark")
+    private String batchUploadRemark;
+
     @Column(name = "schedule_job_id")
     private String scheduleJobId;
 
     @Column(name = "schedule_job_status")
     private String scheduleJobStatus;
 
+    @Column(name = "schedule_job_remark")
+    private String scheduleJobRemark;
+
     @Column(name = "schedule_est_start_time")
     private String scheduleEstStartTime;
 
     @Column(name = "schedule_est_end_time")
     private String scheduleEstEndTime;
+
+
+    @OneToMany(mappedBy = "gcisBatchEmailId", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private Set<CertInfo> certInfoList;
 
 }

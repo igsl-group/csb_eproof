@@ -185,12 +185,17 @@ thread-pool:
 cron-expression:
   normal-email-sending: "-"
   refresh-eproof-access-token: "0 0/30 * * * *"
+  upload-today-batch-xml-to-gcis: "0 0 1 * * *"
+#  upload-today-batch-xml-to-gcis: "0 19 21 * * *"
+  schedule-today-batch-email: "0 0 9 * * *"
+  enquire-and-update-schedule-status: "0 0 10-18 * * *"
 
 gcis-shared-service:
   batch-email:
-    split-size: 999
+    split-size: 5
     local-temporary-xml-folder-path: C:\tempGcisBatchXml
     upload-trial-times: 2
+    schedule-trial-times: 2
     projectId: CSBEP
   enabled: true
   emailWhitelist:
@@ -199,7 +204,7 @@ gcis-shared-service:
   property:
     path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\proximity.properties
   keystore:
-    path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofuat.csb.ccgo.hksarg.p12
+    path: C:\Users\IGS\Documents\GitHub\csb_eproof\backend\src\main\resources\eproofuat.csb.ccgo.hksarg.p12
     alias: dsign
     password: P@ssw0rd1234$
   notiSvc:

@@ -4,19 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
-import com.hkgov.csb.eproof.service.ActionTargetService;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
 import hk.gov.spica_scopes.common.client.PropertyNames;
 import hk.gov.spica_scopes.common.jaxb.ScopesFault;
 import hk.gov.spica_scopes.spica.jaxb.batchenq.BatchUploadEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.batchupload.BatchUploadResponse;
 import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
-import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
 import hk.gov.spica_scopes.spica.notification.client.restful.NotificationRestfulClient;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,6 +42,9 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
 
     @Value("${gcis-shared-service.batch-email.upload-trial-times}")
     String uploadTrialTimes;
+
+    @Value("${gcis-shared-service.batch-email.schedule-trial-times}")
+    String scheduleTrialTimes;
 
     @Value("${gcis-shared-service.notiSvc.batchUploadEndPointName}")
     String batchUploadEndPointName;
@@ -117,36 +117,46 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
 
         Response resp = notiRestfulClient.sendBatchUploadRequest(batchType,tempXmlFileLocation,null);
         boolean uploadSuccess = false;
-        int currentTrialTimes= 1;
         if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
             BatchUploadResponse bur = notiRestfulClient.getBatchUploadResponse(resp);
             uploadSuccess = true;
+            gcisBatchEmail.setBatchUploadStatus("UPLOADED");
             gcisBatchEmail.setBatchUploadRefNum(bur.getUploadRefNum());
             gcisBatchEmailRepository.save(gcisBatchEmail);
 
-            return true;
+            return uploadSuccess;
         } else{
+            ScopesFault faultEntity = notiRestfulClient.getScopesFault(resp);
 
             System.out.println(notiRestfulClient.getScopesFault(resp).getDescription());
+            int currentTrialTimes= 1;
 
             while(currentTrialTimes < Integer.parseInt(uploadTrialTimes)){
                 resp = notiRestfulClient.sendBatchUploadRequest(batchType,tempXmlFileLocation,null);
                 if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                    BatchUploadResponse bur = notiRestfulClient.getBatchUploadResponse(resp);
                     uploadSuccess = true;
-                    return true;
+                    gcisBatchEmail.setBatchUploadStatus("UPLOADED");
+                    gcisBatchEmail.setBatchUploadRefNum(bur.getUploadRefNum());
+                    gcisBatchEmailRepository.save(gcisBatchEmail);
+                    return uploadSuccess;
                 } else{
-                    System.out.println(notiRestfulClient.getScopesFault(resp).getDescription());
+                    faultEntity = notiRestfulClient.getScopesFault(resp);
+                    System.out.println(faultEntity.getDescription());
                 }
                 currentTrialTimes++;
             }
             // Tried all times but still failed
             if (!uploadSuccess){
+                gcisBatchEmail.setBatchUploadStatus("FAILED");
+                gcisBatchEmail.setBatchUploadRemark(faultEntity.getDescription());
+                gcisBatchEmailRepository.save(gcisBatchEmail);
                 sendAlertEmailToInternalTeam("Failed to upload batch email to GCIS. BatchEmailId: " + gcisBatchEmail.getId());
-                return false;
+                return uploadSuccess;
             }
         }
 
-        return false;
+        return uploadSuccess;
     }
 
     private void sendAlertEmailToInternalTeam(String message){
@@ -173,11 +183,22 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
     }
 
     @Override
-    public String scheduleBatchEmail(Long gcisBatchEmailId, LocalDateTime scheduleTime) throws Exception {
+    public ScheduleResponse scheduleBatchEmail(Long gcisBatchEmailId, LocalDateTime scheduleTime) throws Exception {
 
         GcisBatchEmail gcisBatchEmail = gcisBatchEmailRepository.findById(gcisBatchEmailId).orElse(null);
         if(gcisBatchEmail == null){
-            return "";
+            return null;
+        }
+
+        return this.scheduleBatchEmail(gcisBatchEmail, scheduleTime);
+    }
+
+
+    @Override
+    public ScheduleResponse scheduleBatchEmail(GcisBatchEmail gcisBatchEmail, LocalDateTime scheduleTime) throws Exception {
+
+        if(gcisBatchEmail == null){
+            return null;
         }
 
         String scheduleType = "REQUEST";
@@ -197,24 +218,53 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
                 notiListProjId, templateName, templateProjId);
 
 
+        boolean scheduleSuccess = false;
         if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
             ScheduleResponse sr = notiRestfulClient.getScheduleResponse(resp);
             gcisBatchEmail.setScheduleEstStartTime(sr.getEstStartTimestamp());
             gcisBatchEmail.setScheduleEstEndTime(sr.getEstEndTimestamp());
             gcisBatchEmailRepository.save(gcisBatchEmail);
-
+            return sr;
         } else {
+
+            ScopesFault scopesFault = notiRestfulClient.getScopesFault(resp);
+
             System.out.println(notiRestfulClient.getScopesFault(resp).getDescription());
+            int currentTrialTimes= 1;
+
+            while(currentTrialTimes < Integer.parseInt(scheduleTrialTimes)){
+                resp = notiRestfulClient.sendScheduleRequest(scheduleType, startTimestamp, null, notiListName,
+                        notiListProjId, templateName, templateProjId);
+                if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                    scheduleSuccess = true;
+                    ScheduleResponse sr = notiRestfulClient.getScheduleResponse(resp);
+                    gcisBatchEmail.setScheduleEstStartTime(sr.getEstStartTimestamp());
+                    gcisBatchEmail.setScheduleEstEndTime(sr.getEstEndTimestamp());
+                    gcisBatchEmailRepository.save(gcisBatchEmail);
+                    return sr;
+                } else{
+                    scopesFault = notiRestfulClient.getScopesFault(resp);
+                    System.out.println(scopesFault.getDescription());
+                }
+                currentTrialTimes++;
+            }
+            // Tried all times but still failed
+            if (!scheduleSuccess){
+                gcisBatchEmail.setScheduleJobRemark(scopesFault.getDescription());
+                gcisBatchEmailRepository.save(gcisBatchEmail);
+                System.out.println(scopesFault.getDescription());
+                sendAlertEmailToInternalTeam("Failed to schedule email to GCIS. BatchEmailId: " + gcisBatchEmail.getId());
+                return null;
+            }
         }
 
-        return "";
+        return null;
     }
-
     @Override
-    public String enquireUploadStatus(Long gcisBatchEmailId) throws Exception {
+    public BatchUploadEnquiryResponse enquireUploadStatus(Long gcisBatchEmailId) throws Exception {
         GcisBatchEmail gcisBatchEmail = gcisBatchEmailRepository.findById(gcisBatchEmailId).orElse(null);
         if (gcisBatchEmail == null) {
-            return "";
+            return null;
         }
 
         Properties prop = getSSLProperties(batchEnquireEndPointName, batchEnquireEndPointUrl);
@@ -224,36 +274,27 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
 
         if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
             BatchUploadEnquiryResponse buer = notiRestfulClient.getBatchUploadEnquiryResponse(resp);
-            return objectMapper.writeValueAsString(buer);
+            return buer;
         } else {
             System.out.println(notiRestfulClient.getScopesFault(resp).getDescription());
+            return null;
         }
-        return "";
 
     }
 
     @Override
-    public String enquireScheduleStatus(Long gcisBatchEmailId) throws Exception {
+    public Response enquireScheduleStatus(Long gcisBatchEmailId) throws Exception {
 
         GcisBatchEmail gcisBatchEmail = gcisBatchEmailRepository.findById(gcisBatchEmailId).orElse(null);
         if (gcisBatchEmail == null) {
-            return "";
+            return null;
         }
 
         Properties prop = getSSLProperties(scheduleEnquireEndPointName, scheduleEnquireEndPointUrl);
         NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
-        String jobId = gcisBatchEmail.getScheduleJobId();
+        String jobId = gcisBatchEmail.getBatchUploadRefNum();
 
-        Response resp = notiRestfulClient.sendScheduleEnquiryRequest(jobId);
-
-        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
-            ScheduleEnquiryResponse ser = notiRestfulClient.getScheduleEnquiryResponse(resp);
-            return objectMapper.writeValueAsString(ser);
-        } else {
-            System.out.println(notiRestfulClient.getScopesFault(resp).getDescription());
-        }
-
-        return "";
+        return notiRestfulClient.sendScheduleEnquiryRequest(jobId);
     }
 
     @Override
@@ -265,7 +306,6 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
         }
 
         Properties prop = getSSLProperties(batchUploadEndPointName, batchUploadEndPointUrl);
-
         NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
         String batchType = "BATCH";
 
@@ -288,7 +328,8 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
         }
     }
 
-    private Properties getSSLProperties(String endPointName, String endPointUrl)
+    @Override
+    public Properties getSSLProperties(String endPointName, String endPointUrl)
             throws Exception {
         String propertyFile = propertyFilePath;
         String keyStoreFile = keyStoreFilePath;

@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
@@ -17,6 +18,7 @@ import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.service.impl.GcisEmailServiceImpl;
 import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.Result;
+import freemarker.template.TemplateException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -141,7 +143,8 @@ public class CertController {
     public Result batchScheduleMail(
             @PathVariable String examProfileSerialNo,
             @RequestBody InsertGcisBatchEmailDto insertGcisBatchEmailDto
-    ) throws DocumentException, IOException {
+    ) throws DocumentException, IOException, TemplateException {
+        certInfoService.deleteFutureBatchEmail(examProfileSerialNo);
         certInfoService.changeCertStatusToScheduled(examProfileSerialNo,CertStage.NOTIFY);
         certInfoService.insertGcisBatchEmail(examProfileSerialNo,insertGcisBatchEmailDto);
         return Result.success();
