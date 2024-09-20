@@ -32,17 +32,17 @@ public class CombinedHisResultBefApproveServiceImpl implements CombinedHisResult
         if(Objects.isNull(record)){
             throw new GenericException(ExceptionEnums.HISTORICAL_ACHIEVEMENT_NOT_EXIST);
         }
-        record.setOldBlVoid( dto.getOldBlVoid() );
-        record.setNewBlVoid( dto.getNewBlVoid() );
-        record.setOldUeVoid( dto.getOldUeVoid() );
-        record.setNew_ue_void( dto.getNew_ue_void() );
-        record.setOldUcVoid( dto.getOldUcVoid() );
-        record.setNewUcVoid( dto.getNewUcVoid() );
-        record.setOldAtVoid( dto.getOldAtVoid() );
-        record.setNewAtVoid( dto.getNewAtVoid() );
-        record.setOldValid( dto.getOldValid() );
-        record.setNewValid( dto.getNewValid() );
-        record.setRemark( dto.getRemark() );
+        record.setOldBlVoid(dto.getOldBlVoid());
+        record.setNewBlVoid(dto.getNewBlVoid());
+        record.setOldUeVoid(dto.getOldUeVoid());
+        record.setNew_ue_void(dto.getNew_ue_void());
+        record.setOldUcVoid(dto.getOldUcVoid());
+        record.setNewUcVoid(dto.getNewUcVoid());
+        record.setOldAtVoid(dto.getOldAtVoid());
+        record.setNewAtVoid(dto.getNewAtVoid());
+        record.setOldValid(dto.getOldValid());
+        record.setNewValid(dto.getNewValid());
+        record.setRemark(dto.getRemark());
         record.setStatus(CertStatus.PENDING);
         approveRepository.save(record);
     }
