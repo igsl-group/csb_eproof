@@ -33,6 +33,7 @@ import {
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Dropdown from "@/components/Dropdown";
+import HKID from "@/components/HKID";
 import Textarea from "@/components/Textarea";
 // import Import from "./import";
 // import Generate from "./generate";
@@ -44,6 +45,7 @@ import {useModal} from "../../context/modal-provider";
 import { reportAPI } from "../../api/request";
 import {useMessage} from "../../context/message-provider";
 import {download} from "../../utils/util";
+import {HKIDToString} from "../../components/HKID";
 // import ExamProfileFormModal from "./modal";
 
 const StatisticalReports = () =>  {
@@ -62,6 +64,94 @@ const StatisticalReports = () =>  {
   }, []);
 
   const [data, setData] = useState([
+    {
+      type: 'Details of Certificate(s) with Personal Particulars Updated',
+      id: '6',
+      formFields: (
+        <Row gutter={24} justify={'start'}>
+          <Col span={12}>
+            <Date
+              name={'start'}
+              label={'From'}
+            />
+          </Col>
+          <Col span={12}>
+            <Date
+              name={'end'}
+              label={'To'}
+              dependencies={['start']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const startDate = getFieldValue('start');
+                    const isSameOrAfter = value.isSame(startDate, 'day') || value.isAfter(startDate, 'day');
+                    if (!value || isSameOrAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "To" should be no earlier than the "From".'));
+                  },
+                }),
+              ]}
+            />
+          </Col>
+          <Col span={12}>
+            <Text name={'candidateName'} label={'Candidate Name'}/>
+          </Col>
+          <Col span={12}>
+          </Col>
+          <Col span={12}>
+            <HKID name={'hkidNumber'} label={'HKID'}/>
+          </Col>
+          <Col span={12}>
+            <Text name={'passportNumber'} label={'Passport'}/>
+          </Col>
+        </Row>
+      )
+    },
+    {
+      type: 'Details of Certificate(s) with Results Updated',
+      id: '7',
+      formFields: (
+        <Row gutter={24} justify={'start'}>
+          <Col span={12}>
+            <Date
+              name={'start'}
+              label={'From'}
+            />
+          </Col>
+          <Col span={12}>
+            <Date
+              name={'end'}
+              label={'To'}
+              dependencies={['start']}
+              validation={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const startDate = getFieldValue('start');
+                    const isSameOrAfter = value.isSame(startDate, 'day') || value.isAfter(startDate, 'day');
+                    if (!value || isSameOrAfter) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The "To" should be no earlier than the "From".'));
+                  },
+                }),
+              ]}
+            />
+          </Col>
+          <Col span={12}>
+            <Text name={'candidateName'} label={'Candidate Name'}/>
+          </Col>
+          <Col span={12}>
+          </Col>
+          <Col span={12}>
+            <HKID name={'hkidNumber'} label={'HKID'}/>
+          </Col>
+          <Col span={12}>
+            <Text name={'passportNumber'} label={'Passport'}/>
+          </Col>
+        </Row>
+      )
+    },
     {
       type: 'Statistics of Examination Results (by Examination Profile)',
       id: '9',
@@ -165,6 +255,7 @@ const StatisticalReports = () =>  {
         ...values,
         start: values.start ? dayjs(values.start).format('YYYY-MM-DD') : '',
         end: values.end ? dayjs(values.end).format('YYYY-MM-DD') : '',
+        hkidNumber: HKIDToString(values.hkidNumber),
         reportType: record.id,
       }))
       .catch((e) => {
