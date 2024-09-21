@@ -1,8 +1,14 @@
 package com.hkgov.csb.eproof.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN;
 
 @Getter
 @Setter
@@ -22,4 +28,10 @@ public class CertSearchDto {
     private Boolean certValid;
     private Boolean onHold;
     private String letterType;
+
+    @JsonFormat(pattern = DATE_PATTERN)
+    private LocalDate examDateFrom;
+
+    @JsonFormat(pattern = DATE_PATTERN)
+    private LocalDate examDateTo;
 }

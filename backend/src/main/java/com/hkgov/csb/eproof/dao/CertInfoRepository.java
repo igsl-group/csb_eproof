@@ -61,7 +61,9 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                                 ( ?#{#searchDto.atGrade} IS null OR c.at_grade like %?#{#searchDto.atGrade}% ) AND
                                 ( ?#{#searchDto.certValid} IS null OR c.is_valid = ?#{#searchDto.certValid} ) AND
                                 ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold} ) AND
-                                ( ?#{#searchDto.letterType} IS null OR c.letter_type like %?#{#searchDto.letterType}% )
+                                ( ?#{#searchDto.letterType} IS null OR c.letter_type like %?#{#searchDto.letterType}% ) AND
+                                ( ?#{#searchDto.examDateFrom} IS null OR c.exam_date >= ?#{#searchDto.examDateFrom}) AND
+                                ( ?#{#searchDto.examDateTo} IS null OR c.exam_date <= ?#{#searchDto.examDateTo})
                             )
                     """,
             countQuery = """
@@ -83,7 +85,9 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                                 ( ?#{#searchDto.atGrade} IS null OR c.at_grade like %?#{#searchDto.atGrade}% ) AND
                                 ( ?#{#searchDto.certValid} IS null OR c.is_valid = ?#{#searchDto.certValid} )AND
                                 ( ?#{#searchDto.onHold} IS null OR c.on_hold = ?#{#searchDto.onHold} ) AND
-                                ( ?#{#searchDto.letterType} IS null OR c.letter_type like %?#{#searchDto.letterType}% )
+                                ( ?#{#searchDto.letterType} IS null OR c.letter_type like %?#{#searchDto.letterType}% ) AND
+                                ( ?#{#searchDto.examDateFrom} IS null OR c.exam_date >= ?#{#searchDto.examDateFrom}) AND
+                                ( ?#{#searchDto.examDateTo} IS null OR c.exam_date <= ?#{#searchDto.examDateTo})
                             )
                     """)
     Page<CertInfo> certSearch(@Param("searchDto") CertSearchDto searchDto,
@@ -147,11 +151,11 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
     @Modifying
     @Query("""
                 UPDATE CertInfo
-                SET certStage = :nextStage , certStatus= :pendingCertStatus, modifiedBy = :currentUserName, modifiedDate = current_timestamp
+                SET certStage = :nextStage , certStatus= :pendingCertStatus, valid = :isValid,  modifiedBy = :currentUserName, modifiedDate = current_timestamp
                 WHERE examProfileSerialNo = :examSerialNo and certStage = :currentStage and certStatus = 'SUCCESS' and onHold = false  
             """)
     Integer dispatchCert(String examSerialNo, CertStage currentStage,
-            CertStage nextStage, CertStatus pendingCertStatus,
+            CertStage nextStage, CertStatus pendingCertStatus, Boolean isValid,
             String currentUserName);
 
 
@@ -268,8 +272,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE CertInfo ci set ci.certStatus = 'SUCCESS' where ci.certStage = 'NOTIFY' and ci.gcisBatchEmailId = :gcisBatchEmailId")
-    void updateNotifyStatusByGcisBatchEmailId(@Param("gcisBatchEmailId") Long gcisBatchEmailId);
+    @Query("UPDATE CertInfo ci set ci.certStatus = 'SUCCESS', ci.actualEmailSendTime = :actualEmailSendTime where ci.certStage = 'NOTIFY' and ci.gcisBatchEmailId = :gcisBatchEmailId")
+    void updateNotifyStatusByGcisBatchEmailId(@Param("gcisBatchEmailId") Long gcisBatchEmailId, @Param("actualEmailSendTime") LocalDateTime actualEmailSendTime);
 
     @Query("""
     SELECT ci From CertInfo ci
