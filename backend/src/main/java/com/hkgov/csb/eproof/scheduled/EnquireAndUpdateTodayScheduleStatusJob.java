@@ -1,5 +1,6 @@
 package com.hkgov.csb.eproof.scheduled;
 
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Properties;
 
@@ -59,7 +62,8 @@ public class EnquireAndUpdateTodayScheduleStatusJob {
                     List<String> successRespCodeList = List.of("0080");
                     Boolean scheduleSuccess = ser != null && successRespCodeList.contains(ser.getResultCd());
                     if (scheduleSuccess) {
-                        certInfoRepository.updateNotifyStatusByGcisBatchEmailId(gcisBatchEmail.getId());
+                        LocalDateTime scheduleEstEndTime = LocalDateTime.parse(gcisBatchEmail.getScheduleEstEndTime(), DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN_3));
+                        certInfoRepository.updateNotifyStatusByGcisBatchEmailId(gcisBatchEmail.getId(), scheduleEstEndTime);
                     }
 
                     logger.info("GCIS batch email id: " + gcisBatchEmail.getId() + " enquire successfully");

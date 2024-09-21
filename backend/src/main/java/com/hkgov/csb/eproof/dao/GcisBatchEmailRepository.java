@@ -26,7 +26,6 @@ public interface GcisBatchEmailRepository extends JpaRepository<GcisBatchEmail,L
     @Query("""
     SELECT gbe FROM GcisBatchEmail gbe 
         WHERE DATE(gbe.scheduleDatetime) = :queryDate 
-        AND gbe.scheduleJobStatus IS NULL
         AND gbe.scheduleJobId IS NULL
 """)
     List<GcisBatchEmail> findPendingScheduleBatchEmailByDate(@Param("queryDate") LocalDate queryDate);
