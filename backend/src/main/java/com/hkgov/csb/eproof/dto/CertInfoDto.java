@@ -45,8 +45,8 @@ public class CertInfoDto implements Serializable {
     Boolean passed;
     @JsonFormat(pattern = DATE_TIME_PATTERN)
     LocalDateTime actualSignTime;
-    @JsonFormat(pattern = DATE_TIME_PATTERN)
-    LocalDateTime actualEmailSendTime;
+    @JsonFormat(pattern = DATE_PATTERN)
+    LocalDate actualEmailSendTime;
     String remark;
     CertStage certStage;
     CertStatus certStatus;

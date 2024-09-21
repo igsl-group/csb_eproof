@@ -12,7 +12,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ExamProfileRepository extends JpaRepository<ExamProfile,String> {
-    @Query("select u from ExamProfile u where u.serialNo = :serialNo")
+    @Query("""
+        select u,
+        MIN(c.actualEmailSendTime) as actualEmailSendDateFrom,
+        MAX(c.actualEmailSendTime) as actualEmailSendDateTo
+        from ExamProfile u 
+        Join CertInfo c ON u.serialNo = c.examProfileSerialNo
+        where u.serialNo = :serialNo
+        GROUP BY u
+    """)
     ExamProfile getinfoByNo(@Param("serialNo") String serialNo);
 
     @Query(nativeQuery = true, value =

@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 
 import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN;
@@ -47,4 +47,9 @@ public class ExamProfile extends BaseEntity{
     @Column(name = "is_freezed")
     private Boolean isFreezed;
 
+    @JsonFormat(pattern = DATE_PATTERN)
+    private LocalDate actualEmailSendDateFrom;
+
+    @JsonFormat(pattern = DATE_PATTERN)
+    private LocalDate actualEmailSendDateTo;
 }
