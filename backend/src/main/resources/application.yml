@@ -78,8 +78,8 @@ server:
   servlet:
     context-path: /api/v1
 security:
-#  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso,/tempSso,/test/**,/user/list,/test,/report/result
+  #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
+  whitelist: /api-docs/**,/sso,/tempSso,/test/**,/user/list,/test,/eproof/sendOTP,/eproof/eProof-data,/eproof/eProof-pdf
 
 filter:
   config:
@@ -153,7 +153,7 @@ mail:
     enabled: true
     email-list: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
   include:
-    attachment: Y 
+    attachment: Y
 
 eproof-config:
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
@@ -164,9 +164,9 @@ eproof-config:
   client-id: "CSB001"
   client-secret: "J+Y2aUo1FT2M&EpY$F@="
   url: "http://192.168.1.176:9000/api"
-  pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-pdf"
-  otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/sendOTP"
-  dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-data"
+  pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-pdf"
+  otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/sendOTP"
+  dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-data"
   downloadUrlPrefix: https://uat.eproof.gov.hk/ec/d?t=
 
 thread-pool:
@@ -185,15 +185,15 @@ thread-pool:
 cron-expression:
   normal-email-sending: "-"
   refresh-eproof-access-token: "0 0/30 * * * *"
-  upload-today-batch-xml-to-gcis: "0 0 1 * * *"
+  upload-today-batch-xml-to-gcis: "0 34 13 * * *"
 #  upload-today-batch-xml-to-gcis: "0 19 21 * * *"
-  schedule-today-batch-email: "0 0 9 * * *"
-  enquire-and-update-schedule-status: "0 0 10-18 * * *"
+  schedule-today-batch-email: "0 36 13 * * *"
+  enquire-and-update-schedule-status: "0 19 1-18 * * *"
 
 gcis-shared-service:
   batch-email:
     split-size: 5
-    local-temporary-xml-folder-path: C:\tempGcisBatchXml
+    local-temporary-xml-folder-path: C:\Users\IGS\Documents\CSB_EProof\temp_doc
     upload-trial-times: 2
     schedule-trial-times: 2
     projectId: CSBEP
@@ -204,20 +204,20 @@ gcis-shared-service:
   property:
     path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\proximity.properties
   keystore:
-    path: C:\Users\IGS\Documents\GitHub\csb_eproof\backend\src\main\resources\eproofuat.csb.ccgo.hksarg.p12
+    path: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofuat.csb.ccgo.hksarg.p12
     alias: dsign
     password: P@ssw0rd1234$
   notiSvc:
     endPointName: NOTI_SENDER_RESTFUL_END_POINT
-    endPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
+    endPointUrl: https://192.168.1.174:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
     batchUploadEndPointName: BATCH_UPLOAD_RESTFUL_END_POINT
-    batchUploadEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchUploadRest
+    batchUploadEndPointUrl: https://192.168.1.174:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchUploadRest
     scheduleEndPointName: SCHEDULE_RESTFUL_END_POINT
-    scheduleEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheduleRest
+    scheduleEndPointUrl: https://192.168.1.174:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheduleRest
     batchEnquireEndPointName: BATCH_ENQ_RESTFUL_END_POINT
-    batchEnquireEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchEnqRest
+    batchEnquireEndPointUrl: https://192.168.1.174:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchEnqRest
     scheduleEnquireEndPointName: SCHE_ENQ_RESTFUL_END_POINT
-    scheduleEnquireEndPointUrl: https://192.168.26.127:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheEnqRest
+    scheduleEnquireEndPointUrl: https://192.168.1.174:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheEnqRest
 
 
 

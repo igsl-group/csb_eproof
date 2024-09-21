@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -264,6 +265,11 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
     and ci.examProfileSerialNo = :examProfileSerialNo
 """)
     void updateNotYetSentCertBatchEmailToNull(String examProfileSerialNo, LocalDateTime tomorrow);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE CertInfo ci set ci.certStatus = 'SUCCESS' where ci.certStage = 'NOTIFY' and ci.gcisBatchEmailId = :gcisBatchEmailId")
+    void updateNotifyStatusByGcisBatchEmailId(@Param("gcisBatchEmailId") Long gcisBatchEmailId);
 
     @Query("""
     SELECT ci From CertInfo ci

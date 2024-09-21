@@ -38,10 +38,12 @@ public class ScheduleTodayBatchEmailJob {
                 logger.info(scheduleResponse.getResultCd());
                 logger.info(scheduleResponse.getJobId());
                 logger.info(scheduleResponse.getResultMesg());
-                List<String> successRespCodeList = List.of("0077","0078","0079","0080");
+                List<String> successRespCodeList = List.of("0000", "0077","0078","0079","0080");
                 Boolean scheduleSuccess = scheduleResponse != null && successRespCodeList.contains(scheduleResponse.getResultCd());
                 if(scheduleSuccess){
                     logger.info("GCIS batch email id: " + gcisBatchEmail.getId() + " scheduled successfully");
+                    gcisBatchEmail.setScheduleJobId(scheduleResponse.getJobId());
+                    gcisBatchEmailRepository.save(gcisBatchEmail);
                 } else {
                     logger.error("GCIS batch email id: " + gcisBatchEmail.getId() + " schedule failed");
                 }

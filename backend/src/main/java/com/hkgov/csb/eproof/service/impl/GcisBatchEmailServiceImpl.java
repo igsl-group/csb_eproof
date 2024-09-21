@@ -292,7 +292,7 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
 
         Properties prop = getSSLProperties(scheduleEnquireEndPointName, scheduleEnquireEndPointUrl);
         NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
-        String jobId = gcisBatchEmail.getBatchUploadRefNum();
+        String jobId = gcisBatchEmail.getScheduleJobId();
 
         return notiRestfulClient.sendScheduleEnquiryRequest(jobId);
     }

@@ -75,7 +75,7 @@ server:
     context-path: /api/v1
 security:
   #  whitelist: /api/*/auth/**, /api/*/user/forgotPassword, /api/*/user/resetPassword, /api/*/user/changePassword, /actuator/**
-  whitelist: /api-docs/**,/sso,/test/**,/user/list
+  whitelist: /api-docs/**,/sso,/tempSso,/test/**,/user/list,/test,/eproof/sendOTP,/eproof/eProof-data,/eproof/eProof-pdf
 
 filter:
   config:
@@ -148,9 +148,9 @@ eproof-config:
   client-id: "CSB001"
   client-secret: "J+Y2aUo1FT2M&EpY$F@="
   url: "http://192.168.4.6:8080/api"
-  pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-pdf"
-  otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/sendOTP"
-  dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eProof-data"
+  pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-pdf"
+  otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/sendOTP"
+  dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-data"
   downloadUrlPrefix: https://uat.eproof.gov.hk/ec/d?t=
 
 thread-pool:

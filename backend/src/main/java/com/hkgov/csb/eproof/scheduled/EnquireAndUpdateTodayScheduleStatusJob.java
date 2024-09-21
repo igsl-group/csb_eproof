@@ -1,9 +1,11 @@
 package com.hkgov.csb.eproof.scheduled;
 
+import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
+import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
-import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
 import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
 import hk.gov.spica_scopes.spica.notification.client.restful.NotificationRestfulClient;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ public class EnquireAndUpdateTodayScheduleStatusJob {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
+    private final CertInfoRepository certInfoRepository;
     private final GcisBatchEmailService gcisBatchEmailService;
     @Value("${gcis-shared-service.notiSvc.batchUploadEndPointName}")
     String batchUploadEndPointName;
@@ -31,8 +34,9 @@ public class EnquireAndUpdateTodayScheduleStatusJob {
     @Value("${gcis-shared-service.notiSvc.batchUploadEndPointUrl}")
     String batchUploadEndPointUrl;
 
-    public EnquireAndUpdateTodayScheduleStatusJob(GcisBatchEmailRepository gcisBatchEmailRepository, GcisBatchEmailService gcisBatchEmailService) {
+    public EnquireAndUpdateTodayScheduleStatusJob(GcisBatchEmailRepository gcisBatchEmailRepository, CertInfoRepository certInfoRepository, GcisBatchEmailService gcisBatchEmailService) {
         this.gcisBatchEmailRepository = gcisBatchEmailRepository;
+        this.certInfoRepository = certInfoRepository;
         this.gcisBatchEmailService = gcisBatchEmailService;
     }
 
@@ -49,8 +53,15 @@ public class EnquireAndUpdateTodayScheduleStatusJob {
                 if(enquireResp.getStatus() == Response.Status.OK.getStatusCode()){
 
                     ScheduleEnquiryResponse ser = notiRestfulClient.getScheduleEnquiryResponse(enquireResp);
-                    gcisBatchEmail.setScheduleJobStatus(ser.getResultCd()+"-"+ser.getResultMesg());
+                    // 0080 = COMPLETED
+                    gcisBatchEmail.setScheduleJobStatus(ser.getResultMesg());
                     gcisBatchEmailRepository.save(gcisBatchEmail);
+                    List<String> successRespCodeList = List.of("0080");
+                    Boolean scheduleSuccess = ser != null && successRespCodeList.contains(ser.getResultCd());
+                    if (scheduleSuccess) {
+                        certInfoRepository.updateNotifyStatusByGcisBatchEmailId(gcisBatchEmail.getId());
+                    }
+
                     logger.info("GCIS batch email id: " + gcisBatchEmail.getId() + " enquire successfully");
                 } else {
                     gcisBatchEmail.setScheduleJobStatus("ENQUIRE_FAILED");
