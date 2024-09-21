@@ -133,6 +133,8 @@ public class ExamProfileServiceImpl implements ExamProfileService {
                 .sendEmailFailed(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.FAILED))
                 .sendEmailSuccess(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.NOTIFY, CertStatus.SUCCESS))
 
+                .completedTotal(certInfoRepository.countByStageAndStatus(examProfileSerialNo, CertStage.COMPLETED, CertStatus.SUCCESS))
+
                 .onHoldCaseTotal(certInfoRepository.countByOnHold(examProfileSerialNo))
 
                 .build();
