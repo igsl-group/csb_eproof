@@ -166,10 +166,26 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         CertStage nextStage = null;
         switch (currentStage){
-            case IMPORTED -> {nextStage = CertStage.GENERATED; break;}
-            case GENERATED -> {nextStage = CertStage.SIGN_ISSUE; break;}
-            case SIGN_ISSUE -> {nextStage = CertStage.NOTIFY; break;}
-            case NOTIFY -> {nextStage = CertStage.COMPLETED; break;}
+            case IMPORTED -> {
+                nextStage = CertStage.GENERATED;
+                certInfoRepository.dispatchCert(examProfileSerialNo,currentStage,nextStage,CertStatus.PENDING,false,authenticationService.getCurrentUser().getDpUserId());
+                break;
+            }
+            case GENERATED -> {
+                nextStage = CertStage.SIGN_ISSUE;
+                certInfoRepository.dispatchCert(examProfileSerialNo,currentStage,nextStage,CertStatus.PENDING,false,authenticationService.getCurrentUser().getDpUserId());
+                break;
+            }
+            case SIGN_ISSUE -> {
+                nextStage = CertStage.NOTIFY;
+                certInfoRepository.dispatchCert(examProfileSerialNo,currentStage,nextStage,CertStatus.PENDING,false,authenticationService.getCurrentUser().getDpUserId());
+                break;
+            }
+            case NOTIFY -> {
+                nextStage = CertStage.COMPLETED;
+                certInfoRepository.dispatchCert(examProfileSerialNo,currentStage,nextStage,CertStatus.SUCCESS,true,authenticationService.getCurrentUser().getDpUserId());
+                break;
+            }
             default ->{throw new ServiceException(ResultCode.STAGE_ERROR);}
         }
 //            20240904 Improve dispatch performance
@@ -199,8 +215,6 @@ public class CertInfoServiceImpl implements CertInfoService {
             certInfo.setCertStatus(CertStatus.PENDING);
         }
         certInfoRepository.saveAll(list);*/
-
-        certInfoRepository.dispatchCert(examProfileSerialNo,currentStage,nextStage,CertStatus.PENDING,authenticationService.getCurrentUser().getDpUserId());
 
         switch (currentStage) {
             case IMPORTED -> {
