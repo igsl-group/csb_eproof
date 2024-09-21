@@ -55,17 +55,23 @@ const ExamProfileSummary = forwardRef((props, ref) => {
     <fieldset style={{paddingLeft: 30, paddingBottom: 8}}>
     <legend><Typography.Title level={5}>Workflow Summary</Typography.Title></legend>
       <Row style={{color: 'rgba(81, 90, 106, 0.45)'}} gutter={[8, 8]}>
-        <Col span={4}>
+        <Col span={3}>
           <Row gutter={[4, 4]}>
             <Col span={24}>All Cases</Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>
               {
-                Number(summary.imported || 0) + Number(summary.generatePdfTotal || 0) + Number(summary.issuedPdfTotal || 0) + Number(summary.sendEmailPending || 0) + Number(summary.onHoldCaseTotal || 0)
+                Number(summary.imported || 0) + Number(summary.generatePdfTotal || 0) + Number(summary.issuedPdfTotal || 0) + Number(summary.sendEmailPending || 0) + Number(summary.onHoldCaseTotal || 0) + Number(summary.completedTotal || 0)
               }
             </span></Col>
           </Row>
         </Col>
-        <Col span={4}>
+        <Col span={3}>
+          <Row gutter={[4, 4]}>
+            <Col span={24}>On-hold Case</Col>
+            <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.onHoldCaseTotal || 0}</span></Col>
+          </Row>
+        </Col>
+        <Col span={3}>
           <Row gutter={[4, 4]}>
             <Col span={24}>Import Stage</Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.imported || 0}</span></Col>
@@ -86,24 +92,26 @@ const ExamProfileSummary = forwardRef((props, ref) => {
             <Col span={24}>Sign and Issue Stage</Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfTotal || 0}</span></Col>
             <Col span={24}>Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfPending || 0}</span></Col>
-            <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfInScheduled || 0}</span></Col>
+            <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfPending || 0}</span></Col>
+            <Col span={24}>Progress: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfInProgress || 0}</span></Col>
             <Col span={24}>Success: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfSuccess || 0}</span></Col>
             <Col span={24}>Failed: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfFailed || 0}</span></Col>
           </Row>
         </Col>
-        <Col span={4}>
+        <Col span={3}>
           <Row gutter={[4, 4]}>
             <Col span={24}>Notify Stage</Col>
-            <Col span={24}>Notify Stage - Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailPending || 0}</span></Col>
-            <Col span={24}>Notify Stage - Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailScheduled || 0}</span></Col>
-            <Col span={24}>Notify Stage - Success: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailSuccess || 0}</span></Col>
-            <Col span={24}>Notify Stage - Failed: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailFailed || 0}</span></Col>
+            <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailTotal || 0}</span></Col>
+            <Col span={24}>Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailPending || 0}</span></Col>
+            <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailScheduled || 0}</span></Col>
+            <Col span={24}>Success: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailSuccess || 0}</span></Col>
+            <Col span={24}>Failed: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailFailed || 0}</span></Col>
           </Row>
         </Col>
-        <Col span={4}>
+        <Col span={3}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>On-hold Case</Col>
-            <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.onHoldCaseTotal || 0}</span></Col>
+            <Col span={24}>Completed Stage</Col>
+            <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.completedTotal || 0}</span></Col>
           </Row>
         </Col>
       </Row>

@@ -58,7 +58,7 @@ const Home = () =>  {
       <Typography.Title level={3}>Restricted</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br />
-      <Alert type={'warning'} message={'Remember to log out from your account once you have completed your tasks to maintain the confidentiality and integrity of our data. Thank you for understanding and adhering to the guidelines.'} showIcon/>
+      <Alert type={'warning'} description={'Remember to log out from your account once you have completed your tasks to maintain the confidentiality and integrity of our data. Thank you for understanding and adhering to the guidelines.'} showIcon/>
     </div>
 
   )

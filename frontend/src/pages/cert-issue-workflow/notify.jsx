@@ -227,7 +227,7 @@ const Notify = () =>  {
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certIssuanceDispatch', serialNoValue, 'NOTIFY')
     });
-  },[]);
+  },[serialNoValue]);
 
   const onClickDownloadAll = useCallback(() => {
     modalApi.confirm({

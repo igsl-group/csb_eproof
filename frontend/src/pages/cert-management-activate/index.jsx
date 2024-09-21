@@ -225,14 +225,14 @@ const CertificateManagementValid = () =>  {
       title: 'Result Letter Date',
       key: 'resultLetterDate',
       render: (row) => row.examProfile?.resultLetterDate,
-      width: 180,
+      width: 120,
       sorter: false,
     },
     {
       title: 'Email Issuance Date',
       key: 'emailIssuanceDate',
       dataIndex: 'actualEmailSendTime',
-      width: 180,
+      width: 120,
       // sorter: true,
     },
     {
@@ -304,6 +304,8 @@ const CertificateManagementValid = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
+          examDateFrom: values.examDateFrom ? dayjs(values.examDateFrom).format('YYYY-MM-DD'): '',
+          examDateTo: values.examDateTo ? dayjs(values.examDateTo).format('YYYY-MM-DD') : '',
         }))
         .catch(() => false);
 
@@ -415,6 +417,12 @@ const CertificateManagementValid = () =>  {
                       }
                     ]}
                   />
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Date name={'examDateFrom'} label={'Exam Date (From)'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Date name={'examDateTo'} label={'Exam Date (To)'} size={50}/>
                 </Col>
               </Row>
             </Col>

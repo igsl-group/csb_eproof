@@ -17,6 +17,7 @@ import Text from "@/components/Text";
 import Dropdown from "@/components/Dropdown";
 import Textarea from "@/components/Textarea";
 import HKID from "@/components/HKID";
+import Date from "@/components/Date";
 import Email from "@/components/Email";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
@@ -241,14 +242,14 @@ const CertificateManagementInvalid = () =>  {
       title: 'Result Letter Date',
       key: 'actualSignTime',
       dataIndex: 'actualSignTime',
-      width: 180,
+      width: 120,
       sorter: false,
     },
     {
       title: 'Email Issuance Date',
       key: 'actualEmailSendTime',
       dataIndex: 'actualEmailSendTime',
-      width: 180,
+      width: 120,
       sorter: false,
     },
     {
@@ -320,6 +321,8 @@ const CertificateManagementInvalid = () =>  {
         .validateFields()
         .then((values) => ({
           ...values,
+          examDateFrom: values.examDateFrom ? dayjs(values.examDateFrom).format('YYYY-MM-DD'): '',
+          examDateTo: values.examDateTo ? dayjs(values.examDateTo).format('YYYY-MM-DD') : '',
         }))
         .catch(() => false);
 
@@ -431,6 +434,12 @@ const CertificateManagementInvalid = () =>  {
                       }
                     ]}
                   />
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Date name={'examDateFrom'} label={'Exam Date (From)'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Date name={'examDateTo'} label={'Exam Date (To)'} size={50}/>
                 </Col>
               </Row>
             </Col>

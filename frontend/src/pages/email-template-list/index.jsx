@@ -172,8 +172,8 @@ const EmailTemplateList = () =>  {
       key: 'body',
       dataIndex: 'body',
       // width: 200,
-      render: (value) => <div style={{ textWrap: 'wrap'}}>{parse(value)}</div>,
-      sorter: true,
+      render: (value) => <div style={{ textWrap: 'wrap'}}>{value ? parse(value) : ''}</div>,
+      sorter: false,
     },
   ], []);
 

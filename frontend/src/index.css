@@ -17,6 +17,10 @@ code {
   text-align: justify;
 }
 
+.ant-alert{
+  text-align: justify;
+}
+
 .ant-form-item{
   margin-bottom: 12px;
 }

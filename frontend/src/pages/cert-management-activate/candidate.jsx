@@ -238,14 +238,14 @@ const Candidate = () =>  {
       title: 'Result Letter Date',
       key: 'resultLetterDate',
       render: (row) => row.examProfile?.resultLetterDate,
-      width: 180,
+      width: 120,
       // sorter: true,
     },
     {
       title: 'Email Issuance Date',
       key: 'emailIssuanceDate',
       dataIndex: 'actualEmailSendTime',
-      width: 180,
+      width: 120,
       // sorter: true,
     },
     {
