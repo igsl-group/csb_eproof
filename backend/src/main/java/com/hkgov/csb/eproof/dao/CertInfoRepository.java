@@ -142,7 +142,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             @Param("version") Integer version);
 
     @Query(nativeQuery = true,
-            value = "select * from cert_info c where c.exam_profile_serial = :examProfileSerialNo and c.cert_stage = 'SIGN_ISSUE' and c.status = 'SCHEDULED' order by c.id LIMIT 1")
+            value = "select * from cert_info c where c.exam_profile_serial = :examProfileSerialNo and c.cert_stage = 'SIGN_ISSUE' and c.status = 'SCHEDULED' and c.on_hold = false order by c.id LIMIT 1")
     CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo);
 
     @Query("select c from CertInfo c where (c.passed is null or c.passed = false ) and c.valid = true and (c.hkid in :hkids or c.passportNo in :passports) order by c.examDate,c.hkid,c.passportNo")
@@ -164,7 +164,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                 UPDATE CertInfo
                 SET certStatus = :scheduledStatus, modifiedBy = :dpUserId, modifiedDate = current_timestamp
                 WHERE certStatus in :inProgressAndPending and examProfileSerialNo = :examProfileSerialNo
-                and certStage = :signAndIssueStage
+                and certStage = :signAndIssueStage AND onHold = false
             """)
     void batchScheduledSignAndIssue(String examProfileSerialNo,
             CertStage signAndIssueStage, List<CertStatus> inProgressAndPending,

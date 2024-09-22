@@ -53,6 +53,8 @@ public class HistoricalResultDto {
 
     private Boolean atVoid;
 
+    private Boolean actionFreeze;
+
     private String remark;
 
     private Boolean valid;

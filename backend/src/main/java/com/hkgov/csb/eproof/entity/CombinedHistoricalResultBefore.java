@@ -84,6 +84,9 @@ public class CombinedHistoricalResultBefore extends BaseEntity{
     @Column(name = "valid")
     private Boolean valid;
 
+    @Column(name = "action_freeze")
+    private Boolean actionFreeze;
+
     @OneToMany(mappedBy = "historicalResult", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<CombinedHisResultBefApprove> historicalResultBefApproves;
 }

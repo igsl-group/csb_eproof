@@ -25,8 +25,8 @@ public class CombinedHisResultBefApprove extends BaseEntity{
     @Column(name = "old_ue_void")
     private Boolean oldUeVoid;
 
-    @Column(name = "newUeVoid")
-    private Boolean new_ue_void;
+    @Column(name = "new_ue_void")
+    private Boolean newUeVoid;
 
     @Column(name = "old_uc_void")
     private Boolean oldUcVoid;

@@ -1088,6 +1088,11 @@ public class CertInfoServiceImpl implements CertInfoService {
         gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), emailTemplate.getBody());
     }
 
+    public void removeRevoke(Long certActionId) throws Exception {
+        CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
+        certAction.setStatus(CertStatus.WITHDRAWAL);
+        certActionRepository.save(certAction);
+    }
 
     @Override
     public void actualRevokeWithEproofModule(Long certInfoId, String remark) throws Exception {
@@ -1393,7 +1398,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
                 continue;
             }
-            File latestPdf = fileRepository. getLatestPdfForCert(certInfo.getId());
+            File latestPdf = fileRepository.getLatestPdfForCert(certInfo.getId());
 
             ZipEntry zipEntry = new ZipEntry(latestPdf.getName());
             zos.putNextEntry(zipEntry);

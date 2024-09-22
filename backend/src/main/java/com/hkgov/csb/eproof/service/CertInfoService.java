@@ -77,6 +77,8 @@ public interface CertInfoService {
 
     void resubmitRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception;
 
+    void removeRevoke(Long certActionId) throws Exception;
+
     void actualRevokeWithEproofModule(Long certInfoId, String remark) throws Exception;
 
     ResponseEntity<byte[]> enquiryResult(List<String> params);

@@ -303,6 +303,12 @@ public class CertController {
         return Result.success();
     }
 
+    @DeleteMapping("/withdrawRevoke/{certActionId}")
+    public Result remove(@PathVariable Long certActionId) throws Exception{
+        certInfoService.removeRevoke(certActionId);
+        return Result.success();
+    }
+
     @GetMapping("/getTodo/revoke")
     public Result<List<CertRevokeDto>> getTodoRevoke(){
         return Result.success(certInfoRenewService.getTodoRevoke());

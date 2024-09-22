@@ -34,12 +34,16 @@ public class CombinedHisResultBefApproveServiceImpl implements CombinedHisResult
         }
         record.setOldBlVoid(dto.getOldBlVoid());
         record.setNewBlVoid(dto.getNewBlVoid());
+
         record.setOldUeVoid(dto.getOldUeVoid());
-        record.setNew_ue_void(dto.getNew_ue_void());
+        record.setNewUeVoid(dto.getNewUeVoid());
+
         record.setOldUcVoid(dto.getOldUcVoid());
         record.setNewUcVoid(dto.getNewUcVoid());
+
         record.setOldAtVoid(dto.getOldAtVoid());
         record.setNewAtVoid(dto.getNewAtVoid());
+
         record.setOldValid(dto.getOldValid());
         record.setNewValid(dto.getNewValid());
         record.setRemark(dto.getRemark());
@@ -52,6 +56,10 @@ public class CombinedHisResultBefApproveServiceImpl implements CombinedHisResult
         CombinedHisResultBefApprove record = CombinedHisResultBefApproveMapper.INSTANCE.sourceToDestination(dto);
         record.setStatus(CertStatus.PENDING);
         approveRepository.save(record);
+
+        CombinedHistoricalResultBefore combinedHistoricalResultBeforeRecord = beforeRepository.findById(dto.getHistoricalResultId()).orElse(null);
+        combinedHistoricalResultBeforeRecord.setActionFreeze(true);
+        beforeRepository.save(combinedHistoricalResultBeforeRecord);
     }
 
     @Override
@@ -63,11 +71,13 @@ public class CombinedHisResultBefApproveServiceImpl implements CombinedHisResult
         record.setRemark(dto.getRemark());
         record.setStatus(CertStatus.APPROVED);
         CombinedHistoricalResultBefore before = beforeRepository.findById(record.getHistoricalResultId()).orElse(null);
-        before.setUeVoid(record.getNew_ue_void());
+        before.setUeVoid(record.getNewUeVoid());
         before.setUcVoid(record.getNewUcVoid());
         before.setAtVoid(record.getNewAtVoid());
         before.setBlVoid(record.getNewBlVoid());
         before.setValid(record.getNewValid());
+        before.setRemark(dto.getRemark());
+        before.setActionFreeze(false);
         beforeRepository.save(before);
         approveRepository.save(record);
     }
@@ -97,6 +107,10 @@ public class CombinedHisResultBefApproveServiceImpl implements CombinedHisResult
         }
         record.setStatus(CertStatus.WITHDRAWAL);
         approveRepository.save(record);
+
+        CombinedHistoricalResultBefore before = beforeRepository.findById(record.getHistoricalResultId()).orElse(null);
+        before.setActionFreeze(false);
+        beforeRepository.save(before);
     }
 
 
