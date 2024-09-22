@@ -17,8 +17,9 @@ import {useAuth} from "../../context/auth-provider";
 import PermissionControl from "../../components/PermissionControl";
 import _ from "lodash";
 import dayjs from "dayjs";
+import {stringToHKID} from "../../components/HKID";
 
-const RevokeModal = (props) =>  {
+const HistoricalResultApproveModal = (props) =>  {
 
   const auth = useAuth();
   const modalApi = useModal();
@@ -31,8 +32,8 @@ const RevokeModal = (props) =>  {
   const open = props.open;
   const data = record.certInfos;
   const disabled = useMemo(() => {
-    if (auth.permissions.includes("Revoke_Submit") && record.status === "REJECTED") {
-      return false;
+    if (record.status === "REJECTED") {
+      return true;
     } else if (auth.permissions.includes("Revoke_Approve") && record.status === "PENDING") {
       return false;
     }
@@ -55,7 +56,7 @@ const RevokeModal = (props) =>  {
 
   const onClickApprove = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to revoke the certificate(s) and send the email notification to candidate?',
+      title:'Are you sure to approve the case?',
       width: 500,
       okText: 'Confirm',
       onOk: () => onSave("Approve"),
@@ -68,15 +69,6 @@ const RevokeModal = (props) =>  {
       width: 500,
       okText: 'Confirm',
       onOk: () => onSave("Reject"),
-    });
-  },[]);
-
-  const onClickResubmit = useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to resubmit the case?',
-      width: 500,
-      okText: 'Confirm',
-      onOk: () => onSave("Resubmit"),
     });
   },[]);
 
@@ -103,21 +95,21 @@ const RevokeModal = (props) =>  {
     if (values) {
       const recordId = values.id;
       delete values.id;
+      delete values.hkid;
+      delete values.passport;
+      delete values.name;
+      console.log(values, recordId);
       switch (action) {
         case "Approve":
-          runExamProfileAPI('approveCertRevoke', recordId, values)
+          runExamProfileAPI('historicalResultApprove', recordId, values)
             .then(() => onFinish());
           break;
         case "Reject":
-          runExamProfileAPI("rejectCertRevoke", recordId,  values)
-            .then(() => onFinish());
-          break;
-        case "Resubmit":
-          runExamProfileAPI("resubmitCertRevoke", recordId,  values)
+          runExamProfileAPI("historicalResultReject", recordId,  values)
             .then(() => onFinish());
           break;
         case "Withdraw":
-          runExamProfileAPI("withdrawCertRevoke", recordId)
+          runExamProfileAPI("historicalResultWithdraw", recordId)
             .then(() => onFinish());
           break;
       }
@@ -128,96 +120,24 @@ const RevokeModal = (props) =>  {
     if (open) {
       const _record = _.cloneDeep(record);
       form.setFieldsValue({
-        // type: "REVOKE",
-        ..._record,
-        // emailTarget: lastCandidateInfo.email,
-        // emailContent: `Hi Wilfred,<br/><br/>Your certificate was revoked. `,
-        // certInfoIdList: data.flatMap(row => row.id).join(","),
+        ..._record.historicalResult,
+        id: _record.id,
+        remark: _record.remark,
+        hkid: stringToHKID(_record.historicalResult?.hkid),
+        passport: _record.historicalResult?.passport,
       })
     }
   }, [record, open])
-
-  const columns = useMemo(() => [
-    {
-      title: 'Exam Date',
-      key: 'examDate',
-      dataIndex: 'examDate',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'HKID',
-      key: 'hkid',
-      dataIndex: 'hkid',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Passport',
-      key: 'passportNo',
-      dataIndex: 'passportNo',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Name',
-      key: 'name',
-      dataIndex: 'name',
-      width: 160,
-      sorter: true,
-    },
-    {
-      title: 'Email',
-      key: 'email',
-      dataIndex: 'email',
-      width: 180,
-      sorter: true,
-    },
-    {
-      title: 'Result Letter Date',
-      key: 'resultLetterDate',
-      render: (row) => row.examProfile?.resultLetterDate,
-      width: 180,
-      // sorter: true,
-    },
-    {
-      title: 'UE',
-      key: 'ueGrade',
-      dataIndex: 'ueGrade',
-      width: 80,
-    },
-    {
-      title: 'UC',
-      key: 'ucGrade',
-      dataIndex: 'ucGrade',
-      width: 80,
-    },
-    {
-      title: 'AT',
-      key: 'atGrade',
-      dataIndex: 'atGrade',
-      width: 80,
-    },
-    {
-      title: 'BLNST',
-      key: 'blnstGrade',
-      dataIndex: 'blnstGrade',
-      width: 80,
-    },
-  ], []);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
     onSuccess: (response, params) => {
       switch (params[0]) {
-        case 'approveCertRevoke':
+        case 'historicalResultApprove':
           messageApi.success('Approve successfully.');
           break;
-        case 'rejectCertRevoke':
+        case 'historicalResultReject':
           messageApi.success('Reject successfully.');
-          break;
-        case 'resubmitCertRevoke':
-          messageApi.success('Resubmit successfully.');
           break;
         case 'historicalResultWithdraw':
           messageApi.success('Withdraw successfully.');
@@ -237,7 +157,7 @@ const RevokeModal = (props) =>  {
 
     return (
     <Modal
-      width={1500}
+      width={600}
       footer={[
         <Button key="back" onClick={() => onClose()}>
           Cancel
@@ -257,20 +177,13 @@ const RevokeModal = (props) =>  {
             Approve
           </Button>
         </PermissionControl>,
-        <PermissionControl key="resubmit" permissionRequired={['Revoke_Submit']} forceHidden={["PENDING"].includes(record.status)}>
+        <PermissionControl key="withdraw" permissionRequired={['Revoke_Submit']} forceHidden={["PENDING"].includes(record.status)}>
           <Button
             key="submit"
             type="primary"
             onClick={() => onClickWithdraw()}
           >
             Withdraw
-          </Button>
-          <Button
-            key="submit"
-            type="primary"
-            onClick={() => onClickResubmit()}
-          >
-            Resubmit
           </Button>
         </PermissionControl>,
       ]}
@@ -293,58 +206,100 @@ const RevokeModal = (props) =>  {
         }}
         name="form"
       >
-        <Text name={'id'} label={'Id'} size={100} disabled={true} hidden={true}/>
-        <ResizeableTable
-          size={'big'}
-          pagination={false}
-          scroll={{
-            x: '100%',
-          }}
-          columns={columns}
-          dataSource={data}
-        />
-        <br/>
+        <Text name={"id"} label={'Id'} size={50} disabled/>
         <Row gutter={24} justify={'center'}>
-          <Col span={24}>
-            <Textarea
-              name={'remark'}
-              label={'Remark'}
-              size={100}
-              disabled={disabled}
-            />
+          <Col span={12}>
+
+            <HKID name={"hkid"} label={'HKID'} size={50} disabled/>
+          </Col>
+          <Col span={12}>
+            <Text name={'passport'} label={'Passport'} size={50} disabled/>
           </Col>
           <Col span={24}>
-            <Email
-              name={'emailTarget'}
-              label={'Latest Candidate\'s email address'}
-              required
-              disabled
-              size={100}
-            />
+            <Text name={'name'} label={'Name'} size={50} disabled/>
+          </Col>
+          <Col span={12}>
+            <b>Certificate</b>
+          </Col>
+          <Col span={12}>
+            <b>{record.oldValid ? 'Valid' : 'Invalid'} > {record.newValid ? 'Valid' : 'Invalid'}</b>
           </Col>
           <Col span={24}>
             <br/>
-            <Text
-              name={'emailSubject'}
-              label={(
-                <span>
-                  Inform candidate’s email subject and content after request is approved<br/>
-                  Subject
-                </span>
-              )}
-              size={100}
-              disabled={disabled}
-            />
+            <Row gutter={[16]} style={{fontWeight: 'bold'}}>
+              <Col span={12}>
+                Subject
+              </Col>
+              <Col span={12}>
+              </Col>
+              {
+                record.historicalResult?.ueGrade ? (
+                  <Col span={24}>
+                    <Row gutter={[20, 16]}>
+                      <Col span={12}>
+                        UE Grade: {record.historicalResult?.ueGrade} ({record.historicalResult?.ueDate})
+                      </Col>
+                      <Col span={12}>
+                        <b>{record.oldUeVoid ? 'Void' : 'Un-void'} > {record.newUeVoid ? 'Void' : 'Un-void'}</b>
+                      </Col>
+                    </Row>
+                  </Col>
+                ) : null
+              }
+              {
+                record.historicalResult?.ucGrade ? (
+                  <Col span={24}>
+                    <Row gutter={[20, 16]}>
+                      <Col span={12}>
+                        UC Grade: {record.historicalResult?.ucGrade} ({record.historicalResult?.ucDate})
+                      </Col>
+                      <Col span={12}>
+                        <b>{record.oldUcVoid ? 'Void' : 'Un-void'} > {record.newUcVoid ? 'Void' : 'Un-void'}</b>
+                      </Col>
+                    </Row>
+                  </Col>
+                ) : null
+              }
+              {
+                record.historicalResult?.atGrade ? (
+                  <Col span={24}>
+                    <Row gutter={[20, 16]}>
+                      <Col span={12}>
+                        At Grade: {record.historicalResult?.atGrade} ({record.historicalResult?.atDate})
+                      </Col>
+                      <Col span={12}>
+                        <b>{record.oldAtVoid ? 'Void' : 'Un-void'} > {record.newAtVoid ? 'Void' : 'Un-void'}</b>
+                      </Col>
+                    </Row>
+                  </Col>
+                ) : null
+              }
+              {
+                record.historicalResult?.blGrade ? (
+                  <Col span={24}>
+                    <Row gutter={[20, 16]}>
+                      <Col span={12}>
+                        BLNST Grade: {record.historicalResult?.blGrade} ({record.historicalResult?.blDate})
+                      </Col>
+                      <Col span={12}>
+                        <b>{record.oldBlVoid ? 'Void' : 'Un-void'} > {record.newBlVoid ? 'Void' : 'Un-void'}</b>
+                      </Col>
+                    </Row>
+                  </Col>
+                ) : null
+              }
+            </Row>
+            <br/>
           </Col>
           <Col span={24}>
-            <Richtext name={'emailContent'} label={'Body'} size={100} disabled={disabled}/>
+            <Textarea name={'remark'} label={'Remark'} size={50} disabled={disabled}/>
           </Col>
         </Row>
+
         <br />
-        {/*<Alert type={'warning'} message={'Cert. renew required after submit.'} showIcon/>*/}
       </Form>
     </Modal>
   )
 }
 
-export default RevokeModal;
+export default HistoricalResultApproveModal;

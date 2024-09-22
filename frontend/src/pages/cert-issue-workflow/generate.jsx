@@ -465,7 +465,7 @@ const Generate = () =>  {
           <Col span={16}>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={generatedData.length === 0} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
+                <Button disabled={generatedData.length === 0 || ref.current?.summary?.generatePdfSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
               </Col>
               <Col>
                 <Button disabled={generatedData.length === 0} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>

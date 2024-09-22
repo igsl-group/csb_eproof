@@ -117,9 +117,9 @@ const EmailModal = (props) =>  {
         case 'emailTemplateGet':
           const data = response.data || {};
           let htmlBody = data.body;
-          htmlBody = htmlBody.replaceAll('{{application_name}}', record.name);
-          htmlBody = htmlBody.replaceAll('{{examination_date}}', dayjs(record.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
-          htmlBody = htmlBody.replaceAll('{{eproof_document_url}}', record.certEproof?.url);
+          htmlBody = htmlBody.replaceAll('${application_name}', record.name);
+          htmlBody = htmlBody.replaceAll('${examination_date}', dayjs(record.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMMM YYYY'));
+          htmlBody = htmlBody.replaceAll('${eproof_document_url}', record.certEproof?.url);
           form.setFieldsValue({
             title: data.subject,
             htmlBody,

@@ -1,0 +1,30 @@
+.ant-radio-button-wrapper{
+    text-align: center;
+}
+
+/*.ant-form-item .ant-checkbox-wrapper .ant-form-item-required:after{*/
+/*    content: "*";*/
+/*    color: #9f3a38;*/
+/*    font-family: SimSun,sans-serif;*/
+/*    position: relative;*/
+/*    top: -2px;*/
+/*    left: 4px;*/
+/*    visibility: visible;*/
+/*}*/
+
+/*.ant-form-item .ant-checkbox-wrapper .ant-checkbox{*/
+/*    position: absolute;*/
+/*}*/
+
+/*.ant-form-item .ant-checkbox-wrapper >span:nth-child(2){*/
+/*    text-align: justify;*/
+/*    display: inline-block;*/
+/*    padding-left: 24px;*/
+/*    position: relative;*/
+/*    top: -3px;*/
+/*    padding-inline-end: 0px;*/
+/*}*/
+
+/*.ant-checkbox-wrapper:after{*/
+/*    display: none;*/
+/*}*/

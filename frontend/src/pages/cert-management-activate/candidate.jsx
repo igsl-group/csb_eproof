@@ -160,9 +160,8 @@ const Candidate = () =>  {
   },[]);
 
   const onCopyUrlClicked = useCallback((row) => {
-    if (row.certEproof?.token) {
-      const encodeurl = encodeURI(row.certEproof?.token);
-      navigator.clipboard.writeText(`${downloadUrl}${encodeurl}`);
+    if (row.certEproof?.url) {
+      navigator.clipboard.writeText(`${row.certEproof?.url}`);
       messageApi.success('URL is copied');
     } else {
       messageApi.error('Fail to copy URL');

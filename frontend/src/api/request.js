@@ -232,6 +232,9 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/rejectRevoke/${rest[0]}`, "post", rest[1]);
         case 'resubmitCertRevoke':
             return request(`/cert/resubmitRevoke/${rest[0]}`, "post", rest[1]);
+        case 'withdrawCertRevoke':
+            return request(`/cert/withdrawRevoke/${rest[0]}`, "delete");
+
         case 'certEnquiryByCsv':
             return request(`/cert/enquiryResult/csv`, "formDataDownload", rest[0]);
         case 'certRenewSign':
@@ -243,8 +246,19 @@ export function examProfileAPI(params, ...rest) {
             return request(`/historicalResult/${rest[0]}/valid`, "post", rest[1]);
         case 'historicalResultInvalid':
             return request(`/historicalResult/${rest[0]}/invalid`, "post", rest[1]);
+        case 'historicalResultRequest':
+            return request(`/historicalResult/request`, "post", rest[0]);
         case 'historicalResultList':
             return request(`/historicalResult/list?${rest[0]}`, "post", {});
+        case 'historicalResultApproveList':
+            return request(`/historicalResult/approveList`, "get");
+        case 'historicalResultApprove':
+            return request(`/historicalResult/${rest[0]}/approve`, "post", rest[1]);
+        case 'historicalResultReject':
+            return request(`/historicalResult/${rest[0]}/reject`, "post", rest[1]);
+        case 'historicalResultWithdraw':
+            return request(`/historicalResult/${rest[0]}/remove`, "delete", rest[1]);
+
         case 'certRenewSendEmail':
             return request(`/reissueCert/notify/${rest[0]}`, "post", rest[1]);
         case 'certAdhocSendEmail':

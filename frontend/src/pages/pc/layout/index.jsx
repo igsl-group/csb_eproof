@@ -248,9 +248,11 @@ function Layouts () {
     }
     if (/\/ExamProfile\/((.)*)/.test(pathname)) {
       setCurrKey('/ExamProfile');
-    } else if (/\/CertificateManagement\/Valid\/Candidate\/((.)*)/.test(pathname)) {
+    } else if (/\/CertificateManagement\/Valid\/Candidate((.)*)/.test(pathname)) {
       setCurrKey('/CertificateManagement/Valid');
+      console.log('@@@@@@function');
     }
+    console.log(pathname)
   }, [pathname])
   //Shrink Menu
   const handleCollapsed = () => {
@@ -349,36 +351,14 @@ function Layouts () {
               {/*</Dropdown>*/}
               <Row gutter={8} align={'middle'} justify={'end'}>
                 <Col><Avatar size={44} icon={<UserOutlined />} /></Col>
-                <Col style={{ fontSize: '11px', color: 'rgb(81, 90, 106)'}}>
-                  <div style={{ fontSize: '11px', color: '#152B47', paddingBottom: 5}}><b>{auth?.user}</b></div>
-                  <Space>
-                    {/*{auth?.section ? <div>{auth?.section}</div> : null}*/}
-                    {/*<div>{auth?.role}</div>*/}
+                <Col style={{fontSize: '11px', color: 'rgb(81, 90, 106)'}}>
+                  <div style={{fontSize: '11px', color: '#152B47', paddingBottom: 5}}><b>{auth?.user}</b></div>
+                  <Space style={{fontSize: '11px', color: '#152B47', paddingBottom: 5}}>
                     <div>{auth?.post}</div>
                     <Link onClick={() => auth.logOut()}>Logout</Link>
-                    {/*<Dropdown*/}
-                    {/*  menu={{}}*/}
-                    {/*  // menu={{*/}
-                    {/*  //   items: auth.availablePosts*/}
-                    {/*  //     .flatMap((row) => ({*/}
-                    {/*  //       label: row.name,*/}
-                    {/*  //       key: row.id*/}
-                    {/*  //     })),*/}
-                    {/*  //   onClick: async (row) => {*/}
-                    {/*  //     if (row.key !== auth.post) {*/}
-                    {/*  //       await auth.changePostAction(row.key);*/}
-                    {/*  //       auth.getProfile();*/}
-                    {/*  //     }*/}
-                    {/*  //   },*/}
-                    {/*  // }}*/}
-                    {/*>*/}
-                    {/*  <a onClick={(e) => e.preventDefault()}>*/}
-                    {/*    <Space>*/}
-                    {/*      {auth?.post}<DownOutlined />*/}
-                    {/*    </Space>*/}
-                    {/*  </a>*/}
-                    {/*</Dropdown>*/}
                   </Space>
+                  <div style={{fontSize: '11px', color: '#152B47'}}><span>{window._env_.VERSION}</span></div>
+
                 </Col>
               </Row>
             </Col>
@@ -400,15 +380,9 @@ function Layouts () {
               defaultOpenKeys={[
                 '/CertificateManagement',
                 '/Workflow',
-                // '/WorkflowRenew',
-                // '/System',
-                // '/Template',
-                // '/UserManagement',
               ]}
               defaultSelectedKeys={['/Home']}
               selectedKeys={[currKey]}
-              // onClickMenuItem={onClickMenuItem}
-              // inlineCollapsed={false}
               style={{
                 width: '100%',
                 // height: `calc(100vh - 70px - 48px)`

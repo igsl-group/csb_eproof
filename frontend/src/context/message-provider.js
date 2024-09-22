@@ -5,7 +5,9 @@ import { Button, message } from 'antd';
 const MessageContext = createContext();
 
 const MessageProvider = ({ children }) => {
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi, contextHolder] = message.useMessage({
+    duration: 5
+  });
 
   return (
     <MessageContext.Provider value={{

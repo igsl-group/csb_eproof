@@ -241,19 +241,19 @@ const EmailModal = (props) =>  {
                       options={[
                         {
                           label: 'Application Name',
-                          value: '{{application_name}}',
+                          value: '${application_name}',
                         },
                         {
                           label: 'Examination Date',
-                          value: '{{examination_date}}',
+                          value: '${examination_date}',
                         },
                         {
                           label: 'eProof Document Url',
-                          value: '{{eproof_document_url}}',
+                          value: '${eproof_document_url}',
                         },
                         {
                           label: 'One Time Password',
-                          value: '{{one_time_password}}',
+                          value: '${$one_time_password}',
                         }
                       ]}
                     />

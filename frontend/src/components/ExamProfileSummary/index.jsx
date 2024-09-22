@@ -43,13 +43,9 @@ const ExamProfileSummary = forwardRef((props, ref) => {
 
   // Expose `fetchSummary` to parent through ref
   useImperativeHandle(ref, () => ({
-    updateSummary
+    updateSummary,
+    summary
   }));
-
-  // // You could fetch the summary immediately when the component is mounted if needed
-  // useEffect(() => {
-  //   updateSummary();
-  // }, []);
 
   return (
     <fieldset style={{paddingLeft: 30, paddingBottom: 8}}>
@@ -57,7 +53,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
       <Row style={{color: 'rgba(81, 90, 106, 0.45)'}} gutter={[8, 8]}>
         <Col span={3}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>All Cases</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>All Cases</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>
               {
                 Number(summary.imported || 0) + Number(summary.generatePdfTotal || 0) + Number(summary.issuedPdfTotal || 0) + Number(summary.sendEmailPending || 0) + Number(summary.onHoldCaseTotal || 0) + Number(summary.completedTotal || 0)
@@ -67,19 +63,19 @@ const ExamProfileSummary = forwardRef((props, ref) => {
         </Col>
         <Col span={3}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>On-hold Case</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>On-hold Case</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.onHoldCaseTotal || 0}</span></Col>
           </Row>
         </Col>
         <Col span={3}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>Import Stage</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>Import Stage</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.imported || 0}</span></Col>
           </Row>
         </Col>
         <Col span={4}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>Generate Stage</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>Generate Stage</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.generatePdfTotal || 0}</span></Col>
             <Col span={24}>Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.generatePdfPending || 0}</span></Col>
             <Col span={24}>Progress: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.generatePdfInProgress || 0}</span></Col>
@@ -89,7 +85,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
         </Col>
         <Col span={4}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>Sign and Issue Stage</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>Sign and Issue Stage</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfTotal || 0}</span></Col>
             <Col span={24}>Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfPending || 0}</span></Col>
             <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfPending || 0}</span></Col>
@@ -100,7 +96,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
         </Col>
         <Col span={3}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>Notify Stage</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>Notify Stage</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailTotal || 0}</span></Col>
             <Col span={24}>Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailPending || 0}</span></Col>
             <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.sendEmailScheduled || 0}</span></Col>
@@ -110,7 +106,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
         </Col>
         <Col span={3}>
           <Row gutter={[4, 4]}>
-            <Col span={24}>Completed Stage</Col>
+            <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>Completed Stage</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.completedTotal || 0}</span></Col>
           </Row>
         </Col>

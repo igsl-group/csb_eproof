@@ -21,6 +21,9 @@ import {
 import {useAuth} from "../../context/auth-provider";
 import RevokeTable from "./revoke-table";
 import PermissionControl from "../../components/PermissionControl";
+import HistoricalResultApproveModal from "./historical-result-approve-modal";
+import HistoricalResult from "../historical-result";
+import HistoricalResultApproveTable from "./historical-result-approve-table";
 
 const ApprovalWorkflow = () =>  {
 
@@ -36,8 +39,11 @@ const ApprovalWorkflow = () =>  {
   const [examProfileSummaryList, setExamProfileSummaryList] = useState([]);
   const [actionListData, setActionListData] = useState([]);
   const [actionReissueData, setActionReissueData] = useState([]);
+  const [actionHistoricalResultData, setActionHistoricalResultData] = useState([]);
   const [onholdCaseData, setOnholdCaseData] = useState([]);
   const [revokeOpen, setRevokeOpen] = useState(false);
+  const [historicalResultApproveOpen, setHistoricalResultApproveOpen] = useState(false);
+  const [historicalResultApproveRecord, setHistoricalResultApproveRecord] = useState({});
 
   const actionListCallback = useCallback((list, keys = [], stage = '') => {
     let _actionList = [];
@@ -195,6 +201,11 @@ const ApprovalWorkflow = () =>  {
     setRecord(row);
   },[]);
 
+  const onClickApproveHistoricalResult = useCallback((row) => {
+    setHistoricalResultApproveOpen(true);
+    setHistoricalResultApproveRecord(row);
+  },[]);
+
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
     onSuccess: (response, params) => {
@@ -226,7 +237,7 @@ const ApprovalWorkflow = () =>  {
   }, [auth.permissions]);
 
   const getRevokeList = useCallback(async (pagination = {}, filter = {}, permissions) => {
-    // await runExamProfileAPI('getRevokeList', toQueryString(pagination, filter));
+    await runExamProfileAPI('getRevokeList', toQueryString(pagination, filter));
     await runExamProfileAPI('examProfileDropdown')
       .then(response => response.data)
       .then(async (data) => {
@@ -264,6 +275,11 @@ const ApprovalWorkflow = () =>  {
       reissueList.push(...data);
     }
     setActionReissueData(reissueList);
+
+    await runExamProfileAPI('historicalResultApproveList')
+      .then((response) => response.data)
+      .then((data) =>     setActionHistoricalResultData(data))
+
   }, []);
   const resetPagination = useCallback(() => {
     const tempPagination = {
@@ -278,7 +294,7 @@ const ApprovalWorkflow = () =>  {
     return tempPagination;
   }, [pagination]);
 
-
+  console.log(actionHistoricalResultData);
   return (
     <div className={styles['approval']}>
       <Typography.Title level={3}>Outstanding Tasks</Typography.Title>
@@ -419,56 +435,11 @@ const ApprovalWorkflow = () =>  {
         </Card>
       </PermissionControl>
       <br/>
-      <Card
-        bordered={false}
-        className={'card-body-nopadding'}
-        title={'Pending to Void/Unvoid Historical Result'}
-      >
-        <ResizeableTable
-          size={'big'}
-          rowKey={'id'}
-          onChange={tableOnChange}
-          pagination={false}
-          scroll={{
-            x: '100%',
-          }}
-          columns={[
-            {
-              title: 'Action',
-              key: 'action',
-              dataIndex: 'action',
-              width: 140,
-              sorter: false,
-
-            },
-            {
-              title: 'Name',
-              key: 'name',
-              dataIndex: 'name',
-              width: 140,
-              sorter: false,
-
-            },
-            {
-              title: 'HKID',
-              key: 'hkid',
-              dataIndex: 'hkid',
-              width: 140,
-              sorter: false,
-
-            },
-            {
-              title: 'Remark',
-              key: 'remark',
-              dataIndex: 'remark',
-              width: 100,
-              sorter: false,
-            },
-          ]}
-          dataSource={[]}
-        />
-      </Card>
+      <PermissionControl permissionRequired={['Historical_Result_Submit', 'Historical_Result_Approve']}>
+        <HistoricalResultApproveTable />
+      </PermissionControl>
       <br/>
+
     </div>
   )
 }

@@ -280,7 +280,7 @@ const routeList = [
         element: <HistoricalResultList />,
         ignore: false,
         show: true,
-        permission: ['Historical_Result_Maintenance'],
+        permission: ['Historical_Result_View'],
       },
       {
         id: 5,

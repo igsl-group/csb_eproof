@@ -162,7 +162,7 @@ const Notify = () =>  {
       key: 'status',
       width: 150,
       render: (row) => {
-        return <Tag>{row?.certStatus?.label}{row?.certStatus?.label === 'Scheduled' ? (<span> on <br/>{row?.gcisBatchEmail?.scheduleDatetime}</span>) : ''}</Tag>
+        return <Tag>{row?.certStatus?.label}{row?.certStatus?.label === 'Scheduled' ? (<span> for <br/>{row?.gcisBatchEmail?.scheduleDatetime ? dayjs(row?.gcisBatchEmail?.scheduleDatetime).format('DD.MM.YYYY') : ''}</span>) : ''}</Tag>
       },
       sorter: true,
     },
@@ -446,7 +446,7 @@ const Notify = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={notifyData.length === 0} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
+                <Button disabled={notifyData.length === 0 || ref.current?.summary?.sendEmailSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
               </Col>
               <Col>
                 <Button type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>
