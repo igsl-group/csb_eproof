@@ -461,3 +461,10 @@ type response = {
   message: string,
 }
 ```
+
+### [Post] /downloadCert/{examProfileId}/all
+1. find all certinfo where examProfileId = :examProfileId
+2. Get the all latest pdf using fileRepository.getLatestPdfForCert(certInfo.getId());
+3. Get the pdf using minioUtil
+4. zip the pdf and return zip file
+> ref: getZippedPdfBinary() function in CertInfoServiceImpl.java
