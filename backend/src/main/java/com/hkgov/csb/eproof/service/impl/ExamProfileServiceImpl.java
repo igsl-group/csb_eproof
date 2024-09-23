@@ -6,6 +6,7 @@ import com.hkgov.csb.eproof.dao.CertInfoRenewRepository;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
+import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.dto.ExamProfileUpdateDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
@@ -24,11 +25,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static com.hkgov.csb.eproof.exception.ExceptionConstants.SERIAL_HAS_EXITED;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.NOT_ALLOW_TO_RESET_EXAM_PROFILE;
+import static com.hkgov.csb.eproof.exception.ExceptionConstants.SERIAL_HAS_EXITED;
 
 @RequiredArgsConstructor
 @Service
@@ -84,8 +86,15 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         examProfileRepository.save(examProfile);
     }
     @Override
-    public ExamProfile getexamProfileInfo(String examProfileSerialNo) {
-        return examProfileRepository.getinfoByNo(examProfileSerialNo);
+    public ExamProfileDto getExamProfileInfo(String examProfileSerialNo) {
+        ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
+        ExamProfileDto examProfileDto = ExamProfileMapper.INSTANCE.sourceToDestination(examProfile);
+        List<Object[]> times = examProfileRepository.getEmailSendTime(examProfileSerialNo);
+        LocalDateTime fromDate = (LocalDateTime) times.get(0)[0];
+        LocalDateTime toDate = (LocalDateTime) times.get(0)[1];
+        examProfileDto.setActualEmailSendDateFrom(fromDate.toLocalDate());
+        examProfileDto.setActualEmailSendDateTo(toDate.toLocalDate());
+        return examProfileDto;
     }
 
     @Override

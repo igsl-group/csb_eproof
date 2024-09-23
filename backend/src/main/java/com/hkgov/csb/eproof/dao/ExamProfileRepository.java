@@ -23,6 +23,17 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
     """)
     ExamProfile getinfoByNo(@Param("serialNo") String serialNo);
 
+    @Query("""
+        select 
+        MIN(c.actualEmailSendTime) AS actualEmailSendDateFrom,
+        MAX(c.actualEmailSendTime) AS actualEmailSendDateTo
+        from ExamProfile u 
+        Join CertInfo c ON u.serialNo = c.examProfileSerialNo
+        where u.serialNo = :serialNo
+        GROUP BY u
+    """)
+    List<Object[]> getEmailSendTime(@Param("serialNo") String serialNo);
+
     @Query(nativeQuery = true, value =
             """
              select u.* from exam_profile u

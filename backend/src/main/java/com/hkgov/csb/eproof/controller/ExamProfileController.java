@@ -49,7 +49,7 @@ public class ExamProfileController {
 
     @GetMapping("/{id}")
     public Result<ExamProfileDto> getexamProfileInfo(@PathVariable String id){
-        return Result.success(ExamProfileMapper.INSTANCE.sourceToDestination(examProfileService.getexamProfileInfo(id)));
+        return Result.success((examProfileService.getExamProfileInfo(id)));
     }
 
     @GetMapping("/list")

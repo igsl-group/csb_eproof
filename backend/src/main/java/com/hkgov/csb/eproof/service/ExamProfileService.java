@@ -2,6 +2,7 @@ package com.hkgov.csb.eproof.service;
 
 
 import com.hkgov.csb.eproof.dto.ExamProfileCreateDto;
+import com.hkgov.csb.eproof.dto.ExamProfileDto;
 import com.hkgov.csb.eproof.dto.ExamProfileSummaryDto;
 import com.hkgov.csb.eproof.dto.ExamProfileUpdateDto;
 import com.hkgov.csb.eproof.entity.ExamProfile;
@@ -20,7 +21,7 @@ public interface ExamProfileService {
 
     void update(String id, ExamProfileUpdateDto requestDto);
 
-    ExamProfile getexamProfileInfo(String examProfileSerialNo);
+    ExamProfileDto getExamProfileInfo(String examProfileSerialNo);
 
     Page<ExamProfile> list(Pageable pageable,String keyWord);
 
