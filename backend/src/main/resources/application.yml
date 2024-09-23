@@ -167,7 +167,7 @@ eproof-config:
   pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-pdf"
   otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/sendOTP"
   dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-data"
-  downloadUrlPrefix: https://uat.eproof.gov.hk/ec/d?t=
+  downloadUrlPrefix: https://uat-download.eproof.gov.hk/en/d?t=
 
 thread-pool:
   scheduled-task:

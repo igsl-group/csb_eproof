@@ -3,10 +3,8 @@ package com.hkgov.csb.eproof.util.EProof;
 import cn.hutool.core.codec.Base64Encoder;
 import com.google.gson.Gson;
 import com.hkgov.csb.eproof.util.CommonUtil;
-import jakarta.annotation.Resource;
 import okhttp3.*;
 import org.apache.logging.log4j.*;
-import org.apache.logging.log4j.util.Strings;
 import org.json.*;
 import org.springframework.stereotype.Component;
 
@@ -265,7 +263,7 @@ public class EProofUtil {
 			eProofData.put("expire_date", expiryDate.minusHours(8).format(formatter));
 		else{
 			// Empty string means neven expire
-			eProofData.put("expire_date", "9999-12-31T09:46:33.000Z");
+			eProofData.put("expire_date", "9999-12-31T00:00:00Z");
 		}
 		eProofData.put("schema", "1.0");
 
@@ -295,7 +293,7 @@ public class EProofUtil {
 			systemJsonMap.put("expirationDate", expiryDate.minusHours(8).format(formatter));
 		} else{
 			// Empty string means neven expire
-			systemJsonMap.put("expirationDate", "9999-12-31T09:46:33.000Z");
+			systemJsonMap.put("expirationDate", "9999-12-31T00:00:00Z");
 		}
 
 		Map credentialSubjectJsonMap = new TreeMap<>();
@@ -325,7 +323,7 @@ public class EProofUtil {
 	) throws Exception {
 		return registerOrUpdateEproof(uuid, unsignedMap,  proofValue,  keyName,
 				eproofTypeId,
-				downloadMaxCount,  downloadExpiryDate);
+				downloadMaxCount,  downloadExpiryDate, null);  //TODO
 	}
 
 	public static Map<String, Object> registerEproof(String unsignedMap, String proofValue, String keyName,
@@ -334,14 +332,14 @@ public class EProofUtil {
 	) throws Exception {
 		return registerOrUpdateEproof(null, unsignedMap,  proofValue,  keyName,
 				eproofTypeId,
-				downloadMaxCount,  downloadExpiryDate);
+				downloadMaxCount,  downloadExpiryDate, "");
 	}
 
 
 	public static Map<String, Object> registerOrUpdateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
 															 String eproofTypeId,
-															 int downloadMaxCount, LocalDateTime downloadExpiryDate
-	) throws Exception {
+															 int downloadMaxCount, LocalDateTime downloadExpiryDate,
+															 String formattedPublishDate) throws Exception {
 
 //		if (simulation) {
 //			logger.debug("This is simulation of registerOrUpdateEproof");
@@ -380,7 +378,8 @@ public class EProofUtil {
 				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("issue_date"),
 				vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null
 						?downloadExpiryDate.minusHours(8).format(formatter)
-						:null
+						:null,
+				formattedPublishDate
 		)) {
 			checkResponse(httpResponse);
 			JSONObject jret = new JSONObject(httpResponse.body().string());
@@ -510,7 +509,8 @@ public class EProofUtil {
 				null, config, eproofId, eproofTypeId, templateCode,
 				(expiryDate == null) ? null : expiryDate.minusHours(8).format(formatter),
 				issuranceDate.minusHours(8).format(formatter), vcBase64Hash, downloadMaxCount,
-				(downloadExpiryDate == null) ? null : downloadExpiryDate.minusHours(8).format(formatter)
+				(downloadExpiryDate == null) ? null : downloadExpiryDate.minusHours(8).format(formatter),
+				""
 		)) {
 			checkResponse(httpResponse);
 			JSONObject jret = new JSONObject(httpResponse.body().string());

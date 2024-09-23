@@ -118,7 +118,7 @@ public class ApiUtil {
 			requestBodyJsonMap.put("id", uuid);
 			requestBodyJsonMap.put("version", version);
 			requestBodyJsonMap.put("accessExpiryDate",
-					(expirationDate == null) ? "9999-12-31T23:59:59Z" : expirationDate.format(formatter));
+					(expirationDate == null) ? "9999-12-31T00:00:00Z" : expirationDate.format(formatter));
 			requestBodyJsonMap.put("maxAccessCount", qrCodeMaxCount);
 			requestBodyJsonMap.put("eProof", eproof);
 
@@ -146,7 +146,7 @@ public class ApiUtil {
 	}
 
 	public static Response registerEproof(String uuid, EProofConfigProperties config, String eproofId, String eproofTypeId, String templateCode,
-										  String expiryDate, String issuranceDate, String dataHash, int downloadMaxCount, String downloadExpiryDate) throws Exception {
+										  String expiryDate, String issuranceDate, String dataHash, int downloadMaxCount, String downloadExpiryDate, String formattedPublishDate) throws Exception {
 		Response ret= null;
 
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
@@ -160,15 +160,19 @@ public class ApiUtil {
 			requestBodyJsonMap.put("eProofTypeId", eproofTypeId);
 			requestBodyJsonMap.put("templateCode", templateCode);
 //			if (expiryDate != null)
-			requestBodyJsonMap.put("expiryDate", "9999-12-31T09:46:33.000Z");
+			requestBodyJsonMap.put("expiryDate", "9999-12-31T00:00:00Z");
 			requestBodyJsonMap.put("issuanceDate",  issuranceDate);
 			requestBodyJsonMap.put("dataHash", dataHash);
 			requestBodyJsonMap.put("authMethod", "01");
 			requestBodyJsonMap.put("dataUrl", config.getDataUrl());
 			requestBodyJsonMap.put("otpUrl", config.getOtpUrl());
+			// TODO
+			requestBodyJsonMap.put("publishDate", formattedPublishDate);
+			requestBodyJsonMap.put("walletOption", "03");
+			requestBodyJsonMap.put("allowDownloadPdf", true);
 			requestBodyJsonMap.put("downloadMaxCount", String.valueOf(downloadMaxCount));
 			if(downloadExpiryDate != null)
-				requestBodyJsonMap.put("downloadExpiryDate", "9999-12-31T09:46:33.000Z");
+				requestBodyJsonMap.put("downloadExpiryDate", "9999-12-31T00:00:00Z");
 
 			//Request Headers
 			List<String> headersArray = new ArrayList<String>();

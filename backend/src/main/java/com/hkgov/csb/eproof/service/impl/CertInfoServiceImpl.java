@@ -771,7 +771,8 @@ public class CertInfoServiceImpl implements CertInfoService {
                 keyName,
                 eproofTypeId,
                 -1,
-                downloadExpiryDateTime
+                downloadExpiryDateTime,
+                certInfo.getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00"))
         );
 
         logger.debug("[registerResult]" + GSON.toJson(registerResult));

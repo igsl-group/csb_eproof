@@ -41,7 +41,7 @@ public class ProofServiceImpl implements ProofService {
         CertInfo certInfo = certInfoRepository.findEmail(requestDto.getUuid(),requestDto.getVersion());
         EmailTemplate emailTemplate = emailTemplateRepository.findByName("OTP");
         Map<String,Object> map = new HashMap<>();
-        map.put("otp", requestDto.getOtp());
+        map.put("one_time_password", requestDto.getOtp());
         String htmlBody = "";
         try {
             htmlBody = emailUtil.getRenderedHtml(emailTemplate.getBody(),map);

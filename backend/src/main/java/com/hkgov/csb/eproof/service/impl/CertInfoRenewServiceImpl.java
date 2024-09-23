@@ -506,8 +506,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 keyName,
                 eproofTypeId,
                 -1,
-                downloadExpiryDateTime
-        );
+                downloadExpiryDateTime,
+                certInfoRenew.getCertInfo().getExamProfile().getEffectiveDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00")));
 
         logger.info("[registerResult]" + GSON.toJson(registerResult));
 
