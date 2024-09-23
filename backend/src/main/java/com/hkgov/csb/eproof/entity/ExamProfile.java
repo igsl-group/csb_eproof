@@ -1,13 +1,10 @@
 package com.hkgov.csb.eproof.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
+
 import java.time.LocalDate;
 
 import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN;
@@ -48,8 +45,10 @@ public class ExamProfile extends BaseEntity{
     private Boolean isFreezed;
 
     @JsonFormat(pattern = DATE_PATTERN)
+    @Transient
     private LocalDate actualEmailSendDateFrom;
 
     @JsonFormat(pattern = DATE_PATTERN)
+    @Transient
     private LocalDate actualEmailSendDateTo;
 }
