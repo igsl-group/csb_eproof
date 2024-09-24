@@ -2,7 +2,6 @@ package com.hkgov.csb.eproof.service;
 
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import freemarker.template.TemplateException;
 import org.dom4j.DocumentException;
@@ -86,4 +85,6 @@ public interface CertInfoService {
     ResponseEntity<List<CertInfo>> getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
 
     void deleteFutureBatchEmail(String examProfileSerialNo);
+
+    byte [] downloadcert(String examProfileId) throws IOException;
 }

@@ -6,7 +6,6 @@ import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.constants.enums.Permissions;
 import com.hkgov.csb.eproof.dto.*;
 import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.exception.GenericException;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -360,4 +358,18 @@ public class CertController {
         return ResponseEntity.ok().headers(header).body(previewCertPdf);
     }
 
+    @PostMapping("/downloadCert/{examProfileId}/all")
+    @Operation(summary = "Download cert with provided cert ID list.")
+    public ResponseEntity downloadPdfAll(@PathVariable String examProfileId) throws IOException {
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename(this.getZipFileName())
+                .build()
+        );
+        byte [] zippedPdfListByteArray = certInfoService.downloadcert(examProfileId);
+        return ResponseEntity.ok()
+                .headers(header)
+                .body(zippedPdfListByteArray);
+    }
 }

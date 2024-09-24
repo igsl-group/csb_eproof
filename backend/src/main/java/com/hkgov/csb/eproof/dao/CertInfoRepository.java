@@ -1,9 +1,7 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.dto.CertSearchDto;
-import com.hkgov.csb.eproof.dto.ExamResultReportDTO;
 import com.hkgov.csb.eproof.entity.CertInfo;
-import com.hkgov.csb.eproof.entity.User;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -282,4 +281,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
     and ci.examProfileSerialNo = :examProfileSerialNo
 """)
     List<CertInfo> getToBeSendBatchEmailCert(String examProfileSerialNo);
+
+    @Query("select c.id from CertInfo c where c.examProfileSerialNo = :examProfileId")
+    List<Long> getAllByExamProfileId(String examProfileId);
 }

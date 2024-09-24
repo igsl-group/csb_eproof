@@ -1195,6 +1195,12 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     }
 
+    @Override
+    public byte[] downloadcert(String examProfileId) throws IOException {
+        List<Long> ids = certInfoRepository.getAllByExamProfileId(examProfileId);
+        return getZippedPdfBinary(ids);
+    }
+
 
     @Transactional
     public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml, String listName){
