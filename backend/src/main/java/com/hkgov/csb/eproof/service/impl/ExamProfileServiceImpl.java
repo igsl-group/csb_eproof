@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.NOT_ALLOW_TO_RESET_EXAM_PROFILE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.SERIAL_HAS_EXITED;
@@ -92,8 +91,6 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     public ExamProfileDto getExamProfileInfo(String examProfileSerialNo) {
         ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
         if(Objects.isNull(examProfile)){
-            log.error("111111111111111111111111111111111111111111");
-            log.info("222222222222222222222222222222222222222");
             throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
         }
         ExamProfileDto examProfileDto = ExamProfileMapper.INSTANCE.sourceToDestination(examProfile);
