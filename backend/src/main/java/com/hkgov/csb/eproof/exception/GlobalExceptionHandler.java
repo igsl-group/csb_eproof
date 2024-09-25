@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.exception;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,9 +16,12 @@ import java.util.*;
 
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.JWT_TOKEN_EXPIRY_EXCEPTION_CODE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.JWT_TOKEN_EXPIRY_EXCEPTION_MESSAGE;
-
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+  //  private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     private final ObjectMapper objectMapper;
     private static final String CODE = "code";
     private static final String MESSAGE = "message";
@@ -36,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
                 .map(Throwable::getMessage)
                 .orElse(null));
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return pd;
     }
 
@@ -50,7 +54,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
                 .map(Throwable::getMessage)
                 .orElse(null));
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return pd;
     }
 
@@ -64,7 +68,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         } else {
             pd.setProperty(MESSAGE, ex.getMessage());
         }
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return pd;
     }
 
@@ -77,7 +81,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         data.put(CODE, JWT_TOKEN_EXPIRY_EXCEPTION_CODE);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return new ResponseEntity<>(objectMapper.writeValueAsString(data), headers, HttpStatus.UNAUTHORIZED);
     }
 
@@ -91,7 +95,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     pd.setProperty("field", violation.getPropertyPath().toString());
                     return pd;
                 }).toList();
-        e.printStackTrace();
+        logger.error("Exception caught: ", e);
         return handleExceptionInternal(e, result,
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
@@ -103,7 +107,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty(MESSAGE, ex.getMessage());
         pd.setProperty("field", ex.getField());
         pd.setProperty("value", ex.getValue());
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return pd;
     }
 
@@ -115,7 +119,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
                 .map(Throwable::getMessage)
                 .orElse(null));
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return pd;
     }
 
@@ -127,7 +131,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         pd.setProperty("detailMessage", Optional.ofNullable(ex.getCause())
                 .map(Throwable::getMessage)
                 .orElse(null));
-        ex.printStackTrace();
+        logger.error("Exception caught: ", ex);
         return pd;
     }
 }

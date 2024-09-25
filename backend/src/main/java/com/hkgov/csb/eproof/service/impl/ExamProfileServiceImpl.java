@@ -18,6 +18,7 @@ import com.hkgov.csb.eproof.mapper.ExamProfileMapper;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.ExamProfileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ import static com.hkgov.csb.eproof.exception.ExceptionConstants.SERIAL_HAS_EXITE
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ExamProfileServiceImpl implements ExamProfileService {
 
     private final ExamProfileRepository examProfileRepository;
@@ -88,6 +90,11 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     @Override
     public ExamProfileDto getExamProfileInfo(String examProfileSerialNo) {
         ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
+        if(Objects.isNull(examProfile)){
+            log.error("111111111111111111111111111111111111111111");
+            log.info("222222222222222222222222222222222222222");
+            throw new GenericException(ExceptionEnums.EXAM_PROFILE_NOT_EXIST);
+        }
         ExamProfileDto examProfileDto = ExamProfileMapper.INSTANCE.sourceToDestination(examProfile);
         List<Object[]> times = examProfileRepository.getEmailSendTime(examProfileSerialNo);
         LocalDateTime fromDate = (LocalDateTime) times.get(0)[0];
