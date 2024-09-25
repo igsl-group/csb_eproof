@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE NOTI_MAIN_DETAIL>
+<!DOCTYPE NOTI_MAIN_DETAIL SYSTEM "notimain.dtd">
 <NOTI_MAIN_DETAIL>
     <NOTI_LIST>
         <ACTION>Create</ACTION>
-        <NOTI_LIST_NAME>SPICA_CANDIDATE_LIST</NOTI_LIST_NAME>
-        <NOTI_LIST_DESC>SPICA candidate list</NOTI_LIST_DESC>
+        <NOTI_LIST_NAME></NOTI_LIST_NAME>
+        <NOTI_LIST_DESC>CSB Eproof batch email</NOTI_LIST_DESC>
         <CHAN_TYPE>EM</CHAN_TYPE>
         <TEML_NAME>RESULT_RELEASE</TEML_NAME>
         <TEML_PROJ_ID>CSBEP</TEML_PROJ_ID>
@@ -12,31 +12,30 @@
     </NOTI_LIST>
     <NOTI_MERG_ITEM>
         <ACTION>Create</ACTION>
-        <NOTI_LIST_NAME>SPICA_CANDIDATE_LIST</NOTI_LIST_NAME>
-        <MERG_ITEM_NAME>CANDIDATE_NAME</MERG_ITEM_NAME>
+        <NOTI_LIST_NAME></NOTI_LIST_NAME>
+        <MERG_ITEM_NAME>application_name</MERG_ITEM_NAME>
     </NOTI_MERG_ITEM>
     <NOTI_MERG_ITEM>
         <ACTION>Create</ACTION>
-        <NOTI_LIST_NAME>SPICA_CANDIDATE_LIST</NOTI_LIST_NAME>
-        <MERG_ITEM_NAME>CANDIDATE_TITLE</MERG_ITEM_NAME>
+        <NOTI_LIST_NAME></NOTI_LIST_NAME>
+        <MERG_ITEM_NAME>examination_date</MERG_ITEM_NAME>
+    </NOTI_MERG_ITEM>
+	<NOTI_MERG_ITEM>
+        <ACTION>Create</ACTION>
+        <NOTI_LIST_NAME></NOTI_LIST_NAME>
+        <MERG_ITEM_NAME>eproof_document_url</MERG_ITEM_NAME>
     </NOTI_MERG_ITEM>
 
     <TEMPLATE>
         <ACTION>Create</ACTION>
-        <TEML_NAME>RESULT_RELEASE</TEML_NAME>
-        <NOTI_SUBJ>SPICA examination result announcement 20050701</NOTI_SUBJ>
+        <TEML_NAME></TEML_NAME>
+        <NOTI_SUBJ></NOTI_SUBJ>
         <NOTI_CONT>
-            Dear *#*CANDIDATE_TITLE*#* *#*CANDIDATE_NAME*#*,
-            Please find your examination result as attached.
-            Note: The explanation is attached also.
-            Regards,
-            SPICA Examiner.
-            PS: This email is sent on *$*DD/MM/YYYY*$* *$*HH24:MI:SS*$*
         </NOTI_CONT>
-        <CHAR_SET>ASCII</CHAR_SET>
-        <CONT_TYPE>text/plain</CONT_TYPE>
+        <CHAR_SET>UTF-8</CHAR_SET>
+        <CONT_TYPE>text/html</CONT_TYPE>
         <CHAN_TYPE>EM</CHAN_TYPE>
-        <NOTI_LIST_NAME>SPICA_CANDIDATE_LIST</NOTI_LIST_NAME>
+        <NOTI_LIST_NAME></NOTI_LIST_NAME>
         <NOTI_LIST_PROJ_ID>CSBEP</NOTI_LIST_PROJ_ID>
         <TEML_ATTH_01/>
         <TEML_ATTH_02/>

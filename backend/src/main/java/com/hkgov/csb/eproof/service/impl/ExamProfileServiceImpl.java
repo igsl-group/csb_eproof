@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.NOT_ALLOW_TO_RESET_EXAM_PROFILE;
 import static com.hkgov.csb.eproof.exception.ExceptionConstants.SERIAL_HAS_EXITED;
@@ -97,10 +98,15 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         }
         ExamProfileDto examProfileDto = ExamProfileMapper.INSTANCE.sourceToDestination(examProfile);
         List<Object[]> times = examProfileRepository.getEmailSendTime(examProfileSerialNo);
-        LocalDateTime fromDate = (LocalDateTime) times.get(0)[0];
-        LocalDateTime toDate = (LocalDateTime) times.get(0)[1];
-        examProfileDto.setActualEmailSendDateFrom(fromDate.toLocalDate());
-        examProfileDto.setActualEmailSendDateTo(toDate.toLocalDate());
+
+        if (times != null && times.size() > 0) {
+            LocalDateTime fromDate = (LocalDateTime) times.get(0)[0];
+            LocalDateTime toDate = (LocalDateTime) times.get(0)[1];
+            examProfileDto.setActualEmailSendDateFrom(fromDate.toLocalDate());
+            examProfileDto.setActualEmailSendDateTo(toDate.toLocalDate());
+        }
+
+
         return examProfileDto;
     }
 
