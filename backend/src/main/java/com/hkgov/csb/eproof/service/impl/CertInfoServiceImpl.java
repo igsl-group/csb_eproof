@@ -612,6 +612,16 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
+    public void notifyInternalUserSignAndIssueCompleted(String examProfileSerialNo) throws TemplateException, IOException {
+        EmailTemplate emailTemplate = emailTemplateRepository.findByName("Sign_and_Issue_Completed");
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("examProfileSerialNo", examProfileSerialNo);
+        String htmlBody = emailUtil.getRenderedHtml(emailTemplate.getBody(),map);
+        gcisEmailServiceImpl.sendTestEmail(emailTemplate.getIncludeEmails(), emailTemplate.getSubject(), htmlBody);
+    }
+
+    @Override
     public void uploadSignedPdf(Long certInfoId, MultipartFile file) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){

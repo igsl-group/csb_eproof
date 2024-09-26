@@ -101,6 +101,7 @@ public class EProofController {
         if(nextScheduledCertForProcessing!=null){
             return ResponseEntity.ok(nextScheduledCertForProcessing.getId());
         } else {
+            certInfoService.notifyInternalUserSignAndIssueCompleted(examProfileSerialNo);
             return ResponseEntity.badRequest().body("No next scheduled cert found.");
         }
     }

@@ -60,6 +60,8 @@ public interface CertInfoService {
 
     CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo);
 
+    void notifyInternalUserSignAndIssueCompleted(String examProfileSerialNo) throws TemplateException, IOException;
+
     void uploadSignedPdf(Long certInfoId, MultipartFile file);
 
     void issueCert(Long certInfoId) throws Exception;
