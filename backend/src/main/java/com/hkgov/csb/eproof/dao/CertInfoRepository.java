@@ -160,13 +160,13 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
 
     @Modifying
     @Query("""
-                UPDATE CertInfo ci
-                SET ci.certStatus = :scheduledStatus, ci.modifiedBy = :dpUserId, ci.modifiedDate = current_timestamp
-                WHERE ci.id in (
-                    select ci.id where 
-                    ci.certStatus in :inProgressAndPending and ci.examProfileSerialNo = :examProfileSerialNo
-                    and ci.certStage = :signAndIssueStage AND ci.onHold = false
-                    ORDER BY ci.id
+                UPDATE CertInfo
+                SET certStatus = :scheduledStatus, modifiedBy = :dpUserId, modifiedDate = current_timestamp
+                WHERE id in (
+                    select id where
+                    certStatus in :inProgressAndPending and examProfileSerialNo = :examProfileSerialNo
+                    and certStage = :signAndIssueStage AND onHold = false
+                    ORDER BY id
                     LIMIT 5000
                 )
             """)
