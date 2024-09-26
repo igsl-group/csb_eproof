@@ -68,11 +68,15 @@ import {
   FileSearchOutlined,
   ToolOutlined,
   BarsOutlined,
+  HourglassOutlined,
+  DatabaseOutlined,
   SecurityScanOutlined,
 } from '@ant-design/icons';
 import {useAuth} from "./context/auth-provider";
 import {useEffect} from "react";
 import useSessionAlive from "./hook/useSessionAlive";
+import EmailLog from "./pages/system/email-log";
+import BatchEmailLog from "./pages/system/batch-email-log";
 
 const routeList = [
   {
@@ -373,6 +377,26 @@ const routeList = [
           },
           {
             id: 92,
+            pid: 9,
+            name: 'Adhoc Email Log',
+            path: '/System/AdhocEmailLog',
+            icon: <DatabaseOutlined />,
+            element: <EmailLog />,
+            show: true,
+            permission: [],
+          },
+          {
+            id: 93,
+            pid: 9,
+            name: 'Batch Email Log',
+            path: '/System/BatchEmailLog',
+            icon: <HourglassOutlined />,
+            element: <BatchEmailLog />,
+            show: true,
+            permission: [],
+          },
+          {
+            id: 94,
             pid: 9,
             name: 'System Configuration',
             path: '/System/SystemConfiguration',
