@@ -261,15 +261,24 @@ public class TestController {
 
     @Autowired
     MinioUtil minioUtil;
-     @GetMapping("/testMinio")
-    public ResponseEntity testMinio() throws Exception {
-        minioUtil.uploadFile("testing.pdf",new FileInputStream("D:\\Work Folder\\CSB Eproof\\Cert sample\\Result letter templates\\test_template_3.pdf"));
+    @GetMapping("/uploadFileToMinio")
+    public ResponseEntity uploadFileToMinio() throws Exception {
+        minioUtil.uploadFile("EEEEE.docx",new FileInputStream(tmpSource));
+        logger.info("Upload file to Minio");
         return ResponseEntity.ok().body("");
      }
 
-    @GetMapping("/testMinio2")
-    public ResponseEntity testMinio2() throws Exception {
-        return ResponseEntity.ok().body(IOUtils.toByteArray(minioUtil.getFileAsStream("/letter_template/pass_template.docx")));
+    @GetMapping("/deleteFileToMinio")
+    public ResponseEntity deleteFileFromMinio() throws Exception {
+        minioUtil.deleteFile("EEEEE.docx");
+        logger.info("Delete file to Minio");
+        return ResponseEntity.ok().body("");
+    }
+
+    @GetMapping("/getFileToMinio")
+    public ResponseEntity getFileToMinio() throws Exception {
+        logger.info("Download file from Minio");
+         return ResponseEntity.ok().body(IOUtils.toByteArray(minioUtil.getFileAsStream("/letter_template/pass_template.docx")));
     }
 
     private final EmailTemplateRepository emailTemplateRepository;
