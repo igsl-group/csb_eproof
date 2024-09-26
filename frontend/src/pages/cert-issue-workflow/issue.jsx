@@ -258,14 +258,6 @@ const Issue = () =>  {
     });
   },[serialNoValue]);
 
-  const onClickDownloadAll = useCallback(() => {
-    modalApi.confirm({
-      title:'Are you sure to download all PDF?',
-      width: 500,
-      okText: 'Confirm',
-    });
-  },[]);
-
   const onClickDownloadSelected = useCallback(() => {
     modalApi.confirm({
       title:'Are you sure to download selected PDF?',
@@ -274,6 +266,15 @@ const Issue = () =>  {
       onOk: () => runExamProfileAPI('certIssuanceBulkDownload', selectedRowKeys.join(','))
     });
   },[selectedRowKeys]);
+
+  const onClickDownloadAll = useCallback(() => {
+    modalApi.confirm({
+      title:'It will take too time to patch .zip file. Are you sure to download all PDF? ',
+      width: 500,
+      okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+    });
+  },[serialNoValue]);
 
   const rowSelection = useMemo(() => ({
     selectedRowKeys,
@@ -332,6 +333,10 @@ const Issue = () =>  {
           getImportListAndSummary();
           break;
         case 'certIssuanceBulkDownload':
+          download(response);
+          messageApi.success('Download successfully.');
+          break;
+        case 'certIssuanceBulkDownloadAll':
           download(response);
           messageApi.success('Download successfully.');
           break;
@@ -581,9 +586,9 @@ const Issue = () =>  {
               <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
-            {/*<Col>*/}
-            {/*  <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>*/}
-            {/*</Col>*/}
+            <Col>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={ref.current?.summary?.issuedPdfTotal === 0}>Download All</Button>
+            </Col>
           </Row>
         </Col>
         <Col>

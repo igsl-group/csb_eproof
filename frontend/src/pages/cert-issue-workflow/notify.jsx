@@ -231,11 +231,12 @@ const Notify = () =>  {
 
   const onClickDownloadAll = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to download all PDF?',
+      title:'It will take too time to patch .zip file. Are you sure to download all PDF? ',
       width: 500,
       okText: 'Confirm',
+      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
     });
-  },[]);
+  },[serialNoValue]);
 
   const onClickDownloadSelected = useCallback(() => {
     modalApi.confirm({
@@ -303,6 +304,10 @@ const Notify = () =>  {
           getImportListAndSummary();
           break;
         case 'certIssuanceBulkDownload':
+          download(response);
+          messageApi.success('Download successfully.');
+          break;
+        case 'certIssuanceBulkDownloadAll':
           download(response);
           messageApi.success('Download successfully.');
           break;
@@ -533,9 +538,9 @@ const Notify = () =>  {
               <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
-            {/*<Col>*/}
-            {/*  <Button type="primary" onClick={onClickDownloadAll}>Download All</Button>*/}
-            {/*</Col>*/}
+            <Col>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={ref.current?.summary?.sendEmailTotal === 0}>Download All</Button>
+            </Col>
           </Row>
         </Col>
         <Col>

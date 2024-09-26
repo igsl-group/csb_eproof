@@ -198,6 +198,8 @@ export function examProfileAPI(params, ...rest) {
             return request(`/localSigning/start/${rest[0]}`, "signing-cert", rest[1]);
         case 'certIssuanceBulkDownload':
             return request(`/cert/downloadCert?certInfoIdList=${rest[0]}`, "download");
+        case 'certIssuanceBulkDownloadAll':
+            return request(`/cert/downloadCert/${rest[0]}/all`, "download");
         case 'certIssuanceHold':
             return request(`/cert/hold/${rest[0]}`, "post", rest[1]);
         case 'certIssuanceResume':
