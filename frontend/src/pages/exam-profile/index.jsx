@@ -469,11 +469,11 @@ const ExamProfile = () =>  {
                 <Text name={'effectiveDate'} label={'Effective Date'} disabled placeholder={'YYYY-MM-DD'} size={50} />
               </Col>
               <Col span={24} md={12} xl={8} xxl={6}>
-                <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (From)'} disabled={true}
+                <Text name={'actualEmailSendDateFrom'} label={'Actual Email Issuance Date (From)'} disabled={true}
                       placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
               <Col span={24} md={12} xl={8} xxl={6}>
-                <Text name={'actualAnnouncedDate'} label={'Actual Email Issuance Date (To)'} disabled={true}
+                <Text name={'actualEmailSendDateTo'} label={'Actual Email Issuance Date (To)'} disabled={true}
                       placeholder={'YYYY-MM-DD'} size={50}/>
               </Col>
               <Col span={24} md={12} xl={8} xxl={6}>
