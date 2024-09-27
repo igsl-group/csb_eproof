@@ -75,32 +75,46 @@ const BatchEmailLog = () =>  {
 
   const columns = useMemo(() => [
     {
-      title: "Time",
+      title: "#",
+      dataIndex: "id",
+      width: 50,
+    },
+    {
+      title: "Created Date",
       dataIndex: "createdDate",
       width: 200,
     },
     {
-      title: "DP User ID",
-      dataIndex: "createdBy",
+      title: "Serial No.",
+      dataIndex: "examProfileSerialNo",
       width: 150,
     },
     {
-      title: "Source Ip",
-      dataIndex: "ipAddress",
-      width: 150,
+      title: "Batch Upload Ref. No.",
+      dataIndex: "batchUploadRefNum",
+      width: 200,
     },
     {
-      title: "Action",
-      dataIndex: "logAction",
+      title: "Batch Upload Status",
+      dataIndex: "batchUploadStatus",
       width: 120,
     },
     {
-      title: "Accessed Resources",
-      dataIndex: "logDetails",
+      title: "Schedule Job Id",
+      dataIndex: "scheduleJobId",
       width: 300,
     },
-
-
+    {
+      title: <span>Schedule Est. Start Time<br/>Schedule Est. End Time</span>,
+      key: "scheduleEstStartTime",
+      render: (row) => <span>{row.scheduleEstStartTime}<br/>{row.scheduleEstEndTime}</span>,
+      width: 300,
+    },
+    {
+      title: "Schedule Job Status",
+      dataIndex: "scheduleJobStatus",
+      width: 300,
+    },
   ], []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {

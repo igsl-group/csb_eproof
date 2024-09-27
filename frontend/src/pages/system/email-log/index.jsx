@@ -44,6 +44,7 @@ import {systemAPI} from "../../../api/request";
 import {
   toQueryString
 } from "@/utils/util";
+import parse from "html-react-parser";
 
 
 const EmailLog = () =>  {
@@ -75,32 +76,26 @@ const EmailLog = () =>  {
 
   const columns = useMemo(() => [
     {
-      title: "Time",
+      title: "Created Date",
       dataIndex: "createdDate",
       width: 200,
     },
     {
-      title: "DP User ID",
-      dataIndex: "createdBy",
+      title: "To",
+      dataIndex: "to",
+      width: 200,
+    },
+    {
+      title: "Subject",
+      dataIndex: "subject",
       width: 150,
     },
     {
-      title: "Source Ip",
-      dataIndex: "ipAddress",
-      width: 150,
+      title: "Body",
+      dataIndex: "body",
+      width: 600,
+      render: (value) => <div style={{ textWrap: 'wrap'}}>{value ? parse(value) : ''}</div>,
     },
-    {
-      title: "Action",
-      dataIndex: "logAction",
-      width: 120,
-    },
-    {
-      title: "Accessed Resources",
-      dataIndex: "logDetails",
-      width: 300,
-    },
-
-
   ], []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {

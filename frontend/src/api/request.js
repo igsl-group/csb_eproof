@@ -287,6 +287,10 @@ export function systemAPI(params, ...rest) {
     switch (params) {
         case 'auditLogList':
             return request(`/auditLog/list?${rest[0]}`, "get");
+        case 'emailLogList':
+            return request(`/emailLog/list?${rest[0]}`, "get");
+        case 'batchEmailLogList':
+            return request(`/batchEmailLog/list?${rest[0]}`, "get");
         case 'systemConfigList':
             return request(`/systemParameter/list?${rest[0]}`, "get");
         case 'permissionList':
