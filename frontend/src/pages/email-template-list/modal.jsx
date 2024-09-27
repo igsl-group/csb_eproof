@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import {Divider, Form, Card, Typography, Breadcrumb, Grid, Space, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
+import {Divider, Form, Card, Typography, Breadcrumb, Grid, Alert, Button, Col, Row, Flex, Modal, Pagination} from 'antd';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Dropdown from "@/components/Dropdown";
@@ -227,44 +227,54 @@ const EmailModal = (props) =>  {
             <Text name={'subject'} label={'Subject'} size={100} required/>
           </Col>
           <Col span={24}>
-            <Richtext name={'body'} label={'Body'} size={100} required/>
+            <Richtext name={'body'} label={'Body'} size={100} mentionDisabled={form.getFieldValue('type') === 'External'} required/>
           </Col>
-          {
-            form.getFieldValue('type') === 'External' ? (
-              <Col span={24}>
-                <Row gutter={[8, 8]}>
-                  <Col span={8} xs={12}>
-                    <Dropdown
-                      size={50}
-                      placeholder={'Place choose mail merge key ...'}
-                      name={'mailMergeKey'}
-                      options={[
-                        {
-                          label: 'Application Name',
-                          value: '${application_name}',
-                        },
-                        {
-                          label: 'Examination Date',
-                          value: '${examination_date}',
-                        },
-                        {
-                          label: 'eProof Document Url',
-                          value: '${eproof_document_url}',
-                        },
-                        {
-                          label: 'One Time Password',
-                          value: '${$one_time_password}',
-                        }
-                      ]}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Button onClick={onMailMergeButtonClicked}>Add</Button>
-                  </Col>
-                </Row>
-              </Col>
-            ) : null
-          }
+          <Col span={24}>
+            {
+              form.getFieldValue('type') === 'External' ? (
+                <Alert
+                  showIcon={true}
+                  message={<b>Tips</b>}
+                  description={<span>To insert dynamic content, <b>type the $ symbol</b> to trigger a dropdown list of options, then select the desired entry to automatically insert it into your text.</span>}
+                />) : null
+            }
+          </Col>
+          {/*{*/}
+          {/*  form.getFieldValue('type') === 'External' ? (*/}
+          {/*    <Col span={24}>*/}
+          {/*      <Row gutter={[8, 8]}>*/}
+          {/*        <Col span={8} xs={12}>*/}
+          {/*          <Dropdown*/}
+          {/*            size={50}*/}
+          {/*            placeholder={'Place choose mail merge key ...'}*/}
+          {/*            name={'mailMergeKey'}*/}
+          {/*            options={[*/}
+          {/*              {*/}
+          {/*                label: 'Application Name',*/}
+          {/*                value: '${application_name}',*/}
+          {/*              },*/}
+          {/*              {*/}
+          {/*                label: 'Examination Date',*/}
+          {/*                value: '${examination_date}',*/}
+          {/*              },*/}
+          {/*              {*/}
+          {/*                label: 'eProof Document Url',*/}
+          {/*                value: '${eproof_document_url}',*/}
+          {/*              },*/}
+          {/*              {*/}
+          {/*                label: 'One Time Password',*/}
+          {/*                value: '${$one_time_password}',*/}
+          {/*              }*/}
+          {/*            ]}*/}
+          {/*          />*/}
+          {/*        </Col>*/}
+          {/*        <Col span={8}>*/}
+          {/*          <Button onClick={onMailMergeButtonClicked}>Add</Button>*/}
+          {/*        </Col>*/}
+          {/*      </Row>*/}
+          {/*    </Col>*/}
+          {/*  ) : null*/}
+          {/*}*/}
 
         </Row>
       </Form>

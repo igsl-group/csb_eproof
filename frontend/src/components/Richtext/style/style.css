@@ -10,7 +10,9 @@
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
 }
-
+.ql-editor{
+    color: black;
+}
 .ant-form-item-has-error .ql-container.ql-snow{
     border: 1px solid #9f3a38;
 }
@@ -29,3 +31,33 @@
 .ql-snow .ql-tooltip{
     box-shadow: none;
 }
+
+.mention {
+    background-color: transparent !important;  /* Removes the background */
+    color: inherit;  /* Optionally, ensure text color remains unchanged */
+    padding: 0 !important;/* Remove padding if there's any */
+    border: none !important;/* Remove borders if there's any */
+    border-radius: 0px !important;
+    background-color: #d3e1eb;
+    margin-right: 0px !important;
+}
+
+.react-quill {
+    height: 400px; /* Set the desired height here */
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="10px"]::before { content: '10px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="12px"]::before { content: '12px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="14px"]::before { content: '14px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="16px"]::before { content: '16px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="18px"]::before { content: '18px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="24px"]::before { content: '24px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="32px"]::before { content: '32px'; }
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="10px"]::before { content: '10px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="12px"]::before { content: '12px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="14px"]::before { content: '14px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="16px"]::before { content: '16px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="18px"]::before { content: '18px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="24px"]::before { content: '24px'; }
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="32px"]::before { content: '32px'; }

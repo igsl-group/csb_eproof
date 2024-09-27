@@ -4,14 +4,62 @@ import { Form, Input } from "antd";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './style/style.css';
-// NOTE: Use the editor from source (not a build)!
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import Quill from "quill";
+import 'quill-mention-react'
+import 'quill-mention';
+import 'quill-mention/dist/quill.mention.css';
+const SizeStyle = Quill.import('attributors/style/size');
+SizeStyle.whitelist = ['10px', '12px', '14px', '16px', '18px', '24px', '32px'];
+Quill.register(SizeStyle, true);
+let mentionDisabled = false;
+const data = [
+  { id: 1, name: 'application_name' },
+  { id: 2, name: 'eproof_document_url' },
+  { id: 3, name: 'examination_date' },
+  { id: 4, name: '$one_time_password' }
+]
+window.ref = null;
 
-// import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
-// import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
-// import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
-// import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
+const getModules = {
+  toolbar: [
+    [{ size: SizeStyle.whitelist }], // Integrate custom sizes
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: [] }, { background: [] }],
+    [{ align: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link'],
+    ['clean'],
+  ],
+  mention: {
+    mentionDenotationChars: ['$'],
+    source: function (searchTerm, renderList, mentionChar) {
+      const values = data.map(item => ({ id: item.id, value: `${item.name}` }));
+      const matchedValues = values.filter(item => item.value.toLowerCase().includes(searchTerm.toLowerCase()));
+      if (mentionDisabled) {
+        renderList(matchedValues, searchTerm);
+      }
+    },
+    onSelect: (data) => {
+      if (window.ref.current) {
+        const quill = window.ref.current.getEditor(); // Reference from useRef
+        const cursorPosition = quill.getSelection().index;
+        const value = `{${data.value}}`
+        quill.insertText(cursorPosition, value); // Insert selected mention
+        quill.setSelection(cursorPosition + value.length);
+      }
 
+    }
+  }
+}
+
+const formats = [
+  'size',
+  'bold', 'italic', 'underline', 'strike',
+  'list', 'bullet',
+  'link',
+  'color', 'background',
+  'align',
+];
 
 const getStyle = (props) => {
   const style = {};
@@ -35,14 +83,19 @@ function Richtext (props) {
   const required = props.required || false;
   const disabled = props.disabled || false;
   const hidden = props.hidden || false;
-  const row = props.row || 4;
+  const row = props.row || 10;
+  mentionDisabled = props.mentionDisabled || false;
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.editor.scrollingContainer.style.height = `${row * 32}px`;
-      // console.log('kkkkkk',  `${row * 32}px`);
+      const editorElement = ref.current.getEditor().root;
+      const baseHeight = 32; // Base height for a single row
+      setTimeout(() => {
+        console.log(editorElement.style.height, row, baseHeight)
+        // editorElement.style.height = `${row * baseHeight}px`;
+      }, 1000);
     }
-    window.r = ref;
+    window.ref = ref;
   }, [ref, row]);
 
 
@@ -63,37 +116,22 @@ function Richtext (props) {
         ...validation
       ]}
       hidden={hidden}
-      normalize={(val) => {
-        return /^<[a-z][0-9]{0,1}><br><\/[a-z][0-9]{0,1}>$/.test(val)  ? '' : val
-      }}
+      // normalize={(val) => {
+      //   return /^<[a-z][0-9]{0,1}><br><\/[a-z][0-9]{0,1}>$/.test(val)  ? '' : val
+      // }}
     >
       <ReactQuill
         readOnly={disabled}
         ref={ref}
         theme="snow"
-        // modules={{
-        //   toolbar:[
-        //     ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        //     ['blockquote', 'code-block'],
-        //     ['link', 'image', 'video', 'formula'],
-        //
-        //     [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-        //     [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
-        //     [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-        //     [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-        //     [{ 'direction': 'rtl' }],                         // text direction
-        //
-        //     [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-        //     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-        //
-        //     [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-        //     [{ 'font': [] }],
-        //     [{ 'align': [] }],
-        //
-        //     ['clean']                                         // remove formatting button
-        //   ]
-        // }}
+        modules={getModules}
         value={value}
+        formats={formats}
+        // style={{
+        //   height: '200px', /* Adjust this value as necessary */
+        //   // maxHeight: '500px', /* Max height, can be omitted if not required */
+        //   // overflowY: 'auto',
+        // }} // Set the desired height here
         onChange={(val) => setValue(val)}/>
     </Form.Item>
 
