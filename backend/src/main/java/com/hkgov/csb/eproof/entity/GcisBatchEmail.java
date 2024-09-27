@@ -64,4 +64,14 @@ public class GcisBatchEmail extends BaseEntity {
     @OneToMany(mappedBy = "gcisBatchEmailId", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private Set<CertInfo> certInfoList;
 
+    @Transient
+    private String examProfileSerialNo;
+
+    public String getExamProfileSerialNo() {
+        for(CertInfo certInfo : certInfoList){
+            return certInfo.getExamProfileSerialNo();
+        }
+        return null;
+    }
+
 }

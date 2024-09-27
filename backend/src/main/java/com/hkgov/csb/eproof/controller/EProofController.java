@@ -13,6 +13,7 @@ import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.ProofService;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.Result;
+import freemarker.template.TemplateException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ContentDisposition;
@@ -95,7 +96,7 @@ public class EProofController {
     }
 
     @GetMapping("/eproof/getNextScheduledSignAndIssueCert/{examProfileSerialNo}")
-    public ResponseEntity getNextScheduledSignAndIssueCert(@PathVariable String examProfileSerialNo){
+    public ResponseEntity getNextScheduledSignAndIssueCert(@PathVariable String examProfileSerialNo) throws TemplateException, IOException {
 
         CertInfo nextScheduledCertForProcessing = certInfoService.getNextScheduledSignAndIssueCert(examProfileSerialNo);
         if(nextScheduledCertForProcessing!=null){

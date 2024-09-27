@@ -1,6 +1,8 @@
 package com.hkgov.csb.eproof.dao;
 
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,4 +48,7 @@ public interface GcisBatchEmailRepository extends JpaRepository<GcisBatchEmail,L
             AND gbe.scheduleDatetime >= :tomorrow
             """)
     List<GcisBatchEmail> findToBeDeleteBatchEmail(String examProfileSerialNo, LocalDateTime tomorrow);
+    @Query("select e from GcisBatchEmail e where:keyword is null or (e.gcisNotiListName like %:keyword% or e.gcisTemplateName like %:keyword% " +
+            "or e.scheduleJobRemark like %:keyword% or e.createdBy like %:keyword% )")
+    Page<GcisBatchEmail> findPage(Pageable pageable, String keyword);
 }

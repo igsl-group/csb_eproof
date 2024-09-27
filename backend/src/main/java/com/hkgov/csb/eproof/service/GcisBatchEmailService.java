@@ -3,7 +3,8 @@ package com.hkgov.csb.eproof.service;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import hk.gov.spica_scopes.spica.jaxb.batchenq.BatchUploadEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
-import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
@@ -23,4 +24,6 @@ public interface GcisBatchEmailService {
 
     Properties getSSLProperties(String endPointName, String endPointUrl)
             throws Exception;
+
+    Page<GcisBatchEmail> batchEmailList(Pageable pageable, String keyword);
 }

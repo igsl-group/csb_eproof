@@ -16,6 +16,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
@@ -348,5 +350,10 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
 
 
         return propAuth;
+    }
+
+    @Override
+    public Page<GcisBatchEmail> batchEmailList(Pageable pageable, String keyword) {
+        return gcisBatchEmailRepository.findPage(pageable,keyword);
     }
 }
