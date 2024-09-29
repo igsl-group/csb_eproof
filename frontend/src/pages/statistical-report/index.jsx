@@ -63,6 +63,10 @@ const StatisticalReports = () =>  {
     setRecord({});
   }, []);
 
+  const disabledFutureDate = useCallback((current) => {
+    return current && current > dayjs().endOf('day');
+  }, []);
+
   const [data, setData] = useState([
     {
       type: 'Details of Certificate(s) with Personal Particulars Updated',
@@ -73,13 +77,17 @@ const StatisticalReports = () =>  {
             <Date
               name={'start'}
               label={'From'}
+              required
+              disabledDate={disabledFutureDate}
             />
           </Col>
           <Col span={12}>
             <Date
               name={'end'}
               label={'To'}
+              required
               dependencies={['start']}
+              disabledDate={disabledFutureDate}
               validation={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {
@@ -117,12 +125,16 @@ const StatisticalReports = () =>  {
             <Date
               name={'start'}
               label={'From'}
+              required
+              disabledDate={disabledFutureDate}
             />
           </Col>
           <Col span={12}>
             <Date
               name={'end'}
               label={'To'}
+              required
+              disabledDate={disabledFutureDate}
               dependencies={['start']}
               validation={[
                 ({ getFieldValue }) => ({
@@ -162,6 +174,7 @@ const StatisticalReports = () =>  {
               name={'start'}
               label={'From'}
               required
+              disabledDate={disabledFutureDate}
             />
           </Col>
           <Col span={12}>
@@ -169,6 +182,7 @@ const StatisticalReports = () =>  {
               required
               name={'end'}
               label={'To'}
+              disabledDate={disabledFutureDate}
               dependencies={['start']}
               validation={[
                 ({ getFieldValue }) => ({
@@ -235,8 +249,9 @@ const StatisticalReports = () =>  {
   ], []);
 
   const onCloseCallback = useCallback(() => {
+    form.resetFields();
     setOpen(false);
-  });
+  }, []);
 
   const breadcrumbItems = useMemo(() => [
     {
