@@ -72,4 +72,6 @@ public interface ExamProfileRepository extends JpaRepository<ExamProfile,String>
                        @Param("resultLetterDate") LocalDate resultLetterDate,@Param("effectiveDate") LocalDate effectiveDate);
 
 
+    @Query("SELECT MAX(e.serialNo) FROM ExamProfile e WHERE e.serialNo LIKE ?1%")
+    String findMaxSerialNoByPrefix(String prefix);
 }

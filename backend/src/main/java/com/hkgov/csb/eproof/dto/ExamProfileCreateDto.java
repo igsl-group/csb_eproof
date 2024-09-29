@@ -11,7 +11,7 @@ import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN;
 @Getter
 @Setter
 public class ExamProfileCreateDto {
-    private String serialNo;
+//    private String serialNo;
     @JsonFormat(pattern = DATE_PATTERN)
     private LocalDate examDate;
     @JsonFormat(pattern = DATE_PATTERN)

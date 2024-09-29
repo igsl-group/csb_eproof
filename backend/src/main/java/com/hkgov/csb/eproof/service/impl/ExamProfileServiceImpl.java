@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -46,11 +47,17 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Boolean create(ExamProfileCreateDto request) {
-        var examProfile = examProfileRepository.getinfoByNo(request.getSerialNo());
-        if(Objects.nonNull(examProfile)){
-            throw new GenericException("400",SERIAL_HAS_EXITED);
-        }
-        ExamProfile exam = ExamProfileMapper.INSTANCE.destinationToSource(request);
+//        var examProfile = examProfileRepository.getinfoByNo(request.getSerialNo());
+//        if(Objects.nonNull(examProfile)){
+//            throw new GenericException("400",SERIAL_HAS_EXITED);
+//        }
+        ExamProfile exam = new ExamProfile();
+        exam.setExamDate(request.getExamDate());
+        exam.setResultLetterDate(request.getResultLetterDate());
+        exam.setEffectiveDate(request.getEffectiveDate());
+        exam.setPlannedEmailIssuanceDate(request.getPlannedEmailIssuanceDate());
+        exam.setLocation(request.getLocation());
+        exam.setSerialNo(generateSerialNo(request.getExamDate()));
         exam.setIsFreezed(false);
         exam.setStatus(Constants.STATUS_ACTIVE);
         exam = examProfileRepository.save(exam);
@@ -188,5 +195,19 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         if(Objects.nonNull(certInfoList) && !certInfoList.isEmpty()){
             certInfoRepository.deleteAll(certInfoList);
         }
+    }
+
+    private String generateSerialNo(LocalDate examDate) {
+        String prefix = String.format("%02d%02d%02d-", examDate.getYear() % 100, examDate.getMonthValue(), examDate.getDayOfMonth());
+
+        // Find the maximum current serial number with the same prefix
+        String lastSerialNo = examProfileRepository.findMaxSerialNoByPrefix(prefix);
+        int nextNumber = 1;
+
+        if (lastSerialNo != null) {
+            nextNumber = Integer.parseInt(lastSerialNo.substring(7)) + 1;
+        }
+
+        return String.format("%s%03d", prefix, nextNumber);
     }
 }
