@@ -100,3 +100,7 @@ table > thead > tr > th {
 table > tbody > tr > td {
   white-space: pre-wrap !important;
 }
+
+.ant-form-item-explain.ant-form-item-explain-connected .ant-form-item-explain-error:nth-of-type(n+2) {
+  display: none;
+}

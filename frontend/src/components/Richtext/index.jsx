@@ -16,7 +16,7 @@ const data = [
   { id: 1, name: 'application_name' },
   { id: 2, name: 'eproof_document_url' },
   { id: 3, name: 'examination_date' },
-  { id: 4, name: '$one_time_password' }
+  { id: 4, name: 'one_time_password' }
 ]
 window.ref = null;
 
@@ -108,6 +108,7 @@ function Richtext (props) {
     <Form.Item
       style={{
         ...getStyle(props),
+        height: `${row * 32 + 42+2+8+8}px`,
       }}
       name={props.name}
       label={props.label}
@@ -127,11 +128,11 @@ function Richtext (props) {
         modules={getModules}
         value={value}
         formats={formats}
-        // style={{
-        //   height: '200px', /* Adjust this value as necessary */
-        //   // maxHeight: '500px', /* Max height, can be omitted if not required */
-        //   // overflowY: 'auto',
-        // }} // Set the desired height here
+        style={{
+          height: `${row * 32}px`, /* Adjust this value as necessary */
+          // maxHeight: '500px', /* Max height, can be omitted if not required */
+          // overflowY: 'auto',
+        }} // Set the desired height here
         onChange={(val) => setValue(val)}/>
     </Form.Item>
 
