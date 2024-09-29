@@ -84,7 +84,7 @@ public interface CertInfoService {
 
     ResponseEntity<byte[]> enquiryResult(List<String> params);
 
-    ResponseEntity<List<CertInfo>> getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
+    ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
 
     void deleteFutureBatchEmail(String examProfileSerialNo);
 

@@ -1160,7 +1160,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     @Transactional
-    public ResponseEntity<List<CertInfo>> getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+    public ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
         List<CertInfo> randomAllPassed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
                 List.of("L1","L2","P"),
@@ -1193,8 +1193,45 @@ public class CertInfoServiceImpl implements CertInfoService {
         combinedCertInfoList.addAll(randomPartialFailed);  // Add partial-failed certificates
         combinedCertInfoList.addAll(randomAllFailed);   // Add all-failed certificates
 
+        // Map CertInfo to CertInfoRandomDto
+        List<CertInfoRandomDto> result = combinedCertInfoList.stream()
+                .map(this::convertToRandomDto)
+                .collect(Collectors.toList());
+
         // Return the combined list in a ResponseEntity
-        return ResponseEntity.ok(combinedCertInfoList);
+        return ResponseEntity.ok(result);
+    }
+
+    // Method to map CertInfo to CertInfoRandomDto
+    private CertInfoRandomDto convertToRandomDto(CertInfo certInfo) {
+        CertInfoRandomDto dto = new CertInfoRandomDto();
+        dto.setId(certInfo.getId());
+        dto.setCreatedDate(certInfo.getCreatedDate());
+        dto.setModifiedDate(certInfo.getModifiedDate());
+        dto.setModifiedBy(certInfo.getModifiedBy());
+        dto.setCreatedBy(certInfo.getCreatedBy());
+        dto.setRevokeDate(certInfo.getRevokeDate());
+        dto.setExamProfileSerialNo(certInfo.getExamProfileSerialNo());
+        dto.setExamDate(certInfo.getExamDate());
+        dto.setName(certInfo.getName());
+        dto.setHkid(certInfo.getHkid());
+        dto.setPassportNo(certInfo.getPassportNo());
+        dto.setEmail(certInfo.getEmail());
+        dto.setBlnstGrade(certInfo.getBlnstGrade());
+        dto.setUeGrade(certInfo.getUeGrade());
+        dto.setUcGrade(certInfo.getUcGrade());
+        dto.setAtGrade(certInfo.getAtGrade());
+        dto.setPassed(certInfo.getPassed());
+        dto.setRemark(certInfo.getRemark());
+        dto.setCertStage(certInfo.getCertStage());
+        dto.setCertStatus(certInfo.getCertStatus());
+        dto.setOnHold(certInfo.getOnHold());
+        dto.setValid(certInfo.getValid());
+        dto.setOnHoldRemark(certInfo.getOnHoldRemark());
+        dto.setLetterType(certInfo.getLetterType());
+//        dto.setExamProfile(certInfo.getExamProfile());  // Assumes ExamProfileDto is used here appropriately
+//        dto.setUrl(certInfo.getUrl());
+        return dto;
     }
 
     @Override
