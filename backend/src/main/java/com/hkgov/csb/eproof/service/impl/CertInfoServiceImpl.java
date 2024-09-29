@@ -134,6 +134,9 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${gcis-shared-service.batch-email.split-size}")
     private Integer splitSize;
 
+    @Value("${eproof-config.limit-for-batch-issuance}")
+    private Integer limitForBatchIssuance;
+
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CertPdfRepository certPdfRepository;

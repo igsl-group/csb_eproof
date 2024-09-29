@@ -148,6 +148,7 @@ mail:
     attachement: Y
 
 eproof-config:
+  limit-for-batch-issuance: 5000
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
   fail-template-type-id: 038424a4-be4e-418f-bdb4-dc4181d6ea16
   issuer-name-en: Civil Service Bureau
