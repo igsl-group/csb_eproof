@@ -286,9 +286,9 @@ const ApprovalWorkflow = () =>  {
       ...pagination,
       total: 0,
       page: defaultPaginationInfo.page,
-      pageSize: defaultPaginationInfo.pageSize,
-      sortBy: defaultPaginationInfo.sortBy,
-      orderBy: defaultPaginationInfo.orderBy,
+    //  pageSize: defaultPaginationInfo.pageSize,
+    //  sortBy: defaultPaginationInfo.sortBy,
+    //  orderBy: defaultPaginationInfo.orderBy,
     }
     setPagination(tempPagination);
     return tempPagination;

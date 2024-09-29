@@ -171,7 +171,7 @@ const Issue = () =>  {
   ], []);
 
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [5, 10, 40],
+    sizeOptions: [10, 20, 40],
     pageSize: 10,
     page: 1,
     sortBy: 'id',
@@ -502,7 +502,7 @@ const Issue = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickDispatch} disabled={getSummary().issuedPdfSuccess === 0}>Dispatch to Notify Candidate</Button>
+                <Button disabled={issueCertData.length === 0 || getSummary().issuedPdfSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
                 <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
