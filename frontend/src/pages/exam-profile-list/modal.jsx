@@ -107,9 +107,9 @@ const ExamProfileFormModal = (props) =>  {
       >
 
         <Row gutter={24} justify={'start'}>
-          <Col span={24} md={12}>
-            <Text name={"serialNo"} label={'Serial No.'} required size={50}/>
-          </Col>
+          {/*<Col span={24} md={12}>*/}
+          {/*  <Text name={"serialNo"} label={'Serial No.'} required size={50}/>*/}
+          {/*</Col>*/}
           <Col span={24} md={12}>
             <Date name={'examDate'} label={'Exam Date'} required placeholder={'YYYY-MM-DD'} required size={50}/>
           </Col>
