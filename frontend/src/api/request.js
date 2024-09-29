@@ -251,7 +251,7 @@ export function examProfileAPI(params, ...rest) {
         case 'historicalResultRequest':
             return request(`/historicalResult/request`, "post", rest[0]);
         case 'historicalResultList':
-            return request(`/historicalResult/list?${rest[0]}`, "post", {});
+            return request(`/historicalResult/list?${rest[0]}`, "post", rest[1]);
         case 'historicalResultApproveList':
             return request(`/historicalResult/approveList`, "get");
         case 'historicalResultApprove':

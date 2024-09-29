@@ -19,12 +19,13 @@ import {
   CopyOutlined,
   SendOutlined,
   EditOutlined,
-  SearchOutlined,
+  SearchOutlined, CloseOutlined,
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
 import HKID from "@/components/HKID";
+import Dropdown from "@/components/Dropdown";
 import Email from "@/components/Email";
 import { examProfileAPI } from '@/api/request';
 import {useMessage} from "../../context/message-provider";
@@ -35,7 +36,7 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import {useAuth} from "../../context/auth-provider";
 import VoidModal from "./modal";
-import {stringToHKIDWithBracket} from "../../components/HKID";
+import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 const HistoricalResultList = () =>  {
 
   const modalApi = useModal();
@@ -250,17 +251,58 @@ const HistoricalResultList = () =>  {
   }, []);
 
   const getUserList = useCallback((pagination = {}, filter = {}) => {
-    runExamProfileAPI('historicalResultList', toQueryString(pagination, filter));
+    runExamProfileAPI('historicalResultList', toQueryString(pagination, {}), filter);
   }, []);
+
+  const onClickSearchButton = useCallback(
+    async () => {
+      const values = await searchForm
+        .validateFields()
+        .then((values) => ({
+          ...values,
+        }))
+        .catch(() => false);
+      console.log(values)
+      if (values) {
+        const payload = values;
+        const finalPayload = {};
+        let isEmpty = true;
+        for (let key in payload) {
+          if ((key !== 'hkid' && payload[key]) || (key === 'hkid' && (payload[key].id || payload[key].checkDigit))) {
+            isEmpty = false;
+            if (key === "hkid") {
+              finalPayload[key] = HKIDToString(payload[key]);
+            } else if (key === "valid") {
+              finalPayload[key] = payload[key] === 'Yes' ? true : payload[key] === 'No' ? false : null
+            } else {
+              finalPayload[key] = payload[key];
+            }
+
+          }
+        }
+
+        const resetPage = resetPagination();
+        if (isEmpty) {
+          setFilterCondition(null);
+          await getUserList(resetPage);
+        } else {
+          await getUserList(resetPage, finalPayload);
+          setFilterCondition(finalPayload);
+        }
+        // setOpen(false);
+      }
+    },
+    [pagination, filterCondition]
+  );
 
   const resetPagination = useCallback(() => {
     const tempPagination = {
       ...pagination,
       total: 0,
       page: defaultPaginationInfo.page,
-      pageSize: defaultPaginationInfo.pageSize,
-      sortBy: defaultPaginationInfo.sortBy,
-      orderBy: defaultPaginationInfo.orderBy,
+      // pageSize: defaultPaginationInfo.pageSize,
+      // sortBy: defaultPaginationInfo.sortBy,
+      // orderBy: defaultPaginationInfo.orderBy,
     }
     setPagination(tempPagination);
     return tempPagination;
@@ -270,6 +312,70 @@ const HistoricalResultList = () =>  {
     <div content={'Mockup'} className={styles['user-list']}>
       <Typography.Title level={3}>Historical Result</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
+      <fieldset style={{padding: '0 30px'}}>
+        <legend><Typography.Title level={5}>Search</Typography.Title></legend>
+        <Form
+          layout="vertical"
+          autoComplete="off"
+          form={searchForm}
+          colon={false}
+          scrollToFirstError={{
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+          }}
+          name="form"
+        >
+          <Row justify={'start'} gutter={[8, 8]}>
+            <Col span={20}>
+              <Row gutter={24} justify={'start'}>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <HKID name={'hkid'} label={'HKID'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'passport'} label={'Passport'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={5}>
+                  <Text name={'name'} label={'Candidate’s Name'} size={50}/>
+                </Col>
+                <Col span={24} md={12} xl={8} xxl={4}>
+                  <Dropdown
+                    name={'valid'}
+                    label={'Is Valid'}
+                    size={50}
+                    options={[
+                      {
+                        value: 'Yes',
+                        label: 'Yes',
+                      },
+                      {
+                        value: 'No',
+                        label: 'No',
+                      }
+                    ]}
+                  />
+                </Col>
+              </Row>
+            </Col>
+            <Col span={4}>
+              <Row justify={'end'} gutter={[8, 8]}>
+                <Col>
+                  <Button shape="circle" icon={<CloseOutlined/>} title={'Clean'}
+                          onClick={() => searchForm.resetFields()}/>
+                </Col>
+                <Col>
+                  <Button
+                    shape="circle"
+                    type={filterCondition ? 'primary' : 'default'}
+                    icon={<SearchOutlined/>}
+                    onClick={onClickSearchButton}
+                  />
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </Form>
+      </fieldset>
       <br/>
       <Row gutter={[16, 16]} justify={'end'}>
         <Col>
