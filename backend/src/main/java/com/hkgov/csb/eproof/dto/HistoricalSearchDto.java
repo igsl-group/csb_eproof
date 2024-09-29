@@ -10,4 +10,5 @@ public class HistoricalSearchDto {
     private String name;
     private String hkid;
     private String passport;
+    private Boolean valid;
 }

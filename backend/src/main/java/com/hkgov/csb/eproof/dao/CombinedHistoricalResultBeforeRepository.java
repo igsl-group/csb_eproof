@@ -21,10 +21,11 @@ public interface CombinedHistoricalResultBeforeRepository extends JpaRepository<
         )
         AND
         (
-            ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
+            ( ?#{#searchDto.hkid} IS null OR c.hkid IS NULL OR c.hkid = '' OR c.hkid LIKE %?#{#searchDto.hkid}% ) AND
             ( ?#{#searchDto.passport} IS null OR c.passport like %?#{#searchDto.passport}% ) AND
             ( ?#{#searchDto.name} IS null OR c.name like %?#{#searchDto.name}% ) AND
-            ( ?#{#searchDto.email} IS null OR c.email like %?#{#searchDto.email}% )
+            ( ?#{#searchDto.email} IS null OR c.email like %?#{#searchDto.email}% ) AND
+            ( ?#{#searchDto.valid} IS null OR c.valid = ?#{#searchDto.valid} )
         )
 """,countQuery = """
  SELECT count(*) FROM combined_historical_result_before_2024 c WHERE
@@ -33,10 +34,11 @@ public interface CombinedHistoricalResultBeforeRepository extends JpaRepository<
         )
         AND
         (
-           ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
+            ( ?#{#searchDto.hkid} IS null OR c.hkid IS NULL OR c.hkid = '' OR c.hkid LIKE %?#{#searchDto.hkid}% ) AND
             ( ?#{#searchDto.passport} IS null OR c.passport like %?#{#searchDto.passport}% ) AND
             ( ?#{#searchDto.name} IS null OR c.name like %?#{#searchDto.name}% ) AND
-            ( ?#{#searchDto.email} IS null OR c.email like %?#{#searchDto.email}% )
+            ( ?#{#searchDto.email} IS null OR c.email like %?#{#searchDto.email}% )AND
+            ( ?#{#searchDto.valid} IS null OR c.valid = ?#{#searchDto.valid} )
         )
 """)
     Page<CombinedHistoricalResultBefore> findPage(Pageable pageable, @Param("searchDto") HistoricalSearchDto searchDto);
