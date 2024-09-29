@@ -171,7 +171,7 @@ const Issue = () =>  {
   ], []);
 
   const defaultPaginationInfo = useMemo(() => ({
-    sizeOptions: [4, 8, 40],
+    sizeOptions: [5, 10, 40],
     pageSize: 10,
     page: 1,
     sortBy: 'id',
@@ -411,7 +411,7 @@ const Issue = () =>  {
         const finalPayload = {};
         let isEmpty = true;
         for (let key in payload) {
-          if (payload[key]) {
+          if ((key !== 'hkid' && payload[key]) || (key === 'hkid' && (payload[key].id || payload[key].checkDigit))) {
             isEmpty = false;
             if (key === "hkid") {
               finalPayload[key] = HKIDToString(payload[key])
@@ -441,9 +441,9 @@ const Issue = () =>  {
       ...pagination,
       total: 0,
       page: defaultPaginationInfo.page,
-      pageSize: defaultPaginationInfo.pageSize,
-      sortBy: defaultPaginationInfo.sortBy,
-      orderBy: defaultPaginationInfo.orderBy,
+      // pageSize: defaultPaginationInfo.pageSize,
+      // sortBy: defaultPaginationInfo.sortBy,
+      // orderBy: defaultPaginationInfo.orderBy,
     }
     setPagination(tempPagination);
     return tempPagination;
@@ -462,6 +462,13 @@ const Issue = () =>  {
     if (ref.current) {
       ref.current.updateSummary();
     }
+  };
+
+  const getSummary = () => {
+    if (ref.current) {
+      return ref.current.getSummary();
+    }
+    return {}
   };
 
   return (
@@ -495,7 +502,7 @@ const Issue = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickDispatch} disabled={ref.current?.summary?.issuedPdfSuccess === 0}>Dispatch to Notify Candidate</Button>
+                <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickDispatch} disabled={getSummary().issuedPdfSuccess === 0}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
                 <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
@@ -587,7 +594,7 @@ const Issue = () =>  {
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadAll} disabled={ref.current?.summary?.issuedPdfTotal === 0}>Download All</Button>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().issuedPdfTotal === 0}>Download All</Button>
             </Col>
           </Row>
         </Col>

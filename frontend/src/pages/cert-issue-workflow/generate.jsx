@@ -394,7 +394,7 @@ const Generate = () =>  {
         const finalPayload = {};
         let isEmpty = true;
         for (let key in payload) {
-          if (payload[key]) {
+          if ((key !== 'hkid' && payload[key]) || (key === 'hkid' && (payload[key].id || payload[key].checkDigit))) {
             isEmpty = false;
             if (key === "hkid") {
               finalPayload[key] = HKIDToString(payload[key])
@@ -447,6 +447,13 @@ const Generate = () =>  {
     }
   };
 
+  const getSummary = () => {
+    if (ref.current) {
+      return ref.current.getSummary();
+    }
+    return {}
+  };
+
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Generate']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
@@ -478,7 +485,7 @@ const Generate = () =>  {
           <Col span={16}>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={generatedData.length === 0 || ref.current?.summary?.generatePdfSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
+                <Button disabled={generatedData.length === 0 || getSummary().generatePdfSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
               </Col>
               <Col>
                 <Button disabled={generatedData.length === 0} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
@@ -569,7 +576,7 @@ const Generate = () =>  {
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadAll} disabled={ref.current?.summary?.generatePdfTotal === 0}>Download All</Button>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().generatePdfTotal === 0}>Download All</Button>
             </Col>
           </Row>
         </Col>

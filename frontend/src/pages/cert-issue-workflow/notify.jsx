@@ -367,7 +367,7 @@ const Notify = () =>  {
         const finalPayload = {};
         let isEmpty = true;
         for (let key in payload) {
-          if (payload[key]) {
+          if ((key !== 'hkid' && payload[key]) || (key === 'hkid' && (payload[key].id || payload[key].checkDigit))) {
             isEmpty = false;
             if (key === "hkid") {
               finalPayload[key] = HKIDToString(payload[key])
@@ -420,6 +420,13 @@ const Notify = () =>  {
     }
   };
 
+  const getSummary = () => {
+    if (ref.current) {
+      return ref.current.getSummary();
+    }
+    return {}
+  };
+
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Notify']}>
       <Typography.Title level={3}>Notify Candidate</Typography.Title>
@@ -451,7 +458,7 @@ const Notify = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={notifyData.length === 0 || ref.current?.summary?.sendEmailSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
+                <Button disabled={notifyData.length === 0 || getSummary().sendEmailSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
               </Col>
               <Col>
                 <Button type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>
@@ -539,7 +546,7 @@ const Notify = () =>  {
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadAll} disabled={ref.current?.summary?.sendEmailTotal === 0}>Download All</Button>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().sendEmailTotal === 0}>Download All</Button>
             </Col>
           </Row>
         </Col>

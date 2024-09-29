@@ -36,6 +36,9 @@ const ExamProfileSummary = forwardRef((props, ref) => {
     },
   });
 
+  const getSummary = useCallback(() => {
+    return summary
+  }, [summary]);
 
   const updateSummary = useCallback(() => {
     runExamProfileAPI('examProfileSummaryGet', serialNo);
@@ -44,7 +47,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
   // Expose `fetchSummary` to parent through ref
   useImperativeHandle(ref, () => ({
     updateSummary,
-    summary
+    getSummary,
   }));
 
   return (

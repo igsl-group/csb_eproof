@@ -332,7 +332,7 @@ const CertificateManagementInvalid = () =>  {
         const finalPayload = {};
         let isEmpty = true;
         for (let key in payload) {
-          if (payload[key]) {
+          if ((key !== 'hkid' && payload[key]) || (key === 'hkid' && (payload[key].id || payload[key].checkDigit))) {
             isEmpty = false;
             if (key === "hkid") {
               finalPayload[key] = HKIDToString(payload[key])
