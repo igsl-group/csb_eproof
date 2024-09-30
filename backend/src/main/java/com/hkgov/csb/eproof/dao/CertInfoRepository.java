@@ -180,13 +180,13 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                 ci.status in :inProgressAndPending and exam_profile_serial = :examProfileSerialNo
                 and cert_stage = :signAndIssueStage AND on_hold = false
                 ORDER BY id
-                LIMIT 5000
+                LIMIT :issuanceSplitSize
             ) as `c*`
         )
 """)
     void batchScheduledSignAndIssue(String examProfileSerialNo,
                                     String signAndIssueStage, List<String> inProgressAndPending,
-                                    String scheduledStatus, String dpUserId);
+                                    String scheduledStatus, String dpUserId, Integer issuanceSplitSize);
 
 
     @Query(nativeQuery = true, value = """

@@ -236,7 +236,7 @@ const Issue = () =>  {
 
   const onClickSignAndIssueCert = useCallback(() => {
     modalApi.confirm({
-      title:'Are you sure to sign and issue certificate(s)?',
+      title:'The total number of sign and issuance e-Proof document is limited to max. 5000 per request. Once sign and issue task is completed, you will receive a notification email. Are you sure to sign and issue certificate?',
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certIssuanceSign', serialNoValue, {

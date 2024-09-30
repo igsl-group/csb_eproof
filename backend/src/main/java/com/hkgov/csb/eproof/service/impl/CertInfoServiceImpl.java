@@ -134,8 +134,8 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${gcis-shared-service.batch-email.split-size}")
     private Integer splitSize;
 
-    @Value("${eproof-config.limit-for-batch-issuance}")
-    private Integer limitForBatchIssuance;
+    @Value("${eproof-config.issuance-split-size}")
+    private Integer issuanceSplitSize;
 
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -268,7 +268,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             return false;
         }
 
-        certInfoRepository.batchScheduledSignAndIssue(examProfileSerialNo,CertStage.SIGN_ISSUE.name(),List.of(CertStatus.IN_PROGRESS.name(),CertStatus.PENDING.name()),CertStatus.SCHEDULED.name(),authenticationService.getCurrentUser().getDpUserId());
+        certInfoRepository.batchScheduledSignAndIssue(examProfileSerialNo,CertStage.SIGN_ISSUE.name(),List.of(CertStatus.IN_PROGRESS.name(),CertStatus.PENDING.name()),CertStatus.SCHEDULED.name(),authenticationService.getCurrentUser().getDpUserId(), issuanceSplitSize);
        /* List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS));
         List<CertInfo> pendingSignAndIssueCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.PENDING));
 
