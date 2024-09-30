@@ -117,6 +117,7 @@ const Login = () =>  {
                     tmpDpDeptId:'csb',
                   }}
                 >
+                  <h2 style={{ textAlign: 'center' }}>{window._env_.VERSION}</h2>
                   <Dropdown name={'tmpUid'} label={'DP User Id (User)'} options={options} size={50}/>
                   <Text name={'tmpDpDeptId'} label={'DP Dept Id'} disabled={true} size={50}/>
                   <Button type={'primary'} htmlType={'submit'}>Login</Button>
