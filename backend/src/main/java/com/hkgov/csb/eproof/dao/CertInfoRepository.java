@@ -159,12 +159,31 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
 
 
     @Modifying
-    @Query("""
+    /*@Query("""
                 UPDATE CertInfo
                 SET certStatus = :scheduledStatus, modifiedBy = :dpUserId, modifiedDate = current_timestamp
-                WHERE certStatus in :inProgressAndPending and examProfileSerialNo = :examProfileSerialNo
-                and certStage = :signAndIssueStage AND onHold = false
-            """)
+                WHERE id in (
+                    select id from CertInfo where
+                    certStatus in :inProgressAndPending and examProfileSerialNo = :examProfileSerialNo
+                    and certStage = :signAndIssueStage AND onHold = false
+                    ORDER BY id
+                    LIMIT 5000
+                )
+            """)*/
+    @Query(nativeQuery = true,
+    value = """
+    UPDATE cert_info
+        SET status = :scheduledStatus, modified_by = :dpUserId, modified_date = current_timestamp
+        WHERE id in (
+            select id from (
+                select * from cert_info ci where
+                ci.status in :inProgressAndPending and exam_profile_serial = :examProfileSerialNo
+                and cert_stage = :signAndIssueStage AND on_hold = false
+                ORDER BY id
+                LIMIT 5000
+            ) as `c*`
+        )
+""")
     void batchScheduledSignAndIssue(String examProfileSerialNo,
                                     CertStage signAndIssueStage, List<CertStatus> inProgressAndPending,
                                     CertStatus scheduledStatus, String dpUserId);
