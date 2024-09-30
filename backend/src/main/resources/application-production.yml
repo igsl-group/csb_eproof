@@ -132,8 +132,8 @@ minio:
   secretKey: d023c3ada786f2218a635aee3bcf8b21
   bucket: eproof
   path:
-    cert-record: /cert_record2
-    cert-renew-record: /cert_renew_record2
+    cert-record: cert_record2
+    cert-renew-record: cert_renew_record2
 
 mail:
   mode: SMTP
