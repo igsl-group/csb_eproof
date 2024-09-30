@@ -26,11 +26,11 @@ public interface CertInfoRenewRepository
                                                 AND
                                                 (
                                                    ( ?#{#searchDto.newName} IS null OR c.new_name like %?#{#searchDto.newName}% ) AND
-                                                    ( ?#{#searchDto.newHkid} IS null OR c.newHkid IS NULL OR c.newHkid = '' OR c.newHkid LIKE %?#{#searchDto.newHkid}% ) AND
+                                                    ( ?#{#searchDto.newHkid} IS null OR c.new_hkid IS NULL OR c.new_hkid = '' OR c.new_hkid LIKE %?#{#searchDto.newHkid}% ) AND
                                                     ( ?#{#searchDto.newPassport} IS null OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
                                                     ( ?#{#searchDto.newEmail} IS null OR c.new_email like %?#{#searchDto.newEmail}% ) AND
                                                     ( ?#{#searchDto.oldName} IS null OR c.old_name like %?#{#searchDto.oldName}% ) AND
-                                                    ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid like %?#{#searchDto.oldHkid}% ) AND
+                                                    ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid IS NULL OR c.old_hkid = '' OR c.old_hkid LIKE %?#{#searchDto.oldHkid}% ) AND
                                                     ( ?#{#searchDto.oldPassport} IS null OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND
                                                     ( ?#{#searchDto.oldEmail} IS null OR c.old_email like %?#{#searchDto.oldEmail}% ) AND
                                                     ( ?#{#searchDto.newBlGrade} IS null OR c.new_bl_grade like %?#{#searchDto.newBlGrade}%  ) AND
@@ -55,11 +55,11 @@ public interface CertInfoRenewRepository
                                                 AND
                                                 (
                                                    ( ?#{#searchDto.newName} IS null OR c.new_name like %?#{#searchDto.newName}% ) AND
-                                                    ( ?#{#searchDto.newHkid} IS null OR c.newHkid IS NULL OR c.newHkid = '' OR c.newHkid LIKE %?#{#searchDto.newHkid}% ) AND
+                                                    ( ?#{#searchDto.newHkid} IS null OR c.new_hkid IS NULL OR c.new_hkid = '' OR c.new_hkid LIKE %?#{#searchDto.newHkid}% ) AND
                                                     ( ?#{#searchDto.newPassport} IS null OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
                                                     ( ?#{#searchDto.newEmail} IS null OR c.new_email like %?#{#searchDto.newEmail}% ) AND
                                                     ( ?#{#searchDto.oldName} IS null OR c.old_name like %?#{#searchDto.oldName}% ) AND
-                                                    ( ?#{#searchDto.oldHkid} IS null OR c.oldHkid IS NULL OR c.oldHkid = '' OR c.oldHkid LIKE %?#{#searchDto.oldHkid}% ) AND
+                                                    ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid IS NULL OR c.old_hkid = '' OR c.old_hkid LIKE %?#{#searchDto.oldHkid}% ) AND
                                                     ( ?#{#searchDto.oldPassport} IS null OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND
                                                     ( ?#{#searchDto.oldEmail} IS null OR c.old_email like %?#{#searchDto.oldEmail}% ) AND
                                                     ( ?#{#searchDto.newBlGrade} IS null OR c.new_bl_grade like %?#{#searchDto.newBlGrade}%  ) AND
