@@ -251,7 +251,10 @@ const HistoricalResultList = () =>  {
   }, []);
 
   const getUserList = useCallback((pagination = {}, filter = {}) => {
-    runExamProfileAPI('historicalResultList', toQueryString(pagination, {}), filter);
+    runExamProfileAPI('historicalResultList', toQueryString(pagination, {}), {
+      dummy: "",
+      ...filter,
+    });
   }, []);
 
   const onClickSearchButton = useCallback(

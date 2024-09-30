@@ -340,7 +340,10 @@ const CertificateManagementValid = () =>  {
   );
 
   const getCertList = useCallback(async (pagination = {}, filterCondition) => {
-    return runExamProfileAPI('certList', 'VALID', filterCondition, toQueryString(pagination));
+    return runExamProfileAPI('certList', 'VALID', {
+      dummy: "",
+      ...filterCondition,
+    }, toQueryString(pagination));
   }, []);
 
   const getAllCert = useCallback(async() => {

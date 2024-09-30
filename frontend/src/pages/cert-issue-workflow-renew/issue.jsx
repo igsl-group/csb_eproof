@@ -478,6 +478,7 @@ const Issue = () =>  {
 
   const getCertList = useCallback(async (pagination = {}, filterCondition = {}) => {
     return runExamProfileAPI('certRenewList', 'SIGN_ISSUE', {
+      dummy: "",
       ...filterCondition,
     }, toQueryString(pagination));
   }, []);
@@ -502,13 +503,14 @@ const Issue = () =>  {
         let isEmpty = true;
         for (let key in payload) {
           if (payload[key]) {
-            isEmpty = false;
-            if (key === "newHkid") {
-              finalPayload[key] = HKIDToString(payload[key])
-            } else {
-              finalPayload[key] = payload[key];
+            if ((key !== 'newHkid' && payload[key]) || (key === 'newHkid' && (payload[key].id || payload[key].checkDigit))) {
+              isEmpty = false;
+              if (key === "newHkid") {
+                finalPayload[key] = HKIDToString(payload[key])
+              } else {
+                finalPayload[key] = payload[key];
+              }
             }
-
           }
         }
 

@@ -357,7 +357,10 @@ const CertificateManagementInvalid = () =>  {
   );
 
   const getCertList = useCallback(async (pagination = {}, filterCondition) => {
-    return runExamProfileAPI('certList', 'INVALID', filterCondition, toQueryString(pagination));
+    return runExamProfileAPI('certList', 'INVALID', {
+      dummy: "",
+      ...filterCondition
+    }, toQueryString(pagination));
   }, []);
 
   const getAllCert = useCallback(async() => {
