@@ -268,7 +268,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             return false;
         }
 
-        certInfoRepository.batchScheduledSignAndIssue(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS,CertStatus.PENDING),CertStatus.SCHEDULED,authenticationService.getCurrentUser().getDpUserId());
+        certInfoRepository.batchScheduledSignAndIssue(examProfileSerialNo,CertStage.SIGN_ISSUE.name(),List.of(CertStatus.IN_PROGRESS.name(),CertStatus.PENDING.name()),CertStatus.SCHEDULED.name(),authenticationService.getCurrentUser().getDpUserId());
        /* List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.IN_PROGRESS));
         List<CertInfo> pendingSignAndIssueCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.SIGN_ISSUE,List.of(CertStatus.PENDING));
 
