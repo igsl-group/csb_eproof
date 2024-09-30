@@ -185,8 +185,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
         )
 """)
     void batchScheduledSignAndIssue(String examProfileSerialNo,
-                                    CertStage signAndIssueStage, List<CertStatus> inProgressAndPending,
-                                    CertStatus scheduledStatus, String dpUserId);
+                                    String signAndIssueStage, List<String> inProgressAndPending,
+                                    String scheduledStatus, String dpUserId);
 
 
     @Query(nativeQuery = true, value = """
