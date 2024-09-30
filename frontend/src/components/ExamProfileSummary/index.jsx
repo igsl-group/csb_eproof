@@ -91,7 +91,7 @@ const ExamProfileSummary = forwardRef((props, ref) => {
             <Col span={24}><b style={{color: 'rgba(81, 90, 106, 0.88)'}}>Sign and Issue Stage</b></Col>
             <Col span={24}>Total: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfTotal || 0}</span></Col>
             <Col span={24}>Pending: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfPending || 0}</span></Col>
-            <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfPending || 0}</span></Col>
+            <Col span={24}>Scheduled: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfInScheduled || 0}</span></Col>
             <Col span={24}>Progress: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfInProgress || 0}</span></Col>
             <Col span={24}>Success: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfSuccess || 0}</span></Col>
             <Col span={24}>Failed: <span style={{ paddingLeft: 8, color: 'rgba(81, 90, 106, 0.88)'}}>{summary.issuedPdfFailed || 0}</span></Col>
