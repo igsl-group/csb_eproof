@@ -77,7 +77,7 @@ const BatchEmailLog = () =>  {
     {
       title: "#",
       dataIndex: "id",
-      width: 50,
+      width: 100,
     },
     {
       title: "Created Date",
