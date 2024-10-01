@@ -20,6 +20,7 @@ import org.springframework.util.AntPathMatcher;
 
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @EnableAsync
@@ -57,194 +58,130 @@ public class EmailEventListener {
         this.emailEventRepository = emailEventRepository;
     }
 
-    /*
-     * @Async
-     * 
-     * @EventListener public void handleAsyncEmailEvent(EmailEvent event) { try { emailService.sendEmail(event); event.setStatus("SUCCESS"); } catch (Exception e) {
-     * logger.error("handleAsyncEmailEvent Failed Pk:" + event.getEmailEventId() + " Reason:" + e.getMessage()); event.setStatus("FAILED"); } emailEventRepository.save(event); }
-     */
-
     @Async
     @EventListener
     public void handleAsyncEmailEvent(EmailEvent event) {
         try {
             if (serviceEnabled) {
-                logger.info("DoSend Entry Point");
-                
-                this.DoSend(event);
-            } else {
-                emailService.sendEmail(
-                        Arrays.asList(event.getEmailMessage().getTo()),
-                        Arrays.asList(event.getEmailMessage().getCc()),
-                        Arrays.asList(event.getEmailMessage().getBcc()),
-                        event.getEmailMessage().getSubject(),
-                        event.getEmailMessage().getBody(),
-                        event.getEmailMessage().getAttachment().getName(),
-                        null);
+                sendEmailNotification(event);
+                event.setStatus("SUCCESS");
             }
-            event.setStatus("SUCCESS");
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("handleAsyncEmailEvent Failed Pk:"
-            + event.getEmailMessageId() + " Reason:" + e.getMessage());
+            logError(e, event);
             event.setStatus("FAILED");
-        }
-        emailEventRepository.save(event);
-    }
-
-    public void DoSend(final EmailEvent event) {
-        try {
-            Properties prop = getSSLProperties(endpointName, endpointUrl);
-
-            List<String> toList = new ArrayList<>();
-            // List<String> files = new ArrayList<>();
-            toList.add(event.getEmailMessage().getTo());
-            // files.add("abc.pdf");
-            // Create the NotificationRestfulClient object
-            NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
-
-            // Prepare web services parameter value
-            String chanType = "EM"; // Channel type
-            String charSet = "UTF-8"; // Character set
-            String contentType = "text/html"; // Character set
-            String subject = event.getEmailMessage().getSubject();
-            String content =  event.getEmailMessage().getBody();
-
-            boolean isEncrypt = false;
-            boolean isSign = false;
-            boolean isRestricted = false;
-            boolean isUrgent = false;
-
-            List<Attachment> attachments = new ArrayList<>();
-            Attachment attachment = new Attachment();
-            boolean containsAttachments = false;
-
-                 // // Prepare recipient detail array
-            Recipient[] recipientDetailArray = new Recipient[0];
-            logger.info("toList size: {}", toList.size());
-            // numOfReceipient � no. of notification receipient
-            if (toList != null && toList.size() > 0) {
-                if (!"prod".equalsIgnoreCase(env)) {
-                    List<Attachment> finalAttachments = attachments;
-                    recipientDetailArray = toList.stream()
-                            .filter(this::whitelistFilter).map(x -> {
-                                Recipient recipient = new Recipient();
-                                recipient.setChanAddr(x);
-                                logger.info("[Email] email: {}", x);
-
-                                recipient.getRecipientAtthFile()
-                                        .addAll(finalAttachments);
-                                return recipient;
-                            }).toList().toArray(new Recipient[0]);
-                } else {
-                    List<Attachment> finalAttachments = attachments;
-                    recipientDetailArray = toList.stream().map(x -> {
-                        Recipient recipient = new Recipient();
-                        recipient.setChanAddr(x);
-                        logger.info("[Email] email: {}", x);
-
-                        recipient.getRecipientAtthFile()
-                                .addAll(finalAttachments);
-                        return recipient;
-                    }).toList().toArray(new Recipient[0]);
-                }
-
-            }
-
-            logger.info("[1]");
-            Attachment[] attachmentArray = attachments.toArray(new Attachment[attachments.size()]);
-            for (Attachment att : attachmentArray) {
-                logger.info("- attachment file size: {}",
-                        att.getFileContent().length);
-            }
-            logger.info("recipientDetailArray size: {}", recipientDetailArray.length);
-            for (Recipient rec : recipientDetailArray) {
-                logger.info("- recipient attachment list size: {}",
-                        rec.getRecipientAtthFile().size());
-                for (Attachment a : rec.getRecipientAtthFile()) {
-                    logger.info("-- recipient attachment file size: {}",
-                            a.getFileContent().length);
-                }
-            }
-
-            // Create and call the Notification send service
-            Response resp = notiRestfulClient.sendNotificationRequest(chanType,
-                    charSet, contentType, subject, content.getBytes(),
-                    new Attachment[0], recipientDetailArray, isEncrypt, isSign,
-                    isRestricted, isUrgent);
-
-            logger.info("[2]");
-            logger.info("resp status code : " + resp.getStatus());
-            logger.info("resp body: " + resp.readEntity(String.class));
-
-            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
-                // String ResultCd = notiRestfulClient.getNotificationStatus(resp);
-                // System.out.println(ResultCd);
-                List<NotiStatus> notiStatusList = notiRestfulClient
-                        .getNotificationNotificationStatus(resp);
-                for (NotiStatus notiStatus : notiStatusList) {
-                    logger.warn("ChanAddr: " + notiStatus.getChanAddr());
-                    logger.warn("ResultCd: " + notiStatus.getResultCd());
-                    logger.warn("ResultMsg: " + notiStatus.getResultMesg());
-                }
-            } else {
-                ScopesFault scopesFault =
-                        notiRestfulClient.getScopesFault(resp);
-                logger.error("[Fail] {}", scopesFault.getDescription());
-                // handle the soap fault
-            }
-        } catch (Exception e) {
-            logger.error("[Exception Error]", e);
+        } finally {
+            emailEventRepository.save(event);
         }
     }
 
-    private boolean whitelistFilter(String to) {
-        AntPathMatcher pathMatcher = new AntPathMatcher();
-        if (whiteList != null) {
-            return Arrays.stream(whiteList)
-                    .anyMatch(p -> pathMatcher.match(p, to));
+    private void sendEmailNotification(final EmailEvent event) throws Exception {
+        try (Response response = initializeAndSendNotification(event)) {
+            processNotificationResponse(response, event);
+        }
+    }
+
+    private Response initializeAndSendNotification(final EmailEvent event) throws Exception {
+        NotificationRestfulClient client = initializeClient();
+        Recipient[] recipients = prepareRecipients(event);
+        return sendNotification(client, event, recipients);
+    }
+
+    private NotificationRestfulClient initializeClient() throws Exception {
+        Properties properties = getSSLProperties(endpointName, endpointUrl);
+        return new NotificationRestfulClient(properties);
+    }
+
+    private Recipient[] prepareRecipients(EmailEvent event) {
+        List<String> toList = Arrays.stream(event.getEmailMessage().getTo().split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        if (whitelistEnabled) {
+            Set<String> whitelistSet = new HashSet<>(Arrays.asList(whiteList));
+            toList = toList.stream()
+                    .filter(whitelistSet::contains)
+                    .collect(Collectors.toList());
+        }
+
+        return toList.stream()
+                .map(this::createRecipient)
+                .toArray(Recipient[]::new);
+    }
+
+    private Recipient createRecipient(String email) {
+        Recipient recipient = new Recipient();
+        recipient.setChanAddr(email);
+        logger.info("[Email] Preparing recipient with address: {}", email);
+        return recipient;
+    }
+
+    private Response sendNotification(NotificationRestfulClient client, EmailEvent event, Recipient[] recipients) throws Exception {
+        final String chanType = "EM";
+        final String charSet = "UTF-8";
+        final String contentType = "text/html";
+        String subject = event.getEmailMessage().getSubject();
+        String content = event.getEmailMessage().getBody();
+
+        // Notification flags
+        final boolean isEncrypt = false;
+        final boolean isSign = false;
+        final boolean isRestricted = false;
+        final boolean isUrgent = false;
+
+        return client.sendNotificationRequest(
+                chanType, charSet, contentType, subject, content.getBytes(),
+                new Attachment[0], recipients, isEncrypt, isSign, isRestricted, isUrgent);
+    }
+
+    private void processNotificationResponse(Response response, EmailEvent event) throws Exception {
+        int statusCode = response.getStatus();
+        String responseBody = response.readEntity(String.class);
+        logger.info("Notification response status code: {}", statusCode);
+        logger.info("Notification response body: {}", responseBody);
+
+        if (statusCode == Response.Status.OK.getStatusCode()) {
+            logNotificationStatus(response);
         } else {
-            return false;
+            handleFailedNotification(response);
         }
     }
 
+    private void logNotificationStatus(Response response) throws Exception {
+        List<NotiStatus> notiStatusList = getNotificationClient().getNotificationNotificationStatus(response);
+        for (NotiStatus notiStatus : notiStatusList) {
+            logger.info("Notification status - Channel Address: {}, Result Code: {}, Message: {}",
+                    notiStatus.getChanAddr(), notiStatus.getResultCd(), notiStatus.getResultMesg());
+        }
+    }
 
-    private Properties getSSLProperties(String endPointName, String endPointUrl)
-            throws Exception {
-        String propertyFile = propertyFilePath;
-        String keyStoreFile = keyStoreFilePath;
-        String keyStorePassword = keyStoreFilePassword;
-        String keyStoreAlias = keyStoreFileAlias;
+    private void handleFailedNotification(Response response) throws Exception {
+        ScopesFault scopesFault = getNotificationClient().getScopesFault(response);
+        logger.error("Notification failed with Scopes Fault: {}", scopesFault.getDescription());
+    }
 
+    private void logError(Exception e, EmailEvent event) {
+        String errorMsg = String.format(
+                "Failed to handle async email event. EmailMessageId: %s. Error: %s",
+                event.getEmailMessageId(), e.getMessage()
+        );
+        logger.error(errorMsg, e);
+    }
+
+    private Properties getSSLProperties(String endPointName, String endPointUrl) throws Exception {
         Properties propAuth = new Properties();
         propAuth.setProperty(PropertyNames.AUTH_TYPE_PROPERTY, PropertyNames.AUTH_SSL_CLIENT_X509_CERTIFICATE);
-        propAuth.setProperty(PropertyNames.PROXIMITY_CONFIG_FILE_PROPERTY, propertyFile);
-        propAuth.setProperty(PropertyNames.KEY_STORE_FILE_NAME_PROPERTY, keyStoreFile);
-        propAuth.setProperty(PropertyNames.KEY_STORE_PASSWORD_PROPERTY, keyStorePassword);
+        propAuth.setProperty(PropertyNames.PROXIMITY_CONFIG_FILE_PROPERTY, propertyFilePath);
+        propAuth.setProperty(PropertyNames.KEY_STORE_FILE_NAME_PROPERTY, keyStoreFilePath);
+        propAuth.setProperty(PropertyNames.KEY_STORE_PASSWORD_PROPERTY, keyStoreFilePassword);
         propAuth.setProperty(PropertyNames.KEY_STORE_TYPE_PROPERTY, PropertyNames.KEY_STORE_TYPE_PKCS12);
-        propAuth.setProperty(PropertyNames.KEY_ALIAS_PROPERTY, keyStoreAlias);
-        propAuth.setProperty(PropertyNames.KEY_ALIAS_PASSWORD_PROPERTY, keyStorePassword);
+        propAuth.setProperty(PropertyNames.KEY_ALIAS_PROPERTY, keyStoreFileAlias);
+        propAuth.setProperty(PropertyNames.KEY_ALIAS_PASSWORD_PROPERTY, keyStoreFilePassword);
         propAuth.setProperty(endPointName, endPointUrl);
 
-        // Properties propAuth = new Properties();
-        // propAuth.setProperty(PropertyNames.AUTH_TYPE_PROPERTY,
-        //         PropertyNames.AUTH_SSL_CLIENT_X509_CERTIFICATE);
-        // propAuth.setProperty(PropertyNames.PROXIMITY_CONFIG_FILE_PROPERTY,
-        //         propertyFilePath);
-
-        // propAuth.setProperty(PropertyNames.KEY_STORE_FILE_NAME_PROPERTY,
-        //         keyStoreFilePath);
-        // propAuth.setProperty(PropertyNames.KEY_STORE_PASSWORD_PROPERTY,
-        //         keyStoreFilePassword);
-        // propAuth.setProperty(PropertyNames.KEY_STORE_TYPE_PROPERTY,
-        //         PropertyNames.KEY_STORE_TYPE_PKCS12);
-        // propAuth.setProperty(PropertyNames.KEY_ALIAS_PROPERTY,
-        //         keyStoreFileAlias);
-        // propAuth.setProperty(PropertyNames.KEY_ALIAS_PASSWORD_PROPERTY,
-        //         keyStoreFilePassword);
-
-        // propAuth.setProperty(endPointName, endPointUrl);
-
         return propAuth;
+    }
+
+    private NotificationRestfulClient getNotificationClient() throws Exception {
+        return initializeClient();
     }
 }

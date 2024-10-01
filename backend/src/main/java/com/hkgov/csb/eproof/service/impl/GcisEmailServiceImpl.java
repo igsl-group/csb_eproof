@@ -62,12 +62,13 @@ public class GcisEmailServiceImpl implements EmailService {
     }
 
     public Boolean sendTestEmail(String to, String title, String htmlBody) {
-        String[] emailAddresses = to.split(",");
-        for (String email : emailAddresses) {
-            email = email.trim();
-            EmailEvent event = this.createCustomEmailEvent(email, title, htmlBody);
-            emailEventPublisher.publicEmailEvent(event);
-        }
+//        String[] emailAddresses = to.split(",");
+//        for (String email : emailAddresses) {
+//
+//        }
+//        email = email.trim();
+        EmailEvent event = this.createCustomEmailEvent(to, title, htmlBody);
+        emailEventPublisher.publicEmailEvent(event);
         return true;
     }
 
