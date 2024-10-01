@@ -350,25 +350,29 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             switch (infoRenew.getCertStage()) {
                 case RENEWED -> {
                     infoRenew.setCertStage(CertStage.GENERATED);
+                    infoRenew.setCertStatus(CertStatus.PENDING);
                     break;
                 }
                 case GENERATED -> {
                     infoRenew.setCertStage(CertStage.SIGN_ISSUE);
+                    infoRenew.setCertStatus(CertStatus.PENDING);
                     break;
                 }
                 case SIGN_ISSUE -> {
                     infoRenew.setCertStage(CertStage.NOTIFY);
+                    infoRenew.setCertStatus(CertStatus.PENDING);
                     break;
                 }
                 case NOTIFY -> {
                     infoRenew.setCertStage(CertStage.COMPLETED);
+                    infoRenew.setCertStatus(CertStatus.SUCCESS);
                     break;
                 }
                 default ->{
                     break;
                 }
             }
-            infoRenew.setCertStatus(CertStatus.PENDING);
+
         }
         certInfoRenewRepository.saveAll(list);
 

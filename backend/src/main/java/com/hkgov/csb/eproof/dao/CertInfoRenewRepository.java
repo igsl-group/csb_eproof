@@ -84,10 +84,10 @@ public interface CertInfoRenewRepository
         List<CertInfoRenew> getinfoByNoAndStatus(@Param("id") Long id,
                         @Param("stage") CertStage stage);
 
-        @Query("select c from CertInfoRenew c where c.certStatus <> 'COMPLETED' and c.oldHkid = :hkid")
+        @Query("select c from CertInfoRenew c where c.certStage <> 'COMPLETED' and c.oldHkid = :hkid")
         List<CertInfoRenew> getInfoByHkid(String hkid);
 
-        @Query("select c from CertInfoRenew c where c.certStatus <> 'COMPLETED' and c.oldPassport = :passport")
+        @Query("select c from CertInfoRenew c where c.certStage <> 'COMPLETED' and c.oldPassport = :passport")
         List<CertInfoRenew> getInfoByPassport(String passport);
 
         @Query(value = "SELECT " + "c.new_name AS candidateName, "
