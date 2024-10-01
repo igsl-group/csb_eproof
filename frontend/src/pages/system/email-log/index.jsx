@@ -83,6 +83,16 @@ const EmailLog = () =>  {
     {
       title: "To",
       dataIndex: "to",
+      render: (value) => (
+        <span>
+          {value.split(",").map((row, index) => (
+            <span key={index}>
+            {row}
+              <br />
+          </span>
+          ))}
+        </span>
+      ),
       width: 200,
     },
     {
