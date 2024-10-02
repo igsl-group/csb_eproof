@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -35,6 +36,11 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -65,6 +71,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -137,6 +145,17 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${eproof-config.issuance-split-size}")
     private Integer issuanceSplitSize;
 
+    @Value("eproof-config.hkid-salt-id")
+    private String saltId;
+
+    @Value("eproof-config.hkid-salt-value")
+    private String saltValue;
+
+    @Value("eproof-config.hkid-salt-uuid")
+    private String saltUuid;
+
+    @Value("eproof-config.hkid-salt-sdid")
+    private String saltSdid;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CertPdfRepository certPdfRepository;
@@ -759,6 +778,44 @@ public class CertInfoServiceImpl implements CertInfoService {
         );
     }
 
+    // Method to generate a random salt value
+    private String generateRandomSaltValue() {
+        int length = 16;
+        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':\"\\|,.<>/?~`";
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            result.append(characters.charAt((int) (Math.random() * characters.length())));
+        }
+        return result.toString();
+    }
+
+    private String requestSalt() throws Exception {
+        String apiUrl = "http://example.com/hkicSalt"; // Replace with actual API URL
+        Map<String, String> saltRequest = new HashMap<>();
+        saltRequest.put("value", generateRandomSaltValue());
+        saltRequest.put("description", "Reasonable description for the salt");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(saltRequest);
+
+        HttpPost post = new HttpPost(apiUrl);
+        post.setHeader("Content-type", "application/json");
+        post.setEntity(new StringEntity(json));
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            String responseJson = EntityUtils.toString(httpClient.execute(post).getEntity());
+
+            // Parse response
+            Map<String, Object> response = objectMapper.readValue(responseJson, Map.class);
+            if ("Successful".equals(response.get("status"))) {
+                Map<String, String> data = (Map<String, String>) response.get("data");
+                return data.get("id");
+            } else {
+                throw new GenericException("API Error", (String) response.get("message"));
+            }
+        }
+    }
+
     @Override
     public byte[] prepareEproofPdf(Long certInfoId, PrepareEproofPdfRequest prepareEproofPdfRequest) throws Exception {
 
@@ -785,7 +842,8 @@ public class CertInfoServiceImpl implements CertInfoService {
                 eproofTypeId,
                 -1,
                 downloadExpiryDateTime,
-                certInfo.getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00"))
+                certInfo.getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00")),
+                certInfo.getHkid()
         );
 
         logger.debug("[registerResult]" + GSON.toJson(registerResult));

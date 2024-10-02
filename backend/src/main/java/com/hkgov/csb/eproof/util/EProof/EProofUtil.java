@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.util.EProof;
 import cn.hutool.core.codec.Base64Encoder;
 import com.google.gson.Gson;
 import com.hkgov.csb.eproof.util.CommonUtil;
+import io.micrometer.common.util.StringUtils;
 import okhttp3.*;
 import org.apache.logging.log4j.*;
 import org.json.*;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.*;
 import java.time.format.*;
@@ -104,7 +106,8 @@ public class EProofUtil {
 				"igsltkn1",
 				"6d9aadd6-5e95-4177-a6bf-263b30663abe",
 				1100,
-				null
+				null,
+				""
 		);
 
 		String qrCodeString = getQrCodeString(
@@ -319,28 +322,29 @@ public class EProofUtil {
 
 	public static Map<String, Object> updateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
 												   String eproofTypeId,
-												   int downloadMaxCount, LocalDateTime downloadExpiryDate
+												   int downloadMaxCount, LocalDateTime downloadExpiryDate, String hkid
 	) throws Exception {
 		return registerOrUpdateEproof(uuid, unsignedMap,  proofValue,  keyName,
 				eproofTypeId,
-				downloadMaxCount,  downloadExpiryDate, null);  //TODO
+				downloadMaxCount,  downloadExpiryDate, null, hkid);  //TODO
 	}
 
 	public static Map<String, Object> registerEproof(String unsignedMap, String proofValue, String keyName,
 													 String eproofTypeId,
-													 int downloadMaxCount, LocalDateTime downloadExpiryDate
+													 int downloadMaxCount, LocalDateTime downloadExpiryDate, String hkid
 	) throws Exception {
 		return registerOrUpdateEproof(null, unsignedMap,  proofValue,  keyName,
 				eproofTypeId,
-				downloadMaxCount,  downloadExpiryDate, "");
+				downloadMaxCount,  downloadExpiryDate, "", hkid);
 	}
 
 
 	public static Map<String, Object> registerOrUpdateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
 															 String eproofTypeId,
 															 int downloadMaxCount, LocalDateTime downloadExpiryDate,
-															 String formattedPublishDate) throws Exception {
-
+															 String formattedPublishDate,
+															 String hkid
+	) throws Exception {
 //		if (simulation) {
 //			logger.debug("This is simulation of registerOrUpdateEproof");
 //			Map out = new HashMap();
@@ -350,6 +354,12 @@ public class EProofUtil {
 //			out.put("token", "ThisIsASimulatedDownloadToken");
 //			return out;
 //		}
+		String hkidHash = null;
+		String sdidHash = null;
+		if (StringUtils.isNotEmpty(hkid)) {
+			hkidHash  = computeHash(hkid, config.getHkidSaltValue());
+			sdidHash = computeHash(hkid, config.getHkidSaltSdid());
+		}
 
 		Map vcJsonMap = GSON.fromJson(unsignedMap, Map.class);
 		logger.debug("EProffUtil - registerOrUpdateEproof - vcJsonMap: " + vcJsonMap);
@@ -379,7 +389,11 @@ public class EProofUtil {
 				vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null
 						?downloadExpiryDate.minusHours(8).format(formatter)
 						:null,
-				formattedPublishDate
+				formattedPublishDate,
+				hkidHash,
+				config.getHkidSaltUuid(),
+				sdidHash
+
 		)) {
 			checkResponse(httpResponse);
 			JSONObject jret = new JSONObject(httpResponse.body().string());
@@ -510,7 +524,7 @@ public class EProofUtil {
 				(expiryDate == null) ? null : expiryDate.minusHours(8).format(formatter),
 				issuranceDate.minusHours(8).format(formatter), vcBase64Hash, downloadMaxCount,
 				(downloadExpiryDate == null) ? null : downloadExpiryDate.minusHours(8).format(formatter),
-				""
+				"", "", "", ""
 		)) {
 			checkResponse(httpResponse);
 			JSONObject jret = new JSONObject(httpResponse.body().string());
@@ -586,5 +600,30 @@ public class EProofUtil {
 			else
 				throw new RuntimeException(errorMessage);
 		}
+	}
+
+	// Method to compute the hash with a given salt
+	public static String computeHash(String hkidNumber, String salt) throws NoSuchAlgorithmException {
+		// Remove check digit (last character)
+		String cleanHkid = removeCheckDigit(hkidNumber);
+
+		// Concatenate HKIC number with the salt
+		String input = cleanHkid + salt;
+
+		// Perform SHA-256 hashing
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+
+		// Encode the hash in Base64
+		return Base64.getEncoder().encodeToString(hashBytes);
+	}
+
+	private static String removeCheckDigit(String hkidNumber) {
+		if (hkidNumber != null && hkidNumber.length() > 1) {
+			// Remove the last character, which is the check digit
+			return hkidNumber.substring(0, hkidNumber.length() - 1);
+		}
+		// Handle invalid HKID format
+		throw new IllegalArgumentException("Invalid HKIC number: " + hkidNumber);
 	}
 }

@@ -21,6 +21,8 @@ public class EProofConfigProperties {
 	String passTemplateTypeId;
 	String failTemplateTypeId;
 	String downloadUrlPrefix;
-
+	String hkidSaltSdid;
+	String hkidSaltUuid;
+	String hkidSaltValue;
 	String accessToken;
 }
