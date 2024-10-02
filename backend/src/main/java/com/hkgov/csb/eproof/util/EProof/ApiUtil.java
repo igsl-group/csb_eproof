@@ -168,7 +168,7 @@ public class ApiUtil {
 			requestBodyJsonMap.put("otpUrl", config.getOtpUrl());
 			// TODO
 			requestBodyJsonMap.put("publishDate", formattedPublishDate);
-			requestBodyJsonMap.put("walletOption", "03");
+//			requestBodyJsonMap.put("walletOption", "03");
 			requestBodyJsonMap.put("allowDownloadPdf", true);
 			requestBodyJsonMap.put("downloadMaxCount", String.valueOf(downloadMaxCount));
 			if(downloadExpiryDate != null)
