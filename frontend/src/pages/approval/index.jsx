@@ -256,20 +256,26 @@ const ApprovalWorkflow = () =>  {
       })
       const reissueList = [];
       if (permissions.includes('Certificate_Generate')) {
-        const data = await runExamProfileAPI('certRenewList', 'GENERATED', {}, toQueryString(pagination))
+        const data = await runExamProfileAPI('certRenewList', 'GENERATED', {
+          dummy: "",
+        }, toQueryString(pagination))
           .then((response) => response.data)
           .then((data) => data.content);
         reissueList.push(...data);
       }
 
     if (permissions.includes('Certificate_Sign_And_Issue')) {
-      const data = await runExamProfileAPI('certRenewList', 'SIGN_ISSUE', {}, toQueryString(pagination))
+      const data = await runExamProfileAPI('certRenewList', 'SIGN_ISSUE', {
+        dummy: "",
+      }, toQueryString(pagination))
         .then((response) => response.data)
         .then((data) => data.content);
       reissueList.push(...data);
     }
     if (permissions.includes('Certificate_Notify')) {
-      const data = await runExamProfileAPI('certRenewList', 'NOTIFY', {}, toQueryString(pagination))
+      const data = await runExamProfileAPI('certRenewList', 'NOTIFY', {
+        dummy: "",
+      }, toQueryString(pagination))
         .then((response) => response.data)
         .then((data) => data.content);
       reissueList.push(...data);

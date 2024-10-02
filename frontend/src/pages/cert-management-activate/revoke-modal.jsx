@@ -196,7 +196,7 @@ const RevokeModal = (props) =>  {
         <Text name={'type'} label={'Type'} size={100} disabled hidden/>
         <Text name={'certInfoIdList'} label={'Cert Info Ids'} size={100} disabled hidden/>
         <Text name={'name'} label={'Name'} size={100} disabled hidden/>
-        <Text name={'hkid'} label={'HKID'} size={100} disabled/>
+        <Text name={'hkid'} label={'HKID'} size={100} disabled hidden/>
         <Text name={'passportNo'} label={'Passport'} size={100} disabled hidden/>
         <ResizeableTable
           size={'big'}
