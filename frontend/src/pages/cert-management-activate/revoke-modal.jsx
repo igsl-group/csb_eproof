@@ -13,6 +13,7 @@ import {useRequest} from "ahooks";
 import { examProfileAPI } from '@/api/request';
 import {useModal} from "../../context/modal-provider";
 import {useMessage} from "../../context/message-provider";
+import {generalAPI} from "../../api/request";
 
 const RevokeModal = (props) =>  {
 
@@ -70,13 +71,13 @@ const RevokeModal = (props) =>  {
 
     useEffect(() => {
       if (open) {
+        runGeneralAPI('emailTemplateGet', 'Certificate_Revoke');
         form.setFieldsValue({
           type: "REVOKE",
           ...lastCandidateInfo,
           emailTarget: lastCandidateInfo.email,
-          emailContent: ``,
           certInfoIdList: data.flatMap(row => row.id).join(","),
-        })
+        });
       }
     }, [lastCandidateInfo, data, open])
 
@@ -169,7 +170,30 @@ const RevokeModal = (props) =>  {
     },
   });
 
-
+  const { runAsync: runGeneralAPI } = useRequest(generalAPI, {
+    manual: true,
+    onSuccess: (response, params) => {
+      switch (params[0]) {
+        case 'emailTemplateGet':
+          const data = response.data || {};
+          let htmlBody = data.body;
+          htmlBody = htmlBody.replaceAll('${application_name}', lastCandidateInfo.name);
+          form.setFieldsValue({
+            emailSubject: data.subject,
+            emailContent: htmlBody,
+          });
+          break;
+        default:
+          break;
+      }
+    },
+    onError: (error) => {
+      const message = error.data?.properties?.message || '';
+      messageApi.error(message);
+    },
+    onFinally: (params, result, error) => {
+    },
+  });
   return (
     <Modal
       width={1000}

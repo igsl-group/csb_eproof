@@ -464,7 +464,9 @@ const Candidate = () =>  {
       {
         hasTodoCase ? (
           <div>
-            <Alert showIcon type={'warning'} description={<b>Since there is at least one candidate case in progress, all action buttons are disabled until the case(s) are completed.</b>}/>
+            <Alert showIcon type={'warning'}
+                   description={<b>Since there is at least one candidate case in progress, all action buttons are
+                     disabled until the case(s) are completed.</b>}/>
             <br/>
           </div>
         ) : null
@@ -485,7 +487,7 @@ const Candidate = () =>  {
           <Col span={16}>
             <Row gutter={24} justify={'start'}>
               <Col span={24} md={12}>
-                <HKID name={'hkid'} label={'HKID'} disabled  size={12} disabled/>
+                <HKID name={'hkid'} label={'HKID'} disabled size={12} disabled/>
               </Col>
               <Col span={24} md={12}>
                 <Text name={'passportNo'} label={'Passport No.'} size={12} disabled/>
@@ -496,7 +498,8 @@ const Candidate = () =>  {
               <Col span={24} md={12}>
                 <Space>
                   <Email disabled={hasTodoCase} name={'email'} label={'Email'} size={12}/>
-                  <Button type={'primary'}  onClick={onClickBulkUpdateEmail} disabled={emailError || hasTodoCase}>Bulk Update Email</Button>
+                  <Button type={'primary'} onClick={onClickBulkUpdateEmail} disabled={emailError || hasTodoCase}>Bulk
+                    Update Email</Button>
                 </Space>
               </Col>
             </Row>
@@ -504,7 +507,8 @@ const Candidate = () =>  {
           <Col span={8}>
             <Row gutter={[8, 8]} justify={'end'}>
               <Col>
-                <Button disabled={hasTodoCase} type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update Candidate Name</Button>
+                <Button disabled={hasTodoCase} type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update
+                  Candidate Name</Button>
               </Col>
             </Row>
           </Col>
@@ -579,6 +583,7 @@ const Candidate = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
       <PersonalParticularsModal
         open={open}
         onCloseCallback={onCloseCallback}
@@ -600,12 +605,12 @@ const Candidate = () =>  {
         title={'Update HKID/Passport'}
       />
       <RevokeCertModal
-          open={revokeOpen}
-          title={'Revoke Certificate'}
-          selectedRecords={selectedRows}
-          lastCandidateInfo={lastCandidateInfo}
-          onCloseCallback={onCloseCallback}
-          onFinishCallback={onFinishCallback}
+        open={revokeOpen}
+        title={'Revoke Certificate'}
+        selectedRecords={selectedRows}
+        lastCandidateInfo={lastCandidateInfo}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
       <EmailModal
         open={emailModalOpen}
