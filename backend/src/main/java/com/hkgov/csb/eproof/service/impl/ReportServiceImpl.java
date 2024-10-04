@@ -23,6 +23,7 @@ import com.hkgov.csb.eproof.dto.CertInfoResultRenewReportDTO;
 import com.hkgov.csb.eproof.dto.ExamResultReportByYearDTO;
 import com.hkgov.csb.eproof.dto.ExamResultReportDTO;
 import com.hkgov.csb.eproof.service.ReportService;
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,11 +34,14 @@ public class ReportServiceImpl implements ReportService {
 
         private final CertInfoRenewRepository certInfoRenewRepository;
 
+        private final HKIDformatter hkidFormatter;
+
         @Override
         public ByteArrayInputStream createExamResultReport(LocalDate startDate,
-                        LocalDate endDate, String examProfileSerialNo) throws IOException {
-                List<Object[]> results = certInfoRepository
-                                .findReportData(startDate, endDate, examProfileSerialNo);
+                        LocalDate endDate, String examProfileSerialNo)
+                        throws IOException {
+                List<Object[]> results = certInfoRepository.findReportData(
+                                startDate, endDate, examProfileSerialNo);
                 List<ExamResultReportDTO> reportData = results.stream()
                                 .map(row -> new ExamResultReportDTO(
                                                 (String) row[0],
@@ -278,8 +282,9 @@ public class ReportServiceImpl implements ReportService {
                                                 row[0] != null ? row[0]
                                                                 .toString()
                                                                 : null, // Candidate Name
-                                                row[1] != null ? row[1]
-                                                                .toString()
+                                                row[1] != null ? hkidFormatter
+                                                                .formatHkid(row[1]
+                                                                                .toString())
                                                                 : null, // HKID Number
                                                 row[2] != null ? row[2]
                                                                 .toString()
@@ -290,8 +295,9 @@ public class ReportServiceImpl implements ReportService {
                                                 row[4] != null ? row[4]
                                                                 .toString()
                                                                 : null, // Old Name
-                                                row[5] != null ? row[5]
-                                                                .toString()
+                                                row[5] != null ? hkidFormatter
+                                                                .formatHkid(row[5]
+                                                                                .toString())
                                                                 : null, // Old HKID
                                                 row[6] != null ? row[6]
                                                                 .toString()
@@ -302,8 +308,9 @@ public class ReportServiceImpl implements ReportService {
                                                 row[8] != null ? row[8]
                                                                 .toString()
                                                                 : null, // New Name
-                                                row[9] != null ? row[9]
-                                                                .toString()
+                                                row[9] != null ? hkidFormatter
+                                                                .formatHkid(row[9]
+                                                                                .toString())
                                                                 : null, // New HKID
                                                 row[10] != null ? row[10]
                                                                 .toString()
@@ -412,8 +419,8 @@ public class ReportServiceImpl implements ReportService {
                                                 row[0] != null ? row[0]
                                                                 .toString()
                                                                 : null, // Candidate Name
-                                                row[1] != null ? row[1]
-                                                                .toString()
+                                                row[1] != null ? hkidFormatter.formatHkid(row[1]
+                                                .toString())
                                                                 : null, // HKID Number
                                                 row[2] != null ? row[2]
                                                                 .toString()
