@@ -49,7 +49,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                             )
                             AND
                             (
-                                ( ?#{#searchDto.hkid} IS null OR c.hkid IS NULL OR c.hkid = '' OR c.hkid LIKE %?#{#searchDto.hkid}% ) AND
+                                ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
                                 ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
                                 ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
                                 ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
@@ -73,7 +73,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                             )
                             AND
                             (
-                                ( ?#{#searchDto.hkid} IS null OR c.hkid IS NULL OR c.hkid = '' OR c.hkid LIKE %?#{#searchDto.hkid}% ) AND
+                                ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
                                 ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
                                 ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
                                 ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
