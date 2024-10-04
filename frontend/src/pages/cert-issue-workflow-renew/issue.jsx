@@ -46,8 +46,10 @@ import {
 } from "@/utils/util";
 import PermissionControl from "../../components/PermissionControl";
 import {HKIDToString, stringToHKID, stringToHKIDWithBracket} from "../../components/HKID";
+import {useAuth} from "../../context/auth-provider";
 
 const Issue = () =>  {
+  const auth = useAuth();
   const navigate = useNavigate();
   const modalApi = useModal();
   const messageApi = useMessage();
@@ -72,21 +74,21 @@ const Issue = () =>  {
           {
             ['SUCCESS'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Maintenance')} size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
               </Col>
             ) : null
           }
           {
             ['PENDING', 'FAIL'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickSignAndIssueCallback(row)}>Sign & Issue</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Maintenance')} size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickSignAndIssueCallback(row)}>Sign & Issue</Button>
               </Col>
             ) : null
           }
           {
             ['PENDING'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Maintenance')} size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
               </Col>
             ) : null
           }
@@ -619,7 +621,7 @@ const Issue = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
-              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Maintenance')}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
           </Row>
@@ -646,7 +648,7 @@ const Issue = () =>  {
         <ResizeableTable
           size={'big'}
           rowKey={'id'}
-          rowSelection={{
+          rowSelection={!auth.permissions.includes('Certificate_Sign_And_Maintenance') ? null : {
             type: 'checkbox',
             ...rowSelection,
           }}
@@ -676,6 +678,7 @@ const Issue = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
     </div>
 
   )

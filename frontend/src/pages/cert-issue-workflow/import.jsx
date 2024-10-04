@@ -32,9 +32,10 @@ import {
 import PermissionControl from "../../components/PermissionControl";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
+import {useAuth} from "../../context/auth-provider";
 
 const Import = () =>  {
-
+  const auth = useAuth();
   const ref = useRef(null);
   const navigate = useNavigate();
   const modalApi = useModal();
@@ -74,7 +75,7 @@ const Import = () =>  {
         return (
           <div>
             { row.onHold ? <Tag color="default">On-hold</Tag> : null}
-            { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
+            { !row.onHold ? <Button disabled={!auth.permissions.includes('Certificate_Import_Maintenance')} size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
       }
@@ -401,7 +402,7 @@ const Import = () =>  {
   };
 
   return (
-    <div className={styles['exam-profile']} permissionRequired={['Certificate_Import']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Import_View']}>
       <Typography.Title level={3}>Import Result (CSV)</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -431,7 +432,7 @@ const Import = () =>  {
           <Col>
             <Row gutter={[16, 16]}>
               <Col>
-                <Button disabled={importedData.length === 0} type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
+                <Button disabled={importedData.length === 0 || !auth.permissions.includes('Certificate_Import_Maintenance')} type="primary" onClick={() => onClickDispatch()}>Dispatch to generate PDF</Button>
               </Col>
               <Col>
                 <Button
@@ -439,12 +440,14 @@ const Import = () =>  {
                   onClick={() => {
                     window.open('/import_csv_template.csv', 'Download');
                   }}
+                  disabled={!auth.permissions.includes('Certificate_Import_Maintenance')}
                 >
                   Download Template (CSV)
                 </Button>
               </Col>
               <Col>
                 <Upload
+                  disabled={!auth.permissions.includes('Certificate_Import_Maintenance')}
                   accept={'text/csv'}
                   multiple={false}
                   maxCount={1}
@@ -459,8 +462,12 @@ const Import = () =>  {
                     return false;
                   }}
                 >
-                  <Button type="primary" onClick={() => {
-                  }}>Import Result (CSV)</Button>
+                  <Button
+                    type="primary"
+                    disabled={!auth.permissions.includes('Certificate_Import_Maintenance')}
+                  >
+                    Import Result (CSV)
+                  </Button>
                 </Upload>
               </Col>
             </Row>
@@ -587,6 +594,7 @@ const Import = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
       <OnHoldModal
         open={open}
         record={record}

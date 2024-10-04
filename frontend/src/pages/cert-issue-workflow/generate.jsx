@@ -49,9 +49,10 @@ import PermissionControl from "../../components/PermissionControl";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKID, stringToHKIDWithBracket} from "../../components/HKID";
 import RandomPreviewModal from "./random-preview-modal";
+import {useAuth} from "../../context/auth-provider";
 
 const Generate = () =>  {
-
+  const auth = useAuth();
   const ref = useRef(null);
   const navigate = useNavigate();
   const modalApi = useModal();
@@ -93,7 +94,7 @@ const Generate = () =>  {
         return (
           <div>
             { row.onHold ? <Tag color="default">On-hold</Tag> : null}
-            { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
+            { !row.onHold ? <Button disabled={!auth.permissions.includes('Certificate_Generate_Maintenance')} size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
       }
@@ -455,7 +456,7 @@ const Generate = () =>  {
   };
 
   return (
-    <div className={styles['exam-profile']} permissionRequired={['Certificate_Generate']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Generate_View']}>
       <Typography.Title level={3}>Generate PDF</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -485,10 +486,10 @@ const Generate = () =>  {
           <Col span={16}>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={generatedData.length === 0 || getSummary().generatePdfSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
+                <Button disabled={generatedData.length === 0 || getSummary().generatePdfSuccess === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')} type="primary" onClick={onClickDispatch}>Dispatch to sign and issue Cert.</Button>
               </Col>
               <Col>
-                <Button disabled={generatedData.length === 0} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
+                <Button disabled={generatedData.length === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')} type="primary" onClick={onClickGeneratePdf}>Generate PDF</Button>
               </Col>
             </Row>
           </Col>
@@ -569,14 +570,14 @@ const Generate = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
-              <Button type="primary" onClick={() => setPreviewPdfOpen(true)} disabled={generatedData.length === 0}>Random Check</Button>
+              <Button type="primary" onClick={() => setPreviewPdfOpen(true)} disabled={generatedData.length === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Random Check</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().generatePdfTotal === 0}>Download All</Button>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().generatePdfTotal === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Download All</Button>
             </Col>
           </Row>
         </Col>
@@ -602,7 +603,7 @@ const Generate = () =>  {
         <ResizeableTable
           size={'big'}
           rowKey={'id'}
-          rowSelection={{
+          rowSelection={!auth.permissions.includes('Certificate_Generate_Maintenance') ? null : {
             type: 'checkbox',
             ...rowSelection,
           }}
