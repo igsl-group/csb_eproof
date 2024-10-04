@@ -128,10 +128,14 @@ const routeList = [
         path: '/Workflow',
         icon: <FileDoneOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         permission: [
-          'Certificate_Import',
-          'Certificate_Generate',
-          'Certificate_Sign_And_Issue',
-          'Certificate_Notify',
+          'Certificate_Import_View',
+          'Certificate_Import_Maintenance',
+          'Certificate_Generate_View',
+          'Certificate_Generate_Maintenance',
+          'Certificate_Sign_And_Issue_View',
+          'Certificate_Sign_And_Issue_Maintenance',
+          'Certificate_Notify_View',
+          'Certificate_Notify_Maintenance',
         ],
         children: [
           {
@@ -143,7 +147,8 @@ const routeList = [
             element: <ImportWorkflow />,
             show: true,
             permission: [
-              'Certificate_Import',
+              'Certificate_Import_View',
+              'Certificate_Import_Maintenance',
             ],
           },
           {
@@ -155,7 +160,8 @@ const routeList = [
             element: <GenerateWorkflow />,
             show: true,
             permission: [
-              'Certificate_Generate',
+              'Certificate_Generate_View',
+              'Certificate_Generate_Maintenance',
             ],
           },
           {
@@ -168,7 +174,8 @@ const routeList = [
             element: <SignAndIssueWorkflow />,
             show: true,
             permission: [
-              'Certificate_Sign_And_Issue',
+              'Certificate_Sign_And_Issue_View',
+              'Certificate_Sign_And_Issue_Maintenance',
             ],
           },
           {
@@ -180,7 +187,8 @@ const routeList = [
             element: <NotifyWorkflow />,
             show: true,
             permission: [
-              'Certificate_Notify',
+              'Certificate_Notify_View',
+              'Certificate_Notify_Maintenance',
             ],
           },
         ],
@@ -228,10 +236,14 @@ const routeList = [
         path: '/WorkflowRenew',
         icon: <FileSyncOutlined style={{ color: 'rgb(104, 111, 125)' }}/>,
         permission: [
-          'Certificate_Import',
-          'Certificate_Generate',
-          'Certificate_Sign_And_Issue',
-          'Certificate_Notify',
+          'Certificate_Import_View',
+          'Certificate_Import_Maintenance',
+          'Certificate_Generate_View',
+          'Certificate_Generate_Maintenance',
+          'Certificate_Sign_And_Issue_View',
+          'Certificate_Sign_And_Issue_Maintenance',
+          'Certificate_Notify_View',
+          'Certificate_Notify_Maintenance',
         ],
         children: [
           {
@@ -243,7 +255,8 @@ const routeList = [
             element: <GenerateWorkflowRenew />,
             show: true,
             permission: [
-              'Certificate_Generate',
+              'Certificate_Generate_View',
+              'Certificate_Generate_Maintenance',
             ],
           },
           {
@@ -255,7 +268,8 @@ const routeList = [
             element: <SignAndIssueWorkflowRenew />,
             show: true,
             permission: [
-              'Certificate_Sign_And_Issue',
+              'Certificate_Sign_And_Issue_View',
+              'Certificate_Sign_And_Issue_Maintenance',
             ],
           },
           {
@@ -267,7 +281,8 @@ const routeList = [
             element: <NotifyWorkflowRenew />,
             show: true,
             permission: [
-              'Certificate_Notify',
+              'Certificate_Notify_View',
+              'Certificate_Notify_Maintenance',
             ],
           },
         ],
