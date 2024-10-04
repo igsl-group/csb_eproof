@@ -8,7 +8,7 @@ let baseURL = `/api/v1`;
 const headers = {};
 
 if (process.env.NODE_ENV === 'development') {
-  baseURL = 'http://localhost:8080/api/v1';
+  baseURL = 'http://localhost:8090/api/v1';
   // baseURL = 'https://192.168.1.171:9001/api/v1';
   // baseURL = 'http://192.168.1.170:8080/api/v1';
   // baseURL = 'http://192.168.2.227:8081/api/v1';
@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const signRequest = axios.create({
   baseURL: 'http://localhost:9999',
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   headers: {
     Accept: 'application/json, text/plain, */*',
     "Content-Type": "application/json;charset=UTF-8",
@@ -43,7 +43,7 @@ signRequest.interceptors.request.use(
 
 const normalRequest = axios.create({
   baseURL,
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   withCredentials: true,
   headers: {
     Accept: 'application/json, text/plain, */*',
@@ -87,7 +87,7 @@ const fileRequest = axios.create({
   // baseURL: 'http://127.0.0.1:8080',
   // baseURL: 'http://192.168.2.234',
   baseURL,
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   headers: {
     "Content-Type": "multipart/form-data",
     ...headers,
@@ -123,7 +123,7 @@ const downloadRequest = axios.create({
   // baseURL: 'http://127.0.0.1:8080',
   // baseURL: `http://192.168.2.234`,
   baseURL,
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   headers: {
     // "Content-Type": "application/x-www-form-urlencoded",
     Accept: 'application/json, text/plain, */*',
