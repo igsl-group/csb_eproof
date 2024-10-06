@@ -46,7 +46,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
     private final CertInfoService certInfoService;
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
-    public Boolean create(ExamProfileCreateDto request) {
+    public ExamProfileDto create(ExamProfileCreateDto request) {
 //        var examProfile = examProfileRepository.getinfoByNo(request.getSerialNo());
 //        if(Objects.nonNull(examProfile)){
 //            throw new GenericException("400",SERIAL_HAS_EXITED);
@@ -61,7 +61,7 @@ public class ExamProfileServiceImpl implements ExamProfileService {
         exam.setIsFreezed(false);
         exam.setStatus(Constants.STATUS_ACTIVE);
         exam = examProfileRepository.save(exam);
-        return Objects.nonNull(exam);
+        return getExamProfileInfo(exam.getSerialNo());
     }
 
     @Override
