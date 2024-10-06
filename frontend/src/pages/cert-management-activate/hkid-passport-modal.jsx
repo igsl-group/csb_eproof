@@ -68,9 +68,11 @@ const HkidPassportModal = (props) =>  {
       })
 
     if (values) {
+      const id = values.id;
       delete values.currentName;
       delete values.examDate;
-      runExamProfileAPI('certBatchUpdatePersonalParticular', values)
+      delete values.id;
+      runExamProfileAPI('certSingleUpdatePersonalParticular', id, values)
         .then(() => onFinish());
 
     }
@@ -104,6 +106,7 @@ const HkidPassportModal = (props) =>  {
         examDate: record.examDate,
         currentHkid: stringToHKID(record.hkid),
         currentPassport: record.passportNo,
+        id: record.id,
       })
     }
   }, [open, record]);
@@ -131,6 +134,7 @@ const HkidPassportModal = (props) =>  {
         }}
         name="form"
       >
+        <Text name={'id'} label={'Id'} size={100} disabled hidden/>
         <Row gutter={24} justify={'center'}>
           <Col span={24} md={12}>
             <Text name={'examDate'} label={'Exam Date'} size={100} disabled/>
