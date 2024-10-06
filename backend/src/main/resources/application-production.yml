@@ -121,10 +121,10 @@ document:
   font-zh-path: /vdisk/e-proof/app/font/SIMSUN.ttf
   generate-temp-source: /vdisk/e-proof/app/font/fail_template.docx
   qr-code:
-    x: 15
-    y: 760
-    height: 75
-    width: 75
+    x: 37
+    y: 132
+    height: 90
+    width: 90
 
 minio:
   endpoint: https://csbeprof.obj001.gcis.hksarg

@@ -117,6 +117,14 @@ document:
   #   Used for libre office conversion
   generate-temp-path: /vdisk/e-proof/tmp
   libreoffice-program-path: /opt/libreoffice24.2/program
+  font-en-path: /vdisk/e-proof/app/font/Times_New_Roman.ttf
+  font-zh-path: /vdisk/e-proof/app/font/SIMSUN.ttf
+  generate-temp-source: /vdisk/e-proof/app/font/fail_template.docx
+  qr-code:
+    x: 37
+    y: 132
+    height: 90
+    width: 90
 
 minio:
   endpoint: https://csbeprof.t1cosg-obj001.gcisdctr.hksarg

@@ -8,7 +8,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -125,14 +124,14 @@ document:
   #   Used for libre office conversion
   generate-temp-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\tmp
   libreoffice-program-path: C:\Program Files\LibreOffice\program
-  font-en-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\fonts\Times_New_Roman.ttf
-  font-zh-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\fonts\SIMSUN.ttf
+  font-en-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\fonts\Times_New_Roman.ttf
+  font-zh-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\fonts\SIMSUN.ttf
   generate-temp-source: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofCertTemplate\fail\fail_template.docx
   qr-code:
-    x: 15
-    y: 760
-    height: 75
-    width: 75
+    x: 37
+    y: 132
+    height: 90
+    width: 90
 
 minio:
   endpoint: http://192.168.2.175:9000
@@ -156,7 +155,7 @@ mail:
     attachment: Y
 
 eproof-config:
-  limit-for-batch-issuance: 3
+  issuance-split-size: 5000
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
   fail-template-type-id: 038424a4-be4e-418f-bdb4-dc4181d6ea16
   issuer-name-en: Civil Service Bureau
