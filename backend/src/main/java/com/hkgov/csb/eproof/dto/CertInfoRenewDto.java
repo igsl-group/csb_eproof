@@ -64,6 +64,8 @@ public class CertInfoRenewDto {
 
     private CertStatus certStatus;
 
+    private CertEproofRenewDto certEproofRenew;
+
     private Boolean done;
 
     private String oldLetterType;
