@@ -14,10 +14,13 @@ import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.request.ManualResendBatchEmailRequest;
+import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
 import com.hkgov.csb.eproof.service.PermissionService;
+import com.hkgov.csb.eproof.service.impl.CertInfoServiceImpl;
 import com.hkgov.csb.eproof.util.DocxUtil;
+import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.EmailUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.sun.star.beans.PropertyValue;
@@ -31,6 +34,10 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
@@ -59,7 +66,10 @@ import java.util.Map;
 public class TestController {
     @Resource
     private PermissionService permissionService;
-
+    @Resource
+    private CertInfoService certInfoService;
+    @Resource
+    private CertInfoServiceImpl certInfoServiceImpl;
     @Autowired
     private CertInfoRepository certInfoRepository;
 
@@ -74,7 +84,17 @@ public class TestController {
 
     @Autowired
     private GcisBatchEmailRepository gcisBatchEmailRepository;
+    @Value("${document.qr-code.height}")
+    private Integer qrCodeHeight;
 
+    @Value("${document.qr-code.width}")
+    private Integer qrCodeWidth;
+
+    @Value("${document.qr-code.x}")
+    private Integer qrCodeX;
+
+    @Value("${document.qr-code.y}")
+    private Integer qrCodeY;
 
     @Autowired
     private DocumentGenerateService documentGenerateService;
@@ -131,6 +151,46 @@ public class TestController {
         return ResponseEntity.ok().headers(header).body(pdfBytes);
     }
 
+    @GetMapping("/generateDocumentWithQrCodeDemo")
+    public ResponseEntity generateDocumentWithQrCodeDemo(
+            @RequestParam(defaultValue = "") Long certId,
+            @RequestParam(defaultValue = "") Integer qrx,
+            @RequestParam(defaultValue = "") Integer qry,
+            @RequestParam(defaultValue = "") Integer qrw,
+            @RequestParam(defaultValue = "") Integer qrh
+    ) throws Exception {
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename("test.pdf")
+                .build()
+        );
+
+        byte [] previewCertPdf = certInfoService.previewCertPdf(certId);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try (PDDocument pdDocument = PDDocument.load(previewCertPdf)) {
+            byte [] qrCodeImageBinary = certInfoServiceImpl.generateQrCodeBinary("https://google.com");
+
+            Integer x = qrx != null ? qrx : qrCodeX;
+            Integer y = qry != null ? qry : qrCodeY;
+            Integer w = qrw != null ? qrw : qrCodeWidth;
+            Integer h = qrh != null ? qrh : qrCodeHeight;
+
+            PDImageXObject qrCodeImage = PDImageXObject.createFromByteArray(pdDocument, qrCodeImageBinary, "QR Code");
+            try (PDPageContentStream contentStream = new PDPageContentStream(pdDocument, pdDocument.getPage(0), PDPageContentStream.AppendMode.APPEND, true)) {
+                contentStream.drawImage(qrCodeImage, x, y, w, h);
+            }
+
+            pdDocument.save(baos);
+        }
+        baos.close();
+
+        return ResponseEntity.ok().headers(header).body(baos.toByteArray());
+//        return ResponseEntity.ok().headers(header).body(previewCertPdf);
+    }
+
 
     @GetMapping("/generateDocumentDemo")
     public ResponseEntity generateDocumentDemo() throws Exception {
@@ -160,7 +220,7 @@ public class TestController {
 
         if (markDtoList.size() < 4){
             for(int i = markDtoList.size(); i <= 4; i++){
-                markDtoList.add(new ExamScoreDto("",""));
+                markDtoList.add(new ExamScoreDto(" "," "));
             }
         }
 
@@ -172,9 +232,12 @@ public class TestController {
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
 
-        FileInputStream inputStream = new FileInputStream("/var/csb_eproof/test_template.docx");
+        FileInputStream inputStream = new FileInputStream(tmpSource);
 
         byte [] mergedDocument = documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),map);
+//        byte[] pdfBytes = docxUtil.convertDocxToPdf_POI(inputStream);
+//        return ResponseEntity.ok().headers(header).body(pdfBytes);
+
         /*Configure config = Configure.builder().bind("examResults",policy).build();
         ByteArrayInputStream bais = new ByteArrayInputStream(mergedDocument);
         XWPFTemplate template = XWPFTemplate.compile("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template_2.docx",config).render(
