@@ -40,7 +40,8 @@ const ExamProfileFormModal = (props) =>  {
       switch (type) {
         case TYPE.CREATE:
           runExamProfileAPI('examProfileCreate', values)
-            .then(() => onFinish());
+            .then((response) => response.data)
+            .then((data) => onFinish(data));
           break;
       }
     }
@@ -73,10 +74,10 @@ const ExamProfileFormModal = (props) =>  {
     }
   }, [onCloseCallback]);
 
-  const onFinish = useCallback(() => {
+  const onFinish = useCallback((data) => {
     if (typeof onFinishCallback === "function") {
       form.resetFields();
-      onFinishCallback();
+      onFinishCallback(data);
     }
   }, [onFinishCallback]);
 
