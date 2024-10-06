@@ -143,7 +143,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 
         if (markDtoList.size() < 4){
             for(int i = markDtoList.size(); i <= 4; i++){
-                markDtoList.add(new ExamScoreDto("",""));
+                markDtoList.add(new ExamScoreDto(" "," "));
             }
         }
 

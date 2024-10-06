@@ -363,8 +363,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
 
         if (markDtoList.size() < 4){
-            for(int i = markDtoList.size(); i <= 4; i++){
-                markDtoList.add(new ExamScoreDto("",""));
+            for(int i = markDtoList.size(); i < 4; i++){
+                markDtoList.add(new ExamScoreDto(" "," "));
             }
         }
 
@@ -892,7 +892,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         //Completed preparing for Eproof PDF
     }
 
-    private byte[] generateQrCodeBinary(String qrCodeString) throws WriterException, com.google.zxing.WriterException, IOException {
+    public byte[] generateQrCodeBinary(String qrCodeString) throws WriterException, com.google.zxing.WriterException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeString, BarcodeFormat.QR_CODE,qrCodeWidth,qrCodeHeight);
