@@ -82,16 +82,16 @@ const HistoricalResultApproveTable = () =>  {
 
   useEffect(() => {
     let workflowActionList = [];
-    if (auth.permissions.includes('Certificate_Import')) {
+    if (auth.permissions.includes('Certificate_Import_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['imported'], 'Import'))
     }
-    if (auth.permissions.includes('Certificate_Generate')) {
+    if (auth.permissions.includes('Certificate_Generate_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['generatePdfTotal'], 'Generate'))
     }
-    if (auth.permissions.includes('Certificate_Sign_And_Issue')) {
+    if (auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['issuedPdfTotal'], 'SignAndIssueCert'))
     }
-    if (auth.permissions.includes('Certificate_Notify')) {
+    if (auth.permissions.includes('Certificate_Notify_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['sendEmailTotal'], 'Notify'))
     }
     workflowActionList = workflowActionList.sort((a, b) => dayjs(a.examDate, 'YYYY-MM-DD') - dayjs(b.examDate, 'YYYY-MM-DD'))

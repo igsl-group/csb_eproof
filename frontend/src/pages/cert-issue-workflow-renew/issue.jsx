@@ -74,21 +74,21 @@ const Issue = () =>  {
           {
             ['SUCCESS'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Maintenance')} size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickDispatch(row)}>Dispatch</Button>
               </Col>
             ) : null
           }
           {
             ['PENDING', 'FAIL'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Maintenance')} size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickSignAndIssueCallback(row)}>Sign & Issue</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} size={'small'} style={{width: 108}} type={'primary'} onClick={() => onClickSignAndIssueCallback(row)}>Sign & Issue</Button>
               </Col>
             ) : null
           }
           {
             ['PENDING'].includes(row.certStatus.code) ? (
               <Col span={24}>
-                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Maintenance')} size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} size={'small'} danger style={{width: 108}} type={'primary'} onClick={() => onClickRemoveCallback(row)}>Remove</Button>
               </Col>
             ) : null
           }
@@ -621,7 +621,7 @@ const Issue = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
-              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Maintenance')}>Download
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
           </Row>
@@ -648,7 +648,7 @@ const Issue = () =>  {
         <ResizeableTable
           size={'big'}
           rowKey={'id'}
-          rowSelection={!auth.permissions.includes('Certificate_Sign_And_Maintenance') ? null : {
+          rowSelection={!auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance') ? null : {
             type: 'checkbox',
             ...rowSelection,
           }}
