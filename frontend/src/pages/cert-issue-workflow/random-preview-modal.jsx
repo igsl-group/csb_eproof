@@ -70,7 +70,10 @@ const RandomPreviewModal = (props) =>  {
       })
 
     if (values) {
-      runExamProfileAPI('getRandomCert', queryString.stringify(values))
+      runExamProfileAPI('getRandomCert', queryString.stringify({
+        ...values,
+        certStage: 'GENERATED'
+      }))
     }
   }, []);
 
