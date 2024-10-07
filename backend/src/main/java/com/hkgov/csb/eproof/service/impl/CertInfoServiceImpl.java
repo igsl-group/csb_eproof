@@ -340,8 +340,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
         // Change the format of date for examMap
-        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
-        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
+        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
     }
@@ -698,9 +698,9 @@ public class CertInfoServiceImpl implements CertInfoService {
         Map<String, String> extraInfo = new HashMap<>();
         extraInfo.put("cert_info_id", certInfo.getId().toString());
         extraInfo.put("exam_profile_serial_no", certInfo.getExamProfileSerialNo());
-        extraInfo.put("result_letter_date", certInfo.getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        extraInfo.put("result_letter_date", certInfo.getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
         extraInfo.put("candidate_name", certInfo.getName());
-        extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese (UC)" : "");
         extraInfo.put("result_1", certInfo.getUcGrade());

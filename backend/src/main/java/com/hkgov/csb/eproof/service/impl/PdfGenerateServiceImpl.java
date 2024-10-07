@@ -30,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.hkgov.csb.eproof.constants.Constants.*;
-import static com.hkgov.csb.eproof.constants.Constants.DATE_PATTERN_2;
 
 
 @Service
@@ -120,8 +119,8 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
         // Change the format of date for examMap
-        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
-        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
+        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
     }
