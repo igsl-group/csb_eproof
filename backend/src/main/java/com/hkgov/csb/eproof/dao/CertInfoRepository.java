@@ -49,8 +49,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                             )
                             AND
                             (
-                                ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
-                                ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
+                                ( (?#{#searchDto.hkid} IS null OR ?#{#searchDto.hkid} ='') OR c.hkid like %?#{#searchDto.hkid}% ) AND
+                                ( (?#{#searchDto.passportNo} IS null OR ?#{#searchDto.passportNo} = '')OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
                                 ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
                                 ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
                                 ( ?#{#searchDto.examProfileSerialNo} IS null OR c.exam_profile_serial = ?#{#searchDto.examProfileSerialNo} ) AND
@@ -73,8 +73,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                             )
                             AND
                             (
-                                ( ?#{#searchDto.hkid} IS null OR c.hkid like %?#{#searchDto.hkid}% ) AND
-                                ( ?#{#searchDto.passportNo} IS null OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
+                                ( (?#{#searchDto.hkid} IS null OR ?#{#searchDto.hkid} ='') OR c.hkid like %?#{#searchDto.hkid}% ) AND
+                                ( (?#{#searchDto.passportNo} IS null OR ?#{#searchDto.passportNo} = '')OR c.passport_no like %?#{#searchDto.passportNo}% ) AND
                                 ( ?#{#searchDto.canName} IS null OR c.name like %?#{#searchDto.canName}% ) AND
                                 ( ?#{#searchDto.canEmail} IS null OR c.email like %?#{#searchDto.canEmail}% ) AND
                                 ( ?#{#searchDto.examProfileSerialNo} IS null OR c.exam_profile_serial = ?#{#searchDto.examProfileSerialNo} ) AND
