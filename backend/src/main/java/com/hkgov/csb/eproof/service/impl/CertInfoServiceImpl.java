@@ -35,6 +35,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -1365,14 +1366,26 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     private File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf) throws IOException {
 
-        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
-        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
+        ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
+        String processedCertOwnerName = getInitials(certInfo.getName().trim());
+        String randomString = RandomStringUtils.random(4);
+//        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
+//        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
+                examProfile.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_4)),
                 processedCertOwnerName,
-                currentTimeMillisString,
-                UUID.randomUUID().toString().replace("-","")
+                randomString
         );
         return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath+"/"+certInfo.getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
+    }
+    public static String getInitials(String name) {
+        StringBuilder initials = new StringBuilder();
+        for (String part : name.split(" ")) {
+            if (!part.isEmpty()) {
+                initials.append(part.charAt(0));
+            }
+        }
+        return initials.toString().toUpperCase();
     }
 
     public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData){

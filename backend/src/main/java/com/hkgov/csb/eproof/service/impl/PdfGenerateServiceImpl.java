@@ -1,9 +1,11 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.CertPdfRepository;
+import com.hkgov.csb.eproof.dao.ExamProfileRepository;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.CertPdf;
@@ -15,6 +17,7 @@ import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import io.micrometer.common.util.StringUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.docx4j.model.fields.merge.DataFieldName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +48,18 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
+    private final ExamProfileRepository examProfileRepository;
 
 
-    public PdfGenerateServiceImpl(LetterTemplateService letterTemplateService, DocumentGenerateService documentGenerateService, DocxUtil docxUtil, CertInfoRepository certInfoRepository, FileService fileService, CertPdfRepository certPdfRepository) {
+    public PdfGenerateServiceImpl(LetterTemplateService letterTemplateService, DocumentGenerateService documentGenerateService, DocxUtil docxUtil, CertInfoRepository certInfoRepository, FileService fileService, CertPdfRepository certPdfRepository,
+                                  ExamProfileRepository examProfileRepository) {
         this.letterTemplateService = letterTemplateService;
         this.documentGenerateService = documentGenerateService;
         this.docxUtil = docxUtil;
         this.certInfoRepository = certInfoRepository;
         this.fileService = fileService;
         this.certPdfRepository = certPdfRepository;
+        this.examProfileRepository = examProfileRepository;
     }
 
     @Transactional(noRollbackFor = Exception.class)
@@ -99,15 +105,27 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
     }
 
     public File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf) throws IOException {
-
-        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
-        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
+        ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
+//        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
+        String processedCertOwnerName = getInitials(certInfo.getName().trim());
+        String randomString = RandomStringUtils.random(4);
+//        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
+                examProfile.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_4)),
                 processedCertOwnerName,
-                currentTimeMillisString,
-                UUID.randomUUID().toString().replace("-","")
+                randomString
         );
         return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath+"/"+certInfo.getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
+    }
+
+    public static String getInitials(String name) {
+        StringBuilder initials = new StringBuilder();
+        for (String part : name.split(" ")) {
+            if (!part.isEmpty()) {
+                initials.append(part.charAt(0));
+            }
+        }
+        return initials.toString().toUpperCase();
     }
 
 
