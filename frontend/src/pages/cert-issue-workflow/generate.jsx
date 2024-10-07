@@ -263,7 +263,7 @@ const Generate = () =>  {
 
   const onClickDownloadAll = useCallback(() => {
     modalApi.confirm({
-      title:'It will take too time to patch .zip file. Are you sure to download all PDF? ',
+      title:'It will take much time to patch .zip file.  Please confirm if you want to download all PDF.',
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
