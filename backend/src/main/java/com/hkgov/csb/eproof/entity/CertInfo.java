@@ -108,7 +108,7 @@ public class CertInfo extends BaseEntity implements Cloneable{
     }
 
     public String getEproofId(){
-        return examProfileSerialNo + "-" + id;
+        return examProfileSerialNo + "-" + id + "-" + name.replace(" ","_");
     }
 
     // Mapped tables
