@@ -355,8 +355,8 @@ const Candidate = () =>  {
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certBatchUpdateEmail', {
-        currentHkid: hkid,
-        currentPassport: hkid ? '': passport,
+        hkid: hkid ? hkid : null,
+        passportNo: hkid ? null: passport,
         email,
       })
     });
@@ -404,8 +404,8 @@ const Candidate = () =>  {
   const getCertList = useCallback(async (pagination = {}, filter = {}) => {
 
     return runExamProfileAPI('certList', 'VALID', {
-      hkid: hkid,
-      passportNo: hkid ? '': passport,
+      hkid: hkid ? hkid : null,
+      passportNo: hkid ? null: passport,
     }, toQueryString(pagination, filter));
   }, [hkid, passport]);
 
@@ -419,8 +419,8 @@ const Candidate = () =>  {
   const getLatestCandidateInfo = useCallback(async (pagination = {}, filter = {}) => {
 
     return runExamProfileAPI('certLatestCandidateInfo', {
-      hkid: hkid,
-      passportNo: hkid ? '': passport,
+      hkid: hkid ? hkid : null,
+      passportNo: hkid ? null: passport,
     }, toQueryString({
       page: 1,
       pageSize: 1,
