@@ -1164,7 +1164,14 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     @Transactional
-    public ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+    public ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, String certStage, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+        CertStage stage = null;
+
+        try{
+            stage = CertStage.valueOf(certStage);
+        } catch(Exception e){
+            throw new GenericException("cert.stage.not.found","Cert stage not found.");
+        }
         List<CertInfo> randomAllPassed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
                 List.of("L1","L2","P"),

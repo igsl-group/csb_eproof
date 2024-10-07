@@ -197,6 +197,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             AND (c.ue_grade IN (:ueGrade) OR c.ue_grade = '')
             AND (c.uc_grade IN (:ucGrade) OR c.uc_grade = '')
             AND (c.at_grade IN (:atGrade) OR c.at_grade = '')
+            AND c.on_hold = 0
             ORDER BY RAND()
             LIMIT :limit
             """)
@@ -221,18 +222,25 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
                                      OR (c.uc_grade in :ucFailGrade or c.uc_grade = '')
                                      OR (c.at_grade in :atFailGrade or c.at_grade = '')
                                  )
+                                 /* Not all passed */ AND NOT(
+                                     (c.blnst_grade in :blnstPassGrade or c.blnst_grade = '')
+                                     AND (c.ue_grade in :uePassGrade or c.ue_grade = '')
+                                     AND (c.uc_grade in :ucPassGrade or c.uc_grade = '')
+                                     AND (c.at_grade in :atPassGrade or c.at_grade = '')
+                                )
                                 /* Not all failed */ AND NOT(
                                      (c.blnst_grade in :blnstFailGrade or c.blnst_grade = '')
                                      AND (c.ue_grade in :ueFailGrade or c.ue_grade = '')
                                      AND (c.uc_grade in :ucFailGrade or c.uc_grade = '')
                                      AND (c.at_grade in :atFailGrade or c.at_grade = '')
                                 )
-                                /* Contains some passed grade */ AND(
+                                /* At least 1 passed */ AND(
                                      (c.blnst_grade in :blnstPassGrade or c.blnst_grade = '')
                                      OR (c.ue_grade in :uePassGrade or c.ue_grade = '')
                                      OR (c.uc_grade in :ucPassGrade or c.uc_grade = '')
                                      OR (c.at_grade in :atPassGrade or c.at_grade = '')
                                 )
+                                AND c.on_hold = 0
                                 ORDER BY rand()
                             LIMIT :limit
                     """)

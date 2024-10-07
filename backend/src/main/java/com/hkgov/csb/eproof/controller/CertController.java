@@ -338,11 +338,12 @@ public class CertController {
     @GetMapping(value = "/getRandomPdf")
     public Result getRandomPdf(
             @RequestParam String examProfileSerialNo,
+            @RequestParam String certStage,
             @RequestParam Integer allPassed,
             @RequestParam Integer partialFailed,
             @RequestParam Integer allFailed
             ) {
-        return Result.success(certInfoService.getRamdomPdf(examProfileSerialNo, allPassed, partialFailed, allFailed));
+        return Result.success(certInfoService.getRamdomPdf(examProfileSerialNo,certStage, allPassed, partialFailed, allFailed));
     }
 
     @PostMapping("/preview/pdf")
