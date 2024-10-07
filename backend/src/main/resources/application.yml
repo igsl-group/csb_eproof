@@ -168,6 +168,9 @@ eproof-config:
   otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/sendOTP"
   dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-data"
   downloadUrlPrefix: https://uat-download.eproof.gov.hk/en/d?t=
+  register-trial-times: 2
+  issue-eproof-part-1-trial-times: 2
+  issue-eproof-part-2-trial-times: 2
 
 thread-pool:
   scheduled-task:

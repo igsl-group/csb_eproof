@@ -22,5 +22,9 @@ public class EProofConfigProperties {
 	String failTemplateTypeId;
 	String downloadUrlPrefix;
 
+	Integer registerTrialTimes;
+	Integer issueEproofPart1TrialTimes;
+	Integer issueEproofPart2TrialTimes;
+
 	String accessToken;
 }
