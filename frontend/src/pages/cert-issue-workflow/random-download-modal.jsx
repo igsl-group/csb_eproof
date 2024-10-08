@@ -72,7 +72,10 @@ const RandomDownloadModal = (props) =>  {
       })
 
     if (values) {
-      runExamProfileAPI('getRandomCert', queryString.stringify(values))
+      runExamProfileAPI('getRandomCert', queryString.stringify({
+        ...values,
+        certStage: 'SIGN_ISSUE'
+      }))
     }
   }, []);
 

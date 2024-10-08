@@ -108,8 +108,8 @@ const PersonalParticularsModal = (props) =>  {
   useEffect(() => {
     if (open) {
       runExamProfileAPI('certLatestCandidateInfo', {
-        hkid: hkid,
-        passportNo: hkid ? '': passport,
+        hkid: hkid ? hkid : null,
+        passportNo: hkid ? null: passport,
       }, toQueryString({
         page: 1,
         pageSize: 1,
