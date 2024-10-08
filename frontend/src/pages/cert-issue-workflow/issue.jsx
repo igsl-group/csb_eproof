@@ -508,7 +508,7 @@ const Issue = () =>  {
                 <Button disabled={issueCertData.length === 0 || getSummary().issuedPdfSuccess === 0  || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
-                <Button disabled={issueCertData.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
+                <Button disabled={issueCertData.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance') || getSummary().issuedPdfSuccess === getSummary().issuedPdfTotal} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
               </Col>
             </Row>
           </Col>
