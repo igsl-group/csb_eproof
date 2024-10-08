@@ -273,7 +273,8 @@ const Issue = () =>  {
       title:'It will take much time to patch .zip file. Please confirm if you want to download all PDF.',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      onOk: () => window.open(`/api/v1/cert/downloadCert/${serialNoValue}/all`, 'Download')
     });
   },[serialNoValue]);
 

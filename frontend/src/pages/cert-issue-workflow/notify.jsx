@@ -50,7 +50,7 @@ import ScheduleSendEmailModal from "./schedule-send-email-modal";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 import {useAuth} from "../../context/auth-provider";
-
+import {baseUrl} from '../../api';
 const Notify = () =>  {
   const auth = useAuth();
   const ref = useRef(null);
@@ -235,7 +235,8 @@ const Notify = () =>  {
       title:'It will take much time to patch .zip file.  Please confirm if you want to download all PDF.',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      onOk: () => window.open(`/api/v1/cert/downloadCert/${serialNoValue}/all`, 'Download')
     });
   },[serialNoValue]);
 
