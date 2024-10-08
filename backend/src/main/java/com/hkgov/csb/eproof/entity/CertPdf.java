@@ -1,10 +1,5 @@
 package com.hkgov.csb.eproof.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hkgov.csb.eproof.constants.Constants;
-import com.hkgov.csb.eproof.entity.enums.CertStage;
-import com.hkgov.csb.eproof.entity.enums.CertStatus;
-import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,9 +29,9 @@ public class CertPdf extends BaseEntity implements Cloneable{
     private CertInfo certInfo;
 
     // Mapped tables
-    @ManyToOne
+    @OneToOne
     @Setter(AccessLevel.NONE)
-    @JoinColumn(name = "cert_info_id", insertable = false, updatable = false)
+    @JoinColumn(name = "file_id", insertable = false, updatable = false)
     private File file;
 
     @Override

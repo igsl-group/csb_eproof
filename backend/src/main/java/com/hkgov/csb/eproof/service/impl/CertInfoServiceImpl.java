@@ -1467,7 +1467,21 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     public byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException {
-        List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
+        List<Long> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+        List<File> files = fileRepository.getLatestPdfForCerts(certInfoList);
+        List<File> latestPdfs = files.stream().collect(Collectors.groupingBy(File::getCertInfoId,
+                Collectors.collectingAndThen(
+                        Collectors.maxBy(Comparator.comparing(File::getCreatedDate)),
+                        Optional::get))).values().stream().collect(Collectors.toList());
+        for(File file : latestPdfs){
+            ZipEntry zipEntry = new ZipEntry(file.getName());
+            zos.putNextEntry(zipEntry);
+            zos.write(minioUtil.getFileAsByteArray(file.getPath()));
+            zos.closeEntry();
+        }
+       /* List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
@@ -1481,7 +1495,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             zos.putNextEntry(zipEntry);
             zos.write(minioUtil.getFileAsByteArray(latestPdf.getPath()));
             zos.closeEntry();
-        }
+        }*/
         zos.finish();
         zos.close();
         return baos.toByteArray();

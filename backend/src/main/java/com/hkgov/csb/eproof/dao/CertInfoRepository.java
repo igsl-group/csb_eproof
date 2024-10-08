@@ -94,8 +94,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             @Param("certStatusList") @NotNull List<String> certStatusList,
             Pageable pageable);
 
-    @Query("SELECT c FROM CertInfo c WHERE c.id in :certInfoIdList")
-    List<CertInfo> getByIdIn(List<Long> certInfoIdList);
+    @Query("SELECT c.id FROM CertInfo c WHERE c.id in :certInfoIdList")
+    List<Long> getByIdIn(List<Long> certInfoIdList);
 
     @Query("select c from CertInfo c where c.examProfileSerialNo = :serialNo and ((c.certStage = 'NOTIFY' and c.certStatus = 'SUCCESS' or c.certStatus = 'FAIL') or (c.certStage = 'COMPLETED'))")
     List<CertInfo> getInfoWithNotifyAndCompletedStageList(
