@@ -1471,8 +1471,13 @@ public class CertInfoServiceImpl implements CertInfoService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
+        int currentIndex = 1;
         for (CertInfo certInfo : certInfoList) {
-            logger.info("Exporting cert into zip. Cert ID: {}", certInfo.getId());
+            logger.info("Exporting cert into zip. Cert ID: {}, Current INDEX: {}, Total number: {}"
+                    , certInfo.getId()
+                    , currentIndex
+                    , certInfoList.size()
+            );
             if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
                 continue;
             }
