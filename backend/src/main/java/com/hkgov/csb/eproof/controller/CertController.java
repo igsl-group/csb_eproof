@@ -361,7 +361,7 @@ public class CertController {
         return ResponseEntity.ok().headers(header).body(previewCertPdf);
     }
 
-    @PostMapping("/downloadCert/{examProfileId}/all")
+    @GetMapping("/downloadCert/{examProfileId}/all")
     @Operation(summary = "Download cert with provided cert ID list.")
     public ResponseEntity downloadPdfAll(@PathVariable String examProfileId) throws IOException {
         HttpHeaders header = new HttpHeaders();
