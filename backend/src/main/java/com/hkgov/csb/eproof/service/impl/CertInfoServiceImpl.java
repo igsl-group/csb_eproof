@@ -1472,6 +1472,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         ZipOutputStream zos = new ZipOutputStream(baos);
 
         for (CertInfo certInfo : certInfoList) {
+            logger.info("Exporting cert into zip. Cert ID: {}", certInfo.getId());
             if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
                 continue;
             }
