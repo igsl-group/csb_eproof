@@ -751,11 +751,11 @@ export default function Cases(props) {
               <Row justify={'end'}>
                 <Col>
                   <Pagination
-                    total={docsPagination.total}
+                    total={pagination.total}
                     pageSizeOptions={defaultPaginationInfo.sizeOptions}
-                    onChange={docsPaginationOnChange}
-                    pageSize={defaultPaginationInfo.pageSize}
-                    current={docsPagination.page}
+                    onChange={paginationOnChange}
+                    current={pagination.page}
+                    pageSize={pagination.pageSize}
                     showTotal={(total) => `Total ${total} item(s)`}
                     showSizeChanger
                     showQuickJumper
@@ -792,11 +792,11 @@ export default function Cases(props) {
               <Row justify={'end'}>
                 <Col>
                   <Pagination
-                    total={suppDocsPagination.total}
+                    total={pagination.total}
                     pageSizeOptions={defaultPaginationInfo.sizeOptions}
-                    onChange={supplementaryDocumentPaginationOnChange}
-                    pageSize={defaultPaginationInfo.pageSize}
-                    current={suppDocsPagination.page}
+                    onChange={paginationOnChange}
+                    current={pagination.page}
+                    pageSize={pagination.pageSize}
                     showTotal={(total) => `Total ${total} item(s)`}
                     showSizeChanger
                     showQuickJumper

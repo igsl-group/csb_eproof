@@ -417,8 +417,8 @@ const HistoricalResultList = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
               showTotal={(total) => `Total ${total} item(s)`}
               showSizeChanger
               showQuickJumper
