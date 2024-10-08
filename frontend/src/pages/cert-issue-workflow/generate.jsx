@@ -50,6 +50,7 @@ import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKID, stringToHKIDWithBracket} from "../../components/HKID";
 import RandomPreviewModal from "./random-preview-modal";
 import {useAuth} from "../../context/auth-provider";
+import {baseURL} from "../../api";
 
 const Generate = () =>  {
   const auth = useAuth();
@@ -267,7 +268,7 @@ const Generate = () =>  {
       width: 500,
       okText: 'Confirm',
       // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
-      onOk: () => window.open(`/api/v1/cert/downloadCert/${serialNoValue}/all`, 'Download')
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all`, 'Download')
     });
   },[serialNoValue]);
 

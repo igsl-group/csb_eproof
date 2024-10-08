@@ -50,7 +50,7 @@ import ScheduleSendEmailModal from "./schedule-send-email-modal";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 import {useAuth} from "../../context/auth-provider";
-import {baseUrl} from '../../api';
+import {baseURL, baseUrl} from '../../api';
 const Notify = () =>  {
   const auth = useAuth();
   const ref = useRef(null);
@@ -236,7 +236,7 @@ const Notify = () =>  {
       width: 500,
       okText: 'Confirm',
       // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
-      onOk: () => window.open(`/api/v1/cert/downloadCert/${serialNoValue}/all`, 'Download')
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all`, 'Download')
     });
   },[serialNoValue]);
 
@@ -266,7 +266,6 @@ const Notify = () =>  {
           break;
         case 'examProfileGet':
         {
-
           break;
         }
         case 'examProfileSummaryGet':
