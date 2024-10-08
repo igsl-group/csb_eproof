@@ -1375,7 +1375,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
         String processedCertOwnerName = getInitials(certInfo.getName().trim());
-        String randomString = RandomStringUtils.random(4);
+        String randomString = RandomStringUtils.random(4,true,true);
 //        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
 //        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
@@ -1485,7 +1485,13 @@ public class CertInfoServiceImpl implements CertInfoService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
+        int currentIndex = 1;
         for (CertInfo certInfo : certInfoList) {
+            logger.info("Exporting cert into zip. Cert ID: {}, Current INDEX: {}, Total number: {}"
+                    , certInfo.getId()
+                    , currentIndex
+                    , certInfoList.size()
+            );
             if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
                 continue;
             }

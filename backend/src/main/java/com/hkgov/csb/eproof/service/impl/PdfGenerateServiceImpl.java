@@ -108,7 +108,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
         ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
 //        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
         String processedCertOwnerName = getInitials(certInfo.getName().trim());
-        String randomString = RandomStringUtils.random(4);
+        String randomString = RandomStringUtils.random(4,true,true);
 //        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
                 examProfile.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_4)),

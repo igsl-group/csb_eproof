@@ -238,7 +238,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private File uploadCertPdf(CertInfoRenew certInfoRenew, byte[] mergedPdf) throws IOException {
         ExamProfile examProfile = examProfileRepository.findById(certInfoRenew.getCertInfo().getExamProfileSerialNo()).get();
         String processedCertOwnerName = getInitials(certInfoRenew.getNewName().trim());
-        String randomString = RandomStringUtils.random(4);
+        String randomString = RandomStringUtils.random(4,true,true);
 //        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
 //        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
