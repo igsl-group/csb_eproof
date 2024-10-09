@@ -580,7 +580,7 @@ public class EProofUtil {
 				break;
 			}
 			catch(Exception e){
-				if(part2TrialTimes >= config.getIssueEproofPart1TrialTimes()){
+				if(part2TrialTimes >= config.getIssueEproofPart2TrialTimes()){
 					// Already used all chances to try. If still got exception , throw it out
 					throw e;
 				}
