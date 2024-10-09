@@ -363,14 +363,16 @@ public class CertController {
 
     @GetMapping("/downloadCert/{examProfileId}/all")
     @Operation(summary = "Download cert with provided cert ID list.")
-    public ResponseEntity downloadPdfAll(@PathVariable String examProfileId) throws IOException {
+    public ResponseEntity downloadPdfAll(
+            @PathVariable String examProfileId,
+            @RequestParam String certStage) throws IOException {
         HttpHeaders header = new HttpHeaders();
         header.setContentDisposition(ContentDisposition
                 .attachment()
                 .filename(this.getZipFileName())
                 .build()
         );
-        byte [] zippedPdfListByteArray = certInfoService.downloadcert(examProfileId);
+        byte [] zippedPdfListByteArray = certInfoService.downloadcert(examProfileId,certStage);
         return ResponseEntity.ok()
                 .headers(header)
                 .body(zippedPdfListByteArray);
