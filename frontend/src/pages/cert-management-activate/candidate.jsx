@@ -15,7 +15,7 @@ import {
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
-import HKID, { stringToHKID } from "@/components/HKID";
+import HKID, { stringToHKID, stringToHKIDWithBracket } from "@/components/HKID";
 import Email from "@/components/Email";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
@@ -36,7 +36,6 @@ import Richtext from "../../components/Richtext";
 import HkidPassportModal from "./hkid-passport-modal";
 import PermissionControl from "../../components/PermissionControl";
 import EmailModal from "./modal";
-import {stringToHKIDWithBracket} from "../../components/HKID";
 import {useAuth} from "../../context/auth-provider";
 
 const Candidate = () =>  {
@@ -141,9 +140,9 @@ const Candidate = () =>  {
       title: 'Candidate',
     },
     {
-      title: hkid,
+      title: hkid ? stringToHKIDWithBracket(hkid): passport,
     },
-  ], []);
+  ], [hkid, passport]);
 
   const onClickDownload = useCallback(() => {
     modalApi.confirm({
