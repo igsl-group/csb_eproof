@@ -1257,8 +1257,9 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public byte[] downloadcert(String examProfileId) throws IOException {
-        List<Long> ids = certInfoRepository.getAllByExamProfileId(examProfileId);
+    public byte[] downloadcert(String examProfileId, String certStage) throws IOException {
+        CertStage stage = CertStage.valueOf(certStage);
+        List<Long> ids = certInfoRepository.getAllByExamProfileId(examProfileId,stage);
         return getZippedPdfBinary(ids);
     }
 

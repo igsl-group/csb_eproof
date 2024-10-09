@@ -88,5 +88,5 @@ public interface CertInfoService {
 
     void deleteFutureBatchEmail(String examProfileSerialNo);
 
-    byte [] downloadcert(String examProfileId) throws IOException;
+    byte [] downloadcert(String examProfileId, String certStage) throws IOException;
 }
