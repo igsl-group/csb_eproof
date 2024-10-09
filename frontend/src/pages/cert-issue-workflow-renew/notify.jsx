@@ -311,7 +311,7 @@ const Notify = () =>  {
       render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
-  ], []);
+  ], [auth.permissions]);
 
   const onClickNotifyModal = useCallback((row) => {
     setRecord(row);

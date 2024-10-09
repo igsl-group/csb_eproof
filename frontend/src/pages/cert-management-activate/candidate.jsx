@@ -365,8 +365,8 @@ const Candidate = () =>  {
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certBatchUpdateEmail', {
-        hkid: hkid ? hkid : null,
-        passportNo: hkid ? null: passport,
+        currentHkid: hkid ? hkid : null,
+        currentPassport: hkid ? null: passport,
         email,
       })
     });

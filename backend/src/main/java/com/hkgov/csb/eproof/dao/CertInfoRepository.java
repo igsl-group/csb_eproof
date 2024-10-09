@@ -193,6 +193,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             SELECT c.* FROM cert_info c
             LEFT JOIN exam_profile ep ON c.exam_profile_serial = ep.serial_no
             WHERE c.exam_profile_serial = :examProfileSerialNo
+              AND c.cert_stage = :stage
             AND (c.blnst_grade IN (:blnstGrade) OR c.blnst_grade = '')
             AND (c.ue_grade IN (:ueGrade) OR c.ue_grade = '')
             AND (c.uc_grade IN (:ucGrade) OR c.uc_grade = '')
@@ -203,6 +204,7 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             """)
     List<CertInfo> getRandomCert(
             @Param("examProfileSerialNo") String examProfileSerialNo,
+            String stage,
             @Param("blnstGrade") List<String> blnstGrade,
             @Param("ueGrade") List<String> ueGrade,
             @Param("ucGrade") List<String> ucGrade,
@@ -213,42 +215,42 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
 
     @Query(nativeQuery = true,
             value = """
-                             SELECT c.* FROM cert_info c
-                             LEFT JOIN exam_profile ep on c.exam_profile_serial = ep.serial_no
-                                WHERE c.exam_profile_serial = :examProfileSerialNo
-                                 /* At least 1 failed */ AND (
-                                     (c.blnst_grade in :blnstFailGrade or c.blnst_grade = '')
-                                     OR (c.ue_grade in :ueFailGrade or c.ue_grade = '')
-                                     OR (c.uc_grade in :ucFailGrade or c.uc_grade = '')
-                                     OR (c.at_grade in :atFailGrade or c.at_grade = '')
-                                 )
-                                 /* Not all passed */ AND NOT(
-                                     (c.blnst_grade in :blnstPassGrade or c.blnst_grade = '')
-                                     AND (c.ue_grade in :uePassGrade or c.ue_grade = '')
-                                     AND (c.uc_grade in :ucPassGrade or c.uc_grade = '')
-                                     AND (c.at_grade in :atPassGrade or c.at_grade = '')
-                                )
-                                /* Not all failed */ AND NOT(
-                                     (c.blnst_grade in :blnstFailGrade or c.blnst_grade = '')
-                                     AND (c.ue_grade in :ueFailGrade or c.ue_grade = '')
-                                     AND (c.uc_grade in :ucFailGrade or c.uc_grade = '')
-                                     AND (c.at_grade in :atFailGrade or c.at_grade = '')
-                                )
-                                /* At least 1 passed */ AND(
-                                     (c.blnst_grade in :blnstPassGrade or c.blnst_grade = '')
-                                     OR (c.ue_grade in :uePassGrade or c.ue_grade = '')
-                                     OR (c.uc_grade in :ucPassGrade or c.uc_grade = '')
-                                     OR (c.at_grade in :atPassGrade or c.at_grade = '')
-                                )
-                                AND c.on_hold = 0
-                                ORDER BY rand()
-                            LIMIT :limit
+                     SELECT c.* FROM cert_info c
+                     LEFT JOIN exam_profile ep on c.exam_profile_serial = ep.serial_no
+                        WHERE c.exam_profile_serial = :examProfileSerialNo and c.cert_stage = :stage
+                         /* At least 1 failed */ AND (
+                             (c.blnst_grade in :blnstFailGrade or c.blnst_grade = '')
+                             OR (c.ue_grade in :ueFailGrade or c.ue_grade = '')
+                             OR (c.uc_grade in :ucFailGrade or c.uc_grade = '')
+                             OR (c.at_grade in :atFailGrade or c.at_grade = '')
+                         )
+                         /* Not all passed */ AND NOT(
+                             (c.blnst_grade in :blnstPassGrade or c.blnst_grade = '')
+                             AND (c.ue_grade in :uePassGrade or c.ue_grade = '')
+                             AND (c.uc_grade in :ucPassGrade or c.uc_grade = '')
+                             AND (c.at_grade in :atPassGrade or c.at_grade = '')
+                        )
+                        /* Not all failed */ AND NOT(
+                             (c.blnst_grade in :blnstFailGrade or c.blnst_grade = '')
+                             AND (c.ue_grade in :ueFailGrade or c.ue_grade = '')
+                             AND (c.uc_grade in :ucFailGrade or c.uc_grade = '')
+                             AND (c.at_grade in :atFailGrade or c.at_grade = '')
+                        )
+                        /* At least 1 passed */ AND(
+                             (c.blnst_grade in :blnstPassGrade or c.blnst_grade = '')
+                             OR (c.ue_grade in :uePassGrade or c.ue_grade = '')
+                             OR (c.uc_grade in :ucPassGrade or c.uc_grade = '')
+                             OR (c.at_grade in :atPassGrade or c.at_grade = '')
+                        )
+                        AND c.on_hold = 0
+                        ORDER BY rand()
+                    LIMIT :limit
                     """)
     List<CertInfo> getPartialFailedCert(String examProfileSerialNo,
-            List<String> blnstPassGrade, List<String> blnstFailGrade,
-            List<String> uePassGrade, List<String> ueFailGrade,
-            List<String> ucPassGrade, List<String> ucFailGrade,
-            List<String> atPassGrade, List<String> atFailGrade, Integer limit);
+                                        String stage, List<String> blnstPassGrade, List<String> blnstFailGrade,
+                                        List<String> uePassGrade, List<String> ueFailGrade,
+                                        List<String> ucPassGrade, List<String> ucFailGrade,
+                                        List<String> atPassGrade, List<String> atFailGrade, Integer limit);
 
     @Query(value = "SELECT " + "exam_profile_serial, "
             + "COUNT(CASE WHEN uc_grade IS NOT NULL AND uc_grade <> '' THEN 1 END) AS uc_total_candidate, "

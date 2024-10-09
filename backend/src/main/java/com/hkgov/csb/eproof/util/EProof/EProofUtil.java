@@ -400,6 +400,7 @@ public class EProofUtil {
 					// Already used all chances to try. If still got exception , throw it out
 					throw e;
 				}
+			}finally{
 				currentTrialTimes ++;
 			}
 		}
@@ -562,6 +563,8 @@ public class EProofUtil {
 					// Already used all chances to try. If still got exception , throw it out
 					throw e;
 				}
+			}
+			finally{
 				part1TrialTimes ++;
 			}
 		}
@@ -578,6 +581,8 @@ public class EProofUtil {
 					// Already used all chances to try. If still got exception , throw it out
 					throw e;
 				}
+			}
+			finally{
 				part2TrialTimes ++;
 			}
 		}

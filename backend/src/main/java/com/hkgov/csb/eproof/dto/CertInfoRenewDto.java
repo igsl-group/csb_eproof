@@ -73,7 +73,7 @@ public class CertInfoRenewDto {
 
     private Boolean isDelete;
 
-    private List<File> pdfList;
+    private List<FileDto> pdfList;
 
     private CertInfoDto certInfo;
 

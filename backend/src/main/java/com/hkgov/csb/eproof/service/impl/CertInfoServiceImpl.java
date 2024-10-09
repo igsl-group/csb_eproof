@@ -1174,6 +1174,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
         List<CertInfo> randomAllPassed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
+                stage.name(),
                 List.of("L1","L2","P"),
                 List.of("L1","L2","P"),
                 List.of("L1","L2","P"),
@@ -1181,6 +1182,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 allPassedCount);
         List<CertInfo> randomPartialFailed = certInfoRepository.getPartialFailedCert(
                 examProfileSerialNo,
+                stage.name(),
                 List.of("L1","L2","P"),
                 List.of("F"),
                 List.of("L1","L2","P"),
@@ -1193,6 +1195,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         List<CertInfo> randomAllFailed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
+                stage.name(),
                 List.of("F"),
                 List.of("F"),
                 List.of("F"),

@@ -168,7 +168,7 @@ const Generate = () =>  {
       render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
-  ], []);
+  ], [auth.permissions]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
