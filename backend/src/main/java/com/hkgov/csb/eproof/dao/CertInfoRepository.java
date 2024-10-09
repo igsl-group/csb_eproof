@@ -312,6 +312,6 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
 """)
     List<CertInfo> getToBeSendBatchEmailCert(String examProfileSerialNo);
 
-    @Query("select c.id from CertInfo c where c.examProfileSerialNo = :examProfileId and c.certStage = :stage and c.onHold = false")
+    @Query("select c.id from CertInfo c where c.examProfileSerialNo = :examProfileId and c.certStage = :stage")
     List<Long> getAllByExamProfileId(String examProfileId, CertStage stage);
 }
