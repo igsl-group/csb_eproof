@@ -998,11 +998,11 @@ export default function Document(props) {
               <Row justify={'end'}>
                 <Col>
                   <Pagination
-                    total={attachmentPagination.total}
+                    total={pagination.total}
                     pageSizeOptions={defaultPaginationInfo.sizeOptions}
-                    onChange={attachmentPaginationOnChange}
-                    pageSize={defaultPaginationInfo.pageSize}
-                    current={attachmentPagination.page}
+                    onChange={paginationOnChange}
+                    current={pagination.page}
+                    pageSize={pagination.pageSize}
                     showTotal={(total) => `Total ${total} item(s)`}
                     showSizeChanger
                     showQuickJumper
@@ -1031,11 +1031,11 @@ export default function Document(props) {
               <Row justify={'end'} gutter={[24, 8]}>
                 <Col>
                   <Pagination
-                    total={historyPagination.total}
+                    total={pagination.total}
                     pageSizeOptions={defaultPaginationInfo.sizeOptions}
-                    onChange={historyPaginationOnChange}
-                    pageSize={defaultPaginationInfo.pageSize}
-                    current={historyPagination.page}
+                    onChange={paginationOnChange}
+                    current={pagination.page}
+                    pageSize={pagination.pageSize}
                     showTotal={(total) => `Total ${total} item(s)`}
                     showSizeChanger
                     showQuickJumper

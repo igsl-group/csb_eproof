@@ -57,12 +57,6 @@ const EmailTemplateList = () =>  {
     orderBy: defaultPaginationInfo.orderBy,
   });
 
-  // const onDeleteClickCallback = useCallback((id) => {
-  //   // runUserRoleAPI('userRemove', id);
-  //   // runUserRoleAPI('userGet', recordId)
-  //
-  // }, []);
-
   const onEditClickCallback = useCallback((row) => {
     setRecord(row);
     setOpen(true);
@@ -70,11 +64,6 @@ const EmailTemplateList = () =>  {
     // runUserRoleAPI('userGet', recordId)
 
   }, []);
-
-  // const onCreateClickCallback = useCallback(() => {
-  //   setOpen(true);
-  //   setType(TYPE.CREATE);
-  // }, []);
 
   const onCloseCallback = useCallback(() => {
     setOpen(false);
@@ -270,8 +259,8 @@ const EmailTemplateList = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
               showTotal={(total) => `Total ${total} item(s)`}
               showSizeChanger
               showQuickJumper

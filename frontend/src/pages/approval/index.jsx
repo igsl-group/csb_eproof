@@ -96,7 +96,7 @@ const ApprovalWorkflow = () =>  {
     if (auth.permissions.includes('Certificate_Notify_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['sendEmailTotal'], 'Notify'))
     }
-    if (auth.permissions.includes('Case_Maintenance')) {
+    if (auth.permissions.includes('Resume_Delete_On-Hold_Case')) {
       onholdActionList.push(...actionListCallback(examProfileSummaryList, ['onHoldCaseTotal'], 'Onhold'))
     }
     console.log(onholdActionList)
@@ -397,7 +397,7 @@ const ApprovalWorkflow = () =>  {
         </Card>
       </PermissionControl>
       <br/>
-      <PermissionControl permissionRequired={['Case_Maintenance']}>
+      <PermissionControl permissionRequired={['Resume_Delete_On-Hold_Case']}>
         <br/>
         <Card
           bordered={false}

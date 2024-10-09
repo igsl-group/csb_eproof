@@ -1475,11 +1475,19 @@ public class CertInfoServiceImpl implements CertInfoService {
                 Collectors.collectingAndThen(
                         Collectors.maxBy(Comparator.comparing(File::getCreatedDate)),
                         Optional::get))).values().stream().collect(Collectors.toList());
+
+        int currentIndex = 1;
         for(File file : latestPdfs){
+            logger.info("Exporting cert into zip. File ID: {}, Current INDEX: {}, Total number: {}"
+                    , file.getId()
+                    , currentIndex
+                    , certInfoList.size()
+            );
             ZipEntry zipEntry = new ZipEntry(file.getName());
             zos.putNextEntry(zipEntry);
             zos.write(minioUtil.getFileAsByteArray(file.getPath()));
             zos.closeEntry();
+            currentIndex++;
         }
        /* List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

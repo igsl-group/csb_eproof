@@ -4,11 +4,11 @@ import { getToken, setToken, removeToken } from '@/api/auth';
 import { API_ERROR_MESSAGE, LOGIN_ERROR_MESSAGE } from "../utils/util";
 import { showLoading, hideLoading } from "@/components/Loading";
 
-let baseURL = `/api/v1`;
+export let baseURL = `/api/v1`;
 const headers = {};
 
 if (process.env.NODE_ENV === 'development') {
-  baseURL = 'http://localhost:8090/api/v1';
+  baseURL = 'http://localhost:8080/api/v1';
   // baseURL = 'https://192.168.1.171:9001/api/v1';
   // baseURL = 'http://192.168.1.170:8080/api/v1';
   // baseURL = 'http://192.168.2.227:8081/api/v1';

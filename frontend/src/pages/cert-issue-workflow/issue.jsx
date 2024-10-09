@@ -50,6 +50,7 @@ import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 import RandomDownloadModal from "./random-download-modal";
 import {useAuth} from "../../context/auth-provider";
+import {baseURL} from "../../api";
 
 const Issue = () =>  {
   const auth = useAuth();
@@ -273,7 +274,8 @@ const Issue = () =>  {
       title:'It will take much time to patch .zip file. Please confirm if you want to download all PDF.',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all`, 'Download')
     });
   },[serialNoValue]);
 
@@ -506,7 +508,7 @@ const Issue = () =>  {
                 <Button disabled={issueCertData.length === 0 || getSummary().issuedPdfSuccess === 0  || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
-                <Button disabled={issueCertData.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
+                <Button disabled={issueCertData.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance') || getSummary().issuedPdfSuccess === getSummary().issuedPdfTotal} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
               </Col>
             </Row>
           </Col>
