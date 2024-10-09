@@ -204,8 +204,8 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             """)
     List<CertInfo> getRandomCert(
             @Param("examProfileSerialNo") String examProfileSerialNo,
+            String stage,
             @Param("blnstGrade") List<String> blnstGrade,
-            String stage, @Param("blnstGrade") List<String> blnstGrade,
             @Param("ueGrade") List<String> ueGrade,
             @Param("ucGrade") List<String> ucGrade,
             @Param("atGrade") List<String> atGrade,

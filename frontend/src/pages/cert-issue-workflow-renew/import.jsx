@@ -122,7 +122,7 @@ const Import = () =>  {
       width: 100,
       sorter: true,
     },
-  ], []);
+  ], [auth.permissions]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
