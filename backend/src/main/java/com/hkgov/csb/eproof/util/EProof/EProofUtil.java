@@ -394,6 +394,7 @@ public class EProofUtil {
 					out.put("version", jret.getJSONObject("data").getInt("version"));
 					out.put("token", jret.getJSONObject("data").getString("token"));
 				}
+				break;
 			}
 			catch(Exception e){
 				if(currentTrialTimes >= config.getRegisterTrialTimes()){
@@ -558,6 +559,7 @@ public class EProofUtil {
 			try (Response httpResponse = ApiUtil.issueEproofAddPDF(config, uuid)){
 				checkResponse(httpResponse);
 				logger.info("Write PDF URL success");
+				break;
 			}catch(Exception e){
 				if(part1TrialTimes >= config.getIssueEproofPart1TrialTimes()){
 					// Already used all chances to try. If still got exception , throw it out
@@ -575,6 +577,7 @@ public class EProofUtil {
 			try (Response httpResponse = ApiUtil.issueEproofUpdatePDFHash(config, uuid, pdfHash)) {
 				checkResponse(httpResponse);
 				logger.info("Write PDF Hash success");
+				break;
 			}
 			catch(Exception e){
 				if(part2TrialTimes >= config.getIssueEproofPart1TrialTimes()){
