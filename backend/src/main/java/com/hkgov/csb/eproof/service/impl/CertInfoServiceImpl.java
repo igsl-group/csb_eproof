@@ -150,7 +150,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) {
+    public Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) throws Exception {
         List<CertInfo> certInfos = checkScv(examProfileSerialNo,csvData);
         return certInfoRepository.saveAll(certInfos).size() == csvData.size();
     }
