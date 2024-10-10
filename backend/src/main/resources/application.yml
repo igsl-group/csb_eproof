@@ -136,6 +136,8 @@ document:
     height: 80
     width: 80
 
+aes-encrypt-key: CSB_EP_KEY@2024!
+
 minio:
   endpoint: http://192.168.2.175:9000
   accessKey: admin

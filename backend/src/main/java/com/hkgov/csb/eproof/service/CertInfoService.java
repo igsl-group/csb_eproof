@@ -22,7 +22,7 @@ public interface CertInfoService {
 
     Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
-    Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData);
+    Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) throws Exception;
 
     Boolean dispatch(String examProfileSerialNo, CertStage currentStage);
 

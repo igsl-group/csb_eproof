@@ -14,6 +14,7 @@ import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.request.ManualResendBatchEmailRequest;
+import com.hkgov.csb.eproof.security.EncryptionUtil;
 import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
@@ -373,6 +374,16 @@ public class TestController {
         GcisBatchEmail gcisBatchEmail =gcisBatchEmailRepository.findById(gcisBatchEmailId).orElseThrow(()->new GenericException("gcis.batch.email.not.found","GCIS batch email not found"));
         return gcisBatchEmailService.enquireUploadStatus(gcisBatchEmail.getId());
      }
+
+    @GetMapping("/encryptString/{str}")
+    public String testEncrypt(@PathVariable String str) throws Exception {
+        return EncryptionUtil.encrypt(str);
+    }
+
+    @GetMapping("/decryptString/{str}")
+    public String testDecrypt(@PathVariable String str) throws Exception {
+        return EncryptionUtil.decrypt(str);
+    }
 
 
 }

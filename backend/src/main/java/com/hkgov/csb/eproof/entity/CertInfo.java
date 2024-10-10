@@ -45,6 +45,9 @@ public class CertInfo extends BaseEntity implements Cloneable{
     @Column(name = "hkid")
     private String hkid;
 
+    @Column(name = "encrypted_hkid")
+    private String encryptedHkid;
+
     @Column(name = "passport_no")
     private String passportNo;
 

@@ -1403,7 +1403,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         return initials.toString().toUpperCase();
     }
 
-    public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData){
+    public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData) throws Exception {
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
         ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);

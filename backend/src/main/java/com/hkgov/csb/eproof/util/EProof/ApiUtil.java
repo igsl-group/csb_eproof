@@ -66,7 +66,7 @@ public class ApiUtil {
 			}
 
 		}else{
-			logger.debug("Already a valid token");
+			logger.info("Already a valid token");
 			ret = true;
 		}
 		return ret;

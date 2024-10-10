@@ -128,7 +128,7 @@ public class CertController {
     }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/batch/import/{examProfileSerialNo}")
     @Transactional(rollbackFor = Exception.class)
-    public Result batchImport(@PathVariable String examProfileSerialNo, @RequestPart("file") MultipartFile file){
+    public Result batchImport(@PathVariable String examProfileSerialNo, @RequestPart("file") MultipartFile file) throws Exception {
         List<CertImportDto> csvData = CsvUtil.getCsvData(file, CertImportDto.class);
         return Result.success(certInfoService.batchImport(examProfileSerialNo,csvData));
     }

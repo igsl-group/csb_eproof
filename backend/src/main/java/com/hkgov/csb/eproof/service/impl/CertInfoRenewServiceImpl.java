@@ -21,6 +21,7 @@ import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
 import com.hkgov.csb.eproof.request.SendEmailRequest;
+import com.hkgov.csb.eproof.security.EncryptionUtil;
 import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -786,8 +787,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         certEproofRepository.save(certEproof);
     }
 
-    private void replaceCertInfoWithCertInfoRenew(CertInfo certInfo, CertInfoRenew certInfoRenew){
+    private void replaceCertInfoWithCertInfoRenew(CertInfo certInfo, CertInfoRenew certInfoRenew) throws Exception {
         certInfo.setHkid(certInfoRenew.getNewHkid());
+        certInfo.setEncryptedHkid(EncryptionUtil.encrypt(certInfoRenew.getNewHkid()));
         certInfo.setPassportNo(certInfoRenew.getNewPassport());
         certInfo.setName(certInfoRenew.getNewName());
         certInfo.setEmail(certInfoRenew.getNewEmail());
