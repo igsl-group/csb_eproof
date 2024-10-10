@@ -40,7 +40,7 @@ public class ScheduledJobs {
     @Scheduled(cron = "${cron-expression.refresh-eproof-access-token}")
     public void refreshCachedAccessToken() throws Exception {
         logStartMessage("Refresh cached access token");
-//        eProofConfigProperties.setAccessToken(null);
+        eProofConfigProperties.setAccessToken(null);
         ApiUtil.getAccessTokenByClientCredentials(eProofConfigProperties);
         logEndMessage("Refresh cached access token");
     }

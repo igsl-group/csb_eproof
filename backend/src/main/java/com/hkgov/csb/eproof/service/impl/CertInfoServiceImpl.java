@@ -1059,6 +1059,10 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
 
     public void approveRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        // Set the eproof config properties to hard refresh the token
+        eProofConfigProperties.setAccessToken(null);
+
+
         CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
         List<CertInfo> toBeRevokeCertInfoList = certAction.getCertInfos();
 
@@ -1451,6 +1455,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 CertInfo certInfo = new CertInfo();
                 certInfo.setExamProfileSerialNo(examProfileSerialNo);
                 certInfo.setHkid(csv.getHkid());
+                certInfo.setEncryptedHkid(EncryptionUtil.encrypt(csv.getHkid()));
                 certInfo.setPassportNo(csv.getPassportNo());
                 certInfo.setExamDate(examDate);
                 certInfo.setName(csv.getName());
