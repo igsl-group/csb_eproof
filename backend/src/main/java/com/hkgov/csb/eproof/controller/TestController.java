@@ -171,7 +171,7 @@ public class TestController {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try (PDDocument pdDocument = PDDocument.load(previewCertPdf)) {
-            byte [] qrCodeImageBinary = certInfoServiceImpl.generateQrCodeBinary("https://google.com");
+            byte [] qrCodeImageBinary = certInfoServiceImpl.generateQrCodeBinary("{\"data\":{\"initVector\":\"ndlftcAV96tINBUSnjirBA==\",\"jwt\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI1MzQwMjMwMDc5OSwidHlwZSI6IjA3IiwiaWF0IjoxNzI1MjI4NzgwLCJzdWIiOiJkMWI4MjgxMS03YjRlLTQ5Y2QtOWRlZi03YmRlZWRmNGQyNzQifQ.WB3nf6gy9eeRgLwqrI59d_a86VaBXcES-pem9P_BtDc\",\"key\":\"JCxY2GfePT4wqC5J6rFez+J1QkQBHZySgmluVVgs8GE=\",\"shared_eproof_uuid\":\"d1b82811-7b4e-49cd-9def-7bdeedf4d274\"},\"type_id\":\"2c\"}");
 
             Integer x = qrx != null ? qrx : qrCodeX;
             Integer y = qry != null ? qry : qrCodeY;

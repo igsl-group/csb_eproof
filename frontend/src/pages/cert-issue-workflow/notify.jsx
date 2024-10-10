@@ -236,7 +236,7 @@ const Notify = () =>  {
       width: 500,
       okText: 'Confirm',
       // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
-      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all`, 'Download')
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all?certStage=NOTIFY`, 'Download')
     });
   },[serialNoValue]);
 
@@ -415,18 +415,18 @@ const Notify = () =>  {
     resetPagination();
   }, [])
 
-  const updateSummary = () => {
+  const updateSummary = useCallback(() => {
     if (ref.current) {
       ref.current.updateSummary();
     }
-  };
+  }, []);
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     if (ref.current) {
       return ref.current.getSummary();
     }
     return {}
-  };
+  }, []);
 
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Notify_View']}>

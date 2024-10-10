@@ -275,7 +275,7 @@ const Issue = () =>  {
       width: 500,
       okText: 'Confirm',
       // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
-      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all`, 'Download')
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all?certStage=SIGN_ISSUE`, 'Download')
     });
   },[serialNoValue]);
 
@@ -461,18 +461,18 @@ const Issue = () =>  {
     resetPagination();
   }, [])
 
-  const updateSummary = () => {
+  const updateSummary = useCallback(() => {
     if (ref.current) {
       ref.current.updateSummary();
     }
-  };
+  }, []);
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     if (ref.current) {
       return ref.current.getSummary();
     }
     return {}
-  };
+  }, []);
 
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Sign_And_Issue_View']}>

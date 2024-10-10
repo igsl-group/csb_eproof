@@ -268,7 +268,7 @@ const Generate = () =>  {
       width: 500,
       okText: 'Confirm',
       // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
-      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all`, 'Download')
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all?certStage=GENERATED`, 'Download')
     });
   },[serialNoValue]);
 
@@ -444,18 +444,18 @@ const Generate = () =>  {
     resetPagination();
   }, [])
 
-  const updateSummary = () => {
+  const updateSummary = useCallback(() => {
     if (ref.current) {
       ref.current.updateSummary();
     }
-  };
+  }, []);
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     if (ref.current) {
       return ref.current.getSummary();
     }
     return {}
-  };
+  }, []);
 
   return (
     <div className={styles['exam-profile']} permissionRequired={['Certificate_Generate_View']}>
@@ -575,8 +575,7 @@ const Generate = () =>  {
               <Button type="primary" onClick={() => setPreviewPdfOpen(true)} disabled={generatedData.length === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Random Check</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Download
-                Selected ({selectedRowKeys.length})</Button>
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Download Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
               <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().generatePdfTotal === 0 || !auth.permissions.includes('Certificate_Generate_Maintenance')}>Download All</Button>

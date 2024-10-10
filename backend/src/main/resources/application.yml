@@ -4,6 +4,9 @@ spring:
     url: jdbc:mariadb://192.168.2.227:3306/eproof
     username: root
     password: P@ssw0rd1234$
+#    url: jdbc:mariadb://localhost:19307/eproof_db?useSSL=true&trustServerCertificate=true
+#    username: eproof_root
+#    password: P@ssw0rd1234$
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
@@ -128,10 +131,10 @@ document:
   font-zh-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\fonts\SIMSUN.ttf
   generate-temp-source: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofCertTemplate\fail\fail_template.docx
   qr-code:
-    x: 37
+    x: 48
     y: 132
-    height: 90
-    width: 90
+    height: 80
+    width: 80
 
 minio:
   endpoint: http://192.168.2.175:9000
