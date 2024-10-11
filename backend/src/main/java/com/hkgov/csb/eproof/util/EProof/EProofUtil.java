@@ -371,7 +371,29 @@ public class EProofUtil {
 
 		Map<String, Object> out = new HashMap<>();
 		out.put("eProofJson", vcString);
-		int currentTrialTimes= 1;
+		try (Response httpResponse = ApiUtil.registerEproof(uuid,
+				config, (String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("eproof_id"),
+				eproofTypeId,
+				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("template_code"),
+				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("expire_date"),
+				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("issue_date"),
+				vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null
+						?downloadExpiryDate.minusHours(8).format(formatter)
+						:null,
+				formattedPublishDate
+		)) {
+			checkResponse(httpResponse);
+			JSONObject jret = new JSONObject(httpResponse.body().string());
+			logger.info("status= " + jret.getString("status").equals("Successful"));
+			if (jret.getString("status").equals("Successful")) {
+				out.put("status", "Successful");
+				out.put("uuid", jret.getJSONObject("data").getString("id"));
+				out.put("version", jret.getJSONObject("data").getInt("version"));
+				out.put("token", jret.getJSONObject("data").getString("token"));
+			}
+		}
+
+		/*int currentTrialTimes= 1;
 
 		while(currentTrialTimes < config.getRegisterTrialTimes()){
 			try (Response httpResponse = ApiUtil.registerEproof(uuid,
@@ -404,7 +426,7 @@ public class EProofUtil {
 			}finally{
 				currentTrialTimes ++;
 			}
-		}
+		}*/
 
 
 		return out;
@@ -554,7 +576,17 @@ public class EProofUtil {
 			return;
 		}
 
-		int part1TrialTimes = 1;
+		try (Response httpResponse = ApiUtil.issueEproofAddPDF(config, uuid)){
+			checkResponse(httpResponse);
+			logger.info("Write PDF URL success");
+		}
+
+		try (Response httpResponse = ApiUtil.issueEproofUpdatePDFHash(config, uuid, pdfHash)) {
+			checkResponse(httpResponse);
+			logger.info("Write PDF Hash success");
+		}
+
+		/*int part1TrialTimes = 1;
 		while(part1TrialTimes < config.getIssueEproofPart1TrialTimes()){
 			try (Response httpResponse = ApiUtil.issueEproofAddPDF(config, uuid)){
 				checkResponse(httpResponse);
@@ -569,10 +601,10 @@ public class EProofUtil {
 			finally{
 				part1TrialTimes ++;
 			}
-		}
+		}*/
 
 
-		int part2TrialTimes = 1;
+		/*int part2TrialTimes = 1;
 		while(part2TrialTimes < config.getIssueEproofPart2TrialTimes()){
 			try (Response httpResponse = ApiUtil.issueEproofUpdatePDFHash(config, uuid, pdfHash)) {
 				checkResponse(httpResponse);
@@ -588,7 +620,7 @@ public class EProofUtil {
 			finally{
 				part2TrialTimes ++;
 			}
-		}
+		}*/
 
 
 		//Validate the eProof
