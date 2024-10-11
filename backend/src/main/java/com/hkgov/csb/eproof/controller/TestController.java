@@ -1,12 +1,15 @@
 package com.hkgov.csb.eproof.controller;
 
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.EmailTemplateRepository;
 import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
+import com.hkgov.csb.eproof.dto.EnquiryResultDto;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.EmailTemplate;
@@ -20,6 +23,7 @@ import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
 import com.hkgov.csb.eproof.service.PermissionService;
 import com.hkgov.csb.eproof.service.impl.CertInfoServiceImpl;
+import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.EmailUtil;
@@ -47,19 +51,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/test")
@@ -385,5 +393,9 @@ public class TestController {
         return EncryptionUtil.decrypt(str);
     }
 
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value ="/pdfHash")
+    public String pdfHash(@RequestPart("file") MultipartFile file) throws Exception {
+        return EProofUtil.calcPdfHash(file.getBytes());
+    }
 
 }

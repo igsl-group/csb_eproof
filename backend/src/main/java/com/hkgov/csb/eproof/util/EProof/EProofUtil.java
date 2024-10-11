@@ -371,7 +371,7 @@ public class EProofUtil {
 
 		Map<String, Object> out = new HashMap<>();
 		out.put("eProofJson", vcString);
-		try (Response httpResponse = ApiUtil.registerEproof(uuid,
+		/*try (Response httpResponse = ApiUtil.registerEproof(uuid,
 				config, (String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("eproof_id"),
 				eproofTypeId,
 				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("template_code"),
@@ -391,9 +391,9 @@ public class EProofUtil {
 				out.put("version", jret.getJSONObject("data").getInt("version"));
 				out.put("token", jret.getJSONObject("data").getString("token"));
 			}
-		}
+		}*/
 
-		/*int currentTrialTimes= 1;
+		int currentTrialTimes= 1;
 
 		while(currentTrialTimes < config.getRegisterTrialTimes()){
 			try (Response httpResponse = ApiUtil.registerEproof(uuid,
@@ -426,7 +426,7 @@ public class EProofUtil {
 			}finally{
 				currentTrialTimes ++;
 			}
-		}*/
+		}
 
 
 		return out;
@@ -576,7 +576,7 @@ public class EProofUtil {
 			return;
 		}
 
-		try (Response httpResponse = ApiUtil.issueEproofAddPDF(config, uuid)){
+		/*try (Response httpResponse = ApiUtil.issueEproofAddPDF(config, uuid)){
 			checkResponse(httpResponse);
 			logger.info("Write PDF URL success");
 		}
@@ -584,9 +584,9 @@ public class EProofUtil {
 		try (Response httpResponse = ApiUtil.issueEproofUpdatePDFHash(config, uuid, pdfHash)) {
 			checkResponse(httpResponse);
 			logger.info("Write PDF Hash success");
-		}
+		}*/
 
-		/*int part1TrialTimes = 1;
+		int part1TrialTimes = 1;
 		while(part1TrialTimes < config.getIssueEproofPart1TrialTimes()){
 			try (Response httpResponse = ApiUtil.issueEproofAddPDF(config, uuid)){
 				checkResponse(httpResponse);
@@ -601,10 +601,10 @@ public class EProofUtil {
 			finally{
 				part1TrialTimes ++;
 			}
-		}*/
+		}
 
 
-		/*int part2TrialTimes = 1;
+		int part2TrialTimes = 1;
 		while(part2TrialTimes < config.getIssueEproofPart2TrialTimes()){
 			try (Response httpResponse = ApiUtil.issueEproofUpdatePDFHash(config, uuid, pdfHash)) {
 				checkResponse(httpResponse);
@@ -620,7 +620,7 @@ public class EProofUtil {
 			finally{
 				part2TrialTimes ++;
 			}
-		}*/
+		}
 
 
 		//Validate the eProof

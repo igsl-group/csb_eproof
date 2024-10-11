@@ -49,15 +49,15 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
         byte[] mergedDocxBinaryArray = docxUtil.getMergedDocumentBinary(docxTemplate,mergeMaps);
         IOUtils.close(docxTemplate);
         logger.info("Finish mail merge.");
-        File tempDocxFile = docxUtil.createTempDocxFile(mergedDocxBinaryArray);
+//        File tempDocxFile = docxUtil.createTempDocxFile(mergedDocxBinaryArray);
 
         logger.info("Start table loop.");
         if (tableLoopMap != null && !tableLoopMap.isEmpty()){
             mergedDocxBinaryArray = docxUtil.processTableLoopRender(new ByteArrayInputStream(mergedDocxBinaryArray),tableLoopMap);
 
-            FileOutputStream fos = new FileOutputStream(tempDocxFile);
-            fos.write(mergedDocxBinaryArray);
-            fos.close();
+//            FileOutputStream fos = new FileOutputStream(tempDocxFile);
+//            fos.write(mergedDocxBinaryArray);
+//            fos.close();
         }
         logger.info("Finish table loop.");
 
@@ -79,7 +79,7 @@ public class DocumentGenerateServiceImpl implements DocumentGenerateService {
             }
         }
 
-        docxUtil.deleteFile(tempDocxFile.getAbsolutePath());
+//        docxUtil.deleteFile(tempDocxFile.getAbsolutePath());
         return returnBinary;
     }
 

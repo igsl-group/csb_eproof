@@ -627,6 +627,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
+    @Transactional
     public void uploadSignedPdf(Long certInfoId, MultipartFile file) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){
@@ -667,7 +668,8 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
 
-        File certPdf = certInfo.getPdfList()!=null&&certInfo.getPdfList().size()>0?certInfo.getPdfList().get(0):null;
+//        File certPdf = certInfo.getPdfList()!=null&&certInfo.getPdfList().size()>0?certInfo.getPdfList().get(0):null;
+        File certPdf = fileRepository.getLatestPdfForCert(certInfo.getId());
 
         byte[] certPdfBinary = minioUtil.getFileAsByteArray(certPdf.getPath());
 
