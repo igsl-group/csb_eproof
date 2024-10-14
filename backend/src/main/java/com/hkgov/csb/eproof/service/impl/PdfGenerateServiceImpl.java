@@ -1,7 +1,6 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.CertPdfRepository;
@@ -92,7 +91,9 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
             certInfoRepository.save(certInfo);
         }
     }
-    private void updateCertStageAndStatus(CertInfo certInfo,CertStage stage, CertStatus status){
+
+    @Override
+    public void updateCertStageAndStatus(CertInfo certInfo, CertStage stage, CertStatus status){
         if(stage != null){
             certInfo.setCertStage(stage);
         }

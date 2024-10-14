@@ -1,6 +1,8 @@
 package com.hkgov.csb.eproof.service;
 
 import com.hkgov.csb.eproof.entity.CertInfo;
+import com.hkgov.csb.eproof.entity.enums.CertStage;
+import com.hkgov.csb.eproof.entity.enums.CertStatus;
 
 public interface PdfGenerateService {
 
@@ -8,4 +10,6 @@ public interface PdfGenerateService {
                            byte[] atLeastOnePassedTemplate,
                            byte [] allFailedTemplate,
                            boolean isBatchMode, boolean isNewCertInfo) throws Exception;
+
+    void updateCertStageAndStatus(CertInfo certInfo, CertStage stage, CertStatus status);
 }

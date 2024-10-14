@@ -122,7 +122,6 @@ public class LocalSigningController {
         while (nextCertInfoIdForSigning != null){
 
             localSigningService.processSignAndIssue(jwtTokenFromFrontEnd,reason,location,qr,keyword,response,publicKey, nextCertInfoIdForSigning);
-
 /*
             String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwtTokenFromFrontEnd);
             String signedValue = (String)localSigningService.signJson(unsignedJson).getBody();
@@ -131,7 +130,6 @@ public class LocalSigningController {
 
             this.processSigning(preparedPdf, nextCertInfoIdForSigning,jwtTokenFromFrontEnd,reason,  location, qr, keyword, response,publicKey);
 */
-
             nextCertInfoIdForSigning = apiUtil.getNextCertIdForSigning(examProfileSerialNo,jwtTokenFromFrontEnd);
         }
 

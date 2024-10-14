@@ -5,6 +5,7 @@ import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,6 +40,22 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
             """)
     List<CertInfo> getCertByExamSerialAndStageAndStatus(String serialNo,
             CertStage stage, List<CertStatus> statusList);
+
+
+    @Modifying
+    @Query("""
+    UPDATE CertInfo 
+    SET      certStatus = :targetCertStatus,
+             modifiedBy = :currentUserName, 
+             modifiedDate = current_timestamp
+    WHERE certStage = :currentStage
+    AND examProfileSerialNo = :examProfileSerialNo
+    AND certStatus in :currentStatusList
+    AND onHold = false
+    
+""")
+    void changeCertStatus(String examProfileSerialNo, CertStage currentStage,
+            List<CertStatus> currentStatusList, CertStatus targetCertStatus, String currentUserName);
 
     @Query(nativeQuery = true,
             value = """
@@ -143,6 +160,23 @@ public interface CertInfoRepository extends JpaRepository<CertInfo, Long> {
     @Query(nativeQuery = true,
             value = "select * from cert_info c where c.exam_profile_serial = :examProfileSerialNo and c.cert_stage = 'SIGN_ISSUE' and c.status = 'SCHEDULED' and c.on_hold = false order by c.id LIMIT 1")
     CertInfo getNextScheduledSignAndIssueCert(String examProfileSerialNo);
+
+
+    @Query(
+            value = """
+select c 
+from CertInfo c
+    left join fetch c.examProfile
+    left join fetch c.pdfList
+    left join fetch c.certInfoRenewList
+    left join fetch c.certEproof
+ where c.examProfileSerialNo = :examProfileSerialNo 
+ and c.certStage = 'GENERATED' 
+ and c.certStatus = 'SCHEDULED' 
+ and c.onHold = false
+  order by c.id
+""")
+    CertInfo getNextScheduledGenerateCert(String examProfileSerialNo, Limit limit);
 
     @Query("select c from CertInfo c where (c.passed is null or c.passed = false ) and c.valid = true and (c.hkid in :hkids or c.passportNo in :passports) order by c.examDate,c.hkid,c.passportNo")
     List<CertInfo> findByHkidIn(List<String> hkids, List<String> passports);

@@ -190,6 +190,10 @@ thread-pool:
     thread-name-prefix: genpdf-thread-pool-
 
 #second minute hour dayOfMonth month dayOfWeek
+
+failed-retry:
+  generate-pdf: 3
+
 cron-expression:
   normal-email-sending: "-"
   refresh-eproof-access-token: "0 0/30 * * * *"

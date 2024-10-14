@@ -51,8 +51,7 @@ import org.dom4j.io.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -138,6 +137,9 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Value("${eproof-config.issuance-split-size}")
     private Integer issuanceSplitSize;
+
+    @Value("${failed-retry.generate-pdf}")
+    private Integer genPdfTrialTimes;
 
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -247,6 +249,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
     @Transactional
     public void changeCertStatusToInProgress(String examProfileSerialNo, CertStage certStage) {
+//        certInfoRepository.changeCertStatus(examProfileSerialNo,certStage,List.of(CertStatus.PENDING,CertStatus.FAILED),CertStatus.SCHEDULED,authenticationService.getCurrentUser().getDpUserId());
         List<CertInfo> certInfoList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,certStage,List.of(CertStatus.PENDING,CertStatus.FAILED));
         certInfoList.forEach(cert->cert.setCertStatus(CertStatus.IN_PROGRESS));
         certInfoRepository.saveAll(certInfoList);
@@ -290,48 +293,48 @@ public class CertInfoServiceImpl implements CertInfoService {
         return true;
     }
 
+
+
     @Override
 //    @Transactional(noRollbackFor = Exception.class)
     @Async
     public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
-        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
+//        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
+        CertInfo nextScheduledGenerateCert = certInfoRepository.getNextScheduledGenerateCert(examProfileSerialNo, Limit.of(1));
         byte[] passTemplateInputStream = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
 //        try{
-        for (CertInfo cert : inProgressCertList) {
-            pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
-        }
+//        for (CertInfo cert : inProgressCertList) {
+//            pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
+//        }
 
-        inProgressCertList = inProgressCertList.stream().filter(certInfo->CertStatus.FAILED.equals(certInfo.getCertStatus())).toList();
+        List<CertInfo> failedCert = new ArrayList<>();
+        int test = 1;
+        while (nextScheduledGenerateCert != null){
+            int currentTrial = 1;
+            pdfGenerateService.updateCertStageAndStatus(nextScheduledGenerateCert,CertStage.GENERATED,CertStatus.IN_PROGRESS);
+            pdfGenerateService.singleGeneratePdf(nextScheduledGenerateCert,passTemplateInputStream,allFailedTemplate,true,false);
 
-        if(!inProgressCertList.isEmpty()){
-            logger.info("Found {} failed generate cert in first round. Start second round.",inProgressCertList.size());
-            for (CertInfo certInfo : inProgressCertList) {
-                pdfGenerateService.singleGeneratePdf(certInfo,passTemplateInputStream,allFailedTemplate,true,false);
+            while(CertStatus.FAILED.equals(nextScheduledGenerateCert.getCertStatus())
+                    && currentTrial <= genPdfTrialTimes
+            ){
+                logger.info("Retrying generate cert. ID: {}", nextScheduledGenerateCert.getId());
+                pdfGenerateService.singleGeneratePdf(nextScheduledGenerateCert,passTemplateInputStream,allFailedTemplate,true,false);
+                currentTrial++;
             }
-        }
 
-
-        inProgressCertList = inProgressCertList.stream().filter(certInfo->CertStatus.FAILED.equals(certInfo.getCertStatus())).toList();
-
-        if(!inProgressCertList.isEmpty()){
-            logger.info("Found {} failed generate cert in second round. Start third round.",inProgressCertList.size());
-            for (CertInfo certInfo : inProgressCertList) {
-                pdfGenerateService.singleGeneratePdf(certInfo,passTemplateInputStream,allFailedTemplate,true,false);
+            if(CertStatus.FAILED.equals(nextScheduledGenerateCert.getCertStatus())){
+                failedCert.add(nextScheduledGenerateCert);
             }
+            nextScheduledGenerateCert =certInfoRepository.getNextScheduledGenerateCert(examProfileSerialNo, Limit.of(1));
+
+            test ++;
         }
-        /*} catch (Exception e){
-            inProgressCertList.forEach(cert->{
-                if (cert.getCertStatus() != CertStatus.SUCCESS){
-                    cert.setCertStatus(CertStatus.FAILED);
-                }
-            });
-            certInfoRepository.saveAll(inProgressCertList);
-            throw e;
-        }*/
 
-
+        if(!failedCert.isEmpty()){
+            logger.info("All cert generation completed. Failed cert count: {}", failedCert.size());
+        }
     }
 
     private Map<DataFieldName, String> getMergeMapForCert(CertInfo certInfo) throws JsonProcessingException {

@@ -153,7 +153,8 @@ public class CertController {
     @PostMapping("/batch/generate/{examProfileSerialNo}")
     @Operation(summary = "Generate cert pdf in batch mode.",description = "Generate all pdf under provided exam serial no. If error encountered during the generation process, not yet generated cert will be updated to 'FAILED' status. ")
     public Result batchGeneratePdf(@PathVariable String examProfileSerialNo) throws Exception {
-        certInfoService.changeCertStatusToInProgress(examProfileSerialNo,CertStage.GENERATED);
+        certInfoService.changeCertStatusToScheduled(examProfileSerialNo,CertStage.GENERATED);
+//        certInfoService.changeCertStatusToInProgress(examProfileSerialNo,CertStage.GENERATED);
 
 //        Thread.sleep(20000);
 
