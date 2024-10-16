@@ -792,7 +792,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 certInfo.getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00"))
         );
 
-        logger.debug("[registerResult]" + GSON.toJson(registerResult));
+        logger.info("[registerResult]" + GSON.toJson(registerResult));
 
 
         uuid = (String) registerResult.get("uuid");
@@ -1482,11 +1482,11 @@ public class CertInfoServiceImpl implements CertInfoService {
         List<Long> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
-        List<File> files = fileRepository.getLatestPdfForCerts(certInfoList);
-        List<File> latestPdfs = files.stream().collect(Collectors.groupingBy(File::getCertInfoId,
+        List<File> latestPdfs = fileRepository.getLatestPdfForCerts2(certInfoList);
+        /*List<File> latestPdfs = files.stream().collect(Collectors.groupingBy(File::getCertInfoId,
                 Collectors.collectingAndThen(
                         Collectors.maxBy(Comparator.comparing(File::getCreatedDate)),
-                        Optional::get))).values().stream().collect(Collectors.toList());
+                        Optional::get))).values().stream().collect(Collectors.toList());*/
 
         int currentIndex = 1;
         for(File file : latestPdfs){

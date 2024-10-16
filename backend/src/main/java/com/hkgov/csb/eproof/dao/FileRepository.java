@@ -40,4 +40,25 @@ public interface FileRepository extends JpaRepository<File,Long> {
     List<File> getLatestPdfForCerts(List<Long> ids);
 
 
+    @Query(value = """
+      SELECT f FROM File f
+      JOIN CertPdf cp on f.id = cp.file.id
+      JOIN cp.certInfo ci
+      WHERE ci.id IN :ids
+      AND f.createdDate =
+      (SELECT MAX(f2.createdDate) 
+      FROM File f2 LEFT JOIN CertPdf cp2 ON f2.id = cp2.file.id LEFT JOIN cp2.certInfo ci2 WHERE ci2.id = ci.id)
+    """)
+   /* @Query(nativeQuery = true,value = """
+    select f.* from file f
+        where f.created_date =  (
+        select MAX(f2.created_date) from file f2 left join cert_pdf cp on f2.id = cp.file_id
+                                                 left join cert_info ci on cp.cert_info_id = ci.id
+                                                 where ci.id
+      )
+    """)*/
+    List<File> getLatestPdfForCerts2(List<Long> ids);
+
+
+
 }

@@ -27,13 +27,13 @@ public class File extends BaseEntity {
     @Column(name = "type")
     private String type;
 
-    @OneToOne(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private CertPdf certPdf;
+    /*@OneToOne(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CertPdf certPdf;*/
 
     @Transient
     public Long certInfoId;
 
-    public Long getCertInfoId() {
+    /*public Long getCertInfoId() {
         return certPdf.getCertInfoId();
-    }
+    }*/
 }
