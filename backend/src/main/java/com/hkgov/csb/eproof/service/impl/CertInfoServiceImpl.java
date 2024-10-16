@@ -67,7 +67,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -123,6 +123,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final GcisEmailServiceImpl gcisEmailServiceImpl;
     private static final Gson GSON = new Gson();
     private final AuthenticationService authenticationService;
+    private final HKIDformatter hkidFormatter;
 
     @Value("${gcis-shared-service.emailWhitelist.enabled}")
     private Boolean whiteListEnabled;
@@ -737,7 +738,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfo.getBlnstGrade())? "BLNST" : "");
         extraInfo.put("result_4", certInfo.getBlnstGrade());
 
-        extraInfo.put("hkid_or_passport", certInfo.getHkidOrPassport());
+        extraInfo.put("hkid_or_passport", StringUtils.isNotEmpty(certInfo.getHkid()) ? hkidFormatter.formatHkid(certInfo.getHkid()) : certInfo.getPassportNo());
 
         LocalDateTime expiryDate = LocalDateTime.of(2099,12,31,23,59,59);
         LocalDateTime issueDate = LocalDateTime.now();

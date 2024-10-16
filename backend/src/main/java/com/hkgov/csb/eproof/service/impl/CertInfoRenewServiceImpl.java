@@ -26,6 +26,7 @@ import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import com.hkgov.csb.eproof.util.HttpUtils;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.itextpdf.text.pdf.qrcode.WriterException;
@@ -46,7 +47,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -83,6 +84,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private final DocxUtil docxUtil;
     private final FileService fileService;
     private final EProofConfigProperties eProofConfigProperties;
+    private final HKIDformatter hkidFormatter;
     private static final Gson GSON = new Gson();
     private final CertEproofRepository certEproofRepository;
     private final CertEproofRenewRepository certEproofRenewRepository;
@@ -446,7 +448,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade()) ? "BLNST" : "");
         extraInfo.put("result_4", certInfoRenew.getNewBlGrade());
 
-        extraInfo.put("hkid_or_passport", certInfoRenew.getHkidOrPassport());
+        extraInfo.put("hkid_or_passport",  StringUtils.isNotEmpty(certInfoRenew.getNewHkid()) ? hkidFormatter.formatHkid(certInfoRenew.getNewHkid()) : certInfoRenew.getNewPassport());
 
         LocalDateTime expiryDate = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
         LocalDateTime issueDate = LocalDateTime.now();
