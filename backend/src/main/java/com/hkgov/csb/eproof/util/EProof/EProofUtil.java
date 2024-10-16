@@ -55,90 +55,90 @@ public class EProofUtil {
 				"Cii5Na58AxLYwLBAruVP7xImOnWnT9w4Xtc8SOF0/Z4="));
 	}
 
-	private static void example() throws Exception {
-
-		EProofUtil.simulation = false;
-
-//		EProofUtil.init(
-//				"did:eproof:7f9fd645-c24e-40db-9b1a-2de920823403",
-//				"https://10.148.10.143/api",
-//				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
-//				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
-//				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
-//				"FSD001",
-//				"bkAGCE@X8s9w!90hPjXq");
-
-		Map<String, String> extraInfo = new HashMap<>();
-		extraInfo.put("document_title_en", "document_title_en");
-		extraInfo.put("document_title_tc", "document_title_tc");
-		extraInfo.put("document_title_sc", "document_title_sc");
-		extraInfo.put("eproof_id", "TEST123HAHAHA");
-		extraInfo.put("doc_no", "3310");
-		extraInfo.put("issue_to_en", "issue_to_en");
-		extraInfo.put("issue_to_tc", "issue_to_tc");
-		extraInfo.put("issue_to_sc", "issue_to_sc");
-		extraInfo.put("premises_addr_en", "premises_addr_en");
-		extraInfo.put("premises_addr_tc", "premises_addr_tc");
-		extraInfo.put("premises_addr_sc", "premises_addr_sc");
-		extraInfo.put("valid_from", "23/1/2024");
-		extraInfo.put("valid_to", "23/6/2099");
-
-		String unsignedJson = getUnsignedEproofJson(
-				LocalDateTime.now().plusYears(10),
-				LocalDateTime.now(),
-				"TEST123HAHAHA",
-				"FS163",
-				1,
-				"TEST123HAHAHA","\u9673\u5927\u6587","23/6/2099",
-				"TEST123HAHAHA","\u9648\u5927\u6587","23/6/2099",
-				"TEST123HAHAHA","Chan Tai Man","23/6/2099",
-				extraInfo,
-				type.personal
-		);
-
-		//TODO sign the unsigned json. if pass as string use gson.toJson
-		Scanner scanner = new Scanner(System.in);
-		String line = scanner.nextLine();
-		String signedJson = "";
-
-		Map registerResult = registerEproof(
-				unsignedJson,
-				line,
-				"igsltkn1",
-				"6d9aadd6-5e95-4177-a6bf-263b30663abe",
-				1100,
-				null,
-				""
-		);
-
-		String qrCodeString = getQrCodeString(
-				(String) registerResult.get("eProofJson"),
-				(String) registerResult.get("uuid"),
-				(int) registerResult.get("version"),
-				LocalDateTime.now(),
-				11000
-		);
-
-
-		System.out.println("gson.toJson(registerResult): " + GSON.toJson(registerResult));
-
-		JSONObject qrCodeJson = new JSONObject(qrCodeString);
-		System.out.println("qrCodeString: " + qrCodeString);
-		System.out.println("qrCodeJson: " + qrCodeJson);
-
-		System.out.println("Keyword: " + getPdfKeyword((String) registerResult.get("uuid"), (int) registerResult.get("version"), "igsltkn1",
-				qrCodeString));
-
-		line = scanner.nextLine();
-
-//		System.out.println("Add keyword to metadata and sign the PDF and place to signed.pdf to continue..");
+//	private static void example() throws Exception {
+//
+//		EProofUtil.simulation = false;
+//
+////		EProofUtil.init(
+////				"did:eproof:7f9fd645-c24e-40db-9b1a-2de920823403",
+////				"https://10.148.10.143/api",
+////				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
+////				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
+////				"http://192.168.8.6:9010/eProof/748de272-40e5-40a8-bd5a-b93c98fe15bd/version/2/otp",
+////				"FSD001",
+////				"bkAGCE@X8s9w!90hPjXq");
+//
+//		Map<String, String> extraInfo = new HashMap<>();
+//		extraInfo.put("document_title_en", "document_title_en");
+//		extraInfo.put("document_title_tc", "document_title_tc");
+//		extraInfo.put("document_title_sc", "document_title_sc");
+//		extraInfo.put("eproof_id", "TEST123HAHAHA");
+//		extraInfo.put("doc_no", "3310");
+//		extraInfo.put("issue_to_en", "issue_to_en");
+//		extraInfo.put("issue_to_tc", "issue_to_tc");
+//		extraInfo.put("issue_to_sc", "issue_to_sc");
+//		extraInfo.put("premises_addr_en", "premises_addr_en");
+//		extraInfo.put("premises_addr_tc", "premises_addr_tc");
+//		extraInfo.put("premises_addr_sc", "premises_addr_sc");
+//		extraInfo.put("valid_from", "23/1/2024");
+//		extraInfo.put("valid_to", "23/6/2099");
+//
+//		String unsignedJson = getUnsignedEproofJson(
+//				LocalDateTime.now().plusYears(10),
+//				LocalDateTime.now(),
+//				"TEST123HAHAHA",
+//				"FS163",
+//				1,
+//				"TEST123HAHAHA","\u9673\u5927\u6587","23/6/2099",
+//				"TEST123HAHAHA","\u9648\u5927\u6587","23/6/2099",
+//				"TEST123HAHAHA","Chan Tai Man","23/6/2099",
+//				extraInfo,
+//				type.personal
+//		);
+//
+//		//TODO sign the unsigned json. if pass as string use gson.toJson
 //		Scanner scanner = new Scanner(System.in);
 //		String line = scanner.nextLine();
-
-		//String pdfhash = calcPdfHash(new File("blank.pdf"));
-		//issueDocument((String) registerResult.get("uuid"), pdfhash);
-		issuePdf((String) registerResult.get("uuid"), new File("blank.pdf"));
-	}
+//		String signedJson = "";
+//
+//		Map registerResult = registerEproof(
+//				unsignedJson,
+//				line,
+//				"igsltkn1",
+//				"6d9aadd6-5e95-4177-a6bf-263b30663abe",
+//				1100,
+//				null,
+//				""
+//		);
+//
+//		String qrCodeString = getQrCodeString(
+//				(String) registerResult.get("eProofJson"),
+//				(String) registerResult.get("uuid"),
+//				(int) registerResult.get("version"),
+//				LocalDateTime.now(),
+//				11000
+//		);
+//
+//
+//		System.out.println("gson.toJson(registerResult): " + GSON.toJson(registerResult));
+//
+//		JSONObject qrCodeJson = new JSONObject(qrCodeString);
+//		System.out.println("qrCodeString: " + qrCodeString);
+//		System.out.println("qrCodeJson: " + qrCodeJson);
+//
+//		System.out.println("Keyword: " + getPdfKeyword((String) registerResult.get("uuid"), (int) registerResult.get("version"), "igsltkn1",
+//				qrCodeString));
+//
+//		line = scanner.nextLine();
+//
+////		System.out.println("Add keyword to metadata and sign the PDF and place to signed.pdf to continue..");
+////		Scanner scanner = new Scanner(System.in);
+////		String line = scanner.nextLine();
+//
+//		//String pdfhash = calcPdfHash(new File("blank.pdf"));
+//		//issueDocument((String) registerResult.get("uuid"), pdfhash);
+//		issuePdf((String) registerResult.get("uuid"), new File("blank.pdf"));
+//	}
 
 	public static String calcPdfHash(File file) throws Exception {
 		byte[] pdfBytes = CommonUtil.readBytesFromFile(file, MessageDigest.getInstance("SHA-256"));
@@ -321,23 +321,23 @@ public class EProofUtil {
 		return GSON.toJson(vcJsonMap);
 	}
 
-	public static Map<String, Object> updateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
-												   String eproofTypeId,
-												   int downloadMaxCount, LocalDateTime downloadExpiryDate, String hkid
-	) throws Exception {
-		return registerOrUpdateEproof(uuid, unsignedMap,  proofValue,  keyName,
-				eproofTypeId,
-				downloadMaxCount,  downloadExpiryDate, null, hkid);  //TODO
-	}
+//	public static Map<String, Object> updateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
+//												   String eproofTypeId,
+//												   int downloadMaxCount, LocalDateTime downloadExpiryDate, String hkid
+//	) throws Exception {
+//		return registerOrUpdateEproof(uuid, unsignedMap,  proofValue,  keyName,
+//				eproofTypeId,
+//				downloadMaxCount,  downloadExpiryDate, null, hkid);  //TODO
+//	}
 
-	public static Map<String, Object> registerEproof(String unsignedMap, String proofValue, String keyName,
-													 String eproofTypeId,
-													 int downloadMaxCount, LocalDateTime downloadExpiryDate, String hkid
-	) throws Exception {
-		return registerOrUpdateEproof(null, unsignedMap,  proofValue,  keyName,
-				eproofTypeId,
-				downloadMaxCount,  downloadExpiryDate, "", hkid);
-	}
+//	public static Map<String, Object> registerEproof(String unsignedMap, String proofValue, String keyName,
+//													 String eproofTypeId,
+//													 int downloadMaxCount, LocalDateTime downloadExpiryDate, String hkid
+//	) throws Exception {
+//		return registerOrUpdateEproof(null, unsignedMap,  proofValue,  keyName,
+//				eproofTypeId,
+//				downloadMaxCount,  downloadExpiryDate, "", hkid);
+//	}
 
 
 	public static Map<String, Object> registerOrUpdateEproof(String uuid, String unsignedMap, String proofValue, String keyName,
@@ -381,31 +381,6 @@ public class EProofUtil {
 
 		Map<String, Object> out = new HashMap<>();
 		out.put("eProofJson", vcString);
-		/*try (Response httpResponse = ApiUtil.registerEproof(uuid,
-				config, (String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("eproof_id"),
-				eproofTypeId,
-				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("template_code"),
-				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("expire_date"),
-				(String) ((Map)((Map)vcJsonMap.get("credentialSubject")).get("display")).get("issue_date"),
-				vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null
-						?downloadExpiryDate.minusHours(8).format(formatter)
-						:null,
-				formattedPublishDate,
-				hkidHash,
-				config.getHkidSaltUuid(),
-				sdidHash
-
-		)) {
-			checkResponse(httpResponse);
-			JSONObject jret = new JSONObject(httpResponse.body().string());
-			logger.info("status= " + jret.getString("status").equals("Successful"));
-			if (jret.getString("status").equals("Successful")) {
-				out.put("status", "Successful");
-				out.put("uuid", jret.getJSONObject("data").getString("id"));
-				out.put("version", jret.getJSONObject("data").getInt("version"));
-				out.put("token", jret.getJSONObject("data").getString("token"));
-			}
-		}*/
 
 		int currentTrialTimes= 1;
 
@@ -483,102 +458,102 @@ public class EProofUtil {
 	}
 
 
-	//below is no qr code version
-	public static Map<String, Object> registerDocument(
-			String eproofData,
-			LocalDateTime expirationDate,
-			LocalDateTime expiryDate,
-			LocalDateTime issuranceDate,
-			String keyName,
-			String eproofId,
-			String eproofTypeId,
-			String eproofTypeCode,
-			int majorVersion,
-			int downloadMaxCount,
-			LocalDateTime downloadExpiryDate
-	) throws Exception {
-		Map<String, Object> out = new HashMap<>();
-
-		if (simulation) {
-			logger.debug("This is simulation of registerDocument");
-			out.put("status", "Successful");
-			out.put("uuid", "00000000-0000-0000-0000-000000000000");
-			out.put("version", 1);
-			out.put("token", "ThisIsASimulatedDownloadToken");
-			return out;
-		}
-
-		TreeMap eProofData = GSON.fromJson(eproofData, TreeMap.class);
-
-		Map systemJsonMap = new TreeMap<>();
-		if (expirationDate != null)
-			systemJsonMap.put("expirationDate", expirationDate.minusHours(8).format(formatter));
-
-		Map credentialSubjectJsonMap = new TreeMap<>();
-		credentialSubjectJsonMap.put("display", eProofData);
-		credentialSubjectJsonMap.put("system", systemJsonMap);
-
-		//vc.json
-		Map vcJsonMap = new TreeMap<>();
-		vcJsonMap.put("@context", new ArrayList<>(Arrays.asList("https://www.w3.org/2018/credentials/v1")));
-		vcJsonMap.put("type", new ArrayList<>(Arrays.asList("VerifiableCredential")));
-		//vcJsonMap.put("issuer", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46" );
-		vcJsonMap.put("issuer", config.getIssuerDid());
-		//vcJsonMap.put("issuanceDate", "2010-01-01T19:23:24Z" );
-		//LocalDateTime now = LocalDateTime.now();
-		//String formattedDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-		vcJsonMap.put("issuanceDate", issuranceDate.minusHours(8).format(formatter)); // Update as UTC format
-		vcJsonMap.put("credentialSubject", credentialSubjectJsonMap);
-
-		//vc proof
-		Map vcProofJsonMap = new TreeMap<>();
-		vcProofJsonMap.put("type", "SHA256withRSA");
-		//vcProofJsonMap.put(  "created", "2023-04-20T00:15:39.910Z");
-		LocalDateTime now = LocalDateTime.now();
-		String formattedDate = now.minusHours(8).format(formatter);
-		vcProofJsonMap.put("created", formattedDate);
-		//vcProofJsonMap.put(  "verificationMethod", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46#key-1");
-		vcProofJsonMap.put("verificationMethod", config.getIssuerDid() + "#" + keyName);
-		vcProofJsonMap.put("proofPurpose", "assertionMethod");
-
-		//String proofValue = signatureWithPrivateKey(gson.toJson(vcJsonMap),privateKeyPath);
-		String proofValue = ""; //TODO sign eproof data string
-
-		//String proofValue = signatureWithToken(gson.toJson(vcJsonMap));
-		vcProofJsonMap.put("proofValue", proofValue);
-
-		vcJsonMap.put("proof", vcProofJsonMap);
-
-		//hash vc
-		String vcString = GSON .toJson(vcJsonMap);
-		byte[] vcBytes = CommonUtil.readBytesFromString(vcString, MessageDigest.getInstance("SHA-256"));
-		String vcBase64Hash = CommonUtil.base64Encode(vcBytes);
+//	//below is no qr code version
+//	public static Map<String, Object> registerDocument(
+//			String eproofData,
+//			LocalDateTime expirationDate,
+//			LocalDateTime expiryDate,
+//			LocalDateTime issuranceDate,
+//			String keyName,
+//			String eproofId,
+//			String eproofTypeId,
+//			String eproofTypeCode,
+//			int majorVersion,
+//			int downloadMaxCount,
+//			LocalDateTime downloadExpiryDate
+//	) throws Exception {
+//		Map<String, Object> out = new HashMap<>();
 //
-//		eproof.setEProofDataOutput(vcString);
-//		eproof.setVcBase64Hash(vcBase64Hash);
-
-		String templateCode = String.format("%s-%s-%d", config.getClientId(), eproofTypeCode, majorVersion);
-
-		try (Response httpResponse = ApiUtil.registerEproof(
-				null, config, eproofId, eproofTypeId, templateCode,
-				(expiryDate == null) ? null : expiryDate.minusHours(8).format(formatter),
-				issuranceDate.minusHours(8).format(formatter), vcBase64Hash, downloadMaxCount,
-				(downloadExpiryDate == null) ? null : downloadExpiryDate.minusHours(8).format(formatter),
-				"", "", "", ""
-		)) {
-			checkResponse(httpResponse);
-			JSONObject jret = new JSONObject(httpResponse.body().string());
-			logger.info("status= " + jret.getString("status").equals("Successful"));
-			if (jret.getString("status").equals("Successful")) {
-				out.put("status", "Successful");
-				out.put("uuid", jret.getJSONObject("data").getString("id"));
-				out.put("version", jret.getJSONObject("data").getInt("version"));
-				out.put("token", jret.getJSONObject("data").getString("token"));
-			}
-		}
-		logger.info("Register Document success");
-		return out;
-	}
+//		if (simulation) {
+//			logger.debug("This is simulation of registerDocument");
+//			out.put("status", "Successful");
+//			out.put("uuid", "00000000-0000-0000-0000-000000000000");
+//			out.put("version", 1);
+//			out.put("token", "ThisIsASimulatedDownloadToken");
+//			return out;
+//		}
+//
+//		TreeMap eProofData = GSON.fromJson(eproofData, TreeMap.class);
+//
+//		Map systemJsonMap = new TreeMap<>();
+//		if (expirationDate != null)
+//			systemJsonMap.put("expirationDate", expirationDate.minusHours(8).format(formatter));
+//
+//		Map credentialSubjectJsonMap = new TreeMap<>();
+//		credentialSubjectJsonMap.put("display", eProofData);
+//		credentialSubjectJsonMap.put("system", systemJsonMap);
+//
+//		//vc.json
+//		Map vcJsonMap = new TreeMap<>();
+//		vcJsonMap.put("@context", new ArrayList<>(Arrays.asList("https://www.w3.org/2018/credentials/v1")));
+//		vcJsonMap.put("type", new ArrayList<>(Arrays.asList("VerifiableCredential")));
+//		//vcJsonMap.put("issuer", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46" );
+//		vcJsonMap.put("issuer", config.getIssuerDid());
+//		//vcJsonMap.put("issuanceDate", "2010-01-01T19:23:24Z" );
+//		//LocalDateTime now = LocalDateTime.now();
+//		//String formattedDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+//		vcJsonMap.put("issuanceDate", issuranceDate.minusHours(8).format(formatter)); // Update as UTC format
+//		vcJsonMap.put("credentialSubject", credentialSubjectJsonMap);
+//
+//		//vc proof
+//		Map vcProofJsonMap = new TreeMap<>();
+//		vcProofJsonMap.put("type", "SHA256withRSA");
+//		//vcProofJsonMap.put(  "created", "2023-04-20T00:15:39.910Z");
+//		LocalDateTime now = LocalDateTime.now();
+//		String formattedDate = now.minusHours(8).format(formatter);
+//		vcProofJsonMap.put("created", formattedDate);
+//		//vcProofJsonMap.put(  "verificationMethod", "did:eproof:75ed43c1-d1f2-4cf2-9b72-5e7792989d46#key-1");
+//		vcProofJsonMap.put("verificationMethod", config.getIssuerDid() + "#" + keyName);
+//		vcProofJsonMap.put("proofPurpose", "assertionMethod");
+//
+//		//String proofValue = signatureWithPrivateKey(gson.toJson(vcJsonMap),privateKeyPath);
+//		String proofValue = ""; //TODO sign eproof data string
+//
+//		//String proofValue = signatureWithToken(gson.toJson(vcJsonMap));
+//		vcProofJsonMap.put("proofValue", proofValue);
+//
+//		vcJsonMap.put("proof", vcProofJsonMap);
+//
+//		//hash vc
+//		String vcString = GSON .toJson(vcJsonMap);
+//		byte[] vcBytes = CommonUtil.readBytesFromString(vcString, MessageDigest.getInstance("SHA-256"));
+//		String vcBase64Hash = CommonUtil.base64Encode(vcBytes);
+////
+////		eproof.setEProofDataOutput(vcString);
+////		eproof.setVcBase64Hash(vcBase64Hash);
+//
+//		String templateCode = String.format("%s-%s-%d", config.getClientId(), eproofTypeCode, majorVersion);
+//
+//		try (Response httpResponse = ApiUtil.registerEproof(
+//				null, config, eproofId, eproofTypeId, templateCode,
+//				(expiryDate == null) ? null : expiryDate.minusHours(8).format(formatter),
+//				issuranceDate.minusHours(8).format(formatter), vcBase64Hash, downloadMaxCount,
+//				(downloadExpiryDate == null) ? null : downloadExpiryDate.minusHours(8).format(formatter),
+//				"", "", "", ""
+//		)) {
+//			checkResponse(httpResponse);
+//			JSONObject jret = new JSONObject(httpResponse.body().string());
+//			logger.info("status= " + jret.getString("status").equals("Successful"));
+//			if (jret.getString("status").equals("Successful")) {
+//				out.put("status", "Successful");
+//				out.put("uuid", jret.getJSONObject("data").getString("id"));
+//				out.put("version", jret.getJSONObject("data").getInt("version"));
+//				out.put("token", jret.getJSONObject("data").getString("token"));
+//			}
+//		}
+//		logger.info("Register Document success");
+//		return out;
+//	}
 
 	public static void issuePdf(String uuid, File pdfFile) throws Exception {
 		issuePdf(uuid, calcPdfHash(pdfFile));

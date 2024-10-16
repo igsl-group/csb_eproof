@@ -5,6 +5,7 @@ import com.hkgov.csb.eproof.entity.enums.CertStage;
 import com.hkgov.csb.eproof.entity.enums.CertStatus;
 import com.hkgov.csb.eproof.entity.enums.CertType;
 import io.micrometer.common.util.StringUtils;
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,8 @@ import java.util.List;
 @Getter
 @Setter
 public class CertInfoRenew extends BaseEntity {
+    private static HKIDformatter HKIDformatter;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -118,7 +121,6 @@ public class CertInfoRenew extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<File> pdfList;
-
     //Getter for JSON for docx merging
 
     public String getName() {
@@ -147,7 +149,7 @@ public class CertInfoRenew extends BaseEntity {
 
     public String getHkidOrPassport(){
         if (StringUtils.isNotEmpty(newHkid)){
-            return newHkid;
+            return HKIDformatter.formatHkid(newHkid);
         } else{
             return newPassport;
         }

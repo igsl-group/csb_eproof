@@ -738,7 +738,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfo.getBlnstGrade())? "BLNST" : "");
         extraInfo.put("result_4", certInfo.getBlnstGrade());
 
-        extraInfo.put("hkid_or_passport", StringUtils.isNotEmpty(certInfo.getHkid()) ? hkidFormatter.formatHkid(certInfo.getHkid()) : certInfo.getPassportNo());
+        extraInfo.put("hkid_or_passport", certInfo.getHkidOrPassport());
 
         LocalDateTime expiryDate = LocalDateTime.of(2099,12,31,23,59,59);
         LocalDateTime issueDate = LocalDateTime.now();
@@ -781,44 +781,6 @@ public class CertInfoServiceImpl implements CertInfoService {
                 extraInfo,
                 EProofUtil.type.personal
         );
-    }
-
-    // Method to generate a random salt value
-    private String generateRandomSaltValue() {
-        int length = 16;
-        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':\"\\|,.<>/?~`";
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            result.append(characters.charAt((int) (Math.random() * characters.length())));
-        }
-        return result.toString();
-    }
-
-    private String requestSalt() throws Exception {
-        String apiUrl = "http://example.com/hkicSalt"; // Replace with actual API URL
-        Map<String, String> saltRequest = new HashMap<>();
-        saltRequest.put("value", generateRandomSaltValue());
-        saltRequest.put("description", "Reasonable description for the salt");
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(saltRequest);
-
-        HttpPost post = new HttpPost(apiUrl);
-        post.setHeader("Content-type", "application/json");
-        post.setEntity(new StringEntity(json));
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            String responseJson = EntityUtils.toString(httpClient.execute(post).getEntity());
-
-            // Parse response
-            Map<String, Object> response = objectMapper.readValue(responseJson, Map.class);
-            if ("Successful".equals(response.get("status"))) {
-                Map<String, String> data = (Map<String, String>) response.get("data");
-                return data.get("id");
-            } else {
-                throw new GenericException("API Error", (String) response.get("message"));
-            }
-        }
     }
 
     @Override
