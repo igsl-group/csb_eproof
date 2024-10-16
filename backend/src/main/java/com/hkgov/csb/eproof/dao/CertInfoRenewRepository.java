@@ -26,12 +26,16 @@ public interface CertInfoRenewRepository
                                                 AND
                                                 (
                                                    ( ?#{#searchDto.newName} IS null OR c.new_name like %?#{#searchDto.newName}% ) AND
-                                                    ( ?#{#searchDto.newHkid} IS null OR c.new_hkid IS NULL OR c.new_hkid = '' OR c.new_hkid LIKE %?#{#searchDto.newHkid}% ) AND
-                                                    ( ?#{#searchDto.newPassport} IS null OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
+    
+                                                    ( (?#{#searchDto.newHkid} IS null OR ?#{#searchDto.newHkid} ='') OR c.new_hkid like %?#{#searchDto.newHkid}% ) AND
+                                                    ( (?#{#searchDto.newPassport} IS null OR ?#{#searchDto.newPassport} = '')OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
+                                                   
                                                     ( ?#{#searchDto.newEmail} IS null OR c.new_email like %?#{#searchDto.newEmail}% ) AND
                                                     ( ?#{#searchDto.oldName} IS null OR c.old_name like %?#{#searchDto.oldName}% ) AND
-                                                    ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid IS NULL OR c.old_hkid = '' OR c.old_hkid LIKE %?#{#searchDto.oldHkid}% ) AND
-                                                    ( ?#{#searchDto.oldPassport} IS null OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND
+                                                                               
+                                                    ( (?#{#searchDto.oldHkid} IS null OR ?#{#searchDto.oldHkid} ='') OR c.old_hkid like %?#{#searchDto.oldHkid}% ) AND
+                                                    ( (?#{#searchDto.oldPassport} IS null OR ?#{#searchDto.oldPassport} = '')OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND 
+                                                                                    
                                                     ( ?#{#searchDto.oldEmail} IS null OR c.old_email like %?#{#searchDto.oldEmail}% ) AND
                                                     ( ?#{#searchDto.newBlGrade} IS null OR c.new_bl_grade like %?#{#searchDto.newBlGrade}%  ) AND
                                                     ( ?#{#searchDto.newUeGrade} IS null OR c.new_ue_grade like %?#{#searchDto.newUeGrade}%  ) AND
@@ -55,12 +59,12 @@ public interface CertInfoRenewRepository
                                                 AND
                                                 (
                                                    ( ?#{#searchDto.newName} IS null OR c.new_name like %?#{#searchDto.newName}% ) AND
-                                                    ( ?#{#searchDto.newHkid} IS null OR c.new_hkid IS NULL OR c.new_hkid = '' OR c.new_hkid LIKE %?#{#searchDto.newHkid}% ) AND
-                                                    ( ?#{#searchDto.newPassport} IS null OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
+                                                       ( (?#{#searchDto.newHkid} IS null OR ?#{#searchDto.newHkid} ='') OR c.new_hkid like %?#{#searchDto.newHkid}% ) AND
+                                                    ( (?#{#searchDto.newPassport} IS null OR ?#{#searchDto.newPassport} = '')OR c.new_passport like %?#{#searchDto.newPassport}% ) AND
                                                     ( ?#{#searchDto.newEmail} IS null OR c.new_email like %?#{#searchDto.newEmail}% ) AND
                                                     ( ?#{#searchDto.oldName} IS null OR c.old_name like %?#{#searchDto.oldName}% ) AND
-                                                    ( ?#{#searchDto.oldHkid} IS null OR c.old_hkid IS NULL OR c.old_hkid = '' OR c.old_hkid LIKE %?#{#searchDto.oldHkid}% ) AND
-                                                    ( ?#{#searchDto.oldPassport} IS null OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND
+                                              ( (?#{#searchDto.oldHkid} IS null OR ?#{#searchDto.oldHkid} ='') OR c.old_hkid like %?#{#searchDto.oldHkid}% ) AND
+                                                    ( (?#{#searchDto.oldPassport} IS null OR ?#{#searchDto.oldPassport} = '')OR c.old_passport like %?#{#searchDto.oldPassport}% ) AND 
                                                     ( ?#{#searchDto.oldEmail} IS null OR c.old_email like %?#{#searchDto.oldEmail}% ) AND
                                                     ( ?#{#searchDto.newBlGrade} IS null OR c.new_bl_grade like %?#{#searchDto.newBlGrade}%  ) AND
                                                     ( ?#{#searchDto.newUeGrade} IS null OR c.new_ue_grade like %?#{#searchDto.newUeGrade}%  ) AND
@@ -84,10 +88,10 @@ public interface CertInfoRenewRepository
         List<CertInfoRenew> getinfoByNoAndStatus(@Param("id") Long id,
                         @Param("stage") CertStage stage);
 
-        @Query("select c from CertInfoRenew c where c.certStage <> 'COMPLETED' and c.oldHkid = :hkid")
+        @Query("select c from CertInfoRenew c where c.certStage <> 'COMPLETED' and c.oldHkid = :hkid  and c.isDelete = false")
         List<CertInfoRenew> getInfoByHkid(String hkid);
 
-        @Query("select c from CertInfoRenew c where c.certStage <> 'COMPLETED' and c.oldPassport = :passport")
+        @Query("select c from CertInfoRenew c where c.certStage <> 'COMPLETED' and c.oldPassport = :passport and c.isDelete = false")
         List<CertInfoRenew> getInfoByPassport(String passport);
 
         @Query(value = "SELECT " + "c.new_name AS candidateName, "

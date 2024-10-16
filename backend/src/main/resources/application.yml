@@ -4,6 +4,9 @@ spring:
     url: jdbc:mariadb://192.168.2.227:3306/eproof
     username: root
     password: P@ssw0rd1234$
+#    url: jdbc:mariadb://localhost:19307/eproof_db?useSSL=true&trustServerCertificate=true
+#    username: eproof_root
+#    password: P@ssw0rd1234$
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
@@ -125,14 +128,16 @@ document:
   #   Used for libre office conversion
   generate-temp-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\tmp
   libreoffice-program-path: C:\Program Files\LibreOffice\program
-  font-en-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\fonts\Times_New_Roman.ttf
-  font-zh-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\fonts\SIMSUN.ttf
+  font-en-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\fonts\Times_New_Roman.ttf
+  font-zh-path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\fonts\SIMSUN.ttf
   generate-temp-source: C:\Users\IGS\Desktop\projects\csb-eproof\backend\src\main\resources\eproofCertTemplate\fail\fail_template.docx
   qr-code:
-    x: 15
-    y: 760
-    height: 75
-    width: 75
+    x: 48
+    y: 132
+    height: 80
+    width: 80
+
+aes-encrypt-key: CSB_EP_KEY@2024!
 
 minio:
   endpoint: http://192.168.2.175:9000
@@ -156,7 +161,7 @@ mail:
     attachment: Y
 
 eproof-config:
-  issuance-split-size: 3
+  issuance-split-size: 5000
   pass-template-type-id: 40f848bc-856c-4e6a-a1f1-a6b872efe752
   fail-template-type-id: 038424a4-be4e-418f-bdb4-dc4181d6ea16
   issuer-name-en: Civil Service Bureau
@@ -172,6 +177,9 @@ eproof-config:
   otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/sendOTP"
   dataUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-data"
   downloadUrlPrefix: https://uat-download.eproof.gov.hk/en/d?t=
+  register-trial-times: 2
+  issue-eproof-part-1-trial-times: 2
+  issue-eproof-part-2-trial-times: 2
 
 thread-pool:
   scheduled-task:
@@ -190,6 +198,7 @@ cron-expression:
   normal-email-sending: "-"
   refresh-eproof-access-token: "0 0/30 * * * *"
   upload-today-batch-xml-to-gcis: "0 35 16 * * *"
+#  upload-today-batch-xml-to-gcis: "0 19 21 * * *"
   schedule-today-batch-email: "0 47 16 * * *"
   enquire-and-update-schedule-status: "0 33 10-23 * * *"
 
@@ -202,7 +211,7 @@ gcis-shared-service:
     projectId: CSBEP
   enabled: true
   emailWhitelist:
-    enabled: false
+    enabled: true
     toList: hong.cheung@igsl-group.com
   property:
     path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\proximity.properties

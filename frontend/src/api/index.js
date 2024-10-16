@@ -4,7 +4,7 @@ import { getToken, setToken, removeToken } from '@/api/auth';
 import { API_ERROR_MESSAGE, LOGIN_ERROR_MESSAGE } from "../utils/util";
 import { showLoading, hideLoading } from "@/components/Loading";
 
-let baseURL = `/api/v1`;
+export let baseURL = `/api/v1`;
 const headers = {};
 
 if (process.env.NODE_ENV === 'development') {
@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const signRequest = axios.create({
   baseURL: 'http://localhost:9999',
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   headers: {
     Accept: 'application/json, text/plain, */*',
     "Content-Type": "application/json;charset=UTF-8",
@@ -43,7 +43,7 @@ signRequest.interceptors.request.use(
 
 const normalRequest = axios.create({
   baseURL,
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   withCredentials: true,
   headers: {
     Accept: 'application/json, text/plain, */*',
@@ -87,7 +87,7 @@ const fileRequest = axios.create({
   // baseURL: 'http://127.0.0.1:8080',
   // baseURL: 'http://192.168.2.234',
   baseURL,
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   headers: {
     "Content-Type": "multipart/form-data",
     ...headers,
@@ -123,7 +123,7 @@ const downloadRequest = axios.create({
   // baseURL: 'http://127.0.0.1:8080',
   // baseURL: `http://192.168.2.234`,
   baseURL,
-  timeout: 1000 * 60 * 5,
+  timeout: 1000 * 60 * 60 * 2,
   headers: {
     // "Content-Type": "application/x-www-form-urlencoded",
     Accept: 'application/json, text/plain, */*',

@@ -22,7 +22,7 @@ public interface CertInfoService {
 
     Page<CertInfo> search(CertSearchDto request, List<String> certStageList, List<String> certStatusList, Pageable pageable);
 
-    Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData);
+    Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) throws Exception;
 
     Boolean dispatch(String examProfileSerialNo, CertStage currentStage);
 
@@ -84,9 +84,9 @@ public interface CertInfoService {
 
     ResponseEntity<byte[]> enquiryResult(List<String> params);
 
-    ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, Integer allPassed, Integer partialFailed, Integer allFailed);
+    ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, String certStage, Integer allPassed, Integer partialFailed, Integer allFailed);
 
     void deleteFutureBatchEmail(String examProfileSerialNo);
 
-    byte [] downloadcert(String examProfileId) throws IOException;
+    byte [] downloadcert(String examProfileId, String certStage) throws IOException;
 }

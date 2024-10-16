@@ -122,7 +122,7 @@ const Import = () =>  {
       width: 100,
       sorter: true,
     },
-  ], []);
+  ], [auth.permissions]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -294,8 +294,8 @@ const Import = () =>  {
               total={pagination.total}
               pageSizeOptions={defaultPaginationInfo.sizeOptions}
               onChange={paginationOnChange}
-              pageSize={defaultPaginationInfo.pageSize}
               current={pagination.page}
+              pageSize={pagination.pageSize}
               showTotal={(total) => `Total ${total} item(s)`}
               showSizeChanger
               showQuickJumper

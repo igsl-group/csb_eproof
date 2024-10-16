@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FileRepository extends JpaRepository<File,Long> {
 
@@ -29,6 +31,13 @@ public interface FileRepository extends JpaRepository<File,Long> {
     LIMIT 1
 """)
     File getLatestPdfForCert(Long certInfoId);
+
+    @Query(nativeQuery = true,value = """
+    SELECT f.* 
+    FROM file f left join cert_pdf c on f.id = c.file_id
+    WHERE c.cert_info_id IN :ids
+""")
+    List<File> getLatestPdfForCerts(List<Long> ids);
 
 
 }

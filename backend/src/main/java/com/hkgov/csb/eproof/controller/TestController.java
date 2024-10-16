@@ -1,12 +1,15 @@
 package com.hkgov.csb.eproof.controller;
 
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
+import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
 import com.hkgov.csb.eproof.dao.CertInfoRepository;
 import com.hkgov.csb.eproof.dao.EmailTemplateRepository;
 import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
+import com.hkgov.csb.eproof.dto.EnquiryResultDto;
 import com.hkgov.csb.eproof.dto.ExamScoreDto;
 import com.hkgov.csb.eproof.entity.CertInfo;
 import com.hkgov.csb.eproof.entity.EmailTemplate;
@@ -14,10 +17,15 @@ import com.hkgov.csb.eproof.entity.ExamProfile;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.request.ManualResendBatchEmailRequest;
+import com.hkgov.csb.eproof.security.EncryptionUtil;
+import com.hkgov.csb.eproof.service.CertInfoService;
 import com.hkgov.csb.eproof.service.DocumentGenerateService;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
 import com.hkgov.csb.eproof.service.PermissionService;
+import com.hkgov.csb.eproof.service.impl.CertInfoServiceImpl;
+import com.hkgov.csb.eproof.util.CsvUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
+import com.hkgov.csb.eproof.util.EProof.EProofUtil;
 import com.hkgov.csb.eproof.util.EmailUtil;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.sun.star.beans.PropertyValue;
@@ -31,6 +39,10 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
@@ -39,19 +51,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/test")
@@ -59,7 +75,10 @@ import java.util.Map;
 public class TestController {
     @Resource
     private PermissionService permissionService;
-
+    @Resource
+    private CertInfoService certInfoService;
+    @Resource
+    private CertInfoServiceImpl certInfoServiceImpl;
     @Autowired
     private CertInfoRepository certInfoRepository;
 
@@ -74,7 +93,17 @@ public class TestController {
 
     @Autowired
     private GcisBatchEmailRepository gcisBatchEmailRepository;
+    @Value("${document.qr-code.height}")
+    private Integer qrCodeHeight;
 
+    @Value("${document.qr-code.width}")
+    private Integer qrCodeWidth;
+
+    @Value("${document.qr-code.x}")
+    private Integer qrCodeX;
+
+    @Value("${document.qr-code.y}")
+    private Integer qrCodeY;
 
     @Autowired
     private DocumentGenerateService documentGenerateService;
@@ -131,6 +160,46 @@ public class TestController {
         return ResponseEntity.ok().headers(header).body(pdfBytes);
     }
 
+    @GetMapping("/generateDocumentWithQrCodeDemo")
+    public ResponseEntity generateDocumentWithQrCodeDemo(
+            @RequestParam(defaultValue = "") Long certId,
+            @RequestParam(defaultValue = "") Integer qrx,
+            @RequestParam(defaultValue = "") Integer qry,
+            @RequestParam(defaultValue = "") Integer qrw,
+            @RequestParam(defaultValue = "") Integer qrh
+    ) throws Exception {
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename("test.pdf")
+                .build()
+        );
+
+        byte [] previewCertPdf = certInfoService.previewCertPdf(certId);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try (PDDocument pdDocument = PDDocument.load(previewCertPdf)) {
+            byte [] qrCodeImageBinary = certInfoServiceImpl.generateQrCodeBinary("{\"data\":{\"initVector\":\"ndlftcAV96tINBUSnjirBA==\",\"jwt\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI1MzQwMjMwMDc5OSwidHlwZSI6IjA3IiwiaWF0IjoxNzI1MjI4NzgwLCJzdWIiOiJkMWI4MjgxMS03YjRlLTQ5Y2QtOWRlZi03YmRlZWRmNGQyNzQifQ.WB3nf6gy9eeRgLwqrI59d_a86VaBXcES-pem9P_BtDc\",\"key\":\"JCxY2GfePT4wqC5J6rFez+J1QkQBHZySgmluVVgs8GE=\",\"shared_eproof_uuid\":\"d1b82811-7b4e-49cd-9def-7bdeedf4d274\"},\"type_id\":\"2c\"}");
+
+            Integer x = qrx != null ? qrx : qrCodeX;
+            Integer y = qry != null ? qry : qrCodeY;
+            Integer w = qrw != null ? qrw : qrCodeWidth;
+            Integer h = qrh != null ? qrh : qrCodeHeight;
+
+            PDImageXObject qrCodeImage = PDImageXObject.createFromByteArray(pdDocument, qrCodeImageBinary, "QR Code");
+            try (PDPageContentStream contentStream = new PDPageContentStream(pdDocument, pdDocument.getPage(0), PDPageContentStream.AppendMode.APPEND, true)) {
+                contentStream.drawImage(qrCodeImage, x, y, w, h);
+            }
+
+            pdDocument.save(baos);
+        }
+        baos.close();
+
+        return ResponseEntity.ok().headers(header).body(baos.toByteArray());
+//        return ResponseEntity.ok().headers(header).body(previewCertPdf);
+    }
+
 
     @GetMapping("/generateDocumentDemo")
     public ResponseEntity generateDocumentDemo() throws Exception {
@@ -160,7 +229,7 @@ public class TestController {
 
         if (markDtoList.size() < 4){
             for(int i = markDtoList.size(); i <= 4; i++){
-                markDtoList.add(new ExamScoreDto("",""));
+                markDtoList.add(new ExamScoreDto(" "," "));
             }
         }
 
@@ -172,9 +241,12 @@ public class TestController {
         HashMap<String,List> map = new HashMap<>();
         map.put("examResults",markDtoList);
 
-        FileInputStream inputStream = new FileInputStream("/var/csb_eproof/test_template.docx");
+        FileInputStream inputStream = new FileInputStream(tmpSource);
 
         byte [] mergedDocument = documentGenerateService.getMergedDocument(inputStream, DocumentOutputType.PDF,docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap),map);
+//        byte[] pdfBytes = docxUtil.convertDocxToPdf_POI(inputStream);
+//        return ResponseEntity.ok().headers(header).body(pdfBytes);
+
         /*Configure config = Configure.builder().bind("examResults",policy).build();
         ByteArrayInputStream bais = new ByteArrayInputStream(mergedDocument);
         XWPFTemplate template = XWPFTemplate.compile("C:\\Users\\IGS\\Documents\\CSB_EProof\\Cert sample\\Result letter templates\\test_template_2.docx",config).render(
@@ -311,5 +383,19 @@ public class TestController {
         return gcisBatchEmailService.enquireUploadStatus(gcisBatchEmail.getId());
      }
 
+    @GetMapping("/encryptString/{str}")
+    public String testEncrypt(@PathVariable String str) throws Exception {
+        return EncryptionUtil.encrypt(str);
+    }
+
+    @GetMapping("/decryptString/{str}")
+    public String testDecrypt(@PathVariable String str) throws Exception {
+        return EncryptionUtil.decrypt(str);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value ="/pdfHash")
+    public String pdfHash(@RequestPart("file") MultipartFile file) throws Exception {
+        return EProofUtil.calcPdfHash(file.getBytes());
+    }
 
 }

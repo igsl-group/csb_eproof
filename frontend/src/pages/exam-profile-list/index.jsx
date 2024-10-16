@@ -72,10 +72,11 @@ const ExamProfileList = () =>  {
     setOpen(false);
   });
 
-  const onFinishCallback = useCallback(() => {
+  const onFinishCallback = useCallback((examProfile) => {
     setOpen(false);
-    console.log(resetPagination())
-    getExamProfileList(resetPagination());
+    navigate(`/ExamProfile/${examProfile.serialNo}`);
+    // console.log(resetPagination())
+    // getExamProfileList(resetPagination());
   }, []);
 
   const breadcrumbItems = useMemo(() => [

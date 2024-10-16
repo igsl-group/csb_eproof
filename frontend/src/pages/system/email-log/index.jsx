@@ -45,6 +45,7 @@ import {
   toQueryString
 } from "@/utils/util";
 import parse from "html-react-parser";
+import EmailDetailModal from "./modal";
 
 
 const EmailLog = () =>  {
@@ -54,7 +55,7 @@ const EmailLog = () =>  {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState(false);
-  const [recordId, setRecordId] = useState('');
+  const [record, setRecord] = useState({});
   const [type, setType] = useState('');
   const [filterCondition, setFilterCondition] = useState(null);
 
@@ -97,16 +98,22 @@ const EmailLog = () =>  {
     },
     {
       title: "Subject",
-      dataIndex: "subject",
-      width: 150,
-    },
-    {
-      title: "Body",
-      dataIndex: "body",
+      key: "subject",
       width: 600,
-      render: (value) => <div style={{ textWrap: 'wrap'}}>{value ? parse(value) : ''}</div>,
+      render: (row) => <Link onClick={() => onSubjectClicked(row)}>{row.subject}</Link>
     },
+    // {
+    //   title: "Body",
+    //   dataIndex: "body",
+    //   width: 600,
+    //   render: (value) => <div style={{ textWrap: 'wrap'}}>{value ? parse(value) : ''}</div>,
+    // },
   ], []);
+
+  const onSubjectClicked = useCallback((record) =>　{
+    setOpen(true);
+    setRecord(record);
+  }, []);
 
   const tableOnChange = useCallback((pageInfo, filters, sorter, extra) => {
     const {
@@ -246,6 +253,11 @@ const EmailLog = () =>  {
         </Row>
         <br/>
       </Card>
+      <EmailDetailModal
+        open={open}
+        record={record}
+        onCloseCallback={() => setOpen(false)}
+      />
       <br/>
     </div>
 

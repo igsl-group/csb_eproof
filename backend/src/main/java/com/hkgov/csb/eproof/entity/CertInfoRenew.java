@@ -108,6 +108,9 @@ public class CertInfoRenew extends BaseEntity {
     @JsonBackReference
     private CertInfo certInfo;
 
+    @OneToOne(mappedBy = "certInfoRenew", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private CertEproofRenew certEproofRenew;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "cert_pdf_renew",

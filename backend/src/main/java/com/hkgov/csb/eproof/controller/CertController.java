@@ -128,7 +128,7 @@ public class CertController {
     }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,value = "/batch/import/{examProfileSerialNo}")
     @Transactional(rollbackFor = Exception.class)
-    public Result batchImport(@PathVariable String examProfileSerialNo, @RequestPart("file") MultipartFile file){
+    public Result batchImport(@PathVariable String examProfileSerialNo, @RequestPart("file") MultipartFile file) throws Exception {
         List<CertImportDto> csvData = CsvUtil.getCsvData(file, CertImportDto.class);
         return Result.success(certInfoService.batchImport(examProfileSerialNo,csvData));
     }
@@ -338,11 +338,12 @@ public class CertController {
     @GetMapping(value = "/getRandomPdf")
     public Result getRandomPdf(
             @RequestParam String examProfileSerialNo,
+            @RequestParam String certStage,
             @RequestParam Integer allPassed,
             @RequestParam Integer partialFailed,
             @RequestParam Integer allFailed
             ) {
-        return Result.success(certInfoService.getRamdomPdf(examProfileSerialNo, allPassed, partialFailed, allFailed));
+        return Result.success(certInfoService.getRamdomPdf(examProfileSerialNo,certStage, allPassed, partialFailed, allFailed));
     }
 
     @PostMapping("/preview/pdf")
@@ -360,16 +361,18 @@ public class CertController {
         return ResponseEntity.ok().headers(header).body(previewCertPdf);
     }
 
-    @PostMapping("/downloadCert/{examProfileId}/all")
+    @GetMapping("/downloadCert/{examProfileId}/all")
     @Operation(summary = "Download cert with provided cert ID list.")
-    public ResponseEntity downloadPdfAll(@PathVariable String examProfileId) throws IOException {
+    public ResponseEntity downloadPdfAll(
+            @PathVariable String examProfileId,
+            @RequestParam String certStage) throws IOException {
         HttpHeaders header = new HttpHeaders();
         header.setContentDisposition(ContentDisposition
                 .attachment()
                 .filename(this.getZipFileName())
                 .build()
         );
-        byte [] zippedPdfListByteArray = certInfoService.downloadcert(examProfileId);
+        byte [] zippedPdfListByteArray = certInfoService.downloadcert(examProfileId,certStage);
         return ResponseEntity.ok()
                 .headers(header)
                 .body(zippedPdfListByteArray);

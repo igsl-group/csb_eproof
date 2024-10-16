@@ -84,19 +84,19 @@ const ApprovalWorkflow = () =>  {
   useEffect(() => {
     let workflowActionList = [];
     let onholdActionList = [];
-    if (auth.permissions.includes('Certificate_Import')) {
+    if (auth.permissions.includes('Certificate_Import_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['imported'], 'Import'))
     }
-    if (auth.permissions.includes('Certificate_Generate')) {
+    if (auth.permissions.includes('Certificate_Generate_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['generatePdfTotal'], 'Generate'))
     }
-    if (auth.permissions.includes('Certificate_Sign_And_Issue')) {
+    if (auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['issuedPdfTotal'], 'SignAndIssueCert'))
     }
-    if (auth.permissions.includes('Certificate_Notify')) {
+    if (auth.permissions.includes('Certificate_Notify_Maintenance')) {
       workflowActionList.push(...actionListCallback(examProfileSummaryList, ['sendEmailTotal'], 'Notify'))
     }
-    if (auth.permissions.includes('Case_Maintenance')) {
+    if (auth.permissions.includes('Resume_Delete_On-Hold_Case')) {
       onholdActionList.push(...actionListCallback(examProfileSummaryList, ['onHoldCaseTotal'], 'Onhold'))
     }
     console.log(onholdActionList)
@@ -255,7 +255,7 @@ const ApprovalWorkflow = () =>  {
         setExamProfileSummaryList(list);
       })
       const reissueList = [];
-      if (permissions.includes('Certificate_Generate')) {
+      if (permissions.includes('Certificate_Generate_Maintenance')) {
         const data = await runExamProfileAPI('certRenewList', 'GENERATED', {
           dummy: "",
         }, toQueryString(pagination))
@@ -264,7 +264,7 @@ const ApprovalWorkflow = () =>  {
         reissueList.push(...data);
       }
 
-    if (permissions.includes('Certificate_Sign_And_Issue')) {
+    if (permissions.includes('Certificate_Sign_And_Issue_Maintenance')) {
       const data = await runExamProfileAPI('certRenewList', 'SIGN_ISSUE', {
         dummy: "",
       }, toQueryString(pagination))
@@ -272,7 +272,7 @@ const ApprovalWorkflow = () =>  {
         .then((data) => data.content);
       reissueList.push(...data);
     }
-    if (permissions.includes('Certificate_Notify')) {
+    if (permissions.includes('Certificate_Notify_Maintenance')) {
       const data = await runExamProfileAPI('certRenewList', 'NOTIFY', {
         dummy: "",
       }, toQueryString(pagination))
@@ -309,7 +309,7 @@ const ApprovalWorkflow = () =>  {
       <PermissionControl permissionRequired={['Revoke_Submit', 'Revoke_Approve']}>
         <RevokeTable/>
       </PermissionControl>
-      <PermissionControl permissionRequired={['Certificate_Import', 'Certificate_Generate', 'Certificate_Sign_And_Issue', 'Certificate_Notify']}>
+      <PermissionControl permissionRequired={['Certificate_Import_Maintenance', 'Certificate_Generate_Maintenance', 'Certificate_Sign_And_Issue_Maintenance', 'Certificate_Notify_Maintenance']}>
         <br/>
         <Card
           bordered={false}
@@ -352,7 +352,7 @@ const ApprovalWorkflow = () =>  {
           />
         </Card>
       </PermissionControl>
-      <PermissionControl permissionRequired={['Certificate_Generate', 'Certificate_Sign_And_Issue', 'Certificate_Notify']}>
+      <PermissionControl permissionRequired={['Certificate_Generate_Maintenance', 'Certificate_Sign_And_Issue_Maintenance', 'Certificate_Notify_Maintenance']}>
         <br/>
         <Card
           bordered={false}
@@ -397,7 +397,7 @@ const ApprovalWorkflow = () =>  {
         </Card>
       </PermissionControl>
       <br/>
-      <PermissionControl permissionRequired={['Case_Maintenance']}>
+      <PermissionControl permissionRequired={['Resume_Delete_On-Hold_Case']}>
         <br/>
         <Card
           bordered={false}

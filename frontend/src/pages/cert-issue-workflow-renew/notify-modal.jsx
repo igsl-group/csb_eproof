@@ -126,7 +126,7 @@ const EmailModal = (props) =>  {
           let htmlBody = data.body;
           htmlBody = htmlBody.replaceAll('${application_name}', record.newName);
           htmlBody = htmlBody.replaceAll('${examination_date}', dayjs(record?.certInfo?.examProfile?.examDate, 'YYYY-MM-DD').format('DD MMM YYYY'));
-          htmlBody = htmlBody.replaceAll('${eproof_document_url}', record.certEproof?.url);
+          htmlBody = htmlBody.replaceAll('${eproof_document_url}', record.certEproofRenew?.url);
           form.setFieldsValue({
             title: data.subject,
             htmlBody,

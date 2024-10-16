@@ -10,12 +10,12 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   CopyOutlined,
-  SendOutlined
+  SendOutlined, EditOutlined
 } from '@ant-design/icons';
 import Text from "@/components/Text";
 import Date from "@/components/Date";
 import Textarea from "@/components/Textarea";
-import HKID, { stringToHKID } from "@/components/HKID";
+import HKID, { stringToHKID, stringToHKIDWithBracket } from "@/components/HKID";
 import Email from "@/components/Email";
 import dayjs from "dayjs";
 import {useModal} from "../../context/modal-provider";
@@ -36,10 +36,11 @@ import Richtext from "../../components/Richtext";
 import HkidPassportModal from "./hkid-passport-modal";
 import PermissionControl from "../../components/PermissionControl";
 import EmailModal from "./modal";
-import {stringToHKIDWithBracket} from "../../components/HKID";
+import {useAuth} from "../../context/auth-provider";
 
 const Candidate = () =>  {
 
+  const auth = useAuth();
   const modalApi = useModal();
   const messageApi = useMessage();
   const navigate = useNavigate();
@@ -139,9 +140,9 @@ const Candidate = () =>  {
       title: 'Candidate',
     },
     {
-      title: hkid,
+      title: hkid ? stringToHKIDWithBracket(hkid): passport,
     },
-  ], []);
+  ], [hkid, passport]);
 
   const onClickDownload = useCallback(() => {
     modalApi.confirm({
@@ -183,102 +184,110 @@ const Candidate = () =>  {
     setRecord(row);
   }, []);
 
-  const columns = useMemo(() => [
-    {
-      title: 'Action',
-      key: 'action',
-      width: 160,
-      render: (row) => (
-        <Row gutter={[8, 8]}>
-          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col>
-          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col>
-          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col>
-          <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onEmailClicked(row)}>Resend Email</Button></Col>
-        </Row>
-      )
-    },
-    {
-      title: 'Exam Date',
-      key: 'exam_date',
-      dataIndex: 'examDate',
-      width: 140,
-      sorter: true,
-    },
-    {
-      title: 'HKID',
-      key: 'hkid',
-      dataIndex: 'hkid',
-      render: (row) => stringToHKIDWithBracket(row),
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Passport',
-      key: 'passport_no',
-      dataIndex: 'passportNo',
-      width: 100,
-      sorter: true,
-    },
-    {
-      title: 'Name',
-      key: 'name',
-      dataIndex: 'name',
-      width: 160,
-      sorter: true,
-    },
-    {
-      title: 'Email',
-      key: 'email',
-      dataIndex: 'email',
-      width: 180,
-      sorter: true,
-    },
-    {
-      title: 'Result Letter Date',
-      key: 'resultLetterDate',
-      render: (row) => row.examProfile?.resultLetterDate,
-      width: 120,
-      // sorter: true,
-    },
-    {
-      title: 'Email Issuance Date',
-      key: 'emailIssuanceDate',
-      dataIndex: 'actualEmailSendTime',
-      width: 120,
-      // sorter: true,
-    },
-    {
-      title: 'UE',
-      key: 'ueGrade',
-      dataIndex: 'ueGrade',
-      width: 80,
-    },
-    {
-      title: 'UC',
-      key: 'ucGrade',
-      dataIndex: 'ucGrade',
-      width: 80,
-    },
-    {
-      title: 'AT',
-      key: 'atGrade',
-      dataIndex: 'atGrade',
-      width: 80,
-    },
-    {
-      title: 'BLNST',
-      key: 'blnstGrade',
-      dataIndex: 'blnstGrade',
-      width: 80,
-    },
-    {
-      title: 'Letter Type',
-      key: 'letter_type',
-      dataIndex: 'letterType',
-      width: 80,
-      sorter: true,
-    },
-  ], [hasTodoCase]);
+  const columns = useMemo(() => {
+    const tmpColumns = [];
+    if (auth.permissions.includes('Update_Candidate_Result_HKID/P.P_Name') || auth.permissions.includes('Copy_URL') || auth.permissions.includes('Resend_Email')) {
+      tmpColumns.push({
+        title: 'Action',
+        key: 'action',
+        width: 160,
+        render: (row) => (
+          <Row gutter={[8, 8]}>
+            { auth.permissions.includes('Update_Candidate_Result_HKID/P.P_Name') ? <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onHkidPassportClicked(row)}>Update HKID/P.P</Button></Col> : null}
+            { auth.permissions.includes('Update_Candidate_Result_HKID/P.P_Name') ? <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onAppealClicked(row)}>Update Result</Button></Col> : null}
+            { auth.permissions.includes('Copy_URL') ? <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onCopyUrlClicked(row)}>Copy URL</Button></Col> : null}
+            { auth.permissions.includes('Resend_Email') ? <Col span={24}><Button disabled={hasTodoCase} size={'small'} style={{width: 125}} type={'primary'} onClick={() => onEmailClicked(row)}>Resend Email</Button></Col> : null}
+          </Row>
+        )
+      });
+    }
+
+    tmpColumns.push(
+
+      {
+        title: 'Exam Date',
+        key: 'exam_date',
+        dataIndex: 'examDate',
+        width: 140,
+        sorter: true,
+      },
+      {
+        title: 'HKID',
+        key: 'hkid',
+        dataIndex: 'hkid',
+        render: (row) => stringToHKIDWithBracket(row),
+        width: 100,
+        sorter: true,
+      },
+      {
+        title: 'Passport',
+        key: 'passport_no',
+        dataIndex: 'passportNo',
+        width: 100,
+        sorter: true,
+      },
+      {
+        title: 'Name',
+        key: 'name',
+        dataIndex: 'name',
+        width: 160,
+        sorter: true,
+      },
+      {
+        title: 'Email',
+        key: 'email',
+        dataIndex: 'email',
+        width: 180,
+        sorter: true,
+      },
+      {
+        title: 'Result Letter Date',
+        key: 'resultLetterDate',
+        render: (row) => row.examProfile?.resultLetterDate,
+        width: 120,
+        // sorter: true,
+      },
+      {
+        title: 'Email Issuance Date',
+        key: 'emailIssuanceDate',
+        dataIndex: 'actualEmailSendTime',
+        width: 120,
+        // sorter: true,
+      },
+      {
+        title: 'UE',
+        key: 'ueGrade',
+        dataIndex: 'ueGrade',
+        width: 80,
+      },
+      {
+        title: 'UC',
+        key: 'ucGrade',
+        dataIndex: 'ucGrade',
+        width: 80,
+      },
+      {
+        title: 'AT',
+        key: 'atGrade',
+        dataIndex: 'atGrade',
+        width: 80,
+      },
+      {
+        title: 'BLNST',
+        key: 'blnstGrade',
+        dataIndex: 'blnstGrade',
+        width: 80,
+      },
+      {
+        title: 'Letter Type',
+        key: 'letter_type',
+        dataIndex: 'letterType',
+        width: 80,
+        sorter: true,
+      },
+    )
+    return tmpColumns;
+  }, [hasTodoCase, auth.permissions]);
 
   const { runAsync: runExamProfileAPI } = useRequest(examProfileAPI, {
     manual: true,
@@ -355,8 +364,8 @@ const Candidate = () =>  {
       width: 500,
       okText: 'Confirm',
       onOk: () => runExamProfileAPI('certBatchUpdateEmail', {
-        currentHkid: hkid,
-        currentPassport: hkid ? '': passport,
+        currentHkid: hkid ? hkid : null,
+        currentPassport: hkid ? null: passport,
         email,
       })
     });
@@ -404,8 +413,8 @@ const Candidate = () =>  {
   const getCertList = useCallback(async (pagination = {}, filter = {}) => {
 
     return runExamProfileAPI('certList', 'VALID', {
-      hkid: hkid,
-      passportNo: hkid ? '': passport,
+      hkid: hkid ? hkid : null,
+      passportNo: hkid ? null: passport,
     }, toQueryString(pagination, filter));
   }, [hkid, passport]);
 
@@ -419,8 +428,8 @@ const Candidate = () =>  {
   const getLatestCandidateInfo = useCallback(async (pagination = {}, filter = {}) => {
 
     return runExamProfileAPI('certLatestCandidateInfo', {
-      hkid: hkid,
-      passportNo: hkid ? '': passport,
+      hkid: hkid ? hkid : null,
+      passportNo: hkid ? null: passport,
     }, toQueryString({
       page: 1,
       pageSize: 1,
@@ -464,7 +473,9 @@ const Candidate = () =>  {
       {
         hasTodoCase ? (
           <div>
-            <Alert showIcon type={'warning'} description={<b>Since there is at least one candidate case in progress, all action buttons are disabled until the case(s) are completed.</b>}/>
+            <Alert showIcon type={'warning'}
+                   description={<b>Since there is at least one candidate case in progress, all action buttons are
+                     disabled until the case(s) are completed.</b>}/>
             <br/>
           </div>
         ) : null
@@ -485,7 +496,7 @@ const Candidate = () =>  {
           <Col span={16}>
             <Row gutter={24} justify={'start'}>
               <Col span={24} md={12}>
-                <HKID name={'hkid'} label={'HKID'} disabled  size={12} disabled/>
+                <HKID name={'hkid'} label={'HKID'} disabled size={12} disabled/>
               </Col>
               <Col span={24} md={12}>
                 <Text name={'passportNo'} label={'Passport No.'} size={12} disabled/>
@@ -493,20 +504,29 @@ const Candidate = () =>  {
               <Col span={24} md={12}>
                 <Text name={'name'} label={'Candidate Name'} size={12} disabled/>
               </Col>
-              <Col span={24} md={12}>
-                <Space>
-                  <Email disabled={hasTodoCase} name={'email'} label={'Email'} size={12}/>
-                  <Button type={'primary'}  onClick={onClickBulkUpdateEmail} disabled={emailError || hasTodoCase}>Bulk Update Email</Button>
-                </Space>
-              </Col>
+              {
+                auth.permissions.includes('Update_Candidate_Email') ? (
+                  <Col span={24} md={12}>
+                    <Space>
+                      <Email disabled={hasTodoCase} name={'email'} label={'Email'} size={12}/>
+                      <Button type={'primary'} onClick={onClickBulkUpdateEmail} disabled={emailError || hasTodoCase}>Bulk Update Email</Button>
+                    </Space>
+                  </Col>
+                ) : null
+              }
             </Row>
           </Col>
           <Col span={8}>
-            <Row gutter={[8, 8]} justify={'end'}>
-              <Col>
-                <Button disabled={hasTodoCase} type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update Candidate Name</Button>
-              </Col>
-            </Row>
+            {
+              auth.permissions.includes('Update_Candidate_Result_HKID/P.P_Name') ? (
+                <Row gutter={[8, 8]} justify={'end'}>
+                  <Col>
+                    <Button disabled={hasTodoCase} type={'primary'} onClick={onClickUpdatePersonalParticulars}>Bulk Update
+                      Candidate Name</Button>
+                  </Col>
+                </Row>
+              ) : null
+            }
           </Col>
         </Row>
       </Form>
@@ -579,6 +599,7 @@ const Candidate = () =>  {
         </Row>
         <br/>
       </Card>
+      <br/>
       <PersonalParticularsModal
         open={open}
         onCloseCallback={onCloseCallback}
@@ -600,12 +621,12 @@ const Candidate = () =>  {
         title={'Update HKID/Passport'}
       />
       <RevokeCertModal
-          open={revokeOpen}
-          title={'Revoke Certificate'}
-          selectedRecords={selectedRows}
-          lastCandidateInfo={lastCandidateInfo}
-          onCloseCallback={onCloseCallback}
-          onFinishCallback={onFinishCallback}
+        open={revokeOpen}
+        title={'Revoke Certificate'}
+        selectedRecords={selectedRows}
+        lastCandidateInfo={lastCandidateInfo}
+        onCloseCallback={onCloseCallback}
+        onFinishCallback={onFinishCallback}
       />
       <EmailModal
         open={emailModalOpen}

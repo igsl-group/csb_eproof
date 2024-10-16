@@ -68,7 +68,7 @@ public class ApiUtil {
             if (response.isSuccessful()) {
                 return response.body().string();
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(getUnsignedJsonEndpoint + " Request failed with status code: " + response.code());
                 return null;
             }
         } catch (IOException e) {
@@ -91,7 +91,7 @@ public class ApiUtil {
             if (response.isSuccessful()) {
                 return response.body().string();
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(getUnsignedJsonEndpoint+" Request failed with status code: " + response.code());
                 return null;
             }
         } catch (IOException e) {
@@ -114,7 +114,7 @@ public class ApiUtil {
                 String responseBody = response.body().string();
                 return Long.parseLong(responseBody);
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(getNextJobEndpoint +" Request failed with status code: " + response.code());
                 return null;
             }
         }
@@ -134,7 +134,7 @@ public class ApiUtil {
             if (response.isSuccessful()) {
                 System.out.println("Response: " + response.body().string());
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(startScheduleEndpoint+" Request failed with status code: " + response.code());
             }
         }
     }
@@ -161,7 +161,7 @@ public class ApiUtil {
             if (response.isSuccessful()) {
                 System.out.println("Response: " + response.body().string());
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(uploadSignedPdfEndpoint+" Request failed with status code: " + response.code());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -280,7 +280,7 @@ public class ApiUtil {
                 System.out.println("Prepare and download PDF successful." );
                 return response.body().bytes();
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(prepareEproofPdfUrl2 + " Request failed with status code: " + response.code());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -315,7 +315,7 @@ public class ApiUtil {
                 System.out.println("Prepare and download PDF successful." );
                 return response.body().bytes();
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(prepareEproofPdfUrl2 + " Request failed with status code: " + response.code());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -349,7 +349,7 @@ public class ApiUtil {
             if (response.isSuccessful()) {
                 System.out.println("Response: " + response.body().string());
             } else {
-                System.err.println("Request failed with status code: " + response.code());
+                System.err.println(uploadSignedPdfEndpoint + " Request failed with status code: " + response.code());
             }
         } catch (IOException e) {
             e.printStackTrace();

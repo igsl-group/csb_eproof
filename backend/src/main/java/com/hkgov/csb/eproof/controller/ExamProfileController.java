@@ -25,7 +25,7 @@ public class ExamProfileController {
     private  ExamProfileService examProfileService;
 
     @PostMapping("/create")
-    public Result<Boolean> create(@RequestBody ExamProfileCreateDto requestDto){
+    public Result<ExamProfileDto> create(@RequestBody ExamProfileCreateDto requestDto){
         return Result.success(examProfileService.create(requestDto));
     }
 

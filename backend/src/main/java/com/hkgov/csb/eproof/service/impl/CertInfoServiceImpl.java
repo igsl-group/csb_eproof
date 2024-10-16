@@ -22,6 +22,7 @@ import com.hkgov.csb.eproof.entity.enums.CertType;
 import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertInfoMapper;
+import com.hkgov.csb.eproof.security.EncryptionUtil;
 import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.CodeUtil;
 import com.hkgov.csb.eproof.util.DocxUtil;
@@ -41,6 +42,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -167,7 +169,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) {
+    public Boolean batchImport(String examProfileSerialNo, List<CertImportDto> csvData) throws Exception {
         List<CertInfo> certInfos = checkScv(examProfileSerialNo,csvData);
         return certInfoRepository.saveAll(certInfos).size() == csvData.size();
     }
@@ -359,8 +361,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
         // Change the format of date for examMap
-        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
-        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
+        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
     }
@@ -382,8 +384,8 @@ public class CertInfoServiceImpl implements CertInfoService {
         }
 
         if (markDtoList.size() < 4){
-            for(int i = markDtoList.size(); i <= 4; i++){
-                markDtoList.add(new ExamScoreDto("",""));
+            for(int i = markDtoList.size(); i < 4; i++){
+                markDtoList.add(new ExamScoreDto(" "," "));
             }
         }
 
@@ -644,6 +646,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
+    @Transactional
     public void uploadSignedPdf(Long certInfoId, MultipartFile file) {
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElse(null);
         if(Objects.isNull(certInfo)){
@@ -684,7 +687,8 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         CertInfo certInfo = certInfoRepository.findById(certInfoId).get();
 
-        File certPdf = certInfo.getPdfList()!=null&&certInfo.getPdfList().size()>0?certInfo.getPdfList().get(0):null;
+//        File certPdf = certInfo.getPdfList()!=null&&certInfo.getPdfList().size()>0?certInfo.getPdfList().get(0):null;
+        File certPdf = fileRepository.getLatestPdfForCert(certInfo.getId());
 
         byte[] certPdfBinary = minioUtil.getFileAsByteArray(certPdf.getPath());
 
@@ -717,9 +721,9 @@ public class CertInfoServiceImpl implements CertInfoService {
         Map<String, String> extraInfo = new HashMap<>();
         extraInfo.put("cert_info_id", certInfo.getId().toString());
         extraInfo.put("exam_profile_serial_no", certInfo.getExamProfileSerialNo());
-        extraInfo.put("result_letter_date", certInfo.getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        extraInfo.put("result_letter_date", certInfo.getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
         extraInfo.put("candidate_name", certInfo.getName());
-        extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese (UC)" : "");
         extraInfo.put("result_1", certInfo.getUcGrade());
@@ -950,7 +954,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         //Completed preparing for Eproof PDF
     }
 
-    private byte[] generateQrCodeBinary(String qrCodeString) throws WriterException, com.google.zxing.WriterException, IOException {
+    public byte[] generateQrCodeBinary(String qrCodeString) throws WriterException, com.google.zxing.WriterException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeString, BarcodeFormat.QR_CODE,qrCodeWidth,qrCodeHeight);
@@ -1116,6 +1120,10 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Override
 
     public void approveRevoke(Long certActionId, CertApproveRejectRevokeDto certApproveRejectRevokeDto) throws Exception {
+        // Set the eproof config properties to hard refresh the token
+        eProofConfigProperties.setAccessToken(null);
+
+
         CertAction certAction = certActionRepository.findById(certActionId).orElseThrow(()->new GenericException("cert.action.not.found","Cert action not found."));
         List<CertInfo> toBeRevokeCertInfoList = certAction.getCertInfos();
 
@@ -1221,9 +1229,17 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     @Transactional
-    public ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+    public ResponseEntity<List<CertInfoRandomDto>> getRamdomPdf(String examProfileSerialNo, String certStage, Integer allPassedCount, Integer partialFailedCount, Integer allFailedCount) {
+        CertStage stage = null;
+
+        try{
+            stage = CertStage.valueOf(certStage);
+        } catch(Exception e){
+            throw new GenericException("cert.stage.not.found","Cert stage not found.");
+        }
         List<CertInfo> randomAllPassed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
+                stage.name(),
                 List.of("L1","L2","P"),
                 List.of("L1","L2","P"),
                 List.of("L1","L2","P"),
@@ -1231,6 +1247,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 allPassedCount);
         List<CertInfo> randomPartialFailed = certInfoRepository.getPartialFailedCert(
                 examProfileSerialNo,
+                stage.name(),
                 List.of("L1","L2","P"),
                 List.of("F"),
                 List.of("L1","L2","P"),
@@ -1243,6 +1260,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         List<CertInfo> randomAllFailed = certInfoRepository.getRandomCert(
                 examProfileSerialNo,
+                stage.name(),
                 List.of("F"),
                 List.of("F"),
                 List.of("F"),
@@ -1304,8 +1322,9 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public byte[] downloadcert(String examProfileId) throws IOException {
-        List<Long> ids = certInfoRepository.getAllByExamProfileId(examProfileId);
+    public byte[] downloadcert(String examProfileId, String certStage) throws IOException {
+        CertStage stage = CertStage.valueOf(certStage);
+        List<Long> ids = certInfoRepository.getAllByExamProfileId(examProfileId,stage);
         return getZippedPdfBinary(ids);
     }
 
@@ -1423,17 +1442,29 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     private File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf) throws IOException {
 
-        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
-        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
+        ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
+        String processedCertOwnerName = getInitials(certInfo.getName().trim());
+        String randomString = RandomStringUtils.random(4,true,true);
+//        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
+//        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
+                examProfile.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_4)),
                 processedCertOwnerName,
-                currentTimeMillisString,
-                UUID.randomUUID().toString().replace("-","")
+                randomString
         );
         return fileService.uploadFile(FILE_TYPE_CERT_RECORD,certRecordPath+"/"+certInfo.getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
     }
+    public static String getInitials(String name) {
+        StringBuilder initials = new StringBuilder();
+        for (String part : name.split(" ")) {
+            if (!part.isEmpty()) {
+                initials.append(part.charAt(0));
+            }
+        }
+        return initials.toString().toUpperCase();
+    }
 
-    public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData){
+    public List<CertInfo> checkScv(String examProfileSerialNo,List<CertImportDto> csvData) throws Exception {
         Set<String> hkids = new HashSet<>();
         Set<String> passports = new HashSet<>();
         ExamProfile examProfile = examProfileRepository.getinfoByNo(examProfileSerialNo);
@@ -1485,6 +1516,7 @@ public class CertInfoServiceImpl implements CertInfoService {
                 CertInfo certInfo = new CertInfo();
                 certInfo.setExamProfileSerialNo(examProfileSerialNo);
                 certInfo.setHkid(csv.getHkid());
+                certInfo.setEncryptedHkid(EncryptionUtil.encrypt(csv.getHkid()));
                 certInfo.setPassportNo(csv.getPassportNo());
                 certInfo.setExamDate(examDate);
                 certInfo.setName(csv.getName());
@@ -1505,11 +1537,39 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     public byte [] getZippedPdfBinary(List<Long> certInfoIdList) throws IOException {
-        List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
+        List<Long> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+        List<File> files = fileRepository.getLatestPdfForCerts(certInfoList);
+        List<File> latestPdfs = files.stream().collect(Collectors.groupingBy(File::getCertInfoId,
+                Collectors.collectingAndThen(
+                        Collectors.maxBy(Comparator.comparing(File::getCreatedDate)),
+                        Optional::get))).values().stream().collect(Collectors.toList());
+
+        int currentIndex = 1;
+        for(File file : latestPdfs){
+            logger.info("Exporting cert into zip. File ID: {}, Current INDEX: {}, Total number: {}"
+                    , file.getId()
+                    , currentIndex
+                    , certInfoList.size()
+            );
+            ZipEntry zipEntry = new ZipEntry(file.getName());
+            zos.putNextEntry(zipEntry);
+            zos.write(minioUtil.getFileAsByteArray(file.getPath()));
+            zos.closeEntry();
+            currentIndex++;
+        }
+       /* List<CertInfo> certInfoList = certInfoRepository.getByIdIn(certInfoIdList);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
+        int currentIndex = 1;
         for (CertInfo certInfo : certInfoList) {
+            logger.info("Exporting cert into zip. Cert ID: {}, Current INDEX: {}, Total number: {}"
+                    , certInfo.getId()
+                    , currentIndex
+                    , certInfoList.size()
+            );
             if(certInfo.getPdfList() == null || certInfo.getPdfList().size()<=0){
                 continue;
             }
@@ -1519,7 +1579,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             zos.putNextEntry(zipEntry);
             zos.write(minioUtil.getFileAsByteArray(latestPdf.getPath()));
             zos.closeEntry();
-        }
+        }*/
         zos.finish();
         zos.close();
         return baos.toByteArray();

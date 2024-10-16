@@ -21,6 +21,7 @@ import com.hkgov.csb.eproof.exception.GenericException;
 import com.hkgov.csb.eproof.exception.ServiceException;
 import com.hkgov.csb.eproof.mapper.CertActionMapper;
 import com.hkgov.csb.eproof.request.SendEmailRequest;
+import com.hkgov.csb.eproof.security.EncryptionUtil;
 import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
@@ -31,6 +32,7 @@ import com.itextpdf.text.pdf.qrcode.WriterException;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -87,6 +89,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private final CertInfoRepository certInfoRepository;
     private final EmailTemplateRepository emailTemplateRepository;
     private final GcisEmailServiceImpl gcisEmailServiceImpl;
+    private final ExamProfileRepository examProfileRepository;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${document.qr-code.height}")
@@ -119,8 +122,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         Map<String,String> examMap = docxUtil.convertObjectToMap(exam,"examProfile");
 
         // Change the format of date for examMap
-        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
-        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        examMap.put("examProfile.examDate",exam.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
+        examMap.put("examProfile.resultLetterDate",exam.getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         return docxUtil.combineMapsToFieldMergeMap(certInfoMap,examMap);
     }
@@ -145,7 +148,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
 
         if (markDtoList.size() < 4){
             for(int i = markDtoList.size(); i <= 4; i++){
-                markDtoList.add(new ExamScoreDto("",""));
+                markDtoList.add(new ExamScoreDto(" "," "));
             }
         }
 
@@ -234,17 +237,28 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     }
 
     private File uploadCertPdf(CertInfoRenew certInfoRenew, byte[] mergedPdf) throws IOException {
-
-        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
-        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
+        ExamProfile examProfile = examProfileRepository.findById(certInfoRenew.getCertInfo().getExamProfileSerialNo()).get();
+        String processedCertOwnerName = getInitials(certInfoRenew.getNewName().trim());
+        String randomString = RandomStringUtils.random(4,true,true);
+//        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
+//        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",
+                examProfile.getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_4)),
                 processedCertOwnerName,
-                currentTimeMillisString,
-                UUID.randomUUID().toString().replace("-","")
+                randomString
         );
         return fileService.uploadFile(FILE_TYPE_CERT_RECORD_RENEW,certRenewRecordPath+"/"+certInfoRenew.getCertInfo().getExamProfileSerialNo(),savePdfName,new ByteArrayInputStream(mergedPdf));
     }
 
+    public static String getInitials(String name) {
+        StringBuilder initials = new StringBuilder();
+        for (String part : name.split(" ")) {
+            if (!part.isEmpty()) {
+                initials.append(part.charAt(0));
+            }
+        }
+        return initials.toString().toUpperCase();
+    }
 
     public void createCertRenewPdfRecord(CertInfoRenew certInfoRenew,File uploadedPdf){
         CertPdfRenew certPdf = new CertPdfRenew();
@@ -416,9 +430,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         Map<String, String> extraInfo = new HashMap<>();
         extraInfo.put("cert_info_id", certInfoRenew.getId().toString());
         extraInfo.put("exam_profile_serial_no", certInfoRenew.getCertInfo().getExamProfileSerialNo());
-        extraInfo.put("result_letter_date", certInfoRenew.getCertInfo().getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        extraInfo.put("result_letter_date", certInfoRenew.getCertInfo().getExamProfile().getResultLetterDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
         extraInfo.put("candidate_name", certInfoRenew.getNewName());
-        extraInfo.put("exam_date", certInfoRenew.getCertInfo().getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_2)));
+        extraInfo.put("exam_date", certInfoRenew.getCertInfo().getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfoRenew.getNewUcGrade()) ? "Use of Chinese" : "");
         extraInfo.put("result_1", certInfoRenew.getNewUcGrade());
@@ -775,8 +789,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         certEproofRepository.save(certEproof);
     }
 
-    private void replaceCertInfoWithCertInfoRenew(CertInfo certInfo, CertInfoRenew certInfoRenew){
+    private void replaceCertInfoWithCertInfoRenew(CertInfo certInfo, CertInfoRenew certInfoRenew) throws Exception {
         certInfo.setHkid(certInfoRenew.getNewHkid());
+        certInfo.setEncryptedHkid(EncryptionUtil.encrypt(certInfoRenew.getNewHkid()));
         certInfo.setPassportNo(certInfoRenew.getNewPassport());
         certInfo.setName(certInfoRenew.getNewName());
         certInfo.setEmail(certInfoRenew.getNewEmail());

@@ -111,7 +111,7 @@ const ExamProfile = () =>  {
 
     const tmpColumns = [];
 
-    if (auth.permissions.includes('Case_Maintenance') && !freezeExamProfile) {
+    if (auth.permissions.includes('Resume_Delete_On-Hold_Case') && !freezeExamProfile) {
       tmpColumns.push(
         {
           title: 'Action',

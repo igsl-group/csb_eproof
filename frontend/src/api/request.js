@@ -212,6 +212,8 @@ export function examProfileAPI(params, ...rest) {
             return request(`/cert/batch/scheduleMail/${rest[0]}`, "post", rest[1]);
         case 'certBatchUpdatePersonalParticular':
             return request(`/cert/batch/updatePersonalParticular`, "post", rest[0]);
+        case 'certSingleUpdatePersonalParticular':
+            return request(`/cert/single/updatePersonalParticular/${rest[0]}`, "post", rest[1]);
         case 'certSingleUpdateResult':
             return request(`/cert/single/updateResult/${rest[0]}`, "post", rest[1]);
         case 'certRenewList':

@@ -49,9 +49,10 @@ import PermissionControl from "../../components/PermissionControl";
 import ScheduleSendEmailModal from "./schedule-send-email-modal";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
-
+import {useAuth} from "../../context/auth-provider";
+import {baseURL, baseUrl} from '../../api';
 const Notify = () =>  {
-
+  const auth = useAuth();
   const ref = useRef(null);
   const navigate = useNavigate();
   const modalApi = useModal();
@@ -166,7 +167,7 @@ const Notify = () =>  {
       },
       sorter: true,
     },
-  ], []);
+  ], [auth.permissions]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -231,10 +232,11 @@ const Notify = () =>  {
 
   const onClickDownloadAll = useCallback(() => {
     modalApi.confirm({
-      title:'It will take too time to patch .zip file. Are you sure to download all PDF? ',
+      title:'It will take much time to patch .zip file.  Please confirm if you want to download all PDF.',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all?certStage=NOTIFY`, 'Download')
     });
   },[serialNoValue]);
 
@@ -264,7 +266,6 @@ const Notify = () =>  {
           break;
         case 'examProfileGet':
         {
-
           break;
         }
         case 'examProfileSummaryGet':
@@ -414,21 +415,21 @@ const Notify = () =>  {
     resetPagination();
   }, [])
 
-  const updateSummary = () => {
+  const updateSummary = useCallback(() => {
     if (ref.current) {
       ref.current.updateSummary();
     }
-  };
+  }, []);
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     if (ref.current) {
       return ref.current.getSummary();
     }
     return {}
-  };
+  }, []);
 
   return (
-    <div className={styles['exam-profile']} permissionRequired={['Certificate_Notify']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Notify_View']}>
       <Typography.Title level={3}>Notify Candidate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -458,10 +459,10 @@ const Notify = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={notifyData.length === 0 || getSummary().sendEmailSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
+                <Button disabled={notifyData.length === 0 || getSummary().sendEmailSuccess === 0 || !auth.permissions.includes('Certificate_Notify_Maintenance')} type="primary" onClick={onClickDispatch}>Dispatch to complete</Button>
               </Col>
               <Col>
-                <Button type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>
+                <Button disabled={!auth.permissions.includes('Certificate_Notify_Maintenance')} type="primary" onClick={() => setOpen(true)}>Schedule to send email</Button>
               </Col>
             </Row>
           </Col>
@@ -542,11 +543,11 @@ const Notify = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
-              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0 || !auth.permissions.includes('Certificate_Notify_Maintenance')}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().sendEmailTotal === 0}>Download All</Button>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().sendEmailTotal === 0 || !auth.permissions.includes('Certificate_Notify_Maintenance')}>Download All</Button>
             </Col>
           </Row>
         </Col>
@@ -572,7 +573,7 @@ const Notify = () =>  {
         <ResizeableTable
           size={'big'}
           rowKey={'id'}
-          rowSelection={{
+          rowSelection={!auth.permissions.includes('Certificate_Notify_Maintenance') ? null : {
             type: 'checkbox',
             ...rowSelection,
           }}
@@ -609,6 +610,7 @@ const Notify = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
+      <br/>
     </div>
 
   )

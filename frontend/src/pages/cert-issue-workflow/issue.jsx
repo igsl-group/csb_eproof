@@ -49,9 +49,11 @@ import PermissionControl from "../../components/PermissionControl";
 import ExamProfileSummary from "../../components/ExamProfileSummary";
 import {HKIDToString, stringToHKIDWithBracket} from "../../components/HKID";
 import RandomDownloadModal from "./random-download-modal";
+import {useAuth} from "../../context/auth-provider";
+import {baseURL} from "../../api";
 
 const Issue = () =>  {
-
+  const auth = useAuth();
   const ref = useRef(null);
 
   const navigate = useNavigate();
@@ -95,7 +97,7 @@ const Issue = () =>  {
         return (
           <div>
             { row.onHold ? <Tag color="default">On-hold</Tag> : null}
-            { !row.onHold ? <Button size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
+            { !row.onHold ? <Button disabled={!auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} size={'small'} type={'primary'} onClick={() => onOnHoldClickCallback(row)}>On hold</Button> : null}
           </div>
         )
       }
@@ -168,7 +170,7 @@ const Issue = () =>  {
       render: (row) => <Tag>{row.label}</Tag>,
       sorter: true,
     },
-  ], []);
+  ], [auth.permissions]);
 
   const defaultPaginationInfo = useMemo(() => ({
     sizeOptions: [10, 20, 40],
@@ -269,10 +271,11 @@ const Issue = () =>  {
 
   const onClickDownloadAll = useCallback(() => {
     modalApi.confirm({
-      title:'It will take too time to patch .zip file. Are you sure to download all PDF? ',
+      title:'It will take much time to patch .zip file. Please confirm if you want to download all PDF.',
       width: 500,
       okText: 'Confirm',
-      onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      // onOk: () => runExamProfileAPI('certIssuanceBulkDownloadAll', serialNoValue)
+      onOk: () => window.open(`${baseURL}/cert/downloadCert/${serialNoValue}/all?certStage=SIGN_ISSUE`, 'Download')
     });
   },[serialNoValue]);
 
@@ -458,21 +461,21 @@ const Issue = () =>  {
     resetPagination();
   }, [])
 
-  const updateSummary = () => {
+  const updateSummary = useCallback(() => {
     if (ref.current) {
       ref.current.updateSummary();
     }
-  };
+  }, []);
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     if (ref.current) {
       return ref.current.getSummary();
     }
     return {}
-  };
+  }, []);
 
   return (
-    <div className={styles['exam-profile']} permissionRequired={['Certificate_Sign_And_Issue']}>
+    <div className={styles['exam-profile']} permissionRequired={['Certificate_Sign_And_Issue_View']}>
       <Typography.Title level={3}>Sign and Issue Certificate</Typography.Title>
       <Breadcrumb items={breadcrumbItems}/>
       <br/>
@@ -502,10 +505,10 @@ const Issue = () =>  {
           <Col>
             <Row gutter={[16, 16]} justify={'end'}>
               <Col>
-                <Button disabled={issueCertData.length === 0 || getSummary().issuedPdfSuccess === 0} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
+                <Button disabled={issueCertData.length === 0 || getSummary().issuedPdfSuccess === 0  || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')} type="primary" onClick={onClickDispatch}>Dispatch to Notify Candidate</Button>
               </Col>
               <Col>
-                <Button disabled={issueCertData.length === 0} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
+                <Button disabled={issueCertData.length === 0 || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance') || getSummary().issuedPdfSuccess === getSummary().issuedPdfTotal} type="primary" onClick={onClickSignAndIssueCert}>Sign and Issue Cert.</Button>
               </Col>
             </Row>
           </Col>
@@ -587,14 +590,14 @@ const Issue = () =>  {
         <Col>
           <Row gutter={[16, 16]} justify={'end'}>
             <Col>
-              <Button type="primary" onClick={() => setDownloadPdfOpen(true)} disabled={issueCertData.length === 0}>Random Check</Button>
+              <Button type="primary" onClick={() => setDownloadPdfOpen(true)} disabled={issueCertData.length === 0  || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')}>Random Check</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0}>Download
+              <Button type="primary" onClick={onClickDownloadSelected} disabled={selectedRowKeys.length === 0  || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')}>Download
                 Selected ({selectedRowKeys.length})</Button>
             </Col>
             <Col>
-              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().issuedPdfTotal === 0}>Download All</Button>
+              <Button type="primary" onClick={onClickDownloadAll} disabled={getSummary().issuedPdfTotal === 0  || !auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance')}>Download All</Button>
             </Col>
           </Row>
         </Col>
@@ -620,7 +623,7 @@ const Issue = () =>  {
         <ResizeableTable
           size={'big'}
           rowKey={'id'}
-          rowSelection={{
+          rowSelection={!auth.permissions.includes('Certificate_Sign_And_Issue_Maintenance') ? null : {
             type: 'checkbox',
             ...rowSelection,
           }}
@@ -663,6 +666,7 @@ const Issue = () =>  {
         onCloseCallback={onCloseCallback}
         onFinishCallback={onFinishCallback}
       />
+      <br/>
     </div>
 
   )

@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ExamProfileService {
 
-    Boolean create(ExamProfileCreateDto request);
+    ExamProfileDto create(ExamProfileCreateDto request);
 
     void freeze(String examProfileSerialNo);
 
