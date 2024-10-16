@@ -419,7 +419,10 @@ public class EProofUtil {
 					vcBase64Hash, downloadMaxCount, downloadExpiryDate!=null
 							?downloadExpiryDate.minusHours(8).format(formatter)
 							:null,
-					formattedPublishDate
+					formattedPublishDate,
+					hkidHash,
+					config.getHkidSaltUuid(),
+					sdidHash
 			)) {
 				checkResponse(httpResponse);
 				JSONObject jret = new JSONObject(httpResponse.body().string());
