@@ -26,6 +26,7 @@ import com.hkgov.csb.eproof.service.*;
 import com.hkgov.csb.eproof.util.DocxUtil;
 import com.hkgov.csb.eproof.util.EProof.EProofConfigProperties;
 import com.hkgov.csb.eproof.util.EProof.EProofUtil;
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import com.hkgov.csb.eproof.util.HttpUtils;
 import com.hkgov.csb.eproof.util.MinioUtil;
 import com.itextpdf.text.pdf.qrcode.WriterException;
@@ -46,7 +47,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -83,6 +84,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     private final DocxUtil docxUtil;
     private final FileService fileService;
     private final EProofConfigProperties eProofConfigProperties;
+
     private static final Gson GSON = new Gson();
     private final CertEproofRepository certEproofRepository;
     private final CertEproofRenewRepository certEproofRenewRepository;
@@ -525,7 +527,9 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 eproofTypeId,
                 -1,
                 downloadExpiryDateTime,
-                certInfoRenew.getCertInfo().getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00")));
+                certInfoRenew.getCertInfo().getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00")),
+                certInfoRenew.getNewHkid()
+        );
 
         logger.info("[registerResult]" + GSON.toJson(registerResult));
 

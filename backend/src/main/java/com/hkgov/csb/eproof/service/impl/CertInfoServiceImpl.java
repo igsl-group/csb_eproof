@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -36,6 +37,11 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -61,12 +67,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -115,6 +123,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final GcisEmailServiceImpl gcisEmailServiceImpl;
     private static final Gson GSON = new Gson();
     private final AuthenticationService authenticationService;
+    private final HKIDformatter hkidFormatter;
 
     @Value("${gcis-shared-service.emailWhitelist.enabled}")
     private Boolean whiteListEnabled;
@@ -139,6 +148,17 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${eproof-config.issuance-split-size}")
     private Integer issuanceSplitSize;
 
+    @Value("eproof-config.hkid-salt-id")
+    private String saltId;
+
+    @Value("eproof-config.hkid-salt-value")
+    private String saltValue;
+
+    @Value("eproof-config.hkid-salt-uuid")
+    private String saltUuid;
+
+    @Value("eproof-config.hkid-salt-sdid")
+    private String saltSdid;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CertPdfRepository certPdfRepository;
@@ -789,7 +809,8 @@ public class CertInfoServiceImpl implements CertInfoService {
                 eproofTypeId,
                 -1,
                 downloadExpiryDateTime,
-                certInfo.getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00"))
+                certInfo.getExamProfile().getEffectiveDate().atTime(0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss+08:00")),
+                certInfo.getHkid()
         );
 
         logger.info("[registerResult]" + GSON.toJson(registerResult));

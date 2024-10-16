@@ -11,6 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -168,6 +169,9 @@ eproof-config:
   issuer-did: "did:eproof:100cfb00-3029-474a-b794-2f735e1d3c1d"
   client-id: "CSB001"
   client-secret: "J+Y2aUo1FT2M&EpY$F@="
+  hkid-salt-sdid: dTaKdz*PmTHB8Dmr
+  hkid-salt-uuid: 2e45b7a7-38cf-44b1-a117-45f022dbb7fa
+  hkid-salt-value: CSB+EPROOF_UAT$$
   url: "http://192.168.1.171:9002/api"
   pdfUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/eProof-pdf"
   otpUrl: "https://eproofuat.csb.ccgo.hksarg/api/v1/eproof/sendOTP"
@@ -208,7 +212,7 @@ gcis-shared-service:
   enabled: true
   emailWhitelist:
     enabled: true
-    toList: hong.cheung@igsl-group.com, wilfred.lai@igsl-group.com
+    toList: hong.cheung@igsl-group.com
   property:
     path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\proximity.properties
   keystore:

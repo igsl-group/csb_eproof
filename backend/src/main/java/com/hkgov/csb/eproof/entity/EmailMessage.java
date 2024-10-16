@@ -27,7 +27,7 @@ public class EmailMessage extends BaseEntity{
     @Column(name = "type")
     private String type;
 
-    @Column(name = "subject")
+    @Column(name = "subject",columnDefinition = "varchar(1000)")
     private String subject;
 
     @Column(name = "body", columnDefinition = "TEXT")

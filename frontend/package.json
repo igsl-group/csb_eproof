@@ -43,8 +43,8 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build:source": "react-app-rewired build",
-    "build": "set GENERATE_SOURCEMAP=false&&react-app-rewired build",
+    "build:source": "cross-env react-app-rewired build",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject"
   },
@@ -67,6 +67,7 @@
     ]
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
     "customize-cra-less-loader": "^2.0.0",
     "less": "^4.1.1",

@@ -3,18 +3,25 @@ package com.hkgov.csb.eproof.util.EProof;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.hkgov.csb.eproof.exception.GenericException;
+import io.micrometer.common.util.StringUtils;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.hkgov.csb.eproof.util.CommonUtil.gson;
+import static org.eclipse.persistence.annotations.Convert.JSON;
 
 
 public class ApiUtil {
@@ -28,6 +35,67 @@ public class ApiUtil {
 			throw new RuntimeException(e);
 		}
 	}
+
+	private static String generateRandomSaltValue() {
+		int length = 16;
+		String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':\"\\|,.<>/?~`";
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < length; i++) {
+			result.append(characters.charAt((int) (Math.random() * characters.length())));
+		}
+		return result.toString();
+	}
+
+//	public static Map<String, Object> requestSalt() throws Exception {
+//
+//		Response ret = null;
+//		String url = "http://example.com/hkicSalt"; // Replace with actual API URL
+//
+//		List<String> headersArray = new ArrayList<String>();
+//		headersArray.add("Content-Type");
+//		headersArray.add("application/json");
+//		String[] headers = headersArray.toArray(new String[0]);
+//
+//		HashMap jsonMap = new HashMap();
+//		jsonMap.put("value", generateRandomSaltValue());
+//		jsonMap.put("description", "Reasonable description for the salt");
+//
+//		String jsonRequestBody = gson.toJson(jsonMap);
+//		Response response = httpUtil.post(url, headers, jsonRequestBody);
+//
+//		logger.debug("POST /hkicSalt Request Body");
+//		logger.debug(jsonRequestBody);
+//
+//		ret = response;
+//		if (response.code() != 200) {
+//			logger.error("http return code ["+response.code()+"] " + response.body().string());
+//		}
+//		Map<String, Object> result = new HashMap<>();
+//
+//		try (Response httpResponse = client.newCall(request).execute()) {
+//			if (!httpResponse.isSuccessful()) {
+//				throw new IOException("Unexpected code " + httpResponse);
+//			}
+//
+//			JSONObject jsonResponse = new JSONObject(httpResponse.body().string());
+//
+//			String status = jsonResponse.getString("status");
+//			String message = jsonResponse.getString("message");
+//
+//			if ("Successful".equals(status)) {
+//				JSONObject data = jsonResponse.getJSONObject("data");
+//				result.put("status", status);
+//				result.put("message", message);
+//				result.put("id", data.getString("id"));
+//				result.put("value", data.getString("value"));
+//				result.put("description", data.getString("description"));
+//			} else {
+//				throw new GenericException("API Error", message);
+//			}
+//		}
+//		return result;
+//	}
+
 	public static Boolean getAccessTokenByClientCredentials(EProofConfigProperties config) throws Exception {
 		// check if the token is valid
 		Boolean ret = false;
@@ -146,14 +214,29 @@ public class ApiUtil {
 	}
 
 	public static Response registerEproof(String uuid, EProofConfigProperties config, String eproofId, String eproofTypeId, String templateCode,
-										  String expiryDate, String issuranceDate, String dataHash, int downloadMaxCount, String downloadExpiryDate, String formattedPublishDate) throws Exception {
+										  String expiryDate, String issuranceDate, String dataHash, int downloadMaxCount, String downloadExpiryDate, String formattedPublishDate,
+										  String hkidHash, String saltUuid, String sdidHash
+	) throws Exception {
 		Response ret= null;
 
 		if (ApiUtil.getAccessTokenByClientCredentials(config)) {
 			String url = config.getUrl() +  "/eProofMetadata";
 
+
+
 			//Request Body
 			HashMap requestBodyJsonMap = new HashMap<>();
+			String authMethod = "01";
+			String walletOption = "01";
+
+			if (StringUtils.isNotEmpty(hkidHash) && StringUtils.isNotEmpty(saltUuid) && StringUtils.isNotEmpty(sdidHash)) {
+				authMethod = "03";
+				walletOption = "03";
+				requestBodyJsonMap.put("hkicHash", hkidHash);
+				requestBodyJsonMap.put("hkicSaltId", saltUuid);
+				requestBodyJsonMap.put("sdid", sdidHash);
+			}
+
 			if(uuid != null)
 				requestBodyJsonMap.put("id", uuid);
 			requestBodyJsonMap.put("eProofId", eproofId);
@@ -163,12 +246,12 @@ public class ApiUtil {
 			requestBodyJsonMap.put("expiryDate", "9999-12-31T00:00:00Z");
 			requestBodyJsonMap.put("issuanceDate",  issuranceDate);
 			requestBodyJsonMap.put("dataHash", dataHash);
-			requestBodyJsonMap.put("authMethod", "01");
+			requestBodyJsonMap.put("authMethod", authMethod);
 			requestBodyJsonMap.put("dataUrl", config.getDataUrl());
 			requestBodyJsonMap.put("otpUrl", config.getOtpUrl());
 			// TODO
 			requestBodyJsonMap.put("publishDate", formattedPublishDate);
-//			requestBodyJsonMap.put("walletOption", "03");
+			requestBodyJsonMap.put("walletOption", walletOption);
 			requestBodyJsonMap.put("allowDownloadPdf", true);
 			requestBodyJsonMap.put("downloadMaxCount", String.valueOf(downloadMaxCount));
 			if(downloadExpiryDate != null)

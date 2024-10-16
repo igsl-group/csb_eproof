@@ -26,5 +26,8 @@ public class EProofConfigProperties {
 	Integer issueEproofPart1TrialTimes;
 	Integer issueEproofPart2TrialTimes;
 
+	String hkidSaltSdid;
+	String hkidSaltUuid;
+	String hkidSaltValue;
 	String accessToken;
 }

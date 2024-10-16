@@ -8,7 +8,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
+import com.hkgov.csb.eproof.util.HKIDformatter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +19,8 @@ import java.util.Set;
 @Getter
 @Setter
 public class CertInfo extends BaseEntity implements Cloneable{
+
+    private static HKIDformatter HKIDformatter;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -104,7 +106,7 @@ public class CertInfo extends BaseEntity implements Cloneable{
     // This getter functions needed to be used by Document merging. MUST NOT DELETE
     public String getHkidOrPassport(){
         if (StringUtils.isNotEmpty(hkid)){
-            return hkid;
+            return HKIDformatter.formatHkid(hkid);
         } else{
             return passportNo;
         }
