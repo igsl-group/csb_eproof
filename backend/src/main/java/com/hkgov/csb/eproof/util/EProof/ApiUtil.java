@@ -121,7 +121,7 @@ public class ApiUtil {
 			Response response = httpUtil.post(url, headers, jsonRequestBody);
 
 			logger.info("getToken-response.statusCode: " + response.code());
-			logger.info("getToken-response.body: " + response.body());
+			logger.info("getToken-response.body: " + response.body().string());
 
 			if (response.code() == 200) {
 				JsonElement jelement = new JsonParser().parse(response.body().string());

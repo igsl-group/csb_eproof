@@ -32,7 +32,7 @@ public class UploadTodayBatchXmlJob {
 
         for (GcisBatchEmail gcisBatchEmail : todayPendingEmailEventList) {
             logger.info("Processing GCIS batch email id: " + gcisBatchEmail.getId());
-            Boolean uploadSuccess = true;
+            Boolean uploadSuccess;
             try{
                 uploadSuccess = gcisBatchEmailService.uploadBatchXmlToGcis(gcisBatchEmail);
             } catch(Exception e){
@@ -40,9 +40,9 @@ public class UploadTodayBatchXmlJob {
                 uploadSuccess = false;
             }
             if(uploadSuccess){
-                logger.info("GCIS batch email id: " + gcisBatchEmail.getId() + " uploaded successfully");
+                logger.info("GCIS batch email id: {} uploaded successfully", gcisBatchEmail.getId());
             } else {
-                logger.error("GCIS batch email id: " + gcisBatchEmail.getId() + " upload failed");
+                logger.error("GCIS batch email id: {} upload failed", gcisBatchEmail.getId());
             }
         }
 
