@@ -383,6 +383,27 @@ public class TestController {
         return gcisBatchEmailService.enquireUploadStatus(gcisBatchEmail.getId());
      }
 
+    @GetMapping("/gcisBatchEmail/enqBatchUpload")
+    public Object enqBatchUpload(@RequestParam String batchUploadRefNum) throws Exception {
+        return gcisBatchEmailService.enquireUploadStatusByBatchUploadRefNum(batchUploadRefNum);
+    }
+
+    @GetMapping("/gcisBatchEmail/enqSchedule")
+    public Object enqSchedule(@RequestParam String jobId) throws Exception {
+        return gcisBatchEmailService.enqSchedule(jobId);
+    }
+
+    @GetMapping("/gcisBatchEmail/createSchedule")
+    public Object createSchedule(
+            @RequestParam String startTimestamp,
+            @RequestParam String notiListName,
+            @RequestParam String templateName
+    ) throws Exception {
+        return gcisBatchEmailService.createSchedule(startTimestamp, notiListName, templateName);
+    }
+
+
+
     @GetMapping("/encryptString/{str}")
     public String testEncrypt(@PathVariable String str) throws Exception {
         return EncryptionUtil.encrypt(str);

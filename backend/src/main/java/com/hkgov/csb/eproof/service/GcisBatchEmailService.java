@@ -3,6 +3,7 @@ package com.hkgov.csb.eproof.service;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import hk.gov.spica_scopes.spica.jaxb.batchenq.BatchUploadEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
+import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,9 +16,17 @@ public interface GcisBatchEmailService {
     Boolean uploadBatchXmlToGcis(GcisBatchEmail gcisBatchEmail) throws Exception;
 
     ScheduleResponse scheduleBatchEmail(Long gcisBatchEmailId, LocalDateTime scheduleTime) throws Exception;
+
+    ScheduleResponse createSchedule(String startTimestamp, String notiListName, String templateName) throws Exception;
+
     ScheduleResponse scheduleBatchEmail(GcisBatchEmail gcisBatchEmail, LocalDateTime scheduleTime) throws Exception;
 
     BatchUploadEnquiryResponse enquireUploadStatus(Long gcisBatchEmailId) throws Exception;
+
+    BatchUploadEnquiryResponse enquireUploadStatusByBatchUploadRefNum(String batchUploadRefNum) throws Exception;
+
+    ScheduleEnquiryResponse enqSchedule(String jobId) throws Exception;
+
     Response enquireScheduleStatus(Long gcisBatchEmailId) throws Exception;
 
     String deleteBatchEmailListFromGcis(Long gcisBatchEmailId) throws Exception;

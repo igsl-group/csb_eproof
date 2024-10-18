@@ -8,6 +8,7 @@ import com.hkgov.csb.eproof.service.GcisBatchEmailService;
 import hk.gov.spica_scopes.common.client.PropertyNames;
 import hk.gov.spica_scopes.common.jaxb.ScopesFault;
 import hk.gov.spica_scopes.spica.jaxb.batchenq.BatchUploadEnquiryResponse;
+import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.batchupload.BatchUploadResponse;
 import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
 import hk.gov.spica_scopes.spica.notification.client.restful.NotificationRestfulClient;
@@ -195,6 +196,30 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
         return this.scheduleBatchEmail(gcisBatchEmail, scheduleTime);
     }
 
+    @Override
+    public ScheduleResponse createSchedule(String startTimestamp, String notiListName, String templateName) throws Exception {
+
+        String scheduleType = "REQUEST";
+        String notiListProjId = projectId;
+        String templateProjId = projectId;
+        Properties prop = getSSLProperties(scheduleUploadEndPointName, scheduleUploadEndPointUrl);
+
+        NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
+        Response resp = notiRestfulClient.sendScheduleRequest(scheduleType, startTimestamp, null, notiListName,
+                notiListProjId, templateName, templateProjId);
+        ScheduleResponse buer = new ScheduleResponse();
+
+        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            buer = notiRestfulClient.getScheduleResponse(resp);
+
+        } else {
+            ScopesFault faultEntity = notiRestfulClient.getScopesFault(resp);
+            buer.setResultCd("ERROR"); // You might use a specific code to denote error, if available
+            buer.setResultMesg(faultEntity.getDescription());
+            System.out.println(faultEntity.getDescription());
+        }
+        return buer;
+    }
 
     @Override
     public ScheduleResponse scheduleBatchEmail(GcisBatchEmail gcisBatchEmail, LocalDateTime scheduleTime) throws Exception {
@@ -282,6 +307,48 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
             return null;
         }
 
+    }
+
+    @Override
+    public BatchUploadEnquiryResponse enquireUploadStatusByBatchUploadRefNum(String batchUploadRefNum) throws Exception {
+        Properties prop = getSSLProperties(batchEnquireEndPointName, batchEnquireEndPointUrl);
+        NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
+
+        Response resp = notiRestfulClient.sendBatchUploadEnquiryRequest(batchUploadRefNum);
+
+        BatchUploadEnquiryResponse buer = new BatchUploadEnquiryResponse();
+
+        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            buer = notiRestfulClient.getBatchUploadEnquiryResponse(resp);
+        } else {
+            // Assuming ScopesFault contains `resultCd` and `description` as a `resultMesg`
+            ScopesFault faultEntity = notiRestfulClient.getScopesFault(resp);
+            buer.setResultCd("ERROR"); // You might use a specific code to denote error, if available
+            buer.setResultMesg(faultEntity.getDescription());
+            System.out.println(faultEntity.getDescription());
+        }
+        return buer;
+    }
+
+    @Override
+    public ScheduleEnquiryResponse enqSchedule(String jobId) throws Exception {
+        Properties prop = getSSLProperties(scheduleEnquireEndPointName, scheduleEnquireEndPointUrl);
+        NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
+
+        Response resp = notiRestfulClient.sendScheduleEnquiryRequest(jobId);
+
+        ScheduleEnquiryResponse buer = new ScheduleEnquiryResponse();
+
+        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            buer = notiRestfulClient.getScheduleEnquiryResponse(resp);
+        } else {
+            // Assuming ScopesFault contains `resultCd` and `description` as a `resultMesg`
+            ScopesFault faultEntity = notiRestfulClient.getScopesFault(resp);
+            buer.setResultCd("ERROR"); // You might use a specific code to denote error, if available
+            buer.setResultMesg(faultEntity.getDescription());
+            System.out.println(faultEntity.getDescription());
+        }
+        return buer;
     }
 
     @Override
