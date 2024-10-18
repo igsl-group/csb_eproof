@@ -6,6 +6,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.hkgov.csb.eproof.config.config_properties.GeneratePdfThreadPoolConfigProps;
 import com.hkgov.csb.eproof.constants.Constants;
 import com.hkgov.csb.eproof.constants.enums.DocumentOutputType;
 import com.hkgov.csb.eproof.constants.enums.ExceptionEnums;
@@ -70,6 +71,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -82,7 +86,6 @@ import static com.hkgov.csb.eproof.constants.Constants.*;
 * @createDate 2024-05-10 17:47:40
 */
 @Service
-@RequiredArgsConstructor
 public class CertInfoServiceImpl implements CertInfoService {
 
     private final FileRepository fileRepository;
@@ -114,6 +117,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     private final GcisEmailServiceImpl gcisEmailServiceImpl;
     private static final Gson GSON = new Gson();
     private final AuthenticationService authenticationService;
+    private final GeneratePdfThreadPoolConfigProps generatePdfThreadPoolConfigProps;
 
     @Value("${gcis-shared-service.emailWhitelist.enabled}")
     private Boolean whiteListEnabled;
@@ -141,9 +145,41 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${failed-retry.generate-pdf}")
     private Integer genPdfTrialTimes;
 
+    private final Semaphore genPdfSemaphore;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CertPdfRepository certPdfRepository;
+
+    public CertInfoServiceImpl(FileRepository fileRepository, MinioUtil minioUtil, ExamProfileRepository examProfileRepository, EmailEventRepository emailEventRepository, EProofConfigProperties eProofConfigProperties, TemplateController template, EmailUtil emailUtil, CertInfoRepository certInfoRepository, SystemParameterRepository systemParameterRepository, DocumentGenerateService documentGenerateService, LetterTemplateService letterTemplateService, DocxUtil docxUtil, FileService fileService, CertInfoRenewRepository certInfoRenewRepository, CertEproofRepository certEproofRepository, CertPdfRenewRepository certPdfRenewRepository, EmailTemplateRepository emailTemplateRepository, GcisBatchEmailRepository gcisBatchEmailRepository, CertActionRepository certActionRepository, PdfGenerateService pdfGenerateService, CombinedHistoricalResultBeforeRepository beforeRepository, GcisEmailServiceImpl gcisEmailServiceImpl, AuthenticationService authenticationService, GeneratePdfThreadPoolConfigProps generatePdfThreadPoolConfigProps, CertPdfRepository certPdfRepository) {
+        this.fileRepository = fileRepository;
+        this.minioUtil = minioUtil;
+        this.examProfileRepository = examProfileRepository;
+        this.emailEventRepository = emailEventRepository;
+        this.eProofConfigProperties = eProofConfigProperties;
+        this.template = template;
+        this.emailUtil = emailUtil;
+        this.certInfoRepository = certInfoRepository;
+        this.systemParameterRepository = systemParameterRepository;
+        this.documentGenerateService = documentGenerateService;
+        this.letterTemplateService = letterTemplateService;
+        this.docxUtil = docxUtil;
+        this.fileService = fileService;
+        this.certInfoRenewRepository = certInfoRenewRepository;
+        this.certEproofRepository = certEproofRepository;
+        this.certPdfRenewRepository = certPdfRenewRepository;
+        this.emailTemplateRepository = emailTemplateRepository;
+        this.gcisBatchEmailRepository = gcisBatchEmailRepository;
+        this.certActionRepository = certActionRepository;
+        this.pdfGenerateService = pdfGenerateService;
+        this.beforeRepository = beforeRepository;
+        this.gcisEmailServiceImpl = gcisEmailServiceImpl;
+        this.authenticationService = authenticationService;
+        this.generatePdfThreadPoolConfigProps = generatePdfThreadPoolConfigProps;
+        this.certPdfRepository = certPdfRepository;
+
+        genPdfSemaphore = new Semaphore(generatePdfThreadPoolConfigProps.getMaxPoolSize());
+
+    }
 
     @Override
     @Transactional
@@ -295,41 +331,49 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
 
+
     @Override
 //    @Transactional(noRollbackFor = Exception.class)
     @Async
     public void batchGeneratePdf(String examProfileSerialNo) throws Exception {
 
-//        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
-        CertInfo nextScheduledGenerateCert = certInfoRepository.getNextScheduledGenerateCert(examProfileSerialNo, Limit.of(1));
+        List<CertInfo> inProgressCertList = certInfoRepository.getCertByExamSerialAndStageAndStatus(examProfileSerialNo,CertStage.GENERATED,List.of(CertStatus.IN_PROGRESS));
+        AtomicReference<CertInfo> nextScheduledGenerateCertAtom = new AtomicReference<>(certInfoRepository.getNextScheduledGenerateCert(examProfileSerialNo, Limit.of(1)));
         byte[] passTemplateInputStream = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_AT_LEAST_ONE_PASS);
         byte[] allFailedTemplate = letterTemplateService.getTemplateByNameAsByteArray(LETTER_TEMPLATE_ALL_FAILED_TEMPLATE);
 //        try{
-//        for (CertInfo cert : inProgressCertList) {
-//            pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
-//        }
-
+        for (CertInfo cert : inProgressCertList) {
+            pdfGenerateService.singleGeneratePdf(cert,passTemplateInputStream,allFailedTemplate,true,false);
+        }
         List<CertInfo> failedCert = new ArrayList<>();
-        int test = 1;
-        while (nextScheduledGenerateCert != null){
-            int currentTrial = 1;
-            pdfGenerateService.updateCertStageAndStatus(nextScheduledGenerateCert,CertStage.GENERATED,CertStatus.IN_PROGRESS);
-            pdfGenerateService.singleGeneratePdf(nextScheduledGenerateCert,passTemplateInputStream,allFailedTemplate,true,false);
 
-            while(CertStatus.FAILED.equals(nextScheduledGenerateCert.getCertStatus())
-                    && currentTrial <= genPdfTrialTimes
-            ){
-                logger.info("Retrying generate cert. ID: {}", nextScheduledGenerateCert.getId());
-                pdfGenerateService.singleGeneratePdf(nextScheduledGenerateCert,passTemplateInputStream,allFailedTemplate,true,false);
-                currentTrial++;
+        while (nextScheduledGenerateCertAtom.get() != null){
+            try{
+                CertInfo nextScheduledGenerateCert = nextScheduledGenerateCertAtom.get();
+                genPdfSemaphore.acquire();
+
+                int currentTrial = 1;
+                pdfGenerateService.updateCertStageAndStatus(nextScheduledGenerateCert,CertStage.GENERATED,CertStatus.IN_PROGRESS);
+                CompletableFuture<Void> result = pdfGenerateService.singleGeneratePdf(nextScheduledGenerateCert,passTemplateInputStream,allFailedTemplate,true,false);
+
+                while(CertStatus.FAILED.equals(nextScheduledGenerateCert.getCertStatus())
+                        && currentTrial <= genPdfTrialTimes
+                ){
+                    logger.info("Retrying generate cert. ID: {}", nextScheduledGenerateCert.getId());
+                    pdfGenerateService.singleGeneratePdf(nextScheduledGenerateCert,passTemplateInputStream,allFailedTemplate,true,false);
+                    currentTrial++;
+                }
+
+                if(CertStatus.FAILED.equals(nextScheduledGenerateCert.getCertStatus())){
+                    failedCert.add(nextScheduledGenerateCert);
+                }
+                result.thenRun(()->{
+                    nextScheduledGenerateCertAtom.set(certInfoRepository.getNextScheduledGenerateCert(examProfileSerialNo, Limit.of(1)));
+                });
+            } catch(Exception e){
+                e.printStackTrace();
+                continue;
             }
-
-            if(CertStatus.FAILED.equals(nextScheduledGenerateCert.getCertStatus())){
-                failedCert.add(nextScheduledGenerateCert);
-            }
-            nextScheduledGenerateCert =certInfoRepository.getNextScheduledGenerateCert(examProfileSerialNo, Limit.of(1));
-
-            test ++;
         }
 
         if(!failedCert.isEmpty()){
@@ -1271,6 +1315,18 @@ public class CertInfoServiceImpl implements CertInfoService {
         CertStage stage = CertStage.valueOf(certStage);
         List<Long> ids = certInfoRepository.getAllByExamProfileId(examProfileId,stage);
         return getZippedPdfBinary(ids);
+    }
+
+    @Override
+    public CompletableFuture<String> testAsync2(Long queueNumber) throws InterruptedException {
+        return CompletableFuture.supplyAsync(()->{
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "Queue number: "+queueNumber;
+        });
     }
 
 
