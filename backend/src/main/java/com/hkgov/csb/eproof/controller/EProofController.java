@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -80,7 +81,7 @@ public class EProofController {
     }
 
     @GetMapping("/eproof/getUnsignedJson/{certInfoId}")
-    public ResponseEntity getUnsignedJson(@PathVariable Long certInfoId){
+    public ResponseEntity getUnsignedJson(@PathVariable Long certInfoId) throws NoSuchAlgorithmException {
 
         return ResponseEntity.ok(certInfoService.prepareEproofUnsignJson(certInfoId));
     }
@@ -135,7 +136,7 @@ public class EProofController {
     }
 
     @GetMapping("/eproof/reissue/getUnsignedJson/{certInfoRenewId}")
-    public ResponseEntity getUnsignedJsonForReissueCert(@PathVariable Long certInfoRenewId){
+    public ResponseEntity getUnsignedJsonForReissueCert(@PathVariable Long certInfoRenewId) throws NoSuchAlgorithmException {
 
         return ResponseEntity.ok(certInfoRenewService.prepareEproofUnsignJson(certInfoRenewId));
     }

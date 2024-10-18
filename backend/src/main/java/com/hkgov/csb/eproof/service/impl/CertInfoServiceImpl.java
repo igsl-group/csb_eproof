@@ -706,7 +706,7 @@ public class CertInfoServiceImpl implements CertInfoService {
     }
 
     @Override
-    public String prepareEproofUnsignJson(Long certInfoId) {
+    public String prepareEproofUnsignJson(Long certInfoId) throws NoSuchAlgorithmException{
         CertInfo certInfo = certInfoRepository.findById(certInfoId).orElseThrow(()->new EntityNotFoundException("Cert info with provided id not found. Cert info ID: "+certInfoId));
 
 
@@ -782,7 +782,8 @@ public class CertInfoServiceImpl implements CertInfoService {
                 en2,
                 en3,
                 extraInfo,
-                EProofUtil.type.personal
+                EProofUtil.type.personal,
+                certInfo.getHkid()
         );
     }
 
