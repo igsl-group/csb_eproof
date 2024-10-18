@@ -253,8 +253,9 @@ public class EProofUtil {
 			String sc1, String sc2, String sc3,
 			String en1, String en2, String en3,
 			Map<String, String> extraInfo,
-			type eproofType
-	) {
+			type eproofType,
+			String hkid
+	) throws NoSuchAlgorithmException {
 
 		//TreeMap eProofData = gson.fromJson(eproofData, TreeMap.class);
 
@@ -298,6 +299,12 @@ public class EProofUtil {
 		} else{
 			// Empty string means neven expire
 			systemJsonMap.put("expirationDate", "9999-12-31T00:00:00Z");
+		}
+
+		if (StringUtils.isNotEmpty(hkid)) {
+			String hkidHash  = computeHash(hkid, config.getHkidSaltValue());
+			systemJsonMap.put("hkicSaltId", config.getHkidSaltUuid());
+			systemJsonMap.put("hkicHash", hkidHash);
 		}
 
 		Map credentialSubjectJsonMap = new TreeMap<>();

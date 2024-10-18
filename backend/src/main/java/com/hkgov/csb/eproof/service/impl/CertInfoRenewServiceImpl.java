@@ -53,6 +53,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -415,7 +416,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
     }
 
     @Override
-    public String prepareEproofUnsignJson(Long certInfoRenewId) {
+    public String prepareEproofUnsignJson(Long certInfoRenewId) throws NoSuchAlgorithmException {
 
         CertInfoRenew certInfoRenew = certInfoRenewRepository.findById(certInfoRenewId).get();
 
@@ -489,7 +490,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 en2,
                 en3,
                 extraInfo,
-                EProofUtil.type.personal
+                EProofUtil.type.personal,
+                certInfoRenew.getNewHkid()
         );
 
     }
