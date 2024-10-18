@@ -437,22 +437,35 @@ public class EProofUtil {
 		logger.debug("EProofUtil - getQrCodeString - eProofJsonString: " + eProoJsonString);
 
 		String out = null;
-		try (Response httpResponse = ApiUtil.shareEProof(config, uuid, version, accessExpirationDate,
-				qrCodeMaxCount, (String) qrCodeInfo.get("qrCodeEncryptedString"))){
-			checkResponse(httpResponse);
-			JSONObject jret = new JSONObject(httpResponse.body().string());
-			logger.info("status= " + jret.getString("status").equals("Successful"));
-			if (jret.getString("status").equals("Successful")) {
-				String qrCode = constructQRCodeString((String) jret.getJSONObject("data").getString("sharedEProofId"), (String) qrCodeInfo.get("qrCodeEncryptKey"),
-						(String) qrCodeInfo.get("qrCodeEncryptInitVector"),
-						jret.getJSONObject("data").getString("token"));
-				out = qrCode;
+		int currentTrialTimes= 1;
+		while(currentTrialTimes <= config.getGenQrCodeTrialTimes()){
+			try (Response httpResponse = ApiUtil.shareEProof(config, uuid, version, accessExpirationDate,
+					qrCodeMaxCount, (String) qrCodeInfo.get("qrCodeEncryptedString"))){
+				checkResponse(httpResponse);
+				JSONObject jret = new JSONObject(httpResponse.body().string());
+				logger.info("status= " + jret.getString("status").equals("Successful"));
+				if (jret.getString("status").equals("Successful")) {
+					String qrCode = constructQRCodeString((String) jret.getJSONObject("data").getString("sharedEProofId"), (String) qrCodeInfo.get("qrCodeEncryptKey"),
+							(String) qrCodeInfo.get("qrCodeEncryptInitVector"),
+							jret.getJSONObject("data").getString("token"));
+					out = qrCode;
 //					out.put("qrCodeToken", jret.getJSONObject("data").getString("token"));
 //					out.put("qrCodeEncryptedString", qrCodeInfo.get("qrCodeEncryptedString"));
 //					out.put("qrCodeEncryptKey", qrCodeInfo.get("qrCodeEncryptKey"));
 //					out.put("qrCodeEncryptInitVector", qrCodeInfo.get("qrCodeEncryptInitVector"));
+				}
+			}
+			catch(Exception e) {
+				if (currentTrialTimes >= config.getGenQrCodeTrialTimes()) {
+					// Already used all chances to try. If still got exception , throw it out
+					throw e;
+				}
+			}
+			finally{
+				currentTrialTimes ++;
 			}
 		}
+
 
 		return out;
 	}

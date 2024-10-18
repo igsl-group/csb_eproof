@@ -181,6 +181,7 @@ eproof-config:
   register-trial-times: 2
   issue-eproof-part-1-trial-times: 2
   issue-eproof-part-2-trial-times: 2
+  gen-qr-code-trial-times: 2
 
 thread-pool:
   scheduled-task:
