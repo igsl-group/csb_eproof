@@ -103,6 +103,9 @@ public class CertInfoServiceImpl implements CertInfoService {
     @Value("${minio.path.cert-record}")
     private String certRecordPath;
 
+    @Value("${minio.path.gcis-batch-xml}")
+    private String gcisBatchXmlPath;
+
     private final EmailUtil emailUtil;
 
     private final CertInfoRepository certInfoRepository;
@@ -978,7 +981,10 @@ public class CertInfoServiceImpl implements CertInfoService {
             String listName = generateListName(examProfileSerialNo,i);
             String processedXml = processBatchEmailXml(notifyEmailTemplate.getSubject(),convertedEmailTemplate, listName,examProfile,reader,xmlByteArray,choppedCertInfoList);
 
-            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml,listName);
+            File file =  fileService.uploadFile(FILE_TYPE_GCIS_BATCH_XML,gcisBatchXmlPath,listName + ".xml",new ByteArrayInputStream(processedXml.getBytes() ));
+
+
+            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml,listName, file.getId());
             choppedCertInfoList.forEach(certInfo -> {
                 certInfo.setGcisBatchEmailId(gcisBatchEmail.getId());
             });
@@ -1278,10 +1284,25 @@ public class CertInfoServiceImpl implements CertInfoService {
 
     @Override
     public void deleteFutureBatchEmail(String examProfileSerialNo) {
-        List<GcisBatchEmail> toBeDeleteGcisBatEmail = gcisBatchEmailRepository.findToBeDeleteBatchEmail(examProfileSerialNo, LocalDate.now().plusDays(1).atTime(0,0,0));
-        certInfoRepository.updateNotYetSentCertBatchEmailToNull(examProfileSerialNo,LocalDate.now().plusDays(1).atTime(0,0,0));
-        gcisBatchEmailRepository.deleteAll(toBeDeleteGcisBatEmail);
+        LocalDateTime futureDate = LocalDate.now().plusDays(1).atTime(0, 0, 0);
 
+        List<GcisBatchEmail> toBeDeleteGcisBatEmail =
+                gcisBatchEmailRepository.findToBeDeleteBatchEmail(examProfileSerialNo, futureDate);
+
+        certInfoRepository.updateNotYetSentCertBatchEmailToNull(examProfileSerialNo, futureDate);
+
+        List<File> filesToDelete = toBeDeleteGcisBatEmail.stream()
+                .map(GcisBatchEmail::getFile)
+                .filter(Objects::nonNull)
+                .peek(file -> {
+                    String path = file.getPath();
+                    if (path != null && !path.isEmpty()) {
+                        minioUtil.deleteFile(path);
+                    }
+                })
+                .collect(Collectors.toList());
+        gcisBatchEmailRepository.deleteAll(toBeDeleteGcisBatEmail);
+        fileRepository.deleteAll(filesToDelete);
     }
 
     @Override
@@ -1293,7 +1314,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
     @Transactional
-    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml, String listName){
+    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml, String listName, Long fileId){
 
 
         GcisBatchEmail gcisBatchEmail = new GcisBatchEmail();
@@ -1303,6 +1324,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         gcisBatchEmail.setStatus("SCHEDULED");
         gcisBatchEmail.setGcisNotiListName(listName);
         gcisBatchEmail.setGcisTemplateName(listName);
+        gcisBatchEmail.setFileId(fileId);
         gcisBatchEmailRepository.save(gcisBatchEmail);
         return gcisBatchEmail;
     }

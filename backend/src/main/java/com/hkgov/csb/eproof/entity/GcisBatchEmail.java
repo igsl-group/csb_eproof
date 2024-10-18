@@ -1,6 +1,7 @@
 package com.hkgov.csb.eproof.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -63,6 +64,14 @@ public class GcisBatchEmail extends BaseEntity {
 
     @OneToMany(mappedBy = "gcisBatchEmailId", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private Set<CertInfo> certInfoList;
+
+    @Column(name = "file_id")
+    private Long fileId;
+
+    // Mapped tables
+    @OneToOne
+    @JoinColumn(name = "file_id", insertable = false, updatable = false)
+    private File file;
 
     @Transient
     private String examProfileSerialNo;

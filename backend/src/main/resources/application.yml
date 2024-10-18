@@ -145,8 +145,9 @@ minio:
   secretKey: P@ssw0rd
   bucket: csbeproof
   path:
-    cert-record: /cert_record
-    cert-renew-record: /cert_renew_record
+    cert-record: cert_record
+    cert-renew-record: cert_renew_record
+    gcis-batch-xml: gcis_batch_xml
 
 mail:
   mode: SMTP
