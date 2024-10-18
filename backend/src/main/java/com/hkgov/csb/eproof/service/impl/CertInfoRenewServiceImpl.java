@@ -508,7 +508,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
             uuid = certInfoRenew.getCertInfo().getCertEproof().getUuid();
         }
         String publicKey = prepareEproofPdfRequest.getPublicKey();
-        logger.info(publicKey);
+        logger.debug(publicKey);
         String keyName = systemParameterRepository.findByName(publicKey).orElseThrow(() -> new GenericException("public.key.not.found","Public key not found.")).getValue();
         String eproofTypeId = null;
 
