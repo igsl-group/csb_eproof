@@ -121,10 +121,12 @@ public class ApiUtil {
 			Response response = httpUtil.post(url, headers, jsonRequestBody);
 
 			logger.info("getToken-response.statusCode: " + response.code());
-			logger.info("getToken-response.body: " + response.body().string());
+//			logger.info("getToken-response.body: " + response.body().string());
 
 			if (response.code() == 200) {
-				JsonElement jelement = new JsonParser().parse(response.body().string());
+				String rspBody = response.body().string();
+				logger.info("getToken-response.body: " + rspBody);
+				JsonElement jelement = new JsonParser().parse(rspBody);
 				JsonObject jobject = jelement.getAsJsonObject();
 				//accessToken = jobject.getAsJsonObject("data").get("accessToken").getAsString();
 				config.setAccessToken(jobject.getAsJsonObject("data").get("accessToken").getAsString());
