@@ -844,7 +844,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         if(certEproof != null){
             //TODO Signed cert and sign again
-            logger.error("Found existing cert_eproof record. Update cert_eproof record. Cert name: "+certInfo.getName());
+            logger.info("Found existing cert_eproof record. Update cert_eproof record. Cert name: "+certInfo.getName());
 
             updateCertEproofRecord(
                     certEproof,
