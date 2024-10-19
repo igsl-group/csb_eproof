@@ -107,7 +107,10 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
     public File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf) throws IOException {
         ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
 //        String processedCertOwnerName = certInfo.getName().trim().replace(" ","_");
-        String processedCertOwnerName = getInitials(certInfo.getName().trim());
+        String processedCertOwnerName = certInfo.getName()
+                .replace(" ","_")
+                .replace(",","")
+                .replace(".","");
         String randomString = RandomStringUtils.random(4,true,true);
 //        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
         String savePdfName = String.format("%s_%s_%s.pdf",

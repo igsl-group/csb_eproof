@@ -1429,7 +1429,12 @@ public class CertInfoServiceImpl implements CertInfoService {
     private File uploadCertPdf(CertInfo certInfo, byte[] mergedPdf) throws IOException {
 
         ExamProfile examProfile = examProfileRepository.findById(certInfo.getExamProfileSerialNo()).get();
-        String processedCertOwnerName = getInitials(certInfo.getName().trim());
+//        String processedCertOwnerName = getInitials(certInfo.getName().trim());
+        String processedCertOwnerName = certInfo.getName()
+                .replace(" ","_")
+                .replace(",","")
+                .replace(".","");
+
         String randomString = RandomStringUtils.random(4,true,true);
 //        String processedCertOwnerName = certInfoRenew.getNewName().trim().replace(" ","_");
 //        String currentTimeMillisString = String.valueOf(System.currentTimeMillis());
