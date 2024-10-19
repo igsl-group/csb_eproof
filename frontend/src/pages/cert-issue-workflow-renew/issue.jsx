@@ -129,7 +129,7 @@ const Issue = () =>  {
               ) : (
                 <div>
                   <div>{stringToHKIDWithBracket(row.oldHkid)}</div>
-                  <div style={{color: 'red'}}>{stringToHKIDWithBracket(row.newHkid)}</div>
+                  <div style={{ color: 'red'}}>{stringToHKIDWithBracket(row.newHkid) || '-'}</div>
                 </div>
               )
             }
@@ -151,7 +151,7 @@ const Issue = () =>  {
               ) : (
                 <div>
                   <div>{row.oldPassport}</div>
-                  <div style={{ color: 'red'}}>{row.newPassport}</div>
+                  <div style={{ color: 'red'}}>{row.newPassport || '-'}</div>
                 </div>
               )
             }
@@ -202,7 +202,7 @@ const Issue = () =>  {
               ) : (
                 <div>
                   <div>{row.oldUeGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newUeGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newUeGrade || '-'}</div>
                 </div>
               )
             }
@@ -224,7 +224,7 @@ const Issue = () =>  {
               ) : (
                 <div>
                   <div>{row.oldUcGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newUcGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newUcGrade || '-'}</div>
                 </div>
               )
             }
@@ -246,7 +246,7 @@ const Issue = () =>  {
               ) : (
                 <div>
                   <div>{row.oldAtGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newAtGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newAtGrade || '-'}</div>
                 </div>
               )
             }
@@ -268,7 +268,7 @@ const Issue = () =>  {
               ) : (
                 <div>
                   <div>{row.oldBlGrade}</div>
-                  <div style={{ color: 'red'}}>{row.newBlGrade}</div>
+                  <div style={{ color: 'red'}}>{row.newBlGrade || '-'}</div>
                 </div>
               )
             }

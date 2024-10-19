@@ -146,7 +146,7 @@ const Generate = () =>  {
                 <span>{row.newPassport}</span>
               ) : (
                 <div>
-                  <div>{row.newPassport}</div>
+                  <div>{row.oldPassport}</div>
                   <div style={{ color: 'red'}}>{row.newPassport || '-'}</div>
                 </div>
               )
