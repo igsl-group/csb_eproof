@@ -4,8 +4,10 @@ import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import hk.gov.spica_scopes.spica.jaxb.batchenq.BatchUploadEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
 import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
+import hk.gov.spica_scopes.spica.jaxb.batchupload.BatchUploadResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
@@ -20,6 +22,8 @@ public interface GcisBatchEmailService {
     ScheduleResponse createSchedule(String startTimestamp, String notiListName, String templateName) throws Exception;
 
     ScheduleResponse scheduleBatchEmail(GcisBatchEmail gcisBatchEmail, LocalDateTime scheduleTime) throws Exception;
+
+    BatchUploadResponse batchUpload(MultipartFile file) throws Exception;
 
     BatchUploadEnquiryResponse enquireUploadStatus(Long gcisBatchEmailId) throws Exception;
 

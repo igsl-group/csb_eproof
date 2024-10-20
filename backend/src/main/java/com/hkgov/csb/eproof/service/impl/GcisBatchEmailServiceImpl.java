@@ -12,6 +12,7 @@ import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.batchupload.BatchUploadResponse;
 import hk.gov.spica_scopes.spica.jaxb.schedule.ScheduleResponse;
 import hk.gov.spica_scopes.spica.notification.client.restful.NotificationRestfulClient;
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -20,11 +21,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
@@ -307,6 +310,34 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
             return null;
         }
 
+    }
+
+    @Override
+    public BatchUploadResponse batchUpload(MultipartFile file) throws Exception {
+        Properties prop = getSSLProperties(batchUploadEndPointName, batchUploadEndPointUrl);
+        NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
+        BatchUploadResponse buer = new BatchUploadResponse();
+
+        String batchType = "BATCH";
+        String dataFileLoc = null; //optional
+        String xmlContent;
+        try (InputStream inputStream = file.getInputStream()) {
+            xmlContent = IOUtils.toString(inputStream, "UTF-8");
+        }
+        String tempXmlFileLocation = createTempXmlFile(xmlContent);
+        Response resp = notiRestfulClient.sendBatchUploadRequest(batchType, tempXmlFileLocation, dataFileLoc);
+
+        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            buer = notiRestfulClient.getBatchUploadResponse(resp);
+        } else {
+            // Assuming ScopesFault contains `resultCd` and `description` as a `resultMesg`
+            ScopesFault faultEntity = notiRestfulClient.getScopesFault(resp);
+            buer.setResultCd("ERROR"); // You might use a specific code to denote error, if available
+            buer.setResultMesg(faultEntity.getDescription());
+            System.out.println(faultEntity.getDescription());
+        }
+
+        return buer;
     }
 
     @Override
