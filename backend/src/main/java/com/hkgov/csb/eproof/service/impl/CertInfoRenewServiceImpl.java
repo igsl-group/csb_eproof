@@ -445,16 +445,16 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         extraInfo.put("exam_date", certInfoRenew.getCertInfo().getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
         extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfoRenew.getNewUcGrade()) ? "Use of Chinese" : "");
-        extraInfo.put("result_1", certInfoRenew.getNewUcGrade());
+        extraInfo.put("result_1", convertGradeToReadableGrade(certInfoRenew.getNewUcGrade()));
 
         extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfoRenew.getNewUeGrade()) ? "Use of English (UE)" : "");
-        extraInfo.put("result_2", certInfoRenew.getNewUeGrade());
+        extraInfo.put("result_2", convertGradeToReadableGrade(certInfoRenew.getNewUeGrade()));
 
         extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfoRenew.getNewAtGrade()) ? "Aptitude Test (AT)" : "");
-        extraInfo.put("result_3", certInfoRenew.getNewAtGrade());
+        extraInfo.put("result_3", convertGradeToReadableGrade(certInfoRenew.getNewAtGrade()));
 
         extraInfo.put("paper_4", StringUtils.isNotEmpty(certInfoRenew.getNewBlGrade()) ? "BLNST" : "");
-        extraInfo.put("result_4", certInfoRenew.getNewBlGrade());
+        extraInfo.put("result_4", convertGradeToReadableGrade(certInfoRenew.getNewBlGrade()));
 
         extraInfo.put("hkid_or_passport", certInfoRenew.getHkidOrPassport());
 
