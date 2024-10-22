@@ -575,7 +575,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 "",
                 eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
                 keyName,
-                certInfoRenew.getCertInfo().getEproofId(),
+//                certInfoRenew.getCertInfo().getEproofId(),
+                certInfoRenew.getEproofId(),
                 qrCodeString
         );
         /*if(certEproof != null){

@@ -25,8 +25,8 @@ public class GcisBatchEmail extends BaseEntity {
     @Column(name = "schedule_datetime")
     private LocalDateTime scheduleDatetime;
 
-    @Column(name = "xml", columnDefinition = "text")
-    private String xml;
+//    @Column(name = "xml", columnDefinition = "text")
+//    private String xml;
 
     @Column(name = "status")
     private String status;

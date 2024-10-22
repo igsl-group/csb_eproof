@@ -1320,7 +1320,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
         GcisBatchEmail gcisBatchEmail = new GcisBatchEmail();
         gcisBatchEmail.setEmailTemplateId(notifyEmailTemplate.getId());
-        gcisBatchEmail.setXml(processedXml);
+//        gcisBatchEmail.setXml(processedXml);
         gcisBatchEmail.setScheduleDatetime(insertGcisBatchEmailDto.getScheduledTime().atTime(9,0,0));
         gcisBatchEmail.setStatus("SCHEDULED");
         gcisBatchEmail.setGcisNotiListName(listName);
