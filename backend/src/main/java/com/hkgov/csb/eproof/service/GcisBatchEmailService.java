@@ -7,6 +7,7 @@ import hk.gov.spica_scopes.spica.jaxb.scheenq.ScheduleEnquiryResponse;
 import hk.gov.spica_scopes.spica.jaxb.batchupload.BatchUploadResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.core.Response;
@@ -37,6 +38,8 @@ public interface GcisBatchEmailService {
 
     Properties getSSLProperties(String endPointName, String endPointUrl)
             throws Exception;
+
+    ResponseEntity downloadBatchXml(Long gcisBatchEmailId);
 
     Page<GcisBatchEmail> batchEmailList(Pageable pageable, String keyword);
 }

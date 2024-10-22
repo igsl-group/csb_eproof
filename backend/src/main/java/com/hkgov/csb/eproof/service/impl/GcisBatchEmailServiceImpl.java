@@ -24,9 +24,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import jakarta.persistence.EntityNotFoundException;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileWriter;
@@ -36,7 +37,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.UUID;
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ContentDisposition;
 
 @Service
 public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
@@ -484,5 +486,22 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
     @Override
     public Page<GcisBatchEmail> batchEmailList(Pageable pageable, String keyword) {
         return gcisBatchEmailRepository.findPage(pageable,keyword);
+    }
+
+        @Override
+    public ResponseEntity downloadBatchXml(Long gcisBatchEmailId) {
+        GcisBatchEmail gcisBatchEmail = gcisBatchEmailRepository.findById(gcisBatchEmailId).orElseThrow(EntityNotFoundException::new);
+
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename(gcisBatchEmail.getFile().getName())
+                .build()
+        );
+
+        return ResponseEntity
+                .ok()
+                .headers(header)
+                .body(minioUtil.getFileAsByteArray(gcisBatchEmail.getFile().getPath()));
     }
 }
