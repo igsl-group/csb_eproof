@@ -461,7 +461,8 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
         LocalDateTime expiryDate = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
         LocalDateTime issueDate = LocalDateTime.now();
 
-        String eproofId = certInfoRenew.getCertInfo().getEproofId();
+//        String eproofId = certInfoRenew.getCertInfo().getEproofId();
+        String eproofId = certInfoRenew.getEproofId(certInfoRenew.getCertInfo().getExamProfileSerialNo());
 
         String eproofTemplateCode;
         if ("P".equals(certInfoRenew.getNewLetterType())) {
@@ -576,7 +577,7 @@ public class CertInfoRenewServiceImpl implements CertInfoRenewService {
                 eProofConfigProperties.getDownloadUrlPrefix()+ URLEncoder.encode(token, StandardCharsets.UTF_8),
                 keyName,
 //                certInfoRenew.getCertInfo().getEproofId(),
-                certInfoRenew.getEproofId(),
+                certInfoRenew.getEproofId(certInfoRenew.getCertInfo().getExamProfileSerialNo()),
                 qrCodeString
         );
         /*if(certEproof != null){
