@@ -472,6 +472,7 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
         Properties propAuth = new Properties();
         propAuth.setProperty(PropertyNames.AUTH_TYPE_PROPERTY, PropertyNames.AUTH_SSL_CLIENT_X509_CERTIFICATE);
         propAuth.setProperty(PropertyNames.PROXIMITY_CONFIG_FILE_PROPERTY, propertyFile);
+        propAuth.setProperty(PropertyNames.RETRY_ON_EXCEPTION_FLAG_PROPERTY, "Y");
         propAuth.setProperty(PropertyNames.KEY_STORE_FILE_NAME_PROPERTY, keyStoreFile);
         propAuth.setProperty(PropertyNames.KEY_STORE_PASSWORD_PROPERTY, keyStorePassword);
         propAuth.setProperty(PropertyNames.KEY_STORE_TYPE_PROPERTY, PropertyNames.KEY_STORE_TYPE_PKCS12);
