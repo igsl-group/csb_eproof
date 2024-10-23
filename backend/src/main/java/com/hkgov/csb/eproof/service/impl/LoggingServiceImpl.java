@@ -48,14 +48,14 @@ public class LoggingServiceImpl implements LoggingService {
         respMessage.append("path = [").append(request.getRequestURI()).append("] ");
         respMessage.append("elapsedTime = ").append(elapsedTime).append("ms ");
         respMessage.append("status = [").append(response.getStatus()).append("] ");
-        if (!headers.isEmpty()) {
-            respMessage.append("responseHeaders = [").append(headers).append("] ");
-        }
-        try {
-            respMessage.append("responseBody = [").append(objectMapper.writeValueAsString(body)).append("] ");
-        } catch (Exception e) {
-            respMessage.append("responseBody = [").append("failed to convert body").append("] ");
-        }
+//        if (!headers.isEmpty()) {
+//            respMessage.append("responseHeaders = [").append(headers).append("] ");
+//        }
+//        try {
+//            respMessage.append("responseBody = [").append(objectMapper.writeValueAsString(body)).append("] ");
+//        } catch (Exception e) {
+//            respMessage.append("responseBody = [").append("failed to convert body").append("] ");
+//        }
 
         logger.info("RESPONSE: {}", respMessage);
     }
