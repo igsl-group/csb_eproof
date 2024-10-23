@@ -8,10 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FORM_DATA;
@@ -22,7 +27,7 @@ public final class HttpUtils {
     private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
     private final RequestLogFilterConfig requestLogFilterConfig;
-  //  private final List<RequestMatcher> ignoreRequestMatchers = new ArrayList<>();
+    private static final List<RequestMatcher> ignoreRequestMatchers = new ArrayList<>();
   public HttpUtils(RequestLogFilterConfig requestLogFilterConfig) {
       this.requestLogFilterConfig = requestLogFilterConfig;
   }
@@ -97,7 +102,7 @@ public final class HttpUtils {
         return parameters;
     }
 
-   /* public String getRequestBody(HttpServletRequest request) {
+    public static String getRequestBody(HttpServletRequest request) {
         if (shouldSkip(request)) {
             return request.getContentType();
         }
@@ -108,7 +113,7 @@ public final class HttpUtils {
             byte[] buf = StreamUtils.copyToByteArray(inputStream);
             if (buf.length > 0) {
                 try {
-                    int maxLength = Math.min(buf.length, requestLogFilterConfig.getMaxPayloadLength());
+                    int maxLength = buf.length;
                     payload = new String(buf, 0, maxLength, request.getCharacterEncoding());
                 } catch (UnsupportedEncodingException e) {
                     logger.warn("UnsupportedEncoding.", e);
@@ -120,17 +125,17 @@ public final class HttpUtils {
         return payload;
     }
 
-    private boolean shouldSkip(HttpServletRequest request) {
+    private static boolean shouldSkip(HttpServletRequest request) {
         return isMultipartFormData(request) || matchIgnoreUrlPatterns(request);
     }
 
-    private boolean matchIgnoreUrlPatterns(HttpServletRequest request) {
+    private static boolean matchIgnoreUrlPatterns(HttpServletRequest request) {
         return ignoreRequestMatchers
                 .stream()
                 .anyMatch(requestMatcher -> requestMatcher.matches(request));
-    }*/
+    }
 
-    private boolean isMultipartFormData(HttpServletRequest request) {
+    private static boolean isMultipartFormData(HttpServletRequest request) {
         return Optional.ofNullable(request.getContentType())
                 .map(contentType -> contentType.contains(MULTIPART_FORM_DATA))
                 .orElse(false);

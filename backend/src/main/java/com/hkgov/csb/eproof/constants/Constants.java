@@ -11,6 +11,7 @@ public final class Constants {
     public static final String COOKIE_KEY_LOGIN_UID = "uid";
     public static final String COOKIE_KEY_LOGIN_DPDEPTID = "dpdeptid";
     public static final String EXAM_DATE = "MM/dd/yyyy";
+    public static final String START_TIME = "start-time";
 
 
     public static final String STATUS_ACTIVE = "ACTIVE";

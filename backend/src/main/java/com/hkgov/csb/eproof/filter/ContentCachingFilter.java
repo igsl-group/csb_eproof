@@ -1,4 +1,3 @@
-/*
 package com.hkgov.csb.eproof.filter;
 
 import com.hkgov.csb.eproof.servlet.CachedBodyHttpServletRequest;
@@ -9,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.hkgov.csb.eproof.constants.Constants.START_TIME;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FORM_DATA;
-
+@Component
 public class ContentCachingFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(ContentCachingFilter.class);
@@ -45,4 +45,3 @@ public class ContentCachingFilter extends OncePerRequestFilter {
     }
 
 }
-*/

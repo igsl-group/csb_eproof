@@ -1,4 +1,3 @@
-/*
 package com.hkgov.csb.eproof.filter;
 
 import com.hkgov.csb.eproof.service.LoggingService;
@@ -8,27 +7,26 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
+@Component
 public class RequestLogFilter extends OncePerRequestFilter {
     private final LoggingService loggingService;
-    private final HttpUtils httpUtils;
 
 
-    public RequestLogFilter(LoggingService loggingService, HttpUtils httpUtils) {
+
+    public RequestLogFilter(LoggingService loggingService) {
         this.loggingService = loggingService;
-        this.httpUtils = httpUtils;
     }
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        loggingService.logRequest(request, httpUtils.getRequestBody(request));
+        loggingService.logRequest(request, HttpUtils.getRequestBody(request));
         filterChain.doFilter(request, response);
     }
 
 }
-*/
