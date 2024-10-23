@@ -133,37 +133,34 @@ public class EmailEventListener {
                 new Attachment[0], recipients, isEncrypt, isSign, isRestricted, isUrgent);
     }
 
+//    private void processNotificationResponse(Response response, EmailEvent event) throws Exception {
+//        int statusCode = response.getStatus();
+//        String responseBody = response.readEntity(String.class);
+//        logger.info("Notification response status code: {}", statusCode);
+//        logger.info("Notification response body: {}", responseBody);
+//
+//        if (statusCode == Response.Status.OK.getStatusCode()) {
+//            logNotificationStatus(response);
+//        } else {
+//            handleFailedNotification(response);
+//        }
+//    }
+
     private void processNotificationResponse(Response response, EmailEvent event) throws Exception {
         int statusCode = response.getStatus();
         String responseBody = response.readEntity(String.class);
+
         logger.info("Notification response status code: {}", statusCode);
-        logger.info("Notification response body: {}", responseBody);
 
         if (statusCode == Response.Status.OK.getStatusCode()) {
-            logNotificationStatus(response);
+            logger.info("Notification status parsed: {}", responseBody);
         } else {
-            handleFailedNotification(response);
+            logger.error("Notification failed, body content: {}", responseBody);
         }
-    }
-
-    private void logNotificationStatus(Response response) throws Exception {
-        List<NotiStatus> notiStatusList = getNotificationClient().getNotificationNotificationStatus(response);
-        for (NotiStatus notiStatus : notiStatusList) {
-            logger.info("Notification status - Channel Address: {}, Result Code: {}, Message: {}",
-                    notiStatus.getChanAddr(), notiStatus.getResultCd(), notiStatus.getResultMesg());
-        }
-    }
-
-    private void handleFailedNotification(Response response) throws Exception {
-        ScopesFault scopesFault = getNotificationClient().getScopesFault(response);
-        logger.error("Notification failed with Scopes Fault: {}", scopesFault.getDescription());
     }
 
     private void logError(Exception e, EmailEvent event) {
-        String errorMsg = String.format(
-                "Failed to handle async email event. EmailMessageId: %s. Error: %s",
-                event.getEmailMessageId(), e.getMessage()
-        );
+        String errorMsg = String.format("Failed to handle async email event. EmailMessageId: %s. Error: %s", event.getEmailMessageId(), e.getMessage());
         logger.error(errorMsg, e);
     }
 
