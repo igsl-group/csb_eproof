@@ -293,6 +293,8 @@ export function systemAPI(params, ...rest) {
             return request(`/emailLog/list?${rest[0]}`, "get");
         case 'batchEmailLogList':
             return request(`/batchEmailLog/list?${rest[0]}`, "get");
+        case 'batchEmailXmlDownload':
+            return request(`/batchEmailLog/download/${rest[0]}`, "download");
         case 'systemConfigList':
             return request(`/systemParameter/list?${rest[0]}`, "get");
         case 'permissionList':

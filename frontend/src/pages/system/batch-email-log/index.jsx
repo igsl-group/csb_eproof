@@ -44,6 +44,7 @@ import {systemAPI} from "../../../api/request";
 import {
   toQueryString
 } from "@/utils/util";
+import {download} from "../../../utils/util";
 
 
 const BatchEmailLog = () =>  {
@@ -78,6 +79,7 @@ const BatchEmailLog = () =>  {
       title: "#",
       dataIndex: "id",
       width: 100,
+      render: (value) => <Link onClick={() => onDownloadClick(value)}>{value}</Link>
     },
     {
       title: "Created Date",
@@ -131,6 +133,10 @@ const BatchEmailLog = () =>  {
     getBatchEmailLogList(tempPagination, filterCondition);
   }, [pagination]);
 
+  const onDownloadClick = useCallback((value) => {
+    runSystemAPI('batchEmailXmlDownload', value);
+  }, []);
+
   const paginationOnChange = useCallback((page, pageSize) => {
     const tempPagination = {
       ...pagination,
@@ -165,6 +171,10 @@ const BatchEmailLog = () =>  {
             total: data.totalElements,
           });
           setData(content);
+          break;
+        case 'batchEmailXmlDownload':
+          messageApi.success('Download successfully.');
+          download(response);
           break;
         default:
           break;

@@ -2,9 +2,11 @@ package com.hkgov.csb.eproof.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hkgov.csb.eproof.constants.Constants;
+import com.hkgov.csb.eproof.dao.FileRepository;
 import com.hkgov.csb.eproof.dao.GcisBatchEmailRepository;
 import com.hkgov.csb.eproof.entity.GcisBatchEmail;
 import com.hkgov.csb.eproof.service.GcisBatchEmailService;
+import com.hkgov.csb.eproof.util.MinioUtil;
 import hk.gov.spica_scopes.common.client.PropertyNames;
 import hk.gov.spica_scopes.common.jaxb.ScopesFault;
 import hk.gov.spica_scopes.spica.jaxb.batchenq.BatchUploadEnquiryResponse;
@@ -16,13 +18,16 @@ import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import jakarta.persistence.EntityNotFoundException;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileWriter;
@@ -32,13 +37,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.UUID;
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ContentDisposition;
 
 @Service
 public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
 
     private final GcisBatchEmailRepository gcisBatchEmailRepository;
     private final ObjectMapper objectMapper;
+    private final FileRepository fileRepository;
+    private final MinioUtil minioUtil;
 
     @Value("${gcis-shared-service.batch-email.local-temporary-xml-folder-path}")
     String localTemporaryXmlFolderPath;
@@ -92,11 +100,14 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
     @Value("${gcis-shared-service.keystore.alias}")
     private String keyStoreFileAlias;
 
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    public GcisBatchEmailServiceImpl(GcisBatchEmailRepository gcisBatchEmailRepository, @Qualifier("objectMapper") ObjectMapper objectMapper) {
+    public GcisBatchEmailServiceImpl(GcisBatchEmailRepository gcisBatchEmailRepository, @Qualifier("objectMapper") ObjectMapper objectMapper, FileRepository fileRepository, FileRepository fileRepository1, MinioUtil minioUtil) {
         this.gcisBatchEmailRepository = gcisBatchEmailRepository;
         this.objectMapper = objectMapper;
+        this.fileRepository = fileRepository1;
+        this.minioUtil = minioUtil;
     }
 
     @Override
@@ -119,7 +130,17 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
         NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
         String batchType = "BATCH";
 
-        String tempXmlFileLocation = createTempXmlFile(gcisBatchEmail.getXml());
+
+        com.hkgov.csb.eproof.entity.File file = fileRepository.findById(gcisBatchEmail.getFileId()).orElse(null);
+
+        if(file == null){
+            logger.info("WARNING File is null. Please check why the file id is not found in the database. File ID: {}", gcisBatchEmail.getFileId());
+            return false;
+        }
+
+        String xmlContent = new String(minioUtil.getFileAsByteArray(file.getPath()));
+//        String tempXmlFileLocation = createTempXmlFile(gcisBatchEmail.getXml());
+        String tempXmlFileLocation = createTempXmlFile(xmlContent);
 
         Response resp = notiRestfulClient.sendBatchUploadRequest(batchType,tempXmlFileLocation,null);
         boolean uploadSuccess = false;
@@ -409,7 +430,19 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
         NotificationRestfulClient notiRestfulClient = new NotificationRestfulClient(prop);
         String batchType = "BATCH";
 
-        String tempXmlFileLocation = createTempXmlFile(gcisBatchEmail.getXml());
+        com.hkgov.csb.eproof.entity.File file = fileRepository.findById(gcisBatchEmail.getFileId()).orElse(null);
+
+        if(file == null){
+            logger.info("WARNING File is null. Please check why the file id is not found in the database. File ID: {}", gcisBatchEmail.getFileId());
+            return "";
+        }
+
+
+        String xmlContent = new String(minioUtil.getFileAsByteArray(file.getPath()));
+//        String tempXmlFileLocation = createTempXmlFile(gcisBatchEmail.getXml());
+        String tempXmlFileLocation = createTempXmlFile(xmlContent);
+
+//        String tempXmlFileLocation = createTempXmlFile(gcisBatchEmail.getXml());
         SAXReader reader = new SAXReader();
 
         Document doc = reader.read(new File(tempXmlFileLocation));
@@ -453,5 +486,22 @@ public class GcisBatchEmailServiceImpl implements GcisBatchEmailService {
     @Override
     public Page<GcisBatchEmail> batchEmailList(Pageable pageable, String keyword) {
         return gcisBatchEmailRepository.findPage(pageable,keyword);
+    }
+
+        @Override
+    public ResponseEntity downloadBatchXml(Long gcisBatchEmailId) {
+        GcisBatchEmail gcisBatchEmail = gcisBatchEmailRepository.findById(gcisBatchEmailId).orElseThrow(EntityNotFoundException::new);
+
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(ContentDisposition
+                .attachment()
+                .filename(gcisBatchEmail.getFile().getName())
+                .build()
+        );
+
+        return ResponseEntity
+                .ok()
+                .headers(header)
+                .body(minioUtil.getFileAsByteArray(gcisBatchEmail.getFile().getPath()));
     }
 }

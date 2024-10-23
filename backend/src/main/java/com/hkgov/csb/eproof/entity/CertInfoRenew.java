@@ -147,6 +147,11 @@ public class CertInfoRenew extends BaseEntity {
         return newEmail;
     }
 
+
+    public String getEproofId(String examProfileSerialNo){
+        return examProfileSerialNo + "-" + id + "-" + newName.replace(" ","_");
+    }
+
     public String getHkidOrPassport(){
         if (StringUtils.isNotEmpty(newHkid)){
             return HKIDformatter.formatHkid(newHkid);

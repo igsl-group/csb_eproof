@@ -17,6 +17,5 @@ public class GcisBatchEmailDto implements Serializable {
     Long emailTemplateId;
     @JsonFormat(pattern = DATE_PATTERN)
     LocalDateTime scheduleDatetime;
-    String xml;
     String status;
 }
