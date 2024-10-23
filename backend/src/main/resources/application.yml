@@ -1,12 +1,12 @@
 #Database config
 spring:
   datasource:
-    url: jdbc:mariadb://192.168.2.227:3306/eproof
-    username: root
-    password: P@ssw0rd1234$
-#    url: jdbc:mariadb://localhost:19307/eproof_db?useSSL=true&trustServerCertificate=true
-#    username: eproof_root
+#    url: jdbc:mariadb://192.168.2.227:3306/eproof
+#    username: root
 #    password: P@ssw0rd1234$
+    url: jdbc:mariadb://localhost:19307/eproof_db?useSSL=true&trustServerCertificate=true
+    username: eproof_root
+    password: P@ssw0rd1234$
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
@@ -140,10 +140,14 @@ document:
 aes-encrypt-key: CSB_EP_KEY@2024!
 
 minio:
-  endpoint: http://192.168.2.175:9000
-  accessKey: admin
-  secretKey: P@ssw0rd
-  bucket: csbeproof
+  endpoint: https://csbeprof.t1cosg-obj001.gcisdctr.hksarg
+  accessKey: Y3NiZXByb2ZfdXNlcg==
+  secretKey: d023c3ada786f2218a635aee3bcf8b21
+  bucket: eproof
+#  endpoint: http://192.168.2.175:9000
+#  accessKey: admin
+#  secretKey: P@ssw0rd
+#  bucket: csbeproof
   path:
     cert-record: cert_record
     cert-renew-record: cert_renew_record
@@ -213,8 +217,8 @@ gcis-shared-service:
     projectId: CSBEP
   enabled: true
   emailWhitelist:
-    enabled: true
-    toList: hong.cheung@igsl-group.com
+    enabled: false
+    toList: hong.cheung@igsl-group.com,wilfred.lai@igsl-group.com
   property:
     path: C:\Users\Wilfred\Documents\Workspaces\csb_eproof\backend\src\main\resources\proximity.properties
   keystore:
@@ -223,15 +227,15 @@ gcis-shared-service:
     password: P@ssw0rd1234$
   notiSvc:
     endPointName: NOTI_SENDER_RESTFUL_END_POINT
-    endPointUrl: https://192.168.1.171:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
+    endPointUrl: https://SSL_APPLICATION/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-NotiSenderRest
     batchUploadEndPointName: BATCH_UPLOAD_RESTFUL_END_POINT
-    batchUploadEndPointUrl: https://192.168.1.171:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchUploadRest
+    batchUploadEndPointUrl: https://SSL_APPLICATION/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchUploadRest
     scheduleEndPointName: SCHEDULE_RESTFUL_END_POINT
-    scheduleEndPointUrl: https://192.168.1.171:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheduleRest
+    scheduleEndPointUrl: https://SSL_APPLICATION/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheduleRest
     batchEnquireEndPointName: BATCH_ENQ_RESTFUL_END_POINT
-    batchEnquireEndPointUrl: https://192.168.1.171:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchEnqRest
+    batchEnquireEndPointUrl: https://SSL_APPLICATION/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-BatchEnqRest
     scheduleEnquireEndPointName: SCHE_ENQ_RESTFUL_END_POINT
-    scheduleEnquireEndPointUrl: https://192.168.1.171:9444/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheEnqRest
+    scheduleEnquireEndPointUrl: https://SSL_APPLICATION/messaging/ssl/RESTful/csb.csbep.app001-ogcio.egis.nt001-ScheEnqRest
 
 
 
