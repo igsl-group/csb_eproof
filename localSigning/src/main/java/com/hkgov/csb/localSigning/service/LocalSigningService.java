@@ -8,9 +8,13 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.hkgov.csb.localSigning.util.ApiUtil;
 import com.hkgov.csb.localSigning.util.PdfBoxSign;
+import com.hkgov.csb.localSigning.validation.AddValidationInformation;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
+import org.apache.pdfbox.pdmodel.encryption.SecurityProvider;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.xmpbox.XMPMetadata;
@@ -37,6 +41,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -243,17 +248,21 @@ public class LocalSigningService {
                                     String keyword,
                                     HttpServletResponse response,
                                     String publicKey, Long nextCertInfoIdForSigning) throws Exception {
-
+        logger.info("[SignAndIssue] CertID: {} | Ready to get unsigned JSON.",nextCertInfoIdForSigning);
         String unsignedJson = apiUtil.getUnsignedJsonForCert(nextCertInfoIdForSigning,jwt);
+        logger.info("[SignAndIssue] CertID: {} | Unsigned JSON retrieved. Signing JSON...",nextCertInfoIdForSigning);
         String signedValue = (String)this.signJson(unsignedJson).getBody();
-        logger.info(signedValue);
+        logger.info("[SignAndIssue] CertID: {} | JSON signed. Preparing eproof PDF... ",nextCertInfoIdForSigning);
+        logger.debug(signedValue);
         byte[] preparedPdf = apiUtil.prepareEproofPdfForSigning(jwt,nextCertInfoIdForSigning,unsignedJson,signedValue, publicKey);
-
+        logger.info("[SignAndIssue] CertID: {} | eproof PDF prepare completed. Signing PDF... ",nextCertInfoIdForSigning);
         this.processSigning(preparedPdf, nextCertInfoIdForSigning,jwt,reason,  location, qr, keyword, response,publicKey);
+        logger.info("[SignAndIssue] CertID: {} | All actions completed. ",nextCertInfoIdForSigning);
     }
 
     private void processSigning(byte[] preparedPdfBinaryArray, Long nextCertInfoIdForSigning, String jwtTokenFromFrontEnd, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) throws Exception {
         byte[] signedPdf = this.getSignedPdf(new ByteArrayInputStream(preparedPdfBinaryArray), publicKey, reason, location, qr, keyword);
+        logger.info("[SignAndIssue] CertID: {} | PDF sign completed. Uploading PDF... ",nextCertInfoIdForSigning);
         apiUtil.uploadSignedPdf(nextCertInfoIdForSigning,jwtTokenFromFrontEnd,signedPdf);
     }
 
@@ -296,8 +305,8 @@ public class LocalSigningService {
         signing.setExternalSigning(false);
 
         signing.setTsaUrl(null);
-        PDDocument doc = PDDocument.load(is);
-
+//        PDDocument doc = PDDocument.load(is);
+        PDDocument doc = Loader.loadPDF(RandomAccessReadBuffer.createBufferFromStream(is));
         //boolean manualAddKeyword = true;
         /*if(!Strings.isNullOrEmpty(keyword)) {
             QRCodeWriter qrWriter = new QRCodeWriter();
@@ -453,17 +462,22 @@ public class LocalSigningService {
     }
 
     public void processReissue(String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey, Long certInfoRenewId) throws Exception {
+        logger.info("[Reissue] CertID: {} | Ready to get unsigned JSON.",certInfoRenewId);
         String unsignedJson = apiUtil.getUnsignedJsonForReissueCert(certInfoRenewId,jwt);
+        logger.info("[Reissue] CertID: {} | Unsigned JSON retrieved. Signing JSON...",certInfoRenewId);
         String signedValue = (String)this.signJson(unsignedJson).getBody();
-        logger.info(signedValue);
+        logger.info("[Reissue] CertID: {} | JSON signed. Preparing eproof PDF...",certInfoRenewId);
+        logger.debug(signedValue);
         byte[] preparedPdf = apiUtil.prepareEproofPdfForSigningForReissueCert(jwt,certInfoRenewId,unsignedJson,signedValue,publicKey);
-
+        logger.info("[Reissue] CertID: {} | eproof PDF prepare completed. Signing PDF...",certInfoRenewId);
         this.processSigningForReissueCert(preparedPdf, certInfoRenewId,jwt,reason,  location, qr, keyword, response,publicKey);
+        logger.info("[Reissue] CertID: {} | All actions completed.",certInfoRenewId);
 
     }
 
     private void processSigningForReissueCert(byte[] preparedPdf, Long certInfoRenewId, String jwt, String reason, String location, String qr, String keyword, HttpServletResponse response, String publicKey) throws Exception {
         byte[] signedPdf = this.getSignedPdf(new ByteArrayInputStream(preparedPdf), publicKey, reason, location, qr, keyword);
+        logger.info("[Reissue] CertID: {} | PDF sign completed. Uploading PDF...",certInfoRenewId);
         apiUtil.uploadSignedPdfForReissueCert(certInfoRenewId,jwt,signedPdf);
 
     }

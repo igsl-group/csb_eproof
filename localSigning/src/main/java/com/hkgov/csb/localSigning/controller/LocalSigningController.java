@@ -83,6 +83,8 @@ public class LocalSigningController {
         if(jwtTokenFromFrontEnd == null || jwtTokenFromFrontEnd.isEmpty()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token found in request header");
         }
+        logger.info("[Reissue] CertID: {} | Ready to reissue.",certInfoRenewId);
+
 
         localSigningService.init();
         String publicKey = localSigningService.getSigningCert();
@@ -114,6 +116,7 @@ public class LocalSigningController {
 
         localSigningService.init();
         String publicKey = localSigningService.getSigningCert();
+        logger.info("[SignAndIssue] Exam profile serial NO: {} | Started schedule to sign and issue certificates", examProfileSerialNo);
 
         apiUtil.startScheduleSignAndIssue(examProfileSerialNo, jwtTokenFromFrontEnd);
 

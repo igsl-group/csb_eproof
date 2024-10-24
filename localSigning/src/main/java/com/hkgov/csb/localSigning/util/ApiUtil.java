@@ -3,12 +3,12 @@ package com.hkgov.csb.localSigning.util;
 
 import com.google.gson.JsonObject;
 import okhttp3.*;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.util.zip.ZipEntry;
@@ -39,6 +39,8 @@ public class ApiUtil {
 
     @Value("${backend.endpoint.upload.signed.cert.reissue.cert}")
     private String uploadSignedReissueCertEndpoint;
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 /*
     @Value("${cert.download.temp.path}")
@@ -112,6 +114,7 @@ public class ApiUtil {
         try (Response response = CLIENT.newCall(request).execute()) {
             if (response.isSuccessful()) {
                 String responseBody = response.body().string();
+                logger.info("[SignAndIssue] CertID: {} Get next Cert INFO ID success.",responseBody);
                 return Long.parseLong(responseBody);
             } else {
                 System.err.println(getNextJobEndpoint +" Request failed with status code: " + response.code());
