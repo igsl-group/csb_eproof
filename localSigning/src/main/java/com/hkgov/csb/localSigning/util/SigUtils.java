@@ -52,7 +52,7 @@ import java.util.*;
 
 /**
  * Utility class for the signature / timestamp examples.
- * 
+ *
  * @author Tilman Hausherr
  */
 public class SigUtils
@@ -183,7 +183,7 @@ public class SigUtils
      * Log if the certificate is not valid for signature usage. Doing this
      * anyway results in Adobe Reader failing to validate the PDF.
      *
-     * @param x509Certificate 
+     * @param x509Certificate
      * @throws CertificateParsingException
      */
     public static void checkCertificateUsage(X509Certificate x509Certificate)
@@ -203,12 +203,12 @@ public class SigUtils
         }
         List<String> extendedKeyUsage = x509Certificate.getExtendedKeyUsage();
         if (extendedKeyUsage != null &&
-            !extendedKeyUsage.contains(KeyPurposeId.id_kp_emailProtection.toString()) &&
-            !extendedKeyUsage.contains(KeyPurposeId.id_kp_codeSigning.toString()) &&
-            !extendedKeyUsage.contains(KeyPurposeId.anyExtendedKeyUsage.toString()) &&
-            !extendedKeyUsage.contains("1.2.840.113583.1.1.5") &&
-            // not mentioned in Adobe document, but tolerated in practice
-            !extendedKeyUsage.contains("1.3.6.1.4.1.311.10.3.12"))
+                !extendedKeyUsage.contains(KeyPurposeId.id_kp_emailProtection.toString()) &&
+                !extendedKeyUsage.contains(KeyPurposeId.id_kp_codeSigning.toString()) &&
+                !extendedKeyUsage.contains(KeyPurposeId.anyExtendedKeyUsage.toString()) &&
+                !extendedKeyUsage.contains("1.2.840.113583.1.1.5") &&
+                // not mentioned in Adobe document, but tolerated in practice
+                !extendedKeyUsage.contains("1.3.6.1.4.1.311.10.3.12"))
         {
             LOG.error("Certificate extended key usage does not include " +
                     "emailProtection, nor codeSigning, nor anyExtendedKeyUsage, " +
@@ -220,7 +220,7 @@ public class SigUtils
     /**
      * Log if the certificate is not valid for timestamping.
      *
-     * @param x509Certificate 
+     * @param x509Certificate
      * @throws CertificateParsingException
      */
     public static void checkTimeStampCertificateUsage(X509Certificate x509Certificate)
@@ -230,7 +230,7 @@ public class SigUtils
         List<String> extendedKeyUsage = x509Certificate.getExtendedKeyUsage();
         // https://tools.ietf.org/html/rfc5280#section-4.2.1.12
         if (extendedKeyUsage != null &&
-            !extendedKeyUsage.contains(KeyPurposeId.id_kp_timeStamping.toString()))
+                !extendedKeyUsage.contains(KeyPurposeId.id_kp_timeStamping.toString()))
         {
             LOG.error("Certificate extended key usage does not include timeStamping");
         }
@@ -240,7 +240,7 @@ public class SigUtils
     /**
      * Log if the certificate is not valid for responding.
      *
-     * @param x509Certificate 
+     * @param x509Certificate
      * @throws CertificateParsingException
      */
     public static void checkResponderCertificateUsage(X509Certificate x509Certificate)
@@ -250,7 +250,7 @@ public class SigUtils
         List<String> extendedKeyUsage = x509Certificate.getExtendedKeyUsage();
         // https://tools.ietf.org/html/rfc5280#section-4.2.1.12
         if (extendedKeyUsage != null &&
-            !extendedKeyUsage.contains(KeyPurposeId.id_kp_OCSPSigning.toString()))
+                !extendedKeyUsage.contains(KeyPurposeId.id_kp_OCSPSigning.toString()))
         {
             LOG.error("Certificate extended key usage does not include OCSP responding");
         }
@@ -259,7 +259,7 @@ public class SigUtils
 
     /**
      * Gets the last relevant signature in the document, i.e. the one with the highest offset.
-     * 
+     *
      * @param document to get its last signature
      * @return last signature or null when none found
      * @throws IOException
@@ -275,8 +275,8 @@ public class SigUtils
         // we get the last in time by looking at the offset in the PDF file.
         Optional<PDSignature> optLastSignature =
                 document.getSignatureDictionaries().stream().
-                sorted(comparatorByOffset.reversed()).
-                findFirst();
+                        sorted(comparatorByOffset.reversed()).
+                        findFirst();
         if (optLastSignature.isPresent())
         {
             PDSignature lastSignature = optLastSignature.get();
@@ -321,7 +321,7 @@ public class SigUtils
         Collection<X509CertificateHolder> tstMatches =
                 timeStampToken.getCertificates().getMatches(timeStampToken.getSID());
         X509CertificateHolder certificateHolder = tstMatches.iterator().next();
-        SignerInformationVerifier siv = 
+        SignerInformationVerifier siv =
                 new JcaSimpleSignerInfoVerifierBuilder().setProvider(SecurityProvider.getProvider()).build(certificateHolder);
         timeStampToken.validate(siv);
         System.out.println("validateTimestampToken: " +  LocalTime.now());
@@ -340,7 +340,7 @@ public class SigUtils
      * @throws CertificateException
      */
     public static void verifyCertificateChain(Store<X509CertificateHolder> certificatesStore,
-            X509Certificate certFromSignedData, Date signDate)
+                                              X509Certificate certFromSignedData, Date signDate)
             throws Exception, CertificateException
     {
         System.out.println("verifyCertificateChain: " +  LocalTime.now());
@@ -365,13 +365,13 @@ public class SigUtils
 
     /**
      * Get certificate of a TSA.
-     * 
+     *
      * @param tsaUrl URL
      * @return the X.509 certificate.
      *
      * @throws GeneralSecurityException
-     * @throws IOException 
-     * @throws URISyntaxException 
+     * @throws IOException
+     * @throws URISyntaxException
      */
     public static X509Certificate getTsaCertificate(String tsaUrl)
             throws GeneralSecurityException, IOException, URISyntaxException
@@ -389,7 +389,7 @@ public class SigUtils
      * Extract X.509 certificate from a timestamp
      * @param timeStampToken
      * @return the X.509 certificate.
-     * @throws CertificateException 
+     * @throws CertificateException
      */
     public static X509Certificate getCertificateFromTimeStampToken(TimeStampToken timeStampToken)
             throws CertificateException
@@ -422,7 +422,7 @@ public class SigUtils
                 while (n < key.getNumber())
                 {
                     LOG.warn("Object " + n + " missing, signature verification may fail in " +
-                             "Adobe Reader, see https://stackoverflow.com/questions/71267471/");
+                            "Adobe Reader, see https://stackoverflow.com/questions/71267471/");
                     ++n;
                 }
             }
@@ -435,8 +435,8 @@ public class SigUtils
      *
      * @param urlString
      * @return
-     * @throws IOException 
-     * @throws URISyntaxException 
+     * @throws IOException
+     * @throws URISyntaxException
      */
     public static InputStream openURL(String urlString) throws IOException, URISyntaxException
     {
@@ -451,13 +451,13 @@ public class SigUtils
         int responseCode = con.getResponseCode();
         LOG.info(responseCode + " " + con.getResponseMessage());
         if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
-            responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
-            responseCode == HttpURLConnection.HTTP_SEE_OTHER)
+                responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                responseCode == HttpURLConnection.HTTP_SEE_OTHER)
         {
             String location = con.getHeaderField("Location");
             if (urlString.startsWith("http://") &&
-                location.startsWith("https://") &&
-                urlString.substring(7).equals(location.substring(8)))
+                    location.startsWith("https://") &&
+                    urlString.substring(7).equals(location.substring(8)))
             {
                 // redirection from http:// to https://
                 // change this code if you want to be more flexible (but think about security!)

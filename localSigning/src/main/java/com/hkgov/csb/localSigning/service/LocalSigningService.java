@@ -367,11 +367,36 @@ public class LocalSigningService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         signing.signDetached(doc, baos, reason, location);
 
+
+        // 20241023 Add LTV feature
+        Security.addProvider(SecurityProvider.getProvider());
+        AddValidationInformation addOcspInformation = new AddValidationInformation();
+
+        File tempFile_beforeLTV = File.createTempFile("before_LTV_", ".pdf");
+        File tempFile_afterLTV = File.createTempFile("before_LTV_", ".pdf");
+
+        // Save the signed PDF to before LTV file
+        try(OutputStream outputStream = new FileOutputStream(tempFile_beforeLTV)) {
+            baos.writeTo(outputStream);
+        }
+
+        addOcspInformation.validateSignature(tempFile_beforeLTV, tempFile_afterLTV);
+
+        byte[] signedPdf_enabledLTV = Files.readAllBytes(tempFile_afterLTV.toPath());
+
+
+        //delete temporary file
+        tempFile_beforeLTV.delete();
+        tempFile_afterLTV.delete();
+
+        // 20241023 Add LTV feature
+
 //        InputStreamResource resource = new InputStreamResource(new FileInputStream(dest));
         //TODO remove local signed pdf after response
         doc.close();
         baos.close();
-        return baos.toByteArray();
+//        return baos.toByteArray();
+        return signedPdf_enabledLTV;
     }
 
 
