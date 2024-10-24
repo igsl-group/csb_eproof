@@ -207,13 +207,12 @@ public class TestController {
         ExamProfile exam = certInfo.getExamProfile();
 
         List<ExamScoreDto> markDtoList = new ArrayList<>();
-        if(certInfo.getUcGrade() != null){
-            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",certInfo.getUcGrade()));
-        }
         if(certInfo.getUeGrade() != null){
             markDtoList.add(new ExamScoreDto("Use of English (UE)",certInfo.getUeGrade()));
         }
-
+        if(certInfo.getUcGrade() != null){
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",certInfo.getUcGrade()));
+        }
         if(certInfo.getAtGrade() != null){
             markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",certInfo.getAtGrade()));
         }

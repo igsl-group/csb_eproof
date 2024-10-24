@@ -147,12 +147,11 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
     }
     public Map<String, List> getTableLoopMapForCert(CertInfo certInfo){
         List<ExamScoreDto> markDtoList = new ArrayList<>();
-
-        if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfo.getUcGrade())));
-        }
         if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
             markDtoList.add(new ExamScoreDto("Use of English (UE)",convertGradeToReadableGrade(certInfo.getUeGrade())));
+        }
+        if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfo.getUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
             markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",convertGradeToReadableGrade(certInfo.getAtGrade())));
