@@ -374,11 +374,11 @@ public class CertInfoServiceImpl implements CertInfoService {
     private Map<String,List> getTableLoopMapForCert(CertInfo certInfo){
         List<ExamScoreDto> markDtoList = new ArrayList<>();
 
-        if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
-            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfo.getUcGrade())));
-        }
         if(StringUtils.isNotEmpty(certInfo.getUeGrade())){
             markDtoList.add(new ExamScoreDto("Use of English (UE)",convertGradeToReadableGrade(certInfo.getUeGrade())));
+        }
+        if(StringUtils.isNotEmpty(certInfo.getUcGrade())){
+            markDtoList.add(new ExamScoreDto("Use of Chinese (UC)",convertGradeToReadableGrade(certInfo.getUcGrade())));
         }
         if(StringUtils.isNotEmpty(certInfo.getAtGrade())){
             markDtoList.add(new ExamScoreDto("Aptitude Test (AT)",convertGradeToReadableGrade(certInfo.getAtGrade())));
@@ -729,11 +729,11 @@ public class CertInfoServiceImpl implements CertInfoService {
         extraInfo.put("candidate_name", certInfo.getName());
         extraInfo.put("exam_date", certInfo.getExamProfile().getExamDate().format(DateTimeFormatter.ofPattern(DATE_PATTERN_3)));
 
-        extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese (UC)" : "");
-        extraInfo.put("result_1", convertGradeToReadableGrade(certInfo.getUcGrade()));
+        extraInfo.put("paper_1", StringUtils.isNotEmpty(certInfo.getUeGrade()) ? "Use of English (UE)" : "");
+        extraInfo.put("result_1", convertGradeToReadableGrade(certInfo.getUeGrade()));
 
-        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfo.getUeGrade()) ? "Use of English (UE)" : "");
-        extraInfo.put("result_2", convertGradeToReadableGrade(certInfo.getUeGrade()));
+        extraInfo.put("paper_2", StringUtils.isNotEmpty(certInfo.getUcGrade())? "Use of Chinese (UC)" : "");
+        extraInfo.put("result_2", convertGradeToReadableGrade(certInfo.getUcGrade()));
 
         extraInfo.put("paper_3", StringUtils.isNotEmpty(certInfo.getAtGrade()) ? "Aptitude Test (AT)" : "");
         extraInfo.put("result_3", convertGradeToReadableGrade(certInfo.getAtGrade()));
