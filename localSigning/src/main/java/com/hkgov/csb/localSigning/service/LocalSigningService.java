@@ -373,7 +373,7 @@ public class LocalSigningService {
         AddValidationInformation addOcspInformation = new AddValidationInformation();
 
         File tempFile_beforeLTV = File.createTempFile("before_LTV_", ".pdf");
-        File tempFile_afterLTV = File.createTempFile("before_LTV_", ".pdf");
+        File tempFile_afterLTV = File.createTempFile("after_LTV_", ".pdf");
 
         // Save the signed PDF to before LTV file
         try(OutputStream outputStream = new FileOutputStream(tempFile_beforeLTV)) {
