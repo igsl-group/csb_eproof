@@ -985,7 +985,7 @@ public class CertInfoServiceImpl implements CertInfoService {
             File file =  fileService.uploadFile(FILE_TYPE_GCIS_BATCH_XML,gcisBatchXmlPath,listName + ".xml",new ByteArrayInputStream(processedXml.getBytes() ));
 
 
-            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(insertGcisBatchEmailDto,notifyEmailTemplate,processedXml,listName, file.getId());
+            GcisBatchEmail gcisBatchEmail = this.createGcisBatchEmail(examProfileSerialNo, insertGcisBatchEmailDto,notifyEmailTemplate,processedXml,listName, file.getId());
             choppedCertInfoList.forEach(certInfo -> {
                 certInfo.setGcisBatchEmailId(gcisBatchEmail.getId());
             });
@@ -1315,7 +1315,7 @@ public class CertInfoServiceImpl implements CertInfoService {
 
 
     @Transactional
-    public GcisBatchEmail createGcisBatchEmail(InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml, String listName, Long fileId){
+    public GcisBatchEmail createGcisBatchEmail(String examProfileSerialNo, InsertGcisBatchEmailDto insertGcisBatchEmailDto, EmailTemplate notifyEmailTemplate, String processedXml, String listName, Long fileId){
 
 
         GcisBatchEmail gcisBatchEmail = new GcisBatchEmail();
@@ -1326,6 +1326,7 @@ public class CertInfoServiceImpl implements CertInfoService {
         gcisBatchEmail.setGcisNotiListName(listName);
         gcisBatchEmail.setGcisTemplateName(listName);
         gcisBatchEmail.setFileId(fileId);
+        gcisBatchEmail.setExamProfileSerialNo(examProfileSerialNo);
         gcisBatchEmailRepository.save(gcisBatchEmail);
         return gcisBatchEmail;
     }

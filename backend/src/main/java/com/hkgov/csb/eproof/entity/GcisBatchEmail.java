@@ -73,14 +73,17 @@ public class GcisBatchEmail extends BaseEntity {
     @JoinColumn(name = "file_id", insertable = false, updatable = false)
     private File file;
 
-    @Transient
-    private String examProfileSerialNo;
+    @Column(name = "exam_profile_serial_no")
+    private String examProfileSerialNo ;
 
-    public String getExamProfileSerialNo() {
-        for(CertInfo certInfo : certInfoList){
-            return certInfo.getExamProfileSerialNo();
-        }
-        return null;
-    }
+//    @Transient
+//    private String examProfileSerialNo;
+//
+//    public String getExamProfileSerialNo() {
+//        for(CertInfo certInfo : certInfoList){
+//            return certInfo.getExamProfileSerialNo();
+//        }
+//        return null;
+//    }
 
 }
